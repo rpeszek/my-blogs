@@ -1,0 +1,1 @@
+cp -a _site/. ../rpeszek.github.io/.

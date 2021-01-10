@@ -1,0 +1,8 @@
+
+resolver: lts-16.27
+
+packages:
+- .
+
+extra-deps: 
+- hakyll-4.13.4.0
