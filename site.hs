@@ -15,6 +15,7 @@ main = hakyll $ do
         route   idRoute
         compile compressCssCompiler
 
+    -- contact is currently not visible
     match (fromList ["about.markdown", "contact.markdown"]) $ do
         route   $ setExtension "html"
         compile $ pandocCompiler
