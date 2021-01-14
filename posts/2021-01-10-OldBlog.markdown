@@ -7,11 +7,11 @@ I used to blog here: [Opinions and Programming](http://rpeszek.blogspot.com/).
 
 My most read blogs were the _I don't like Hibernate and Grails_ series. It presented some lessons learned from using Grails in anger. Here are the direct links: 
 the series started with [Part 1](http://rpeszek.blogspot.com/2014/08/i-dont-like-hibernate-and-grails-part-1.html) and ended with [Part 11](http://rpeszek.blogspot.com/2014/10/i-dont-like-hibernategrails-part-11_31.html).
-This series topped the list of most read Groovy language blogs (according to [groovyblogs.org](groovyblogs.org)) for several months back in 2014.
+This series topped the list of most read Groovy language blogs (according to [groovyblogs.org](http://groovyblogs.org)) for several months back in 2014.
 
 _Opinions and Programming_ site commemorates my programming journey and my fascination with functional programming. Includes my old posts about [_figlet_](https://github.com/rpeszek/fpiglet) (functional programming library I wrote for Groovy) staring from
 [this old post](http://rpeszek.blogspot.com/2013/06/making-groovy-more-functional-fpiglet.html) 
-to [Monadic Comprehensions in Groovy/Fpiglet](rpeszek.blogspot.com/2013/08/monadic-comprehensions-in-groovy-and.html). Functional programming never caught on in Groovy, _fpiglet_ was one of the first attempts.  I also done functional side trips like a [Groovy take on Y-combinator](http://rpeszek.blogspot.com/2013/10/functional-groovy-y-combinator-learning.html).
+to [Monadic Comprehensions in Groovy/Fpiglet](http://rpeszek.blogspot.com/2013/08/monadic-comprehensions-in-groovy-and.html). Functional programming never caught on in Groovy, _fpiglet_ was one of the first attempts.  I also done functional side trips like a [Groovy take on Y-combinator](http://rpeszek.blogspot.com/2013/10/functional-groovy-y-combinator-learning.html).
 
 More recent blogs were more and more focused on Haskell. I have stopped contributing to this blog in 2017.  There are many excellent Haskell blogs out there already.
 
@@ -21,7 +21,7 @@ Whatever the actual stats were, the small viewership contributed to my decision 
 Playing with code is so much more fun that writing about it.  But I still settled on a hybrid. 
 I switched to literate Haskell programs and deployed these as _wiki_ pages on my github projects:  
 [Milewski's Category Theory for Programmers notes](https://github.com/rpeszek/notes-milewski-ctfp-hs/wiki)  
-[Idris TTD book notes](https://github.com/rpeszek/notes-milewski-ctfp-hs/wiki).  
+[Idris TTD book notes](https://github.com/rpeszek/IdrisTddNotes/wiki).  
 These seemed better than blog to me.
 The wiki introduction to my CTFP notes ended up copied on the old blog site [Why read CPFP?](http://rpeszek.blogspot.com/2018/02/) but it was just a pandoc copy of the corresponding wiki page.
 
