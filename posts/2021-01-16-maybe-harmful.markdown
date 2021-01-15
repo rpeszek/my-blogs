@@ -3,34 +3,34 @@ title: Maybe Considered Harmful
 author: Robert Peszek
 ---
 
-**Motivating References:**  
+#### Motivating References:
+
 I was very happy to find Michael Snoyman's [_add_blank_target Haskell The Bad Parts](https://www.snoyman.com/blog/2020/10/haskell-bad-parts-1/) blog.    
 I was also motivated by [_add_blank_target Elementary Programming](https://www.michaelpj.com/blog/2021/01/02/elementary-programming.html)
-post and its discussion on [_add_blank_target reddit](https://www.reddit.com/r/haskell/comments/kst0d3/elementary_programming/).
+post ([_add_blank_target reddit](https://www.reddit.com/r/haskell/comments/kst0d3/elementary_programming/)).
+
+**Similar:** [_add_blank_target reddit data_maybe_harmful](https://www.reddit.com/r/haskell/comments/jxj8i/data_maybe_harmful/)
 
 ## Nutshell
 
-`Maybe` is the functional answer to `null` - the [_add_blank_target billion dollar mistake](https://en.wikipedia.org/wiki/Tony_Hoare).  I claim that using `Maybe` can still be problematic.  
+`Maybe` is the functional answer to `null` - the [_add_blank_target billion dollar mistake](https://en.wikipedia.org/wiki/Tony_Hoare).  I claim that using `Maybe` can still be problematic.  This post is Haskell specific.
 
-IMO `Maybe` is often overused.  I have started to question the use of `Maybe` every time I see it in the code base I maintain.  The result is either accepting its usage or rewriting the code to use `Either err`.  This approach has been effective in creating more robust code.  I am not claiming that `Maybe` has no place in well written code, only that its use should be closely examined.  This post shares a prospective of someone who maintains a complex Haskell code base.  I have seen brilliant code that have been hard to maintain because of overuse of `Maybe`.
+IMO `Maybe` is often overused.  I have started to question the use of `Maybe` every time I see it in the code base I maintain.  The result is either accepting its usage or rewriting the code to use `Either err`.  This approach has been effective in creating a more robust code.  I am not claiming that `Maybe` has no place in well written code, only that its use should be closely examined.  This post shares a prospective of someone who maintains a complex Haskell code base.  I have seen brilliant code that has been hard to maintain because of its overuse of `Maybe`.
 
 `Maybe` improves over `null`.  But it does not supersede it. Languages that have `null` also have easy access to logging, stack traces etc.  
 
 `Maybe` typically represents data that can be _missing_ or computation that can result in an _unknown error_.  
 What you typically care about is _what data is missing_ and _what is the error_.  
 
-_Code correctness_, _reasoning about code_ are almost defining aspects of FP.  _Reasoning about code_ typically refers to some advanced use of the type system or formal methods.   IMO "reasoning about code" should start with reasoning about errors and corner cases (like missing data). This is why the use of `Maybe` needs to be examined and questioned.  In my experience this aspect of reasoning about code is often overlooked.
+_Code correctness_, _reasoning about code_ are, arguably, the defining aspects of FP.  _Reasoning about code_ typically refers to some advanced use of the type system or formal methods.   IMO "reasoning about code" should start with reasoning about errors and corner cases (like missing data). This is why the use of `Maybe` needs to be examined and questioned.  In my experience this aspect of reasoning about code is often overlooked.
 
-Reasoning about errors is not easy
-
-*  Types can't help with errors that bypass the type system (e.g. `error :: String -> a`)
-*  Nothing can recovert intentionally suppressed errors (pun not intended)
-
-This post focus is the second bullet.  
+Reasoning about errors is not easy.  Type system can't help with errors that bypass it (e.g. `error :: String -> a`).
+It can't help with errors which were intentionally suppressed into `Nothing` either (the focus of this post).
+ 
 My points / pleas are:
 
-*  The ecosystem would be better without convenience combinators that return `Maybe` if equivalent returning `Either` exists or are possible
-*  Examples / tutorials should favor `Either` over `Maybe`
+*  The ecosystem would be better without offering convenience combinators that return `Maybe` if equivalent returning `Either` exists 
+*  Examples, tutorials, blog posts should favor `Either` over `Maybe`
 
 ## Error Clarity Rule  
 
@@ -97,10 +97,8 @@ This post provides real-world examples of similar problems.
 
 
 ## Harmful Real-World Examples
-
-I am trying to focus here on things that can be found in the public domain. Some pain points from my day job have impacted my choice of examples.  
+ 
 These are in no particular order, other than my presentation reuses types defined earlier.
-
 
 ### `Maybe` on Hackage
 
@@ -127,7 +125,7 @@ class FromMultipart tag a where
   fromMultipart :: MultipartData tag -> Maybe a
 ```
 
-Any typo, missed form field, wrong form field type submitted from the calling program result was a meaningless 400 error.  
+Any typo, missed form field, wrong form field type submitted from the calling program resulted in a meaningless 400 error.  
 To work around this issue I ended up resorting to
 implementing `fromMultipart` in `Either MultiformError` monad and converting it to `Maybe` with something like that:
 
@@ -142,19 +140,20 @@ loggedMaybe (Right r) = Just r
 ```
 to, at least, get some logs.
 
-In just one project, that saved me hours in troubleshooting cost.
+In just one project, that saved me hours in both new development and troubleshooting cost.  
 For a more complex multipart form that implements both `FromMultipart` and `ToMultipart` by hand, verifying that 
-`fromMultipart . toMultipart` is the identity would have been hard
-without some information about errors.
+`fromMultipart . toMultipart` is the identity would have been very hard
+without some information about errors.  If the multipart is called from a different program, different language ...
 
 
+**Convenience Combinators:**   
 It should be noted that many popular libraries offer convenience `Maybe` functions even though it is very easy to write this natural transformation: 
 
 ``` haskell
 unExplain :: Either err a -> Maybe a
 ``` 
 
-Why is that?  Why not just provide `Either` versions?  Looking just at _aeson_:
+Why is that?  Why not just provide `Either` versions?  Looking at _aeson_ as example:
 ``` haskell
 decode :: FromJSON a => ByteString -> Maybe a
 eitherDecode :: FromJSON a => ByteString -> Either String a 
@@ -170,6 +169,7 @@ Having `aeason` in spotlight, I like this part of the [_add_blank_target documen
 > *  fail yields a custom error message: it is the recommended way of reporting a failure;
 > *  empty (or mzero) is uninformative: use it when the error is meant to be caught by some (<|>);
 
+Overuse of `mzero` in parsing code is as bad as the overuse of `Maybe`.
 
 ### Cut `catMaybes`
 
@@ -186,7 +186,7 @@ partitionEithers :: [Either e a] -> ([e], [a])
 ```
 would not improve the code robustness.
 
-It is mostly the same principle.  If you do not care about what data was rejected and why, then use `catMaybes`. If you care use `partitionEithers`. I question use of `catMaybes` in production code.  Processing large amounts of data being one possible exception.
+I question use of `catMaybes` in production code.  
 
 
 ### HKD pattern
@@ -427,9 +427,9 @@ IMO maintainable code using `<|>` should avoid including "catch all" elements.
 The main concern about `<|>` is that it can silence errors in your code that you would benefit from knowing about (a real-world maintainer experience).   
 Paraphrasing Prachett's Granny Weatherwax:  it is not about the code you want, it is about the code you need.  
 
-There is currently no `Alternative` instance for `Either err` but there is one for `Maybe`.  This creates temptations...   
+There is currently no `Alternative` instance for `Either err` but there is one for `Maybe`. 
+This creates temptation to `unExplain` the errors ...   
 If you are using it with `Maybe`, then you do not care about the error anyway.  
-It is, again, about confidence in the code and in the data.  I question it when I see it.
 
 
 ## Good uses of Maybe

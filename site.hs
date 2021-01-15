@@ -81,8 +81,8 @@ main = hakyll $ do
 --------------------------------------------------------------------------------
 myFeedConfiguration :: FeedConfiguration
 myFeedConfiguration = FeedConfiguration
-    { feedTitle       = "Infrequent but Passionate Programming Blog"
-    , feedDescription = "Infrequent but Passionate Programming Blog Feed"
+    { feedTitle       = "Pragmatic, Infrequent, Lambda Blog"
+    , feedDescription = "Pragmatic, Infrequent, Lambda Blog Feed"
     , feedAuthorName  = "Robert Peszek"
     , feedAuthorEmail = "rpeszek.io@gmail.com"
     , feedRoot        = "https://rpeszek.github.io/"
