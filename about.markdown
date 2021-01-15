@@ -18,7 +18,22 @@ blog = do
     blog
 ```
 
+**Links:**
+
+*  This blog [_add_blank_target discussions](https://github.com/rpeszek/rpeszek.github.io/discussions)
+*  This blog [_add_blank_target source code](https://github.com/rpeszek/my-blogs)
+
 **About me:** Currently, I work as a Haskell Developer.  
 I have a long history of mainstream programming work, mostly using Java and friends (Groovy, JS, C#, ...).  
 My pet projects use Haskell and friends (Idris, Purescript, Elm, Scalaz, ...).
  
+*  My old blog [_add_blank_target Opinions and Programming](http://rpeszek.blogspot.com/)
+*  My [_add_blank_target github page](https://github.com/rpeszek)
+*  My [_add_blank_target Linked-in](https://www.linkedin.com/in/robert-peszek-20252452/)
+*  Infrequent reddit user [_add_blank_target u/RobertPeszek](https://www.reddit.com/user/RobertPeszek)
+*  Infrequent [_add_blank_target quora user](https://www.quora.com/profile/Robert-Peszek-1)
+*  Infrequent [_add_blank_target stackoverflow user](https://stackoverflow.com/users/3626747/robert-peszek)
+
+
+
+

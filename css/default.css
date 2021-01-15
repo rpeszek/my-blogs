@@ -25,6 +25,7 @@ nav a {
 nav a:hover {
   color: #00F;
 }
+
 footer {
   margin-top: 3rem;
   padding: 1.2rem 0;
@@ -33,13 +34,23 @@ footer {
   color: #555;
 }
 
+footer span {
+  padding: 0 .1rem;
+}
+
 h1 {
-  font-size: 2.4rem;
+  font-size: 2.6rem;
   color: rgb(0, 62, 73)
 }
 
 h2 {
-  font-size: 2rem;
+  padding-top: 2rem;
+  font-size: 2.4rem;
+}
+
+h3 {
+  padding-top: 2rem;
+  font-size: 2.2rem;
 }
 
 article .header {
