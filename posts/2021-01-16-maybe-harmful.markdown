@@ -143,8 +143,8 @@ loggedMaybe (Right r) = Just r
 to, at least, get some logs.
 
 In just one project, that saved me hours in troubleshooting cost.
-I have implemented both `FromMultipart` and `ToMultipart` which yields a property that
-`fromMultipart . toMultipart` is the identity.  Just verifying that property would have been hard
+For a more complex multipart form that implements both `FromMultipart` and `ToMultipart` by hand, verifying that 
+`fromMultipart . toMultipart` is the identity would have been hard
 without some information about errors.
 
 
