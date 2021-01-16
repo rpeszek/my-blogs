@@ -6,7 +6,7 @@ title: About
 **Infrequent:** I do not blog much.  Besides, there are many excellent functional programming blogs already. I will commit a post if something really bugs me or I feel very passionate about a topic that is not otherwise covered by people smarted than me  
 It will be about programming, most likely functional programming.  
 
-**Pragmatic:**  My interest is in things like maintainability, correctness.  These can easily get very theoretical but the underlying pragmatic benefits is what interests me.
+**Pragmatic:**  My interests are in software maintainability and correctness.  These can easily get very theoretical but the underlying pragmatic benefits and challenges is what interests me.
 
 ``` haskell
 blog = do 
@@ -26,15 +26,15 @@ blog = do
 *  This blog [_add_blank_target source code](https://github.com/rpeszek/my-blogs)
 *  My old blog [_add_blank_target Opinions and Programming](http://rpeszek.blogspot.com/)
 
-**About me:** Currently, I work as a Haskell Developer.  
-I have a long history of mainstream programming work, mostly using Java and friends (Groovy, JS, C#, ...).  
+**About me:**  I work as a Haskell Developer.  
+I have a long history of mainstream programming work, mostly using Java and friends (Groovy, JS, C#, C++, ...).  
 My pet projects use Haskell and friends (Idris, Purescript, Elm, Scalaz, ...).
  
 *  My [_add_blank_target github page](https://github.com/rpeszek)
-*  My [_add_blank_target Linked-in](https://www.linkedin.com/in/robert-peszek-20252452/)
-*  Infrequent [_add_blank_target reddit user](https://www.reddit.com/user/RobertPeszek) (u/RobertPeszek)
-*  Infrequent [_add_blank_target quora user](https://www.quora.com/profile/Robert-Peszek-1)
-*  Infrequent [_add_blank_target stackoverflow user](https://stackoverflow.com/users/3626747/robert-peszek)
+*  My [_add_blank_target linked-in](https://www.linkedin.com/in/robert-peszek-20252452/)
+*  Infrequent [_add_blank_target reddit contributor](https://www.reddit.com/user/RobertPeszek) (u/RobertPeszek)
+*  Infrequent [_add_blank_target quora contributor](https://www.quora.com/profile/Robert-Peszek-1)
+*  Infrequent [_add_blank_target stackoverflow contributor](https://stackoverflow.com/users/3626747/robert-peszek)
 
 
 
