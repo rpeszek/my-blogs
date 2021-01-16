@@ -5,32 +5,38 @@ author: Robert Peszek
 
 #### Motivating References:
 
-I was very happy to find Michael Snoyman's [_add_blank_target Haskell The Bad Parts](https://www.snoyman.com/blog/2020/10/haskell-bad-parts-1/) blog.    
+I was very happy to find Michael Snoyman's [_add_blank_target Haskell The Bad Parts](https://www.snoyman.com/blog/2020/10/haskell-bad-parts-1/) series.    
 I was also motivated by [_add_blank_target Elementary Programming](https://www.michaelpj.com/blog/2021/01/02/elementary-programming.html)
 post ([_add_blank_target reddit](https://www.reddit.com/r/haskell/comments/kst0d3/elementary_programming/)).
 
 **Similar:** [_add_blank_target reddit data_maybe_harmful](https://www.reddit.com/r/haskell/comments/jxj8i/data_maybe_harmful/)
 
+
+This post is Haskell specific.   
+This post treats the term 
+_error_ colloquially, it does not try to distinguish between [_add_blank_target _exceptions_ and _errors_](https://wiki.haskell.org/Error_vs._Exception).
+
 ## Nutshell
 
-`Maybe` is the functional answer to `null` - the [_add_blank_target billion dollar mistake](https://en.wikipedia.org/wiki/Tony_Hoare).  I claim that using `Maybe` can still be problematic.  This post is Haskell specific.
+`Maybe` is the functional answer to `null` - the [_add_blank_target billion dollar mistake](https://en.wikipedia.org/wiki/Tony_Hoare).  I claim that using `Maybe` can still be problematic.  
 
-IMO `Maybe` is often overused.  I have started to question the use of `Maybe` every time I see it in the code base I maintain.  The result is either accepting its usage or rewriting the code to use `Either err`.  This approach has been effective in creating a more robust code.  I am not claiming that `Maybe` has no place in well written code, only that its use should be closely examined.  This post shares a prospective of someone who maintains a complex Haskell code base.  I have seen brilliant code that has been hard to maintain because of its overuse of `Maybe`.
+IMO `Maybe` is often overused.  I have started to question the use of `Maybe` every time I see it in the code base I maintain.  The result is either accepting its usage or rewriting the code to use `Either`.  This approach has been effective in creating a more robust code.  I am not claiming that `Maybe` has no place in well written code, only that its use should be closely examined.  I have seen brilliant code that has been hard to maintain because of its overuse of `Maybe`. This post shares a prospective of someone who maintains a complex Haskell code base. 
 
 `Maybe` improves over `null`.  But it does not supersede it. Languages that have `null` also have easy access to logging, stack traces etc.  
 
-`Maybe` typically represents data that can be _missing_ or computation that can result in an _unknown error_.  
+`Maybe` typically represents data that can be _missing_ or a computation that can result in an _unknown error_.  
 What you typically care about is _what data is missing_ and _what is the error_.  
 
 _Code correctness_, _reasoning about code_ are, arguably, the defining aspects of FP.  _Reasoning about code_ typically refers to some advanced use of the type system or formal methods.   IMO "reasoning about code" should start with reasoning about errors and corner cases (like missing data). This is why the use of `Maybe` needs to be examined and questioned.  In my experience this aspect of reasoning about code is often overlooked.
 
 Reasoning about errors is not easy.  Type system can't help with errors that bypass it (e.g. `error :: String -> a`).
-It can't help with errors which were intentionally suppressed into `Nothing` either (the focus of this post).
+It can't help with exceptions which were intentionally suppressed into `Nothing` either (the focus of this post).  And there are other complexities beyond the scope of this post.
  
 My points / pleas are:
 
-*  The ecosystem would be better without offering convenience combinators that return `Maybe` if equivalent returning `Either` exists 
+*  The ecosystem would be better off without offering convenience combinators that return `Maybe` if an equivalent returning `Either` exists 
 *  Examples, tutorials, blog posts should favor `Either` over `Maybe`
+*  Developers should be careful about not overusing `Maybe`
 
 ## Error Clarity Rule  
 
@@ -130,13 +136,13 @@ To work around this issue I ended up resorting to
 implementing `fromMultipart` in `Either MultiformError` monad and converting it to `Maybe` with something like that:
 
 ``` haskell
-loggedMaybe ::  Either MultipartException a -> Maybe a
-loggedMaybe (Left err) = do
+loggedMultipartMaybe ::  Either MultipartException a -> Maybe a
+loggedMultipartMaybe (Left err) = do
     let logDetails = ...
     seq 
       (debugLogger logDetails) -- uses unsafePeformIO to match your logging style
       Nothing
-loggedMaybe (Right r) = Just r 
+loggedMultipartMaybe (Right r) = Just r 
 ```
 to, at least, get some logs.
 
@@ -162,18 +168,18 @@ parseMaybe :: (a -> Parser b) -> a -> Maybe b
 ```
 the name `decode` is suggestive of being the one commonly used.
 
-Having `aeason` in spotlight, I like this part of the [_add_blank_target documentation](https://hackage.haskell.org/package/aeson-1.5.5.1/docs/Data-Aeson-Types.html##v:parse):
+Having `aeason` in the spotlight, I like this part of their [_add_blank_target documentation](https://hackage.haskell.org/package/aeson-1.5.5.1/docs/Data-Aeson-Types.html##v:parse):
 
-> The basic ways to signal a failed conversion are as follows:
+> _The basic ways to signal a failed conversion are as follows:_
 >
-> *  fail yields a custom error message: it is the recommended way of reporting a failure;
-> *  empty (or mzero) is uninformative: use it when the error is meant to be caught by some (<|>);
+> *  _fail yields a custom error message: it is the recommended way of reporting a failure;_
+> *  _empty (or mzero) is uninformative: use it when the error is meant to be caught by some (<|>);_
 
 Overuse of `mzero` in parsing code is as bad as the overuse of `Maybe`.
 
 ### Cut `catMaybes`
 
-I am yet to see real world example where the replacement of 
+I am yet to see a real world example where the replacement of 
 
 ``` haskell
 catMaybes :: [Maybe a] -> [a]
@@ -192,7 +198,7 @@ I question use of `catMaybes` in production code.
 ### HKD pattern
 
 Higher-Kinded Data pattern is super cool and can be very useful.  It would take me quite a bit of space to describe it here, fortunatelly this post does it form me:  [_add_blank_target reasonablypolymorphic on HKD pattern](https://reasonablypolymorphic.com/blog/higher-kinded-data/).
-My example follows reasonablypolymorphic blog closely.
+My example follows _reasonablypolymorphic_ blog closely.
 
 In nutshell, we can create a record type like 
 
@@ -204,11 +210,11 @@ data Person f = Person {
   } 
 ``` 
 parametrized by a type of kind `* -> *` like `Maybe` or `Identity`.  All or some of the fields in that record type have an `f` in front of them.   
-_HKD Patter_ is about using generic programming to transform that record based on simple atomic operations that work on the fields.  
+_HKD Patter_ is about using generic programming to transform that record based on operations that work on the fields.  
 For example, we can hoist `forall a . f a -> g a` functions to `hkd f -> hkd g` (here `Person f -> Person g`). 
 
-The example described in the above post is interesting since it uses `Maybe`.  Imagine that `Person` has a long list of fields and there is a web form for entering them.   
-We get, for free, a completely generic validation function that, when restricted to our `Person` type, looks like this:
+Imagine that `Person` has a long list of fields and there is a web form for entering them.   
+The post descibes, a completely generic, validation function that, when restricted to our `Person` type, looks like this:
 
 ``` haskell
 validate :: Person Maybe -> Maybe (Person Identity)
@@ -217,12 +223,12 @@ validate :: Person Maybe -> Maybe (Person Identity)
 I hate when this is done to me:  it took 5 minutes to enter the information, the submit button is grayed out and I see no way to move forward.  Typically, when that happens, it is caused by a JavaScript error.  
 
 In this example it is not a programming bug, it is a design decision:  a very sophisticated way to check that user entered all fields that does not provide information about which fields were missed.  
-Web form data entry aside, I challenge you to find one meaningful example where the above `validate` is useful. Maybe a data science code that processes massive amount of data and requires all fields to be present to be useful?  All examples I can come up with seem far-fetched.
+Web form data entry aside, I challenge you to find one meaningful example where the above `validate` is useful. Maybe a data science code that processes massive amount of data and requires all fields to be present to be useful?  All examples I can come up with seem far-fetched and still would benefit from having `Either`.
 
 Questions I am asking:
 
 - Would you expect a production code somewhere out there that validates user input using HKD pattern and actually uses `Maybe`?
-- Did reasonablypolymorphic confuse or simplify things by using `Maybe` in its example?
+- Did _reasonablypolymorphic_ confuse or simplify things by using `Maybe` in its example?
 
 In that blog post `Maybe` is not just in the `validate` function. The post defines the whole `GValidate` boilerplate that assumes `Maybe`. 
 
@@ -243,7 +249,7 @@ data FieldInfo = ...
 validate :: Person (Either FieldInfo) -> Either [FieldInfo] (Person Identity)
 ```
 
-Checkout the documentation for the [_add_blank_target barbies](https://hackage.haskell.org/package/barbies) package, it comes with exactly such example!  Notice, some boilerplate work is still needed to annotate missing values with field information:
+Checkout the documentation for the [_add_blank_target barbies](https://hackage.haskell.org/package/barbies) package, it comes with exactly this example!  Notice, some boilerplate work is still needed to annotate missing values with field information:
 
 ``` haskell
 addFieldInfo ::  Person Maybe -> Person (Either FieldInfo) 
@@ -284,10 +290,8 @@ validateEither :: Person' (Either FieldInfo FieldData) -> Either FieldInfo (Pers
 validateEither = traverse id
 ```
 
-New `validateEither` is not as good as _barbies_ version, it gives user only one of the fields they missed.  
+New `validateEither` is not as good as the _barbies_ version, it gives user only one of the fields they missed.  
 IMO `validateMaybe` is useless for data entry form validation.  
-
-It is the same story. `Maybe` is useful only if you do not care about why you are getting `Nothing`.  
 
 The `validateMaybe` example is here for a reason.  It directly mimics the example discussed in [_add_blank_target Elementary Programming](https://www.michaelpj.com/blog/2021/01/02/elementary-programming.html), which used
 
@@ -309,7 +313,7 @@ Besides being a natural fit for data coming in from something like a web form,
 there are other reasons for designing record types with many `Maybe` fields.  
 Here is my attempt at debunking some of them.
 
-### Recreating _Java Beans_ with `Maybe` 
+### Recreating _Java Beans_ with `Maybe` ;)
 
 Defining record types with many `Maybe` fields allows to construct such records easily if you care about only some of the fields.
 
@@ -353,7 +357,7 @@ isDrinkingAge' :: Age -> Bool
 isDrinkingAge' (Age a) = a >= 21
 ```
 
-If we feel strongly about checking age on `Person` type, we can use Haskell's ability to program with polymorphic fields: 
+If we feel strongly about checking age on the `Person` type, we can use Haskell's ability to program with polymorphic fields: 
 
 ``` haskell
 {-## LANGUAGE TypeApplications ##-}
@@ -401,9 +405,9 @@ This approach can also result in very weird data combinations if one is not care
 
 ``` haskell
 gd = (mempty :: Person Maybe) {pName = "grandpa"} -- missing age
-defaultperson = (mempty :: Person Maybe) {pName = Just "baby", pAge = Just 1} 
+baby = (mempty :: Person Maybe) {pName = Just "baby", pAge = Just 1} 
 
-grampatoddler = gd <> defaultperson -- it is easy to create surprising data
+grampatoddler = gd <> baby -- it is easy to create surprising data
 ```
   
 The reverse: `First (Maybe _)` `Monoid` instance is far less convenient to use but is much less surprising.  
@@ -428,7 +432,7 @@ The main concern about `<|>` is that it can silence errors in your code that you
 Paraphrasing Prachett's Granny Weatherwax:  it is not about the code you want, it is about the code you need.  
 
 There is currently no `Alternative` instance for `Either err` but there is one for `Maybe`. 
-This creates temptation to `unExplain` the errors ...   
+This creates temptation to `unExplain` the `err` ...   
 If you are using it with `Maybe`, then you do not care about the error anyway.  
 
 
@@ -462,14 +466,13 @@ Oversimplifications are nothing new in mathematical modeling.  Anyone who studie
 
 5.  Non production code.  Lots of Haskell code is about CS research.  Lots of Haskell code is about pet projects.  Such code does not need to be maintained in production. `Maybe` is good enough.
 
-6.  Developer can disambiguate the reason for `Nothing` so `Either` is redundant.  This is not the overuse case and is justified.  
+6.  Developer can disambiguate the reason for `Nothing` so `Either` is redundant.  This is not an overuse case and is justified.  
 
-I started with link to [_add_blank_target Elementary Programming](https://www.michaelpj.com/blog/2021/01/02/elementary-programming.html) post and want to end with it.  Would more explicit "elementary" programs help in spotting obvious things like error information loss?  I think it could.  Starting from requirements and going back to most elementary solution 
-would probably never arrive at:
+I started with link to [_add_blank_target Elementary Programming](https://www.michaelpj.com/blog/2021/01/02/elementary-programming.html) post and want to end with it.  Would more explicit "elementary" programs help in spotting obvious things like error information loss?  I think they could.  Starting from requirements and going back to most elementary solution would probably never arrive at:
 ``` haskell
 mapMaybe :: (a -> Maybe b) -> [a] -> Maybe [b]
 ```
-because requirements care about errors.  I am not necessarily advocating for avoiding abstractions,  just for not forgetting about errors on the way to them.
+if the requirements cared about errors.  I am not necessarily advocating for avoiding abstractions,  just for not forgetting about errors on the way. Don't throw the baby out with the bathwater
 
 I am sure I do not have a full understanding of why and how `Maybe` is overused.  The intent of this post is to try to start a discussion.
 
