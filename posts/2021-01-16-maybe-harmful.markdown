@@ -29,8 +29,8 @@ What you typically care about is _what data is missing_ and _what is the error_.
 
 _Code correctness_, _reasoning about code_ are, arguably, the defining aspects of FP.  _Reasoning about code_ typically refers to some advanced use of the type system or formal methods.   IMO "reasoning about code" should start with reasoning about errors and corner cases (like missing data). This is why the use of `Maybe` needs to be examined and questioned.  In my experience this aspect of reasoning about code is often overlooked.
 
-Reasoning about errors is not easy.  Type system can't help with errors that bypass it (e.g. `error :: String -> a`).
-It can't help with exceptions which were intentionally suppressed into `Nothing` either (the focus of this post).  And there are other complexities beyond the scope of this post.
+Reasoning about errors is not easy.  The type system can't help with errors that bypass it (e.g. `error :: String -> a`).
+It can't help with exceptions which were intentionally suppressed into `Nothing` _(the focus of this post)_.  And, there are other complexities.
  
 My points / pleas are:
 
@@ -153,13 +153,13 @@ without some information about errors.  If the multipart is called from a differ
 
 
 **Convenience Combinators:**   
-It should be noted that many popular libraries offer convenience `Maybe` functions even though it is very easy to write this natural transformation: 
+It should be noted that many popular packages offer convenience `Maybe` functions even though it is very easy to write this natural transformation: 
 
 ``` haskell
 unExplain :: Either err a -> Maybe a
 ``` 
 
-Why is that?  Why not just provide `Either` versions?  Looking at _aeson_ as example:
+Why is that?  Why not just provide `Either` versions?  Looking at _aeson_ as an example:
 ``` haskell
 decode :: FromJSON a => ByteString -> Maybe a
 eitherDecode :: FromJSON a => ByteString -> Either String a 
@@ -179,7 +179,7 @@ Overuse of `mzero` in parsing code is as bad as the overuse of `Maybe`.
 
 ### Cut `catMaybes`
 
-I am yet to see a real world example where the replacement of 
+I am yet to see a code where replacing
 
 ``` haskell
 catMaybes :: [Maybe a] -> [a]
@@ -190,14 +190,14 @@ with
 ``` haskell
 partitionEithers :: [Either e a] -> ([e], [a])
 ```
-would not improve the code robustness.
+would not improve its robustness.
 
 I question use of `catMaybes` in production code.  
 
 
 ### HKD pattern
 
-Higher-Kinded Data pattern is super cool and can be very useful.  It would take me quite a bit of space to describe it here, fortunatelly this post does it form me:  [_add_blank_target reasonablypolymorphic on HKD pattern](https://reasonablypolymorphic.com/blog/higher-kinded-data/).
+Higher-Kinded Data pattern is super cool and can be very useful.  This post explains what it is:  [_add_blank_target reasonablypolymorphic on HKD pattern](https://reasonablypolymorphic.com/blog/higher-kinded-data/).
 My example follows _reasonablypolymorphic_ blog closely.
 
 In nutshell, we can create a record type like 
@@ -222,7 +222,7 @@ validate :: Person Maybe -> Maybe (Person Identity)
 
 I hate when this is done to me:  it took 5 minutes to enter the information, the submit button is grayed out and I see no way to move forward.  Typically, when that happens, it is caused by a JavaScript error.  
 
-In this example it is not a programming bug, it is a design decision:  a very sophisticated way to check that user entered all fields that does not provide information about which fields were missed.  
+In this example it is not a programming bug, it is a design decision:  a very sophisticated way to check that user entered all fields that does not provide information about which fields they missed.  
 Web form data entry aside, I challenge you to find one meaningful example where the above `validate` is useful. Maybe a data science code that processes massive amount of data and requires all fields to be present to be useful?  All examples I can come up with seem far-fetched and still would benefit from having `Either`.
 
 Questions I am asking:
@@ -256,7 +256,7 @@ addFieldInfo ::  Person Maybe -> Person (Either FieldInfo)
 ```
 
 `addFieldInfo` would need to happen outside of the _HKD pattern_.  
-One can argue that a better solution would be to never ever use `Person Maybe`
+One can argue that a better solution would be to not use `Person Maybe`
 and convert user form data entry directly to `Person (Either FieldInfo)`.
 
 
@@ -339,8 +339,8 @@ test = isDrinkinAge test10YearOld
 
 I do not like this approach. It feels like a poorly typed code.   
 
-It also reminds me of `null` and hence the _Java Bean_ title. 
-([_add_blank_target Java Bean](https://stackoverflow.com/questions/1612334/difference-between-dto-vo-pojo-javabeans), was a popular pattern in Java ecosystem, a _Bean_ needs to have an empty constructor, a _setter_ / _getter_ method for each field.  _null_ fields can be considered as a code reuse mechanism:  programs need fewer "classes" of "objects" if some fields can be left as _null_.)
+It also reminds me of `null` and hence the _Java Bean_ reference. 
+(_null_ fields can be considered as a code reuse mechanism:  programs need fewer "classes" of "objects" if some fields can be left as _null_. [_add_blank_target Java Bean](https://stackoverflow.com/questions/1612334/difference-between-dto-vo-pojo-javabeans), was a popular pattern in the Java ecosystem, a _Bean_ needs to have an empty constructor, and a _setter_ / _getter_ method for each field. It seems very similar to a record type with lots of `Maybe` fields.)
 
 An easy improvement would be to create `Age` type
 
@@ -462,7 +462,7 @@ IMO these are the main causes of the overuse:
 
 4.  Sophisticated abstractions can obscure common sense.  `Maybe` is likely to fit the abstraction more often and easier than `Either`.  
 
-Oversimplifications are nothing new in mathematical modeling.  Anyone who studied, for example, mathematical physics has seen a lot of hair raisingly scary oversimplifications.  Code design appears not that different.  
+Oversimplifications are nothing new in mathematical modeling.  Anyone who studied, for example, mathematical physics has seen a lot of crazy oversimplifications.  Code design appears not that different.  
 
 5.  Non production code.  Lots of Haskell code is about CS research.  Lots of Haskell code is about pet projects.  Such code does not need to be maintained in production. `Maybe` is good enough.
 
@@ -472,7 +472,7 @@ I started with link to [_add_blank_target Elementary Programming](https://www.mi
 ``` haskell
 mapMaybe :: (a -> Maybe b) -> [a] -> Maybe [b]
 ```
-if the requirements cared about errors.  I am not necessarily advocating for avoiding abstractions,  just for not forgetting about errors on the way. Don't throw the baby out with the bathwater
+if the requirements cared about errors.  I am not necessarily advocating for avoiding abstractions,  just for not forgetting about errors on the way. Don't throw the baby out with the bathwater.
 
 I am sure I do not have a full understanding of why and how `Maybe` is overused.  The intent of this post is to try to start a discussion.
 
