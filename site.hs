@@ -37,7 +37,8 @@ main = hakyll $ do
             let feedCtx = postCtx `mappend` bodyField "description"
             posts <- fmap (take 10) . recentFirst =<<
                 loadAllSnapshots "posts/*" "content"
-            renderAtom myFeedConfiguration feedCtx posts
+            posts_ <- mapM sanitizeUrls posts    
+            renderAtom myFeedConfiguration feedCtx posts_
 
     create ["RSS.xml"] $ do
         route idRoute
@@ -45,7 +46,8 @@ main = hakyll $ do
             let feedCtx = postCtx `mappend` bodyField "description"
             posts <- fmap (take 10) . recentFirst =<<
                 loadAllSnapshots "posts/*" "content"
-            renderRss myFeedConfiguration feedCtx posts
+            posts_ <- mapM sanitizeUrls posts    
+            renderRss myFeedConfiguration feedCtx posts_
 
     create ["archive.html"] $ do
         route idRoute
