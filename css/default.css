@@ -30,6 +30,14 @@ header {
   margin-top: 1rem;
 } */
 
+.changelog div {
+   margin-top: .2rem;
+}
+
+
+.changelog ul {
+   margin-top: .2rem;
+}
 
 nav {
   text-align: right; 
