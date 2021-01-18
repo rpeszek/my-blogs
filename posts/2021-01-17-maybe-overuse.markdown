@@ -1,6 +1,7 @@
 ---
 title: Maybe Overuse, Stories About Error Information Loss
 author: Robert Peszek
+toc: true
 ---
 
 
@@ -14,8 +15,8 @@ post ([_add_blank_target reddit](https://www.reddit.com/r/haskell/comments/kst0d
 
 
 This post is Haskell specific.   
-This post treats the term 
-error colloquially, it does not try to distinguish between [_add_blank_target _exceptions_ and _errors_](https://wiki.haskell.org/Error_vs._Exception).  I particular, the term _error information_ is used here to mean the content of `err` in `Either err`.
+This post treats the term error colloquially, it does not distinguish between [_add_blank_target _exceptions_ and _errors_](https://wiki.haskell.org/Error_vs._Exception). 
+In particular, _error information loss_ refers to exceptions not errors.
 
 ## Nutshell
 

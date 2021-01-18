@@ -11,6 +11,26 @@ header {
   border-bottom: 0.2rem solid #000;
 }
 
+.toc {
+   float: right;
+}
+
+.toc .header {
+  font-size: 2rem;
+  color: #555; 
+  font-weight: bold;
+  font-style: normal;
+  margin-left: 3.8rem;
+}
+
+.toc li {
+  list-style-type: none;
+}
+/* .toc ul {
+  margin-top: 1rem;
+} */
+
+
 nav {
   text-align: right; 
 }
