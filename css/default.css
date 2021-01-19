@@ -81,6 +81,11 @@ h3 {
   font-size: 2.2rem;
 }
 
+h4 {
+  padding-top: 1rem;
+  font-size: 2rem;
+}
+
 article .header {
   font-size: 1.4rem;
   font-style: italic;

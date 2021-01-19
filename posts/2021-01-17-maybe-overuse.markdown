@@ -188,8 +188,8 @@ Overuse of `mzero` in parsing code is as bad as the overuse of `Maybe`.
 
 Number of packages try to be polymorphic and use `MonadFail` constraint to provide information about unexpected errors (e.g. _time_, _mongoDB_).  Sadly _base_ provides no standard way to retrieve this information.  The [_add_blank_target ticket](https://gitlab.haskell.org/ghc/ghc/-/issues/12160) to add `Either String` instance is a no-go for now.
 
-The packages who use `MonadFail` do not offer convenience `MonadFail` monads either.
-It seems wrong and asymmetric to force the caller to define type for retrieving error information.   
+The packages which use `MonadFail` do not offer convenience `MonadFail` monads either.
+It seems wrong and asymmetric to force the caller to define their type for retrieving error information.   
 
 But `MonadFail` has `Maybe` instance!  I strongly believe in _make writing good code easy, bad code hard_ design principle.  This is clearly violated here.
 
