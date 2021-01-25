@@ -1,6 +1,13 @@
 ---
 title: Maybe Overuse, Stories About Error Information Loss
 author: Robert Peszek
+lastmodified: January 18, 2021
+featured: true
+summary: Discussion of Maybe Overuse anti-patterns in Haskell code
+toc: true
+changelog: <ul> 
+     <li> (Jan 18, 2021) Added <a href="#monadfail-and-maybe">MonadFail</a> subsection to <a href="#maybe-on-hackage">Maybe on Hackage</a></li> 
+     </ul>
 ---
 
 
@@ -14,8 +21,8 @@ post ([_add_blank_target reddit](https://www.reddit.com/r/haskell/comments/kst0d
 
 
 This post is Haskell specific.   
-This post treats the term 
-error colloquially, it does not try to distinguish between [_add_blank_target _exceptions_ and _errors_](https://wiki.haskell.org/Error_vs._Exception).  I particular, the term _error information_ is used here to mean the content of `err` in `Either err`.
+This post treats the term error colloquially, it does not distinguish between [_add_blank_target _exceptions_ and _errors_](https://wiki.haskell.org/Error_vs._Exception). 
+In particular, _error information loss_ refers to exceptions not errors.
 
 ## Nutshell
 
@@ -107,6 +114,8 @@ These are in no particular order, other than this presentation reuses types defi
 
 ### `Maybe` on Hackage
 
+#### _servant-multipart_ example:
+
 If you used older versions of [_add_blank_target servant-multipart](https://hackage.haskell.org/package/servant-multipart) you are familiar with 
 
 _status code 400, message "fromMultipart returned Nothing"_. 
@@ -176,6 +185,23 @@ Having `aeason` in the spotlight, I like this part of their [_add_blank_target d
 > *  _empty (or mzero) is uninformative: use it when the error is meant to be caught by some (<|>);_
 
 Overuse of `mzero` in parsing code is as bad as the overuse of `Maybe`.
+
+#### `MonadFail` and `Maybe`:
+
+Number of packages try to be polymorphic and use `MonadFail` constraint to provide information about unexpected errors (e.g. _time_, _mongoDB_).  Sadly _base_ provides no standard way to retrieve this information.  The [_add_blank_target ticket](https://gitlab.haskell.org/ghc/ghc/-/issues/12160) to add `Either String` instance is a no-go for now.
+
+The packages which use `MonadFail` do not offer convenience `MonadFail` monads either.
+It seems wrong and asymmetric to force the caller to define their type for retrieving error information.   
+
+But `MonadFail` has `Maybe` instance!  I strongly believe in _make writing good code easy, bad code hard_ design principle.  This is clearly violated here.
+
+Also, notice this part of documentation (in _base_ Control.Monad.Fail):
+
+> If your Monad is also MonadPlus, a popular definition is
+>
+>  `fail _ = mzero`
+
+_(quiet sob)_
 
 ### Cut `catMaybes`
 
@@ -443,7 +469,7 @@ I do not think that `Maybe-First` `Monoid` is necessarily bad.  There is simply 
 the conveniences it offers and its gotchas.  I prefer designs that provide more safety over accidental bugs.
 
 
-### `Alternative` typeclass
+## `Alternative` typeclass
 
 `Alternaive` `(<|>)` is very convenient tool often used with parsers.  It can be dangerous on its own merit. It can suppress error information in questionable ways if overused. 
 

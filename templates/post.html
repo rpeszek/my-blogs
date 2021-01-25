@@ -4,6 +4,15 @@
         $if(author)$
             by $author$
         $endif$
+        $if(lastmodified)$
+          <br/> Last Modified on $lastmodified$
+        $endif$
+        $if(changelog)$
+        <div class="changelog"> <div>Revision History: $changelog$ </div></div>
+        $endif$
+    </section>
+    <section>
+
     </section>
     <section>
         $body$

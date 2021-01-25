@@ -11,6 +11,47 @@ header {
   border-bottom: 0.2rem solid #000;
 }
 
+.featured li {
+  padding-bottom: 1rem;
+}
+.archived li {
+  padding-bottom: 1rem;
+}
+div.summary {
+  margin-top: .3rem;
+  color: #555;
+  font-style: italic;
+}
+
+
+.toc {
+   float: right;
+}
+
+.toc .header {
+  font-size: 2rem;
+  color: #555; 
+  font-weight: bold;
+  font-style: normal;
+  margin-left: 3.8rem;
+}
+
+.toc li {
+  list-style-type: none;
+}
+/* .toc ul {
+  margin-top: 1rem;
+} */
+
+.changelog div {
+   margin-top: .2rem;
+}
+
+
+.changelog ul {
+   margin-top: .2rem;
+}
+
 nav {
   text-align: right; 
 }
@@ -51,6 +92,11 @@ h2 {
 h3 {
   padding-top: 2rem;
   font-size: 2.2rem;
+}
+
+h4 {
+  padding-top: 1rem;
+  font-size: 2rem;
 }
 
 article .header {

@@ -1,6 +1,8 @@
 ---
 title: Why I stopped "Opinions and Programming" blog
 author: Robert Peszek
+featured: true
+summary: About my previous blog page and why I moved it to github 
 ---
 
 I used to blog here: [_add_blank_target Opinions and Programming](http://rpeszek.blogspot.com/).  

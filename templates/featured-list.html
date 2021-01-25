@@ -1,0 +1,12 @@
+<ul class="featured">
+    $for(posts)$
+      $if(featured)$
+        <li>
+            <a href="$url$">$title$</a> - $date$ 
+            $if(summary)$
+            <div class="summary">$summary$</div> 
+            $endif$ 
+        </li>
+      $endif$  
+    $endfor$
+</ul>

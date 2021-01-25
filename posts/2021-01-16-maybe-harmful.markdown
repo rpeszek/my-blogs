@@ -1,6 +1,8 @@
 ---
 title: Maybe Considered Harmful (deleted)
 author: Robert Peszek
+
+summary: Re-posted as "Maybe Overuse, Stories About Error Information Loss" 
 ---
 
 **... or stories about error information loss **
