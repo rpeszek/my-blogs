@@ -2,6 +2,8 @@
 title: Maybe Overuse, Stories About Error Information Loss
 author: Robert Peszek
 lastmodified: January 18, 2021
+featured: true
+summary: Discussion of Maybe Overuse anti-patterns in Haskell code
 toc: true
 changelog: <ul> 
      <li> (Jan 18, 2021) Added <a href="#monadfail-and-maybe">MonadFail</a> subsection to <a href="#maybe-on-hackage">Maybe on Hackage</a></li> 
