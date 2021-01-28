@@ -18,13 +18,13 @@ and assume that `a` fails and `b` succeeds.
 _A half empty glass_ makes us think about the failure of `a`:  
 _Why_ did `a` fail?   
 Would it be better if _some_ `a` failures caused the whole computation to fail?...   
-_A half full glass_ makes us ignore the failure and focus on `b`.  This is exactly the definition of `<|>`.   
+_A half full glass_ makes us ignore the failure and focus on `b`...  this is exactly the behavior of `<|>`.   
 
 Code correctness and "reasoning about code" are, arguably, the defining aspects of FP.   Typically, reasoning about code refers to some advanced use of the type system or formal methods.   
 IMO reasoning about code should start with reasoning about failures and corner cases.  In my experience, this aspect of reasoning about code is often overlooked.
 
 My goal is to consider `Alternative` from the point of view of _error information loss_. This viewpoint yields an interesting prospective on the use of `Alternative` and on its limitations.  
-My second goal is to present a useful instance that is missing in standard libraries and, probably, on Hackage.  This `Alternative` instance is (pessimistically) constructed to preserve failure information.
+My second goal is to present a useful instance that is missing in the standard library and, probably, on Hackage.  This `Alternative` instance is (pessimistically) constructed to preserve failure information.
 
 The title (and the _Pessimist_ theme) was also inspired by: 
 
@@ -106,13 +106,13 @@ I think, that is OK.
 
 _Pessimist Concerns_:   
 
+*  If you think of `empty` as a failure then (4) is problematic if you have other possible failures (e.g. failures with different error messages):  
+    `otherFailure <*> empty` is likely to be `otherFailure` not `empty`.  
 *  _(1)_ and _(4)_ together prevent expressing the concept of a critical failure  
    `f` is a critical failure if `f <|> a = f` for any `a` (and, optionally, `b <|> f = f` for any failing `b`),   
    `empty` cannot represent a critical failure because of _(1)_ (the optional requirement is prevented by _(2)_).  
    non-`empty` cannot represent a critical failure because of (4).
 *  _(7 - Left catch)_ by itself prevents expressing critical failure. 
-*  If you think of empty as a failure then (4) is problematic if you have other possible failures (e.g. failures with different error messages):  
-    `otherFailure <*> empty` is likely to be `otherFailure` not `empty`.  
 *  _(5,6)_ are likely to prevent `<|>` semantics that accumulates error information
 
 Let me return to the basic laws, particularly _(2)_: `u <|> empty  =  u`. The issue I am about to demonstrate is not just specific to parsers:
@@ -150,7 +150,7 @@ Breaking (4 - Rigth Zero) is left as an exercise.
 
 ## Real-World `Alternative` (Optimism with Experience)
 
-Here are some examples of problems arising from the use or `Alternative`
+Here are some examples of problems arising from the use of `Alternative` semantics
 
 ### Failure at the end
 
@@ -199,10 +199,11 @@ IMO, maintainable code using `<|>` should also avoid including "catch all" eleme
 
 ## Missing Instances
 
-It would be ideal if all typeclasses, in the _base_ package, that have something to do with failures (e.g. `Alternative`, `MonadFail`) came with at least one instance that allows to recover the error information.  This is, sadly, not the case for `MonadFail` (see [_add_blank_target Monoid Overuse - MonadFail](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#modadfail-and-maybe)).  
-And, as we have seen, this is not the case for `Alternative`.  
+It would be ideal if all typeclasses, in the _base_ package, that have something to do with failures (e.g. `Alternative`, `MonadFail`) came with at least one instance allowing to recover the error information.   
+This is not the case for `MonadFail` (in fact, `MonadFail` has teamed up with `MonadPlus` to suppressing error information [_add_blank_target Monoid Overuse - MonadFail](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#modadfail-and-maybe)).  
+And, as we have seen in previous section, this is not the case for `Alternative`.  
 
-Can we come up with `Alternative` instances that do a decent job of maintaining error information?  It seems, the answer is yes.  Now, we can say bye to pessimism! 
+Can we come up with `Alternative` instances that do a decent job of maintaining error information?  It seems, the answer is yes.  
 
 ### `Either [e] a`
 
@@ -255,7 +256,7 @@ could contain 1, 2 or 3 errors depending on which field fails to parse.  This is
 
 ### `Either [e] ([w], a)`  _(Right-catch with warnings)_
 
-What would really be nice, is to have a standard type like this:
+What would really be nice, is to have a standard type like this (please let me know if you have seen it somewhere on Hackage):
 
 ``` haskell
 newtype ErrWarn e w a = EW {runEW :: Either e (w, a)} deriving (Eq, Show, Functor)
@@ -364,7 +365,7 @@ Trying it with a good input:
 -- EW {runEW = Right ([],Employee {id = 123, name = "Smith John", dept = "Billing", boss = "Jim K"})}
 ```
 
-[Error at the end](todo) situation (typo in _last-first-name_):
+[Failure at the end](#failure-at-the-end) situation (typo in _last-first-name_):
 ``` haskell
 -- >>> A.parseOnly emplP "id last-firs-name dept boss2"
 -- Left "Failed reading: first-last-name not implemented yet"
@@ -373,7 +374,7 @@ Trying it with a good input:
 -- Left ["\"last-first-name\": not enough input","Failed reading: first-last-name not implemented yet"]
 ```
 
-[Permissive computation at the end](todo) situation ("boss" parsing error):
+[Permissive computation at the end](#permissive-computation-at-the-end) situation ("boss" parsing error):
 ``` haskell
 -- >>> A.parseOnly emplP "id last-first-name dept boss"
 -- Right (Employee {id = 123, name = "Smith John", dept = "Billing", boss = "Mij K bosses everyone"})
@@ -404,7 +405,7 @@ A list of interesting packages that implement `Monoid`-like semantics for `Appli
 [_add_blank_target _either_](https://hackage.haskell.org/package/either-5.0.1.1/docs/Data-Either-Validation.html)   
 [_add_blank_target _validation_](https://hackage.haskell.org/package/validation-1.1/docs/Data-Validation.html)  
 [_add_blank_target _validation-selective_](https://hackage.haskell.org/package/validation-selective-0.1.0.0/docs/Validation.html)  
-[_add_blank_target monad-validate](https://hackage.haskell.org/package/monad-validate-1.2.0.0/docs/Control-Monad-Validate.html) provides an interesting 
+[_add_blank_target _monad-validate_](https://hackage.haskell.org/package/monad-validate-1.2.0.0/docs/Control-Monad-Validate.html) provides an interesting 
 (not completely lawful) validation _Monad_ transformer that can accumulate errors, it does not implement `Alternative`
 
 This list is not complete.  Please let me know if you see a relevant work elsewhere.
@@ -427,7 +428,10 @@ I think it is.
 IMO any abstraction intended for handling failures should include failures in its semantics.   
 A typical `Alternative` instance dumps all failures into one bucket because the typeclass lacks any typing that is about failures.     
 
-Thank you for reading!
+Thank you for reading!  Please let me know if I got something wrong.
 
-reddit discussion link: TODO
+I hope this continues the discussion about _error information loss_ in Haskell.
+
+reddit discussion (TODO)  
+github discuss (TODO)
 
