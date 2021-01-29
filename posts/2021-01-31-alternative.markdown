@@ -22,7 +22,7 @@ Would it be better if _some_ `a` failures caused the whole computation to fail?.
 _A half full glass_ makes us ignore the failure and focus on `b`...  this is exactly the behavior of `<|>`.   
 
 My goal is to consider `Alternative` from the point of view of _error information loss_. This viewpoint yields an interesting prospective on the use of `Alternative` and on its limitations.  
-My second goal is to present a useful instance that is missing in the standard library and, probably, on Hackage.  This `Alternative` instance is (pessimistically) constructed to preserve failure information.
+My second goal is to present a useful instance that is missing in the standard library and, probably, on Hackage.  This `Alternative` instance is (pessimistically) constructed to preserve the failure information.
 
 I am using the term _error_ colloquially, the correct term is _exception_.  _Exception information loss_ just does not have a ring to it. 
 
@@ -62,7 +62,7 @@ Lack of backtracking is what makes the _(maga)parsec_ `Parser` not a true _Alter
 Arguably, having no automatic backtracking makes writing code hard and error prone.  There appears to be an interesting trade-off: _good error message_ vs _Alternative trueness and easier code_.    
 A great, related, reading is: [_add_blank_target Parsec: “try a <|> b” considered harmful](http://blog.ezyang.com/2014/05/parsec-try-a-or-b-considered-harmful/).
 
-The definition of `Alternative` begs this question:  Why the `Applicative` superclass?  As far as I know this is because of the intended use of `empty` and `<|>`.  We use them in the _Applicative_ context.  More on this later.
+The definition of `Alternative` begs this question:  Why the `Applicative` superclass?  As far as I know this is because of the intended use of `empty` and `<|>`.  We use them in the Applicative context.  More on this later.
 
 ## Alternative Laws, Pessimistically
 
@@ -90,9 +90,9 @@ p2 = (Employee <$> employeeIdParser <*> nameParser1) <|> (Employee <$> employeeI
 ```
 it is good to know if these approaches are equivalent.  
 Any instance of `Alternative` that tries to accumulate failures is likely to have problem satisfying the distribution laws (5,6), as the _rhs_ combines 4 potential failures and _lhs_ combines 3.   
-The question is: would you expect (5,6) to hold in the context of error information (e.g. _(mega)parsec_ error messages)?
+The question is: would you expect (5,6) to hold in the context of the error information (e.g. _(mega)parsec_ error messages)?
 My answer is: I do not!  
-The end result is that the programmer needs to make an explicit choice between `p1` and `p2` selecting one with a more desirable error output.   
+The end result is that the programmer needs to make an explicit choice between `p1` and `p2` selecting one with the more desirable error output.   
 I think, that is OK.
 
 _Pessimist Concerns_:   
@@ -252,7 +252,7 @@ could contain 1, 2 or 3 errors depending on which field fails to parse.  This is
 
 ### A Decent `Alternative`: `Either [e] ([w], a)` 
 
-What would really be nice, is to have a standard "Right-catch with warnings" `Alternative` instance (please let me know if you have seen it somewhere on Hackage):
+What would really be nice, is to have a standard "right-catch with warnings" `Alternative` instance (please let me know if you have seen it somewhere on Hackage):
 
 ``` haskell
 newtype ErrWarn e w a = EW {runEW :: Either e (w, a)} deriving (Eq, Show, Functor)
@@ -289,7 +289,7 @@ instance (Monoid w) => Monad (ErrWarn e w) where
 
 instance (Monoid e) => MonadPlus (ErrWarn e e)    
 ```
-To spare you reading the code, `ErrWarn` combines standard `Either e` and `Monoid w => (w,)` _Applicative_ and  _Monad_ semantics. The composition of these functors remains a legal _Monad_.
+To spare you reading the code, `ErrWarn` combines standard `Either e` and `Monoid w => (w,)` Monad semantics. The composition of these functors remains a legal Monad.
 
 This instance exhibits similar problems with matching the `<*>` semantics as the `Monoid e => Either e` instance from the previous section (i.e. (5,6) are not satisfied).
 
@@ -358,7 +358,7 @@ Trying it with a good input:
 -- EW {runEW = Right ([],Employee {id = 123, name = "Smith John", dept = "Billing", boss = "Jim K"})}
 ```
 
-[Failure at the end](#failure-at-the-end) situation (typo in _last-first-name_):
+[Failure at the end](#failure-at-the-end) situation (typo in `"last-first-name"`):
 ``` haskell
 -- >>> A.parseOnly emplP "id last-firs-name dept boss2"
 -- Left "Failed reading: first-last-name not implemented yet"
@@ -367,7 +367,7 @@ Trying it with a good input:
 -- Left ["\"last-first-name\": not enough input","Failed reading: first-last-name not implemented yet"]
 ```
 
-[Permissive computation at the end](#permissive-computation-at-the-end) situation ("boss" parsing error):
+[Permissive computation at the end](#permissive-computation-at-the-end) situation (`"boss"` parsing error):
 ``` haskell
 -- >>> A.parseOnly emplP "id last-first-name dept boss"
 -- Right (Employee {id = 123, name = "Smith John", dept = "Billing", boss = "Mij K bosses everyone"})
@@ -406,23 +406,20 @@ This list is not complete.  Please let me know if you see a relevant work elsewh
 
 ## Conclusions, Thoughts
 
-Problems with a questionable handling of failures is not restricted to the `Alternative` typeclass. 
-The reasons why this is the case must be very complex.
-The list I assembled in my [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#why-maybe-is-overused-possible-explanations) post seems relevant here as well.
+The reasons why errors are being overlooked are not very clear to me. I assembled a possible list when writing about the [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#why-maybe-is-overused-possible-explanations).
 
-The Pessimist theme was partially inspired by these two concepts: 
-[_add_blank_target _Negativity Bias_](https://en.wikipedia.org/wiki/Negativity_bias) and, its opposite, the [_add_blank_target _Positivity Bias_](https://link.springer.com/referenceworkentry/10.1007%2F978-94-007-0753-5_2219#:~:text=Definition,favor%20positive%20information%20in%20reasoning.) are are psychological notions that, I think, have deep relevance to the programming in general.   
-_Negativity Bias_ seems both rare and beneficial to the software programming and to the software design.   
-_Negativity Bias_ comes with a _tendency to favor negative information in reasoning_ and will make you think about "rainy day scenarios", error handling, error information.   
-_Positivity Bias_ comes with a _tendency to favor positive information in reasoning_ and will make you think about "happy path" and "sunny day scenarios".   
+The Pessimist theme was partially inspired by the following two concepts.  
+[_add_blank_target _Positivity Bias_](https://link.springer.com/referenceworkentry/10.1007%2F978-94-007-0753-5_2219#:~:text=Definition,favor%20positive%20information%20in%20reasoning.)
+and, its opposite, the [_add_blank_target _Negativity Bias_](https://en.wikipedia.org/wiki/Negativity_bias) are psychological notions that, I belive, have deep relevance to the programming in general.   
+_Positivity Bias_ includes a _tendency to favor positive information in reasoning_ and, by definition, will make you think about "happy path" and "sunny day scenarios".   
+_Negativity Bias_ includes a _tendency to favor negative information in reasoning_ and, by definition, will make you consider "rainy day scenarios", error handling, error information.   
 I think we should embrace some form of _pessimism_ and put in on the pedestal next to the principled design.  
 
 Is `Alternative` a wrong abstraction for what it is trying to do? 
-I think it is.  
-IMO any abstraction intended for handling failures should include failures in its semantics.   
-A typical `Alternative` instance dumps all failures into one bucket because the typeclass lacks any typing that is about failures.     
+I think it is.  IMO any abstraction intended for handling failures should include failures in its semantics. 
+`Alternative` does not. 
 
-I hope this continues the discussion about _error information loss_ in Haskell.   
+I hope this post will motivate more discussion about _error information loss_ in Haskell.   
 My particular interest is in discussing:
 
 *   is `ErrWarn` somewhere on Hackage and I did not see it
