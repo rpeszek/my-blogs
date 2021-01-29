@@ -2,15 +2,16 @@
 title: A Pessimist's Guide to the Alternative Typeclass
 author: Robert Peszek
 featured: true
-summary: Alternative typeclass error information loss, error collecting instance
+summary: Error information loss with Alternative and an Alternative instance that cares
 toc: true
+tags: Haskell, code-correctness, code-maintenance
 ---
 
 Code for this project can be found in my [_add_blank_target experiments](https://github.com/rpeszek/experiments) repo ([_add_blank_target alternative](https://github.com/rpeszek/experiments/tree/master/alternative) folder).  
 This is my second post dedicated to the _error information loss_ in Haskell (first was [Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html)).  
 
 ## Nutshell
-`Alternative` and `MonadPlus` are very powerful tools in the FP toolbox.  However, they are not without issues.  
+The `Alternative` typeclass is a very powerful tool in the FP toolbox.  `Alternative` instances are also known for confusing or missing error outputs. Is there a decent `Alternative` that cares about errors? 
 
 Thinking about _the glass being half empty or half full_, look at this computation:
 `a <|> b`
@@ -20,23 +21,13 @@ _Why_ did `a` fail?
 Would it be better if _some_ `a` failures caused the whole computation to fail?...   
 _A half full glass_ makes us ignore the failure and focus on `b`...  this is exactly the behavior of `<|>`.   
 
-Code correctness and "reasoning about code" are, arguably, the defining aspects of FP.   Typically, reasoning about code refers to some advanced use of the type system or formal methods.   
-IMO reasoning about code should start with reasoning about failures and corner cases.  In my experience, this aspect of reasoning about code is often overlooked.
-
 My goal is to consider `Alternative` from the point of view of _error information loss_. This viewpoint yields an interesting prospective on the use of `Alternative` and on its limitations.  
 My second goal is to present a useful instance that is missing in the standard library and, probably, on Hackage.  This `Alternative` instance is (pessimistically) constructed to preserve failure information.
-
-The title (and the _Pessimist_ theme) was also inspired by: 
-
-> _tendency to favor negative information in reasoning_
-
-this phrase spells out the process of troubleshooting programs,  
-and, is part of the definition of a psychological condition called [_add_blank_target _Negativity Bias_](https://en.wikipedia.org/wiki/Negativity_bias). 
 
 I am using the term _error_ colloquially, the correct term is _exception_.  _Exception information loss_ just does not have a ring to it. 
 
 
-## Pessimist Intro to `Alternative`
+## Pessimist's Intro to `Alternative`
 
 ``` haskell
 class Applicative f => Alternative f where
@@ -62,10 +53,10 @@ _Pessimist, First Look_:
 With a _true_ `Alternative`, the typically observed behavior is: If all alternatives fail, then the error information comes from the last tried computation.  
 
 I am not that deeply familiar with GHC internals.  However, GHC compiler often behaves in a very similar way.  For example, GHC message could indicate a problem with unifying types, it may suggest that my function needs to be applied to more arguments, ... while the real issue is that the code is missing a typeclass instance somewhere or something else is happening that is completely not related to the error message.  Whatever the reason for this behavior is,  all Haskell developers get thrown for a loop from time to time.  
-Using typical `Alternative` instances, we are likely to do the same to out users. 
+Using `Alternative`, we are likely to do the same to out users. 
 
 
-**Side-Note:**  Error information that comes from the use of `(<|>)` is more complex with _not true_ `Alternative`-s.  
+**Side-Note:**  Error information that comes from the use of `(<|>)` can be much better with _not true_ `Alternative`-s.  
 _parsec_ and _megaparsec_ packages implemented sophisticated ways to provide better error messages by looking at things like longest parsed path.  This functionality is related to the lack of automatic backtracking in _(maga)parsec_.  
 Lack of backtracking is what makes the _(maga)parsec_ `Parser` not a true _Alternative_ (it violates Alternative laws).  
 Arguably, having no automatic backtracking makes writing code hard and error prone.  There appears to be an interesting trade-off: _good error message_ vs _Alternative trueness and easier code_.    
@@ -106,13 +97,13 @@ I think, that is OK.
 
 _Pessimist Concerns_:   
 
-*  If you think of `empty` as a failure then (4) is problematic if you have other possible failures (e.g. failures with different error messages):  
+*  `empty` typically represents a failure. (4) is problematic if you want to have other possible failures (e.g. failures with different error messages):  
     `otherFailure <*> empty` is likely to be `otherFailure` not `empty`.  
-*  _(1)_ and _(4)_ together prevent expressing the concept of a critical failure  
-   `f` is a critical failure if `f <|> a = f` for any `a` (and, optionally, `b <|> f = f` for any failing `b`),   
-   `empty` cannot represent a critical failure because of _(1)_ (the optional requirement is prevented by _(2)_).  
-   non-`empty` cannot represent a critical failure because of (4).
-*  _(7 - Left catch)_ by itself prevents expressing critical failure. 
+*  _(1 or 2)_ and _(4)_ prevent expressing the concept of a critical failure  
+    here, `f` is a critical failure if `f <|> a = f` for any `a` and `b <|> f = f` for any non-failing `b`,   
+    (i.e. terminate `<|>` with ability to recover outside of `<|>.`)   
+   `empty` cannot represent a critical failure because the first requirement is prevented by _(1)_, the second by _(2)_.   
+    non-`empty` cannot represent a critical failure because of (4).
 *  _(5,6)_ are likely to prevent `<|>` semantics that accumulates error information
 
 Let me return to the basic laws, particularly _(2)_: `u <|> empty  =  u`. The issue I am about to demonstrate is not just specific to parsers:
@@ -143,7 +134,7 @@ Here are the results:
 ```
 So we broke the required second law!  Incidentally, we would not be able to break the law using `testSuccess`. 
 
-One way to look at this, and I believe this is how people are looking at this issue, is that any failure with any error message is considered equivalent to `empty`.  The laws hold if error messages are ignored.  Somewhat of a downer if you care about the error information.
+One way to look at this, and I believe this is how people are looking at this issue, is that any failure with any error message is considered equivalent to `empty`.  The laws hold if error information is ignored.  Somewhat of a downer if you care about the error information.
 
 Breaking (4 - Rigth Zero) is left as an exercise. 
 
@@ -154,7 +145,7 @@ Here are some examples of problems arising from the use of `Alternative` semanti
 
 ### Failure at the end
 
-Laws are important, functional programmers use laws (sometimes even subconsciously) when thinking about the code and when implementing or designing code.  
+Laws are important, functional programmers use laws (sometimes even subconsciously) when thinking about, implementing, or designing the code.  
 The second law tells us that we can slap a computation that always errors out at the end without messing things up.  
 
 Consider this (a slightly adjusted real-world) situation: your app needs to talk to an external website which can decide to do A, B, or C and will reply with A, B, or C json message.  Based on what happened, your app will need to do different things.  You need to parse the reply to know how to proceed.  
@@ -195,12 +186,17 @@ specificComputation <|> bestEffortComputation
 The specs may change and you will never learn that `specificComputation` no longer works because `bestEffortComputation` effectively hides the issue.  This is the behavior of all the pure instances of `Alternative` I know about.
 This is _how Alternative_ works.  (... or is it? See next section)  
 
-IMO, maintainable code using `<|>` should also avoid including "catch all" elements.  
+IMO, maintainable code using `<|>` should also avoid including "catch all" elements.    
+So restrictive at the end is bad, permissive is bad
+
+> _In fact, it's better if you don't speak at all, Peregrin Took._
+
+`Alternative` makes it super easy to write code,  it does not make it easy to maintain it.
 
 ## Missing Instances
 
 It would be ideal if all typeclasses, in the _base_ package, that have something to do with failures (e.g. `Alternative`, `MonadFail`) came with at least one instance allowing to recover the error information.   
-This is not the case for `MonadFail` (in fact, `MonadFail` has teamed up with `MonadPlus` to suppressing error information [_add_blank_target Monoid Overuse - MonadFail](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#modadfail-and-maybe)).  
+This is not the case for `MonadFail` (especially when combined with `MonadPlus`: [_add_blank_target Monoid Overuse - MonadFail](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#monadfail-and-maybe)).  
 And, as we have seen in previous section, this is not the case for `Alternative`.  
 
 Can we come up with `Alternative` instances that do a decent job of maintaining error information?  It seems, the answer is yes.  
@@ -254,9 +250,9 @@ employeP =
 ```
 could contain 1, 2 or 3 errors depending on which field fails to parse.  This is seems somewhat complex but, IMO, should not be a show stopper.
 
-### `Either [e] ([w], a)`  _(Right-catch with warnings)_
+### A Decent `Alternative`: `Either [e] ([w], a)` 
 
-What would really be nice, is to have a standard type like this (please let me know if you have seen it somewhere on Hackage):
+What would really be nice, is to have a standard "Right-catch with warnings" `Alternative` instance (please let me know if you have seen it somewhere on Hackage):
 
 ``` haskell
 newtype ErrWarn e w a = EW {runEW :: Either e (w, a)} deriving (Eq, Show, Functor)
@@ -270,7 +266,7 @@ instance (Monoid e) => Alternative (ErrWarn e e) where
  
 This approach, when computing `a <|> b`, does not try to compute `b` if `a` succeeds.
 Thus, this instance matches the common semantics of computing only up to the first success. The approach accumulates all errors encountered up to the point of the first success and returns them as warnings.  
-This is a lawful `Applicative` (satisfies required laws _(1-3)_) and it does not rely on any questionable unification of `empty` and errors.  
+This is a lawful `Alternative` (satisfies required laws _(1-3)_) and it does not rely on any questionable unification of `empty` and errors.  
 But we made a bit of a mockery of things:  `Alternative` no longer returns just the first successful computation, it annotates the result with warnings.  I say, that is completely OK.
 
 But wait! To have `Alternative` we need `Applicative`.
@@ -293,12 +289,9 @@ instance (Monoid w) => Monad (ErrWarn e w) where
 
 instance (Monoid e) => MonadPlus (ErrWarn e e)    
 ```
-To spare you reading the code, `ErrWarn` combines standard `Either e` and `Monoid w => (w,)` _Applicative_ semantics. The composition 
-of these functors remains a legal _Monad_.
+To spare you reading the code, `ErrWarn` combines standard `Either e` and `Monoid w => (w,)` _Applicative_ and  _Monad_ semantics. The composition of these functors remains a legal _Monad_.
 
 This instance exhibits similar problems with matching the `<*>` semantics as the `Monoid e => Either e` instance from the previous section (i.e. (5,6) are not satisfied).
-
-I think, it would also be possible to create (a decently lawful) instance that runs all computations and accumulates all encountered errors as warnings (it does not stop on the first success).  I have not verified this claim.
 
 ### Code Example
 
@@ -383,7 +376,8 @@ Trying it with a good input:
 -- Right (["\"boss1\": not enough input","\"boss2\": not enough input"],Employee {id = 123, name = "Smith John", dept = "Billing", boss = "Mij K bosses everyone"})
 ```
 
-And now, I probably should revise my recommendations for not using a restrictive computation at the end or a permissive computation at the end!
+We are no longer being thrown for a loop!  
+I probably should revise my recommendations for not using a restrictive computation at the end or a permissive computation at the end!
 
 ### It is not just about Either
 
@@ -414,24 +408,31 @@ This list is not complete.  Please let me know if you see a relevant work elsewh
 
 Problems with a questionable handling of failures is not restricted to the `Alternative` typeclass. 
 The reasons why this is the case must be very complex.
-The list I assembled in my [_add_blank_target Maybe Overuse]() post seems relevant here as well.
+The list I assembled in my [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#why-maybe-is-overused-possible-explanations) post seems relevant here as well.
 
-
-[_add_blank_target _Negativity Bias_](https://en.wikipedia.org/wiki/Negativity_bias), I mentioned at the beginning, and, its opposite, the [_add_blank_target _Positivity Bias_](https://link.springer.com/referenceworkentry/10.1007%2F978-94-007-0753-5_2219#:~:text=Definition,favor%20positive%20information%20in%20reasoning.) are are psychological notions that, I think, have deep relevance to the programming in general.   
+The Pessimist theme was partially inspired by these two concepts: 
+[_add_blank_target _Negativity Bias_](https://en.wikipedia.org/wiki/Negativity_bias) and, its opposite, the [_add_blank_target _Positivity Bias_](https://link.springer.com/referenceworkentry/10.1007%2F978-94-007-0753-5_2219#:~:text=Definition,favor%20positive%20information%20in%20reasoning.) are are psychological notions that, I think, have deep relevance to the programming in general.   
 _Negativity Bias_ seems both rare and beneficial to the software programming and to the software design.   
 _Negativity Bias_ comes with a _tendency to favor negative information in reasoning_ and will make you think about "rainy day scenarios", error handling, error information.   
 _Positivity Bias_ comes with a _tendency to favor positive information in reasoning_ and will make you think about "happy path" and "sunny day scenarios".   
-I think we should embrace some form of _pessimism_ and put in on the pedestal next to the principled design. 
+I think we should embrace some form of _pessimism_ and put in on the pedestal next to the principled design.  
 
 Is `Alternative` a wrong abstraction for what it is trying to do? 
 I think it is.  
 IMO any abstraction intended for handling failures should include failures in its semantics.   
 A typical `Alternative` instance dumps all failures into one bucket because the typeclass lacks any typing that is about failures.     
 
-Thank you for reading!  Please let me know if I got something wrong.
+I hope this continues the discussion about _error information loss_ in Haskell.   
+My particular interest is in discussing:
 
-I hope this continues the discussion about _error information loss_ in Haskell.
+*   is `ErrWarn` somewhere on Hackage and I did not see it
+*   other interesting `Alternative` instances that care about errors
+*   your views on pessimism in programming
+*   your views on error information loss in Haskell code bases
+*   obviously, anything that I got wrong
 
 reddit discussion (TODO)  
 github discuss (TODO)
+
+Thank you for reading! 
 
