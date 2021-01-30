@@ -187,11 +187,12 @@ The specs may change and you will never learn that `specificComputation` no long
 This is _how Alternative_ works.  (... or is it? See next section)  
 
 IMO, maintainable code using `<|>` should also avoid including "catch all" elements.    
-So restrictive at the end is bad, permissive is bad
+So, restrictive at the end is bad, permissive is bad
 
 > _In fact, it's better if you don't speak at all, Peregrin Took._
 
-`Alternative` makes it super easy to write code,  it does not make it easy to maintain it.
+`Alternative` makes it easy to write code,  it does not make it easy to maintain it.  
+It is a trade-off we need to accept. Do we?
 
 ## Missing Instances
 
@@ -295,7 +296,7 @@ This instance exhibits similar problems with matching the `<*>` semantics as the
 
 ### Code Example
 
-Here is a very convoluted (and arguably, not a very good) parsing code that is intended only to demonstrate `ErrWarn` benefits.
+Here is a very convoluted (and arguably, not a very good) parsing code that is intended only to demonstrate the `ErrWarn` benefits.
   
 This code will parse _ByteStrings_ like "id last-first-name dept boss2"
 to produce, if successful, a hard-coded: id, name, department, and boss name:
@@ -406,13 +407,14 @@ This list is not complete.  Please let me know if you see a relevant work elsewh
 
 ## Conclusions, Thoughts
 
-The reasons why errors are being overlooked are not very clear to me. I assembled a possible list when writing about the [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#why-maybe-is-overused-possible-explanations).
+The reasons why errors are being overlooked are not very clear to me. I assembled a possible list when writing about the [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#why-maybe-is-overused-possible-explanations).  FP (and Haskell) are slowly becoming 
+popular in the industry (I program Haskell at work).  Overlooking errors will not help in improving the  adoption rates.  Haskell is a very effective and a super fast tool for writing a new code, but it will never be considered as such by the industry.  Code correctness, safety, maintainability, these are the selling points.  We can't get to the correctness by overlooking the errors.
 
 The Pessimist theme was partially inspired by the following two concepts.  
 [_add_blank_target _Positivity Bias_](https://link.springer.com/referenceworkentry/10.1007%2F978-94-007-0753-5_2219#:~:text=Definition,favor%20positive%20information%20in%20reasoning.)
-and, its opposite, the [_add_blank_target _Negativity Bias_](https://en.wikipedia.org/wiki/Negativity_bias) are psychological notions that, I belive, have deep relevance to the programming in general.   
+and, its opposite, the [_add_blank_target _Negativity Bias_](https://en.wikipedia.org/wiki/Negativity_bias) are psychological notions that, I believe, have deep relevance to the programming in general.   
 _Positivity Bias_ includes a _tendency to favor positive information in reasoning_ and, by definition, will make you think about "happy path" and "sunny day scenarios".   
-_Negativity Bias_ includes a _tendency to favor negative information in reasoning_ and, by definition, will make you consider "rainy day scenarios", error handling, error information.   
+_Negativity Bias_ includes a _tendency to favor negative information in reasoning_ and, by definition, will make you consider "rainy day scenarios", corner cases, error handling, error information.   
 I think we should embrace some form of _pessimism_ and put in on the pedestal next to the principled design.  
 
 Is `Alternative` a wrong abstraction for what it is trying to do? 
@@ -425,7 +427,7 @@ My particular interest is in discussing:
 *   is `ErrWarn` somewhere on Hackage and I did not see it
 *   other interesting `Alternative` instances that care about errors
 *   your views on pessimism in programming
-*   your views on error information loss in Haskell code bases
+*   your views on the error information loss in Haskell code
 *   obviously, anything that I got wrong
 
 reddit discussion (TODO)  
