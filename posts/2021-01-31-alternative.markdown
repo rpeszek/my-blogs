@@ -8,10 +8,10 @@ tags: Haskell, code-correctness, code-maintenance
 ---
 
 Code for this project can be found in my [_add_blank_target experiments](https://github.com/rpeszek/experiments) repo ([_add_blank_target alternative](https://github.com/rpeszek/experiments/tree/master/alternative) folder).  
-This is my second post dedicated to the _error information loss_ in Haskell (first was [Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html)).  
+This is my second post dedicated to the _error information loss_ in Haskell (the first was about [Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html)).  
 
 ## Nutshell
-The `Alternative` typeclass is a very powerful tool in the FP toolbox.  `Alternative` instances are also known for confusing or missing error outputs. Is there a decent `Alternative` that cares about errors? 
+The `Alternative` typeclass is a very powerful tool in the FP toolbox. `Alternative` produces elegant and terse code. `Alternative` instances are also known for confusing or missing error outputs. Is there a decent `Alternative` that cares about errors? 
 
 Thinking about _the glass being half empty or half full_, look at this computation:
 `a <|> b`
@@ -19,10 +19,10 @@ and assume that `a` fails and `b` succeeds.
 _A half empty glass_ makes us think about the failure of `a`:  
 _Why_ did `a` fail?   
 Would it be better if _some_ `a` failures caused the whole computation to fail?...   
-_A half full glass_ makes us ignore the failure and focus on `b`...  this is exactly the behavior of `<|>`.   
+_A half full glass_ makes us ignore the failure and focus on `b`...  this is exactly the semantics of `<|>`.   
 
 My goal is to consider `Alternative` from the point of view of _error information loss_. This viewpoint yields an interesting prospective on the use of `Alternative` and on its limitations.  
-My second goal is to present a useful instance that is missing in the standard library and, probably, on Hackage.  This `Alternative` instance is (pessimistically) constructed to preserve the failure information.
+My second goal is to present a useful instance that is missing in the standard library and, it looks like, on Hackage.  This `Alternative` instance is (pessimistically) constructed to preserve the failure information.
 
 I am using the term _error_ colloquially, the correct term is _exception_.  _Exception information loss_ just does not have a ring to it. 
 
@@ -38,7 +38,7 @@ class Applicative f => Alternative f where
 _Optimist, First Look_:
 
 *  `empty` typically represents a failed computation
-*  `(<|>)` combines 2 computations returning the first successful result. I like to think about it as right-catch semantics.
+*  `(<|>)` combines 2 computations returning the first successful result. I like to think about it as _right-catch semantics_.
 
 As we know, `MonadPlus` provides a similar semantics for monads.  `Alternative` and `MonadPlus` are most commonly used with parsers.  You are likely to use it with _aeson_, _parsec_ / _megaparsec_, _attoparsec_, etc.  
 I this post the focus is `Alternative` and the examples use _attoparsec_.  
@@ -52,7 +52,7 @@ _Pessimist, First Look_:
    
 With a _true_ `Alternative`, the typically observed behavior is: If all alternatives fail, then the error information comes from the last tried computation.  
 
-I am not that deeply familiar with GHC internals.  However, GHC compiler often behaves in a very similar way.  For example, GHC message could indicate a problem with unifying types, it may suggest that my function needs to be applied to more arguments, ... while the real issue is that the code is missing a typeclass instance somewhere or something else is happening that is completely not related to the error message.  Whatever the reason for this behavior is,  all Haskell developers get thrown for a loop from time to time.  
+I am not that deeply familiar with GHC internals.  However, GHC compiler often behaves in a very similar way.  For example, GHC message could indicate a problem with unifying types, it may suggest that my function needs to be applied to more arguments, ... while the real issue is that I missing a typeclass instance somewhere or something else is happening that is completely not related to the error message.  This "black box" feels exactly like an `Alternative` does.  All Haskell developers get thrown for a loop from time to time.  
 Using `Alternative`, we are likely to do the same to out users. 
 
 
@@ -90,20 +90,20 @@ p2 = (Employee <$> employeeIdParser <*> nameParser1) <|> (Employee <$> employeeI
 ```
 it is good to know if these approaches are equivalent.  
 Any instance of `Alternative` that tries to accumulate failures is likely to have problem satisfying the distribution laws (5,6), as the _rhs_ combines 4 potential failures and _lhs_ combines 3.   
-The question is: would you expect (5,6) to hold in the context of the error information (e.g. _(mega)parsec_ error messages)?
+The question is: would you expect _(5,6)_ to hold in the context of the error information (e.g. _(mega)parsec_ error messages)?
 My answer is: I do not!  
 The end result is that the programmer needs to make an explicit choice between `p1` and `p2` selecting one with the more desirable error output.   
 I think, that is OK.
 
 _Pessimist Concerns_:   
 
-*  `empty` typically represents a failure. (4) is problematic if you want to have other possible failures (e.g. failures with different error messages):  
+*  `empty` typically represents a failure. _(4)_ is problematic if you want to have other possible failures (e.g. failures with different error messages):  
     `otherFailure <*> empty` is likely to be `otherFailure` not `empty`.  
 *  _(1 or 2)_ and _(4)_ prevent expressing the concept of a critical failure  
     here, `f` is a critical failure if `f <|> a = f` for any `a` and `b <|> f = f` for any non-failing `b`,   
     (i.e. terminate `<|>` with ability to recover outside of `<|>.`)   
    `empty` cannot represent a critical failure because the first requirement is prevented by _(1)_, the second by _(2)_.   
-    non-`empty` cannot represent a critical failure because of (4).
+    non-`empty` cannot represent a critical failure because of _(4)_.
 *  _(5,6)_ are likely to prevent `<|>` semantics that accumulates error information
 
 Let me return to the basic laws, particularly _(2)_: `u <|> empty  =  u`. The issue I am about to demonstrate is not just specific to parsers:
@@ -136,7 +136,7 @@ So we broke the required second law!  Incidentally, we would not be able to brea
 
 One way to look at this, and I believe this is how people are looking at this issue, is that any failure with any error message is considered equivalent to `empty`.  The laws hold if error information is ignored.  Somewhat of a downer if you care about the error information.
 
-Breaking (4 - Rigth Zero) is left as an exercise. 
+Breaking _(4 - Rigth Zero)_ is left as an exercise. 
 
 
 ## Real-World `Alternative` (Optimism with Experience)
@@ -183,8 +183,8 @@ This is the example I started with. Consider code like this:
 specificComputation <|> bestEffortComputation
 ``` 
 
-The specs may change and you will never learn that `specificComputation` no longer works because `bestEffortComputation` effectively hides the issue.  This is the behavior of all the pure instances of `Alternative` I know about.
-This is _how Alternative_ works.  (... or is it? See next section)  
+The specs may change and you will never learn that `specificComputation` no longer works because `bestEffortComputation` effectively hides the issue.  This is the behavior of all pure instances of `Alternative` that I know.
+This is _how Alternative_ always works.  (... or is it? See next section.)  
 
 IMO, maintainable code using `<|>` should also avoid including "catch all" elements.    
 So, restrictive at the end is bad, permissive is bad
@@ -192,13 +192,13 @@ So, restrictive at the end is bad, permissive is bad
 > _In fact, it's better if you don't speak at all, Peregrin Took._
 
 `Alternative` makes it easy to write code,  it does not make it easy to maintain it.  
-It is a trade-off we need to accept. Do we?
+
 
 ## Missing Instances
 
 It would be ideal if all typeclasses, in the _base_ package, that have something to do with failures (e.g. `Alternative`, `MonadFail`) came with at least one instance allowing to recover the error information.   
-This is not the case for `MonadFail` (especially when combined with `MonadPlus`: [_add_blank_target Monoid Overuse - MonadFail](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#monadfail-and-maybe)).  
-And, as we have seen in previous section, this is not the case for `Alternative`.  
+This is not the case with `MonadFail` (especially when combined with `MonadPlus`: [_add_blank_target Monoid Overuse - MonadFail](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#monadfail-and-maybe)).  
+And, as we have seen in the previous section, this is not the case with `Alternative`.  
 
 Can we come up with `Alternative` instances that do a decent job of maintaining error information?  It seems, the answer is yes.  
 
@@ -206,7 +206,7 @@ Can we come up with `Alternative` instances that do a decent job of maintaining 
 
 This is a warm-up.
 
-Something very similar already exists, e.g. in the [_add_blank_target _either_](https://hackage.haskell.org/package/either) package but with a non-standard `Applicative` instance.  I am using standard `Either` `Monad` and this is really
+Something very similar already exists, e.g. in the [_add_blank_target _either_](https://hackage.haskell.org/package/either) package but with a non-standard `Applicative` instance.  I am using the standard `Either` `Monad` and this is really
 a `MonadPlus` (with a somewhat questionable right-zero law): 
 
 ``` haskell
@@ -216,7 +216,7 @@ instance Monoid e => Alternative (Either e) where
     (Left _) <|> r = r
     r <|> _ = r
 ```
-_(Note, transformers package has an obscure instance in the deprecated `Control.Monad.Trans.Error` module that conflicts with the above instance,  in a real code this would need a `newtype` to avoid the conflict)_   
+_(Note, transformers package has an obscure instance in the deprecated `Control.Monad.Trans.Error` module that conflicts with the above instance,  in a real code this would need a `newtype` to avoid this conflict)_   
 The [_add_blank_target _either_](https://hackage.haskell.org/package/either)'s package `Validate` type uses the same `Alternative` code but with different non-monadic `Applicative` definition that also accumulates errors.  I believe both approaches have value.
 
 The required _(1-3)_ laws are satisfied without resorting to any sort of questionable reasoning 
@@ -292,7 +292,7 @@ instance (Monoid e) => MonadPlus (ErrWarn e e)
 ```
 To spare you reading the code, `ErrWarn` combines standard `Either e` and `Monoid w => (w,)` Monad semantics. The composition of these functors remains a legal Monad.
 
-This instance exhibits similar problems with matching the `<*>` semantics as the `Monoid e => Either e` instance from the previous section (i.e. (5,6) are not satisfied).
+This instance exhibits similar problems with matching the `<*>` semantics as the `Monoid e => Either e` instance from the previous section (i.e. _(5,6)_ are not satisfied).
 
 ### Code Example
 
@@ -383,7 +383,7 @@ I probably should revise my recommendations for not using a restrictive computat
 ### It is not just about Either
 
 My goal here is point out that the above _right-catch with warnings_ semantics is a decent principled computation.   
-I think such semantics could find its way into parser internals.  
+I think such semantics could find its way into some parser internals.  
 In particular, instead of using `Either e (w, a)` it is more convenient to use `newtype` around `r -> Either e (w, a)`.
 Example prototype code is in my repo.
 
@@ -392,7 +392,7 @@ Example prototype code is in my repo.
 [_add_blank_target _free_](https://hackage.haskell.org/package/free) package contains a semantic (free) version of _Alternative_.
 This is interesting.  However, I am starting to think that `Alternative` is just a wrong abstraction for dealing with failures.
 
-[_add_blank_target _semigroupoids_](https://hackage.haskell.org/package/semigroupoids-5.3.5/docs/Data-Functor-Alt.html) offers a _Alt_ that is just a _Functor_ and does not need to have `empty`.  
+[_add_blank_target _semigroupoids_](https://hackage.haskell.org/package/semigroupoids-5.3.5/docs/Data-Functor-Alt.html) offers an _Alt_ that is just a _Functor_ and does not need to have `empty`.  
 
 A list of interesting packages that implement `Monoid`-like semantics for `Applicative` (most also implement `Alternative`) to accumulate errors provided by [_add_blank_target u/affinehyperplane](https://www.reddit.com/user/affinehyperplane/) on 
 [_add_blank_target reddit](https://www.reddit.com/r/haskell/comments/kyo4xk/maybe_considered_harmful/gji7fmx?utm_source=share&utm_medium=web2x&context=3):
@@ -407,8 +407,8 @@ This list is not complete.  Please let me know if you see a relevant work elsewh
 
 ## Conclusions, Thoughts
 
-The reasons why errors are being overlooked are not very clear to me. I assembled a possible list when writing about the [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#why-maybe-is-overused-possible-explanations).  FP (and Haskell) are slowly becoming 
-popular in the industry (I program Haskell at work).  Overlooking errors will not help in improving the  adoption rates.  Haskell is a very effective and a super fast tool for writing a new code, but it will never be considered as such by the industry.  Code correctness, safety, maintainability, these are the selling points.  We can't get to the correctness by overlooking the errors.
+The reasons why errors are being overlooked are not very clear to me. I assembled a possible list when writing about the [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#why-maybe-is-overused-possible-explanations) and that list seems to translate to `Alternative`.  For example,  `Alternative` is very terse, something with strong error semantics will most likely be not; coding with a pure `Alternative` is simple, strong error semantics will probably be not ...     
+FP (and Haskell) are (very) slowly becoming popular in the industry (I program Haskell at work).  Overlooking errors will not help in improving the adoption rates.  Haskell is a very effective and a super fast tool for writing new code, but it will never be considered as such by the industry.  Code correctness, safety, maintainability, these are the selling points.  We can't get to the correctness by overlooking the errors.
 
 The Pessimist theme was partially inspired by the following two concepts.  
 [_add_blank_target _Positivity Bias_](https://link.springer.com/referenceworkentry/10.1007%2F978-94-007-0753-5_2219#:~:text=Definition,favor%20positive%20information%20in%20reasoning.)
@@ -419,7 +419,7 @@ I think we should embrace some form of _pessimism_ and put in on the pedestal ne
 
 Is `Alternative` a wrong abstraction for what it is trying to do? 
 I think it is.  IMO any abstraction intended for handling failures should include failures in its semantics. 
-`Alternative` does not. 
+`Alternative` does not do that. 
 
 I hope this post will motivate more discussion about _error information loss_ in Haskell.   
 My particular interest is in discussing:
