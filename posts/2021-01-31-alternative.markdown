@@ -25,7 +25,8 @@ _A half full glass_ makes us ignore the failure and focus on `b`...  this is exa
 A half full glass is not what you always want, it is rarely what I want.
 
 My goal is to consider `Alternative` from the point of view of the errors. This viewpoint yields an interesting prospective on the use of `Alternative` and on its limitations.  
-My second goal is to show a useful instance that is missing in the standard library and, it looks like, on Hackage.  This `Alternative` instance is (pessimistically) constructed to preserve the failure information.
+My second goal is to show a useful instance that is missing in the standard library and, it looks like, in Hackage.  This `Alternative` instance is (pessimistically) constructed to preserve the failure information.   
+My third goal is to briefly consider a possibility of rethinking the `Alternative` typeclass itself.
 
 I am using the term _error_ colloquially, the correct term is _exception_.  _Exception information loss_ just does not have a ring to it. 
 
@@ -174,7 +175,7 @@ parseReply = parseC <|> parseA <|> parseB
 ```
 _(sigh)_
 
-Currently, the way out is to parse A, B, and C separately and handle the results (and the parsing errors) outside of the `Parser` applicative.  
+The way out is to parse A, B, and C separately and handle the results (and the parsing errors) outside of the `Parser` applicative.  
 
 The other design risk is thinking about the second law as 'stable': We will not disturb the computation too much if we append (add at the end of the `<|>` chain) a very restrictive parser that fails most of the time.  
 An example would be fixing an existing parser `p` with a missed corner case parser `p <|> cornerCaseP`.
@@ -193,7 +194,7 @@ specificComputation <|> bestEffortComputation
 The specs may change and you will never learn that `specificComputation` no longer works because `bestEffortComputation` effectively hides the issue.  This is the behavior of all pure instances of `Alternative` that I know.
 This is _how Alternative_ always works.  (... Or does it? See next section.)  
 
-Currently, the way out is to parse `specificComputation` and `bestEffortComputation` separately and handle results (and parsing errors) outside of the `Parser` applicative.   
+The way out is to run `specificComputation` and `bestEffortComputation` separately and handle results (e.g. parsing errors if the computation is a parser) outside.   
 `Alternative` makes it easy to write code,  it does not make it easy to maintain it.  
 
 
@@ -388,8 +389,20 @@ We are no longer being thrown for a loop!
 
 My goal here is to point out that the above _right-catch with warnings_ semantics is a decent principled computation.   
 I think such semantics could find its way into some parser internals.  
-In particular, instead of using `Either e (w, a)`, it is more convenient to use `newtype` around `r -> Either e (w, a)`.
-Example prototype code is the linked repo.
+In particular, instead of using `Either e (w, a)`, it is often more convenient to use `newtype` around `r -> Either e (w, a)`.
+An example prototype code is the linked repo.
+
+
+## Rethinking the Typeclass Itself
+
+Is `Alternative` a wrong abstraction for what it is trying to do? 
+I think it is.  IMO any abstraction intended for handling failures should include failures in its semantics. 
+`Alternative` does not do that.  
+
+`Alternative` is widely used and replacing it would, probably, be very hard or even impossible.  
+
+I have created a simple proof of concept replacement.  It includes an error type variable in the typeclass definition.  Including explicit errors makes event the laws much nicer IMO.   
+You can find it the linked [_add_blank_target experiments](https://github.com/rpeszek/experiments) repo ([_add_blank_target alternative](https://github.com/rpeszek/experiments/tree/master/alternative) folder) under the name `Vlternative` (upside down _A_).  It is a work in progress. 
 
 ## Relevant work on Hackage
 
@@ -421,17 +434,12 @@ _Positivity Bias_ includes a _tendency to favor positive information in reasonin
 _Negativity Bias_ includes a _tendency to favor negative information in reasoning_ and, by definition, will make you consider "rainy day scenarios", corner cases, error handling, error information.   
 I think we should embrace some form of _pessimism_ and put in on the pedestal next to the principled design.   
 
-What is a valid, useful, acceptable typeclass instance?  With the principled design mindset the answer would be: one obeying the corresponding laws.  With a pessimist mindset it would have to be one handling corner cases, providing correct error output ...   Which of these is/are more important?
-
-Is `Alternative` a wrong abstraction for what it is trying to do? 
-I think it is.  IMO any abstraction intended for handling failures should include failures in its semantics. 
-`Alternative` does not do that.  
-
 I hope this post will motivate more discussion about _error information loss_ in Haskell.   
 My particular interest is in discussing:
 
 *   is `ErrWarn` somewhere on Hackage and I did not see it
 *   other interesting `Alternative` instances that care about errors
+*   your views about rethinking the `Alternative` typeclass
 *   your views on pessimism in programming
 *   your views on the error information loss in Haskell code
 *   obviously, anything that I got wrong
