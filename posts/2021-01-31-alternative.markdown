@@ -411,11 +411,30 @@ You can find it the linked [_add_blank_target experiments](https://github.com/rp
 ## Good `Alternative` instances?
 
 For the sake of completeness it should be mentioned that there are instances of `Alternative` such as 
-the list `[]`, or`ZipList` where failures are not a concern.  These are perfectly good uses of `Alternative`.
+the list `[]`, or `ZipList` where failures are not a concern.  These are perfectly good uses of `Alternative`.  And, they are rather cool.  
+
+Languages like JavaScript or Groovy have a concept of _truthy_-sm. _Truthy_ is a thing and it comes with a Boolean algebra.  Try evaluating this in you browser's console:
+
+``` javascript
+> "hello" || ""
+"hello"
+> "" || "hello"
+"hello"
+```
+
+Now try these in ghci:
+``` haskell
+>>> "" <|> "hello"
+"hello"
+>>> "hello" <|> ""
+"hello"
+```
+Alternative is the _or_ for Haskell's _truthies_ ;)  
+As we have seen, the problem is in going with this generalization too far.
 
 An interesting case is the `STM` monad. `a <|> b` is used to chain computations that may want to `retry`.  I imagine, chaining `STM` computations this way is rare.  If you wanted to communicate why `a` has decided to retry, how would you do that?  I consider `STM` use of alternatives problematic. 
 
-IMO, if the reason why `b` would be favored in `a <|> b` cannot be easily discerned, then the use of `<|>` should be questioned.  That does not mean rejected.  There could be cases where you really do not care.
+IMO, if the reason why `a` is ignored in `a <|> b` cannot be easily discerned, then the use of `<|>` should be questioned.  That does not mean rejected.  There could be cases where you really do not care.
 
 ## Relevant work on Hackage
 
