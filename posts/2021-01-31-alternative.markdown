@@ -13,7 +13,7 @@ This is my second post dedicated to the _error information loss_ in Haskell (the
 ## Nutshell
 The `Alternative` typeclass is a very powerful tool in the FP toolbox. It produces elegant, concise code. `Alternative` instances are also known for producing confusing errors. Is there a decent `Alternative` that cares about errors?   
 
-I realized that there is an interesting connection between `Alternative` and optimism:    
+I realized that there is an interesting connection between the `Alternative` and optimism:    
 Thinking about _the glass being half empty or half full_, look at this computation:
 `a <|> b`
 and assume that `a` fails and `b` succeeds.   
@@ -24,7 +24,7 @@ _A half full glass_ makes us ignore the failure and focus on `b`...  this is exa
 
 A half full glass is not what you always want, it is rarely what I want.
 
-My goal is to consider `Alternative` from the point of view of the errors. This viewpoint yields an interesting prospective on the use of `Alternative` and on its limitations.  
+My goal is to consider `Alternative` instances from the point of view of the errors. This viewpoint yields an interesting prospective on the use of `Alternative` and on its limitations.  
 My second goal is to show a useful instance that is missing in the standard library and, it looks like, in Hackage.  This `Alternative` instance is (pessimistically) constructed to preserve the failure information.   
 My third goal is to briefly consider a possibility of rethinking the `Alternative` typeclass itself.
 
@@ -47,6 +47,7 @@ _Optimist, First Look_:
 As we know, `MonadPlus` provides a similar semantics for monads.  `Alternative` and `MonadPlus` are most commonly used with parsers.  You are likely to use it with _aeson_, _parsec_ / _megaparsec_, _attoparsec_, etc.  
 In this post the focus is the `Alternative` and the examples use _attoparsec_.  
 
+
 _Pessimist, First Look_:
 
 * `empty` does not have any error information.  It represents a failure of some unknown reason.  
@@ -54,10 +55,10 @@ _Pessimist, First Look_:
    Unless I can somehow introduce a meaningful zero-information (let me call it _noOp_) failure, this probably will bite.
 * `(<|>)` semantics is unclear about error information. In particular, this definition will prevent any typeclass inductive programming that does interesting things with errors.  
    
-With a _true_ `Alternative`, the typically observed behavior is: If all alternatives fail, then the error information comes from the last tried computation.  
+With a _true_ `Alternative` instance, the typically observed behavior is: If all alternatives fail, then the error information comes from the last tried computation.  
 
 I am not that deeply familiar with GHC internals.  However, as a black box, the GHC compiler often behaves in a very similar way.  For example, GHC message could indicate a problem with unifying types; it may suggest that my function needs to be applied to more arguments; ... while the real issue is that I am missing a typeclass instance somewhere or something else is happening that is completely not related to the error message.  From time to time, GHC will throw Haskell developers for a loop.  
-Using `Alternative`, we are likely to do the same to out users. 
+Using typical, _true_ `Alternative`s, we are likely to do the same to out users. 
 
 
 **Side-Note:**  Error information that comes from the use of `(<|>)` can be much better with _not true_ `Alternative`-s.  
@@ -111,7 +112,7 @@ _Pessimist's Concerns_:
     non-`empty` cannot represent a critical failure because of _(4)_.
 *  _(5,6)_ are likely to prevent `<|>` semantics that accumulates error information (as discussed above)
 
-Let me return to the basic laws, particularly _(2)_: `u <|> empty  =  u`. The issue I am about to demonstrate is not just specific to parsers:
+Let me return to the basic laws, particularly _(2)_: `u <|> empty  =  u`. The issue I am about to demonstrate is not just specific to _attoparsec_ or to parsers in general:
 
 ``` haskell
 import qualified Data.Attoparsec.ByteString as A 
@@ -139,7 +140,8 @@ Here are the results:
 ```
 So we broke the required second law!  Incidentally, we would not be able to break this law using `testSuccess`. 
 
-One way to look at this, and I believe this is how people are looking at this issue, is that any failure with any error message is considered equivalent to `empty`.  The laws hold if error information is ignored.  Somewhat of a downer if you care about the error information.
+One way to look at this, and I believe this is how people are looking at this issue, is that any failure with any error message is considered equivalent to `empty`.  The laws hold if the error information is ignored.  Somewhat of a downer if you care about errors.   
+The other way to look at it is that the `Alternative` typeclass is a wrong abstraction for computations that can produce non trivial errors (e.g. parsers).  
 
 Breaking _(4 - Rigth Zero)_ is left as an exercise. 
 
@@ -191,8 +193,8 @@ This is the example I started with. Consider code like this:
 specificComputation <|> bestEffortComputation
 ``` 
 
-The specs may change and you will never learn that `specificComputation` no longer works because `bestEffortComputation` effectively hides the issue.  This is the behavior of all pure instances of `Alternative` that I know.
-This is _how Alternative_ always works.  (... Or does it? See next section.)  
+The specs may change and you will never learn that `specificComputation` no longer works because `bestEffortComputation` effectively hides the issue.  
+This is _how a pure Alternative_ always works.  (... Or does it? See next section.)  
 
 The way out is to run `specificComputation` and `bestEffortComputation` separately and handle results (e.g. parsing errors if the computation is a parser) outside.   
 `Alternative` makes it easy to write code,  it does not make it easy to maintain it.  
@@ -397,12 +399,23 @@ An example prototype code is the linked repo.
 
 Is `Alternative` a wrong abstraction for what it is trying to do? 
 I think it is.  IMO any abstraction intended for handling failures should include failures in its semantics. 
-`Alternative` does not do that.  
+`Alternative` typeclass does not do that.  
 
-`Alternative` is widely used and replacing it would, probably, be very hard or even impossible.  
+`Alternative` is widely used and replacing it would, probably, be very hard or even impossible.  Replacement 
+would be useful only if the ecosystem accepts it.
 
 I have created a simple proof of concept replacement.  It includes an error type variable in the typeclass definition.  Including explicit errors makes event the laws much nicer IMO.   
-You can find it the linked [_add_blank_target experiments](https://github.com/rpeszek/experiments) repo ([_add_blank_target alternative](https://github.com/rpeszek/experiments/tree/master/alternative) folder) under the name `Vlternative` (upside down _A_).  It is a work in progress. 
+You can find it the linked [_add_blank_target experiments](https://github.com/rpeszek/experiments) repo ([_add_blank_target alternative](https://github.com/rpeszek/experiments/tree/master/alternative) folder) under the name [_add_blank_target `Vlternative`](https://github.com/rpeszek/experiments/blob/master/alternative/src/Vlternative.hs) (upside down _A_).  It is a work in progress. 
+
+
+## Good `Alternative` instances?
+
+For the sake of completeness it should be mentioned that there are instances of `Alternative` such as 
+the list `[]`, or`ZipList` where failures are not a concern.  These are perfectly good uses of `Alternative`.
+
+An interesting case is the `STM` monad. `a <|> b` is used to chain computations that may want to `retry`.  I imagine, chaining `STM` computations this way is rare.  If you wanted to communicate why `a` has decided to retry, how would you do that?  I consider `STM` use of alternatives problematic. 
+
+IMO, if the reason why `b` would be favored in `a <|> b` cannot be easily discerned, then the use of `<|>` should be questioned.  That does not mean rejected.  There could be cases where you really do not care.
 
 ## Relevant work on Hackage
 
