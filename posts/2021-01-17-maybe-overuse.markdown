@@ -8,7 +8,7 @@ toc: true
 changelog: <ul> 
      <li> (Jan 18, 2021) Added <a href="#monadfail-and-maybe">MonadFail</a> subsection to <a href="#maybe-on-hackage">Maybe on Hackage</a></li> 
      </ul>
-tags: Haskell, code-correctness, code-maintenance     
+tags: Haskell, correctness, maintainability
 ---
 
 

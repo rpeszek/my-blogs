@@ -1,11 +1,12 @@
 ---
-title: A Pessimist's Guide to the Alternative Typeclass
+title: The Alternative Typeclass, Error Information Loss and Recovery
 author: Robert Peszek
 featured: true
-summary: Error information loss with Alternative and an Alternative instance that cares
+summary: Rethinking Alternative and its instances 
 toc: true
-tags: Haskell, code-correctness, code-maintenance
+tags: Haskell, maintainability, correctness
 ---
+**_subtitle:_ Reinventing the `Applicative` using Constructive Pessimism**
 
 Code for this project can be found in my [_add_blank_target experiments](https://github.com/rpeszek/experiments) repo ([_add_blank_target alternative](https://github.com/rpeszek/experiments/tree/master/alternative) folder).  
 This is my second post dedicated to the _error information loss_ in Haskell (the first was about [Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html)).  
@@ -24,8 +25,8 @@ _A half full glass_ makes us ignore the failure and focus on `b`...  this is exa
 
 A half full glass is not what you always want, it is rarely what I want.
 
-My goal is to consider `Alternative` instances from the point of view of the errors. This viewpoint yields an interesting prospective on the use of `Alternative` and on its limitations.  
-My second goal is to show a useful instance that is missing in the standard library and, it looks like, in Hackage.  This `Alternative` instance is (pessimistically) constructed to preserve the failure information.   
+My goal is to consider `Alternative` instances from the point of view of the errors. This "pessimistic" viewpoint yields an interesting prospective on the use of `Alternative` and on its limitations.   
+My second goal is to show useful instances that are missing in the standard library and, it looks like, in Hackage.  These `Alternative` instances are pessimistically constructed to preserve the failure information.    
 My third goal is to briefly consider a possibility of rethinking the `Alternative` typeclass itself.
 
 I am using the term _error_ colloquially, the correct term is _exception_.  _Exception information loss_ just does not have a ring to it. 
@@ -143,7 +144,7 @@ So we broke the required second law!  Incidentally, we would not be able to brea
 One way to look at this, and I believe this is how people are looking at this issue, is that any failure with any error message is considered equivalent to `empty`.  The laws hold if the error information is ignored.  Somewhat of a downer if you care about errors.   
 The other way to look at it is that the `Alternative` typeclass is a wrong abstraction for computations that can produce non trivial errors (e.g. parsers).  
 
-Breaking _(4 - Rigth Zero)_ is left as an exercise. 
+Breaking _(4 - Rigth Zero)_ for _attoparsec_  is left as an exercise. 
 
 
 ## Real-World `Alternative` (Optimism with Experience)
@@ -387,12 +388,73 @@ Trying [permissive computation at the end](#permissive-computation-at-the-end) s
 We are no longer being thrown for a loop!  
 
 
-### It is not just about Either
+### Extending `Either e (w, a)`
 
-My goal here is to point out that the above _right-catch with warnings_ semantics is a decent principled computation.   
-I think such semantics could find its way into some parser internals.  
-In particular, instead of using `Either e (w, a)`, it is often more convenient to use `newtype` around `r -> Either e (w, a)`.
-An example prototype code is the linked repo.
+The _right-catch with warnings_ semantics of `Either e (w, a)` is a decent principled computation that can be extended to other types. 
+I think similar semantics could find its way into some parser internals.   
+In particular, instead of using `Either e (w, a)`, it is often more convenient to use `r -> Either e (w, a)`.
+An example prototype code is the linked repo.   
+
+Another interesting example is to take an `Alternative` instance with poor a error output and to try to add statically defined error information to it. We can easily brute-force implement `Alternative` from any `Applicative` if we have an empty _noOp_ failure and we can check if computation failed or succeeded.
+
+``` haskell
+class Applicative f => AlternativeMinus f where
+    noOpFail :: f a
+
+class CheckSuccess f where
+    checkSuccess :: f a -> Bool
+```
+
+`CheckSuccess` is not as restrictive as it looks:
+
+``` haskell
+newtype EQ1 f a = EQ1 (f a) 
+instance (Applicative f, Eq1 f) => CheckSuccess (EQ1 f) where
+    checkSuccess (EQ1 fa) = fmap (const ()) fa `eq1` pure ()
+```
+
+If I have these two, I can define `Alternative` instances quite easily by extending the implementation of `Either e (w, a)`.
+
+The code is included in the linked ([_add_blank_target repo](https://github.com/rpeszek/experiments/tree/master/alternative) 
+in the [_add_blank_target `Annotate`](todo) module).
+
+The following example shows `Maybe` annotated this way (using the parsers defined above):
+``` haskell
+data Annotate f e a = Annotate (Either e e) (f a) deriving (Show, Eq, Functor)
+-- instance definitions not shown
+
+annotate :: e -> f a -> Annotate f e a
+annotate = ...
+
+check :: ... => Annotate f e a -> f (e, Maybe a)
+check = ...
+
+emplAnn ::  B.ByteString -> Annotate Maybe [String] Employee
+emplAnn txt = 
+   Employee 
+   <$> annotate ["idP failed"] (mb idP)
+   <*> (annotate ["nameP1 failed"] (mb nameP1) <|> annotate ["nameP2 failed"] (mb nameP2))
+   <*> annotate ["deptP failed"] (mb deptP)
+   <*> (annotate ["bossP1 failed"] (mb bossP1) <|> annotate ["bossP2 failed"] (mb bossP2) <|> annotate ["bossP3 failed"] (mb bossP3))  
+   where 
+     mb :: AT.Parser B.ByteString a -> Maybe a
+     mb p = either (const Nothing) Just $ A.parseOnly p txt
+```
+ghci:
+
+``` haskell
+>>> check . emplAnn $ "id last-first-name dept boss1"
+Just ([],Just (Employee {id = 123, name = "Smith John", dept = "Billing", boss = "Jim K"}))
+
+>>> check . emplAnn $ "id last-firs-name dept boss2"
+Just (["nameP1 failed","nameP2 failed","bossP1 failed"],Nothing)
+
+>>> check . emplAnn $ "id last-first-name dept boss"
+Just (["bossP1 failed","bossP2 failed"],Just (Employee {id = 123, name = "Smith John", dept = "Billing", boss = "Mij K bosses everyone"}))
+```
+You may have noticed that this example lists more errors than the previous examples.  
+This is because my example implementation uses a non-monadic applicative instance that appends errors on `<*>`.  
+
 
 
 ## Rethinking the Typeclass Itself
@@ -408,12 +470,12 @@ I have created a simple proof of concept replacement.  It includes an error type
 You can find it the linked [_add_blank_target experiments](https://github.com/rpeszek/experiments) repo ([_add_blank_target alternative](https://github.com/rpeszek/experiments/tree/master/alternative) folder) under the name [_add_blank_target `Vlternative`](https://github.com/rpeszek/experiments/blob/master/alternative/src/Vlternative.hs) (upside down _A_).  It is a work in progress. 
 
 
-## Good `Alternative` instances?
+## `Alternative` The Good Parts
 
 For the sake of completeness it should be mentioned that there are instances of `Alternative` such as 
-the list `[]`, or `ZipList` where failures are not a concern.  These are perfectly good uses of `Alternative`.  And, they are rather cool.  
+the list `[]`, or `ZipList` where failures are not a concern.  These are perfectly good uses of `Alternative`.  And, are rather cool.  
 
-Languages like JavaScript or Groovy have a concept of _truthy_-sm. _Truthy_ is a thing and it comes with a Boolean algebra.  Try evaluating this in you browser's console:
+Languages like JavaScript, Python, Groovy have a concept of _truthiness_. _Truthy_ _Falsy_ are a thing and come with a Boolean algebra of sorts.  Try evaluating this in you browser's console:
 
 ``` javascript
 > "hello" || ""
@@ -421,6 +483,7 @@ Languages like JavaScript or Groovy have a concept of _truthy_-sm. _Truthy_ is a
 > "" || "hello"
 "hello"
 ```
+_Truthiness_ is questionable because Boolean algebra laws (like `a || b = b || a`) no longer hold.
 
 Now try these in ghci:
 ``` haskell
@@ -429,7 +492,7 @@ Now try these in ghci:
 >>> "hello" <|> ""
 "hello"
 ```
-Alternative is the _or_ for Haskell's _truthies_ ;)  
+Alternative is a principled version of the _truthiness_.  Alternative laws properly state the algebra limitations.   
 As we have seen, the problem is in going with this generalization too far.
 
 An interesting case is the `STM` monad. `a <|> b` is used to chain computations that may want to `retry`.  I imagine, chaining `STM` computations this way is rare.  If you wanted to communicate why `a` has decided to retry, how would you do that?  I consider `STM` use of alternatives problematic. 
@@ -469,7 +532,7 @@ I think we should embrace some form of _pessimism_ and put in on the pedestal ne
 I hope this post will motivate more discussion about _error information loss_ in Haskell.   
 My particular interest is in discussing:
 
-*   is `ErrWarn` somewhere on Hackage and I did not see it
+*   is `ErrWarn` somewhere on Hackage and I did not see it?
 *   other interesting `Alternative` instances that care about errors
 *   your views about rethinking the `Alternative` typeclass
 *   your views on pessimism in programming
