@@ -1,12 +1,12 @@
 ---
-title: The Alternative Typeclass, Error Information Loss and Recovery
+title: Is Alternative a Wrong Abstraction for Handling Failures?
 author: Robert Peszek
 featured: true
 summary: Rethinking Alternative and its instances 
 toc: true
 tags: Haskell, maintainability, correctness
 ---
-**_subtitle:_ Reinventing the `Applicative` using Constructive Pessimism**
+**_subtitle:_ A Constructive Pessimism of the Alternative Typeclass**
 
 Code for this project can be found in my [_add_blank_target experiments](https://github.com/rpeszek/experiments) repo ([_add_blank_target alternative](https://github.com/rpeszek/experiments/tree/master/alternative) folder).  
 This is my second post dedicated to the _error information loss_ in Haskell (the first was about [Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html)).  
@@ -23,10 +23,10 @@ _Why_ did `a` fail?
 Would it not be better if _some_ `a` failures caused the whole computation to fail?...   
 _A half full glass_ makes us ignore the failure and focus on `b`...  this is exactly the semantics of `<|>`.   
 
-A half full glass is not what you always want, it is rarely what I want.
+A half full glass is not what you always want, it is rarely what I want in the code.
 
 My goal is to consider `Alternative` instances from the point of view of the errors. This "pessimistic" viewpoint yields an interesting prospective on the use of `Alternative` and on its limitations.   
-My second goal is to show useful instances that are missing in the standard library and, it looks like, in Hackage.  These `Alternative` instances are pessimistically constructed to preserve the failure information.    
+My second goal is to show useful instances that are missing in the standard library and are a different from the instances I have found in Hackage.  These `Alternative` instances are pessimistically constructed to preserve the failure information.    
 My third goal is to briefly consider a possibility of rethinking the `Alternative` typeclass itself.
 
 I am using the term _error_ colloquially, the correct term is _exception_.  _Exception information loss_ just does not have a ring to it. 
@@ -64,11 +64,11 @@ Using typical, _true_ `Alternative`s, we are likely to do the same to out users.
 
 **Side-Note:**  Error information that comes from the use of `(<|>)` can be much better with _not true_ `Alternative`-s.  
 _parsec_ and _megaparsec_ packages implemented sophisticated ways to provide better error messages by looking at things like longest parsed path.  This functionality is related to the lack of automatic backtracking in _(maga)parsec_.  
-Lack of backtracking is what makes the _(maga)parsec_ `Parser` not a true _Alternative_ (it violates Alternative laws).  
+Lack of backtracking is what makes the _(maga)parsec_ `Parser` not a true _Alternative_ (it violates the laws).  
 Arguably, having no automatic backtracking makes writing code hard and error prone.  There appears to be an interesting trade-off: _good error message_ vs _Alternative trueness and easier code_.    
 A great, related, reading is: [_add_blank_target Parsec: “try a <|> b” considered harmful](http://blog.ezyang.com/2014/05/parsec-try-a-or-b-considered-harmful/).
 
-The definition of `Alternative` begs this question:  Why the `Applicative` superclass?  As far as I know this is because of the intended use of `empty` and `<|>`.  We use them in the Applicative context.  More on this later.
+The definition of `Alternative` begs this question:  Why the `Applicative` superclass?  As far as I know this is because of the intended use of `empty` and `<|>`.  We use them in the applicative context.  More on this later.
 
 ## Alternative Laws, Pessimistically
 
@@ -182,7 +182,7 @@ The way out is to parse A, B, and C separately and handle the results (and the p
 
 The other design risk is thinking about the second law as 'stable': We will not disturb the computation too much if we append (add at the end of the `<|>` chain) a very restrictive parser that fails most of the time.  
 An example would be fixing an existing parser `p` with a missed corner case parser `p <|> cornerCaseP`.
-Errors from `p` are now almost not visible.
+Errors from `p` are now almost not visible.  
 
 So would `cornerCaseP <|> p` be a better solution?  Next section covers that case.
 
@@ -195,14 +195,14 @@ specificComputation <|> bestEffortComputation
 ``` 
 
 The specs may change and you will never learn that `specificComputation` no longer works because `bestEffortComputation` effectively hides the issue.  
-This is _how a pure Alternative_ always works.  (... Or does it? See next section.)  
+This is _how a pure alternative_ always works.  (... Or does it? See next section.)  
 
 The way out is to run `specificComputation` and `bestEffortComputation` separately and handle results (e.g. parsing errors if the computation is a parser) outside.   
 `Alternative` makes it easy to write code,  it does not make it easy to maintain it.  
 
 
 
-## Missing Instances
+## Pessimistic Instances
 
 It would be ideal if all typeclasses, in the _base_ package, that have something to do with failures (e.g. `Alternative`, `MonadFail`) came with at least one instance allowing to recover the error information.   
 This is not the case with `MonadFail` (especially when combined with `MonadPlus`: [_add_blank_target Monoid Overuse - MonadFail](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#monadfail-and-maybe)).  
@@ -214,8 +214,7 @@ Can we come up with `Alternative` instances that do a decent job of maintaining 
 
 This is a warm-up.
 
-Something very similar already exists, e.g. in the [_add_blank_target _either_](https://hackage.haskell.org/package/either) package but with a non-standard `Applicative` instance.  I am using the standard `Either` `Monad` and this is really
-a `MonadPlus` (with a somewhat questionable right-zero law): 
+Something very similar already exists (see `Validate` type in [Relevant work on Hackage](#relevant-work-on-hackage) section) but with a non-standard `Applicative` instance that also accumulates errors.  Here, I am using the standard `Either` monad and this is really a `MonadPlus` (with a somewhat questionable right-zero law): 
 
 ``` haskell
 instance Monoid e => Alternative (Either e) where 
@@ -225,7 +224,6 @@ instance Monoid e => Alternative (Either e) where
     r <|> _ = r
 ```
 _(Note: transformers package has an obscure instance in the deprecated `Control.Monad.Trans.Error` module that conflicts with the above instance,  in a real code a `newtype` would be needed to avoid this conflict)_   
-The [_add_blank_target _either_](https://hackage.haskell.org/package/either)'s package `Validate` type uses the same `Alternative` code but with different non-monadic `Applicative` definition that also accumulates errors.  I believe both approaches have value.
 
 The required _(1-3)_ laws are satisfied without resorting to any sort of questionable reasoning 
 that treats all errors as `empty`.  Also, `empty` represents a _noOp failure_ computation. This is exactly what I wanted.
@@ -269,7 +267,7 @@ newtype ErrWarn e w a = EW {runEW :: Either e (w, a)} deriving (Eq, Show, Functo
 instance (Monoid e) => Alternative (ErrWarn e e) where 
     empty  = EW $ Left mempty
     EW (Left e1) <|> EW (Left e2) = EW (Left $ e1 <> e2)
-    EW (Left e1) <|> EW (Right (w2, r)) = EW $ Right (e1 <> w2, r)
+    EW (Left e1) <|> EW (Right (w2, r)) = EW $ Right (e1 <> w2, r) -- coupling between @Either e@ and @(e,)@
     r@(EW (Right _)) <|> _ = r
 ```    
  
@@ -298,13 +296,14 @@ instance (Monoid w) => Monad (ErrWarn e w) where
 
 instance (Monoid e) => MonadPlus (ErrWarn e e)    
 ```
-`ErrWarn` combines standard `Either e` and `Monoid w => (w,)` Monad semantics. The composition of these functors remains a legal Monad.
+`ErrWarn` combines standard `Either e` and `Monoid w => (w,)` monad semantics. The composition of these functors remains a legal monad.
 
 This instance exhibits similar problems with matching the `<*>` semantics as the `Monoid e => Either e` instance from the previous section (i.e. _(5,6)_ are not satisfied).
 
 ### Code Example
 
 Here is a very convoluted (and not very good) parsing code that is intended only to demonstrate how `ErrWarn` works.
+This code creates a natural transformation from the _attoparsec_ parser to `ErrWarn` and compares the error outputs from both.
   
 This code will parse _ByteStrings_ like "id last-first-name dept boss2"
 to produce, if successful, a hard-coded _id, name, department, and boss name_:
@@ -347,10 +346,8 @@ emplP' txt =
    <*> ew deptP 
    <*> (ew bossP1  <|> ew bossP2 <|> ew bossP3)
    where
-        ew p = cnvt p txt
-
-        cnvt :: A.Parser a -> B.ByteString -> ErrWarn [String] [String] a
-        cnvt p s = singleErr $ A.parseOnly p s
+        ew :: A.Parser a  -> ErrWarn [String] [String] a
+        ew p = singleErr $ A.parseOnly p txt
 
         singleErr :: Either e a -> ErrWarn [e] [e] a
         singleErr (Left e) = EW $ Left [e]
@@ -395,17 +392,14 @@ I think similar semantics could find its way into some parser internals.
 In particular, instead of using `Either e (w, a)`, it is often more convenient to use `r -> Either e (w, a)`.
 An example prototype code is the linked repo.   
 
-Another interesting example is to take an `Alternative` instance with poor a error output and to try to add statically defined error information to it. We can easily brute-force implement `Alternative` from any `Applicative` if we have an empty _noOp_ failure and we can check if computation failed or succeeded.
+Another interesting example is to take any `Alternative` instance with a poor error output and to try to add statically defined error information to it. We can easily brute-force an implementation of `Alternative` from any `Applicative` if we can define `empty` and if we have a way to check if a computation failed or succeeded.
 
 ``` haskell
-class Applicative f => AlternativeMinus f where
-    noOpFail :: f a
-
 class CheckSuccess f where
     checkSuccess :: f a -> Bool
 ```
 
-`CheckSuccess` is not as restrictive as it looks:
+`CheckSuccess` is will not support parser types but can be used with all `Eq1` applicatives:
 
 ``` haskell
 newtype EQ1 f a = EQ1 (f a) 
@@ -413,16 +407,10 @@ instance (Applicative f, Eq1 f) => CheckSuccess (EQ1 f) where
     checkSuccess (EQ1 fa) = fmap (const ()) fa `eq1` pure ()
 ```
 
-If I have these two, I can define `Alternative` instances quite easily by extending the implementation of `Either e (w, a)`.
-
 The code is included in the linked ([_add_blank_target repo](https://github.com/rpeszek/experiments/tree/master/alternative) 
-in the [_add_blank_target `Annotate`](todo) module).
-
-The following example shows `Maybe` annotated this way (using the parsers defined above):
+in the [_add_blank_target `Annotate`](https://github.com/rpeszek/experiments/blob/master/alternative/src/Alternative/Instances/Annotate.hs) module).  
+The following example shows `Maybe` annotated this way (and uses the parsers defined previously)
 ``` haskell
-data Annotate f e a = Annotate (Either e e) (f a) deriving (Show, Eq, Functor)
--- instance definitions not shown
-
 annotate :: e -> f a -> Annotate f e a
 annotate = ...
 
@@ -452,8 +440,8 @@ Just (["nameP1 failed","nameP2 failed","bossP1 failed"],Nothing)
 >>> check . emplAnn $ "id last-first-name dept boss"
 Just (["bossP1 failed","bossP2 failed"],Just (Employee {id = 123, name = "Smith John", dept = "Billing", boss = "Mij K bosses everyone"}))
 ```
-You may have noticed that this example lists more errors than the previous examples.  
-This is because my example implementation uses a non-monadic applicative instance that appends errors on `<*>`.  
+You may have noticed that this example lists more errors than the `Either e (w, a)` example.  
+This is because my `Annotate` example has defined a `Validation` style applicative instance that appends errors on `<*>`.  
 
 
 
@@ -492,7 +480,7 @@ Now try these in ghci:
 >>> "hello" <|> ""
 "hello"
 ```
-Alternative is a principled version of the _truthiness_.  Alternative laws properly state the algebra limitations.   
+Alternative is a principled version of the _truthiness_.  The laws properly state the algebra limitations.   
 As we have seen, the problem is in going with this generalization too far.
 
 An interesting case is the `STM` monad. `a <|> b` is used to chain computations that may want to `retry`.  I imagine, chaining `STM` computations this way is rare.  If you wanted to communicate why `a` has decided to retry, how would you do that?  I consider `STM` use of alternatives problematic. 
@@ -509,11 +497,11 @@ This is interesting.  However, I am starting to think that `Alternative` is just
 A list of interesting packages that implement `Monoid`-like semantics for `Applicative` (most also implement `Alternative`) to accumulate errors provided by [_add_blank_target u/affinehyperplane](https://www.reddit.com/user/affinehyperplane/) on 
 [_add_blank_target reddit](https://www.reddit.com/r/haskell/comments/kyo4xk/maybe_considered_harmful/gji7fmx?utm_source=share&utm_medium=web2x&context=3):
 
-[_add_blank_target _either_](https://hackage.haskell.org/package/either-5.0.1.1/docs/Data-Either-Validation.html)   
-[_add_blank_target _validation_](https://hackage.haskell.org/package/validation-1.1/docs/Data-Validation.html)  
-[_add_blank_target _validation-selective_](https://hackage.haskell.org/package/validation-selective-0.1.0.0/docs/Validation.html)  
-[_add_blank_target _monad-validate_](https://hackage.haskell.org/package/monad-validate-1.2.0.0/docs/Control-Monad-Validate.html) provides an interesting 
-(not completely lawful) validation _Monad_ transformer that can accumulate errors, it does not implement `Alternative`
+[_add_blank_target _either_](https://hackage.haskell.org/package/either-5.0.1.1/docs/Data-Either-Validation.html) defines `Either` like `Validation e a` applicative, both `<|>` and `<*>` accumulate errors   
+[_add_blank_target _validation_](https://hackage.haskell.org/package/validation-1.1/docs/Data-Validation.html) defines a similar `Validation` type,  it does not define alternative instance.   
+[_add_blank_target _validation-selective_](https://hackage.haskell.org/package/validation-selective-0.1.0.0/docs/Validation.html) defines a similar `Validation` type loaded with (non-monad) instances  
+[_add_blank_target _monad-validate_](https://hackage.haskell.org/package/monad-validate-1.2.0.0/docs/Control-Monad-Validate.html) provides an interesting and very useful 
+validation _monad_ transformer (this is lawful if you do not compare error outputs) that can accumulate errors, it does not implement `Alternative`.  
 
 This list is not complete.  Please let me know if you see a relevant work elsewhere.
 
