@@ -390,59 +390,7 @@ We are no longer being thrown for a loop!
 The _right-catch with warnings_ semantics of `Either e (w, a)` is a decent principled computation that can be extended to other types. 
 I think similar semantics could find its way into some parser internals.   
 In particular, instead of using `Either e (w, a)`, it is often more convenient to use `r -> Either e (w, a)`.
-An example prototype code is the linked repo.   
-
-Another interesting example is to take any `Alternative` instance with a poor error output and to try to add statically defined error information to it. We can easily brute-force an implementation of `Alternative` from any `Applicative` if we can define `empty` and if we have a way to check if a computation failed or succeeded.
-
-``` haskell
-class CheckSuccess f where
-    checkSuccess :: f a -> Bool
-```
-
-`CheckSuccess` is will not support parser types but can be used with all `Eq1` applicatives:
-
-``` haskell
-newtype EQ1 f a = EQ1 (f a) 
-instance (Applicative f, Eq1 f) => CheckSuccess (EQ1 f) where
-    checkSuccess (EQ1 fa) = fmap (const ()) fa `eq1` pure ()
-```
-
-The code is included in the linked ([_add_blank_target repo](https://github.com/rpeszek/experiments/tree/master/alternative) 
-in the [_add_blank_target `Annotate`](https://github.com/rpeszek/experiments/blob/master/alternative/src/Alternative/Instances/Annotate.hs) module).  
-The following example shows `Maybe` annotated this way (and uses the parsers defined previously)
-``` haskell
-annotate :: e -> f a -> Annotate f e a
-annotate = ...
-
-check :: ... => Annotate f e a -> f (e, Maybe a)
-check = ...
-
-emplAnn ::  B.ByteString -> Annotate Maybe [String] Employee
-emplAnn txt = 
-   Employee 
-   <$> annotate ["idP failed"] (mb idP)
-   <*> (annotate ["nameP1 failed"] (mb nameP1) <|> annotate ["nameP2 failed"] (mb nameP2))
-   <*> annotate ["deptP failed"] (mb deptP)
-   <*> (annotate ["bossP1 failed"] (mb bossP1) <|> annotate ["bossP2 failed"] (mb bossP2) <|> annotate ["bossP3 failed"] (mb bossP3))  
-   where 
-     mb :: AT.Parser B.ByteString a -> Maybe a
-     mb p = either (const Nothing) Just $ A.parseOnly p txt
-```
-ghci:
-
-``` haskell
->>> check . emplAnn $ "id last-first-name dept boss1"
-Just ([],Just (Employee {id = 123, name = "Smith John", dept = "Billing", boss = "Jim K"}))
-
->>> check . emplAnn $ "id last-firs-name dept boss2"
-Just (["nameP1 failed","nameP2 failed","bossP1 failed"],Nothing)
-
->>> check . emplAnn $ "id last-first-name dept boss"
-Just (["bossP1 failed","bossP2 failed"],Just (Employee {id = 123, name = "Smith John", dept = "Billing", boss = "Mij K bosses everyone"}))
-```
-You may have noticed that this example lists more errors than the `Either e (w, a)` example.  
-This is because my `Annotate` example has defined a `Validation` style applicative instance that appends errors on `<*>`.  
-
+This and other prototype instances can be found in the linked [_add_blank_target repo](https://github.com/rpeszek/experiments/tree/master/alternative) (see [_add_blank_target `Annotate`](https://github.com/rpeszek/experiments/blob/master/alternative/src/Alternative/Instances/Annotate.hs) or [_add_blank_target `REW`](https://github.com/rpeszek/experiments/blob/master/alternative/src/Alternative/Instances/REW.hs)).   
 
 
 ## Rethinking the Typeclass Itself
