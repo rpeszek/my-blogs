@@ -26,7 +26,7 @@ _A half full glass_ makes us ignore the failure and focus on `b`...  this is exa
 A half full glass is not what you always want, it is rarely what I want in the code.
 
 My goal is to consider `Alternative` instances from the point of view of the errors. This "pessimistic" viewpoint yields an interesting prospective on the use of `Alternative` and on its limitations.   
-My second goal is to show useful instances that are missing in the standard library and are a different from the instances I have found in Hackage.  These `Alternative` instances are pessimistically constructed to preserve the failure information.    
+My second goal is to show a useful instance that is missing in the standard library and is different from the instances I have found in Hackage.  This instances is pessimistically constructed to preserve the failure information.    
 My third goal is to briefly consider a possibility of rethinking the `Alternative` typeclass itself.
 
 I am using the term _error_ colloquially, the correct term is _exception_.  _Exception information loss_ just does not have a ring to it. 
@@ -214,7 +214,7 @@ Can we come up with `Alternative` instances that do a decent job of maintaining 
 
 This is a warm-up.
 
-Something very similar already exists (see `Validate` type in [Relevant work on Hackage](#relevant-work-on-hackage) section) but with a non-standard `Applicative` instance that also accumulates errors.  Here, I am using the standard `Either` monad and this is really a `MonadPlus` (with a somewhat questionable right-zero law): 
+Something very similar already exists (see `Validation` type in [Relevant work on Hackage](#relevant-work-on-hackage) section) but with a non-standard `Applicative` instance that also accumulates errors.  Here, I am using the standard `Either` monad and this is really a `MonadPlus` (with a somewhat questionable right-zero law): 
 
 ``` haskell
 instance Monoid e => Alternative (Either e) where 
@@ -372,6 +372,8 @@ Trying [failure at the end](#failure-at-the-end) situation (typo in `"last-first
 -- >>> runEW $ emplP' "id last-firs-name dept boss2"
 -- Left ["\"last-first-name\": not enough input","Failed reading: first-last-name not implemented yet"]
 ```
+(A similar benefit can be achieved by using one of the Hackage _validation_ packages listed
+at the end of this post.)
 
 Trying [permissive computation at the end](#permissive-computation-at-the-end) situation (`"boss"` parsing error):
 ``` haskell
@@ -381,6 +383,7 @@ Trying [permissive computation at the end](#permissive-computation-at-the-end) s
 -- >>>runEW $ emplP' "id last-first-name dept boss"
 -- Right (["\"boss1\": not enough input","\"boss2\": not enough input"],Employee {id = 123, name = "Smith John", dept = "Billing", boss = "Mij K bosses everyone"})
 ```
+(A similar benefit cannot be achieved by using a _validation_ package from the list at the end of this post. Please let me know if something like this exists elsewhere.)
 
 We are no longer being thrown for a loop!  
 
@@ -402,7 +405,7 @@ I think it is.  IMO any abstraction intended for handling failures should includ
 `Alternative` is widely used and replacing it would, probably, be very hard or even impossible.  Replacement 
 would be useful only if the ecosystem accepts it.
 
-I have created a simple proof of concept replacement.  It includes an error type variable in the typeclass definition.  Including explicit errors makes event the laws much nicer IMO.   
+I have created a simple proof of concept replacement.  It includes an error type variable in the typeclass definition.  Doing this makes event the laws look nicer IMO.   
 You can find it the linked [_add_blank_target experiments](https://github.com/rpeszek/experiments) repo ([_add_blank_target alternative](https://github.com/rpeszek/experiments/tree/master/alternative) folder) under the name [_add_blank_target `Vlternative`](https://github.com/rpeszek/experiments/blob/master/alternative/src/Vlternative.hs) (upside down _A_).  It is a work in progress. 
 
 
@@ -431,7 +434,7 @@ Now try these in ghci:
 Alternative is a principled version of the _truthiness_.  The laws properly state the algebra limitations.   
 As we have seen, the problem is in going with this generalization too far.
 
-An interesting case is the `STM` monad. `a <|> b` is used to chain computations that may want to `retry`.  I imagine, chaining `STM` computations this way is rare.  If you wanted to communicate why `a` has decided to retry, how would you do that?  I consider `STM` use of alternatives problematic. 
+An interesting case is the `STM` monad. `a <|> b` is used to chain computations that may want to `retry`.  I imagine, composing `STM` computations this way is rare.  If you wanted to communicate why `a` has decided to retry, how would you do that?  I consider `STM` use of alternatives problematic. 
 
 IMO, if the reason why `a` is ignored in `a <|> b` cannot be easily discerned, then the use of `<|>` should be questioned.  That does not mean rejected.  There could be cases where you really do not care.
 
@@ -451,28 +454,31 @@ A list of interesting packages that implement `Monoid`-like semantics for `Appli
 [_add_blank_target _monad-validate_](https://hackage.haskell.org/package/monad-validate-1.2.0.0/docs/Control-Monad-Validate.html) provides an interesting and very useful 
 validation _monad_ transformer (this is lawful if you do not compare error outputs) that can accumulate errors, it does not implement `Alternative`.  
 
-This list is not complete.  Please let me know if you see a relevant work elsewhere.
+There are many stackoverflow answers about Haskell solutions to accumulating errors. These typically refer to some of the packages in the above list, I am not linking them here.  
+I am sure, this list is not complete.  Please let me know if you see a relevant work elsewhere.   
+
 
 ## Conclusions, Thoughts
 
-The reasons why errors are being overlooked are not very clear to me. I assembled a possible list when writing about the [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#why-maybe-is-overused-possible-explanations) and that list seems to translate to `Alternative`.  For example,  `Alternative` is very terse, something with a stronger error semantics will most likely be more verbose; coding with a pure `Alternative` is simple, stronger error semantics will likely be more complex ...     
-FP (and Haskell) are (very) slowly becoming popular in the industry (I program Haskell at work).  Overlooking errors will not help in improving the adoption rates.  Haskell is very effective and a super fast tool for writing new code, but it will never be considered as such by the industry.  Code correctness, safety, maintainability, these are the selling points.  But we can't get to the correctness by overlooking the errors.
+The reasons why errors are being overlooked are not very clear to me. I assembled a possible list when writing about the [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#why-maybe-is-overused-possible-explanations) and that list seems to translate to the `Alternative`.  For example,  `Alternative` is very terse, something with a stronger error semantics will most likely be more verbose; coding with a pure `Alternative` is simple, stronger error semantics will likely be more complex ...     
 
-The Pessimist theme was partially inspired by the following two concepts.  
+Functional Programming (and Haskell) are slowly becoming popular (I program Haskell at work).  Poor error handling will not help in improving the adoption rates.  Haskell is a very effective and a super fast tool for writing new code, but it will never be considered as such by the industry.  Code correctness, safety, maintainability, these are the selling points.  But we can't get to the correctness by overlooking the errors.
+
+The _pessimist_ theme was partially inspired by the following two concepts.  
 [_add_blank_target _Positivity Bias_](https://link.springer.com/referenceworkentry/10.1007%2F978-94-007-0753-5_2219#:~:text=Definition,favor%20positive%20information%20in%20reasoning.)
-and, its opposite, the [_add_blank_target _Negativity Bias_](https://en.wikipedia.org/wiki/Negativity_bias) are psychological notions that, I believe, have deep relevance to the programming in general.   
+and, its opposite, the [_add_blank_target _Negativity Bias_](https://en.wikipedia.org/wiki/Negativity_bias) are psychological notions that, I believe, have a deep relevance to the programming in general.   
 _Positivity Bias_ includes a _tendency to favor positive information in reasoning_ and, by definition, will make you think about "happy path" and "sunny day scenarios".   
 _Negativity Bias_ includes a _tendency to favor negative information in reasoning_ and, by definition, will make you consider "rainy day scenarios", corner cases, error handling, error information.   
 I think we should embrace some form of _pessimism_ and put in on the pedestal next to the principled design.   
 
-I hope this post will motivate more discussion about _error information loss_ in Haskell.   
+I hope this post will motivate more discussion about handling of the _error information_ in Haskell.   
 My particular interest is in discussing:
 
-*   is `ErrWarn` somewhere on Hackage and I did not see it?
-*   other interesting `Alternative` instances that care about errors
 *   your views about rethinking the `Alternative` typeclass
 *   your views on pessimism in programming
 *   your views on the error information loss in Haskell code
+*   is `ErrWarn` somewhere on Hackage and I did not see it?
+*   other interesting `Alternative` instances that care about errors
 *   obviously, anything that I got wrong
 
 reddit discussion (TODO)  
