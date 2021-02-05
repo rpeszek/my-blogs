@@ -96,10 +96,10 @@ p2 = (Employee <$> employeeIdParser <*> nameParser1) <|> (Employee <$> employeeI
 ```
 it is good to know that these approaches are equivalent.  
 Any instance of `Alternative` that tries to accumulate failures is likely to have problem satisfying the distribution laws _(5,6)_, as the _rhs_ combines 4 potential failures and _lhs_ combines 3.   
-The question is: would you expect _(5,6)_ to hold in the context of the error (e.g. _(mega)parsec_ error messages)?
+The question is: would you expect _(5,6)_ to hold in the context of a failure (e.g. _(mega)parsec_ error messages)?
 My answer is: I do not!  
 The end result is that the programmer needs to make an explicit choice between `p1` and `p2` selecting one with the more desirable error output.   
-I think this is OK.
+I think this is OK.  The trade-off is similar to one made by the _monad_validate_ package linked at the end of this article.
 
 _Pessimist's Concerns_:   
 
@@ -180,7 +180,7 @@ _(sigh)_
 
 The way out is to parse A, B, and C separately and handle the results (and the parsing errors) outside of the `Parser` applicative.  
 
-The other design risk is thinking about the second law as 'stable': We will not disturb the computation too much if we append (add at the end of the `<|>` chain) a very restrictive parser that fails most of the time.  
+The other design risk is in thinking about the second law as 'stable': We will not disturb the computation too much if we append (add at the end of the `<|>` chain) a very restrictive parser that fails most of the time.  
 An example would be fixing an existing parser `p` with a missed corner case parser `p <|> cornerCaseP`.
 Errors from `p` are now almost not visible.  
 
@@ -198,8 +198,6 @@ The specs may change and you will never learn that `specificComputation` no long
 This is _how a pure alternative_ always works.  (... Or does it? See next section.)  
 
 The way out is to run `specificComputation` and `bestEffortComputation` separately and handle results (e.g. parsing errors if the computation is a parser) outside.   
-`Alternative` makes it easy to write code,  it does not make it easy to maintain it.  
-
 
 
 ## Pessimistic Instances
@@ -224,6 +222,13 @@ instance Monoid e => Alternative (Either e) where
     r <|> _ = r
 ```
 _(Note: transformers package has an obscure instance in the deprecated `Control.Monad.Trans.Error` module that conflicts with the above instance,  in a real code a `newtype` would be needed to avoid this conflict)_   
+
+_Pessimist Notes:_  This instance is too general. Using it with [_add_blank_target `Last`](https://hackage.haskell.org/package/base-4.14.1.0/docs/Data-Monoid.html#t:Last) monoid violates _(2)_ and has the same [failure at the end](#failure-at-the-end) issue as _attoparsec_. Using [_add_blank_target `First`](https://hackage.haskell.org/package/base-4.14.1.0/docs/Data-Monoid.html#t:First)
+is also questionable.  
+
+Using [`Max`](https://hackage.haskell.org/package/base-4.14.1.0/docs/Data-Semigroup.html#t:Max) monoid looks interesting! 
+
+**Restricting to `Either [e] a` works very nice:**
 
 The required _(1-3)_ laws are satisfied without resorting to any sort of questionable reasoning 
 that treats all errors as `empty`.  Also, `empty` represents a _noOp failure_ computation. This is exactly what I wanted.
@@ -264,13 +269,14 @@ What would really be nice, is to have a standard "right-catch with warnings" `Al
 ``` haskell
 newtype ErrWarn e w a = EW {runEW :: Either e (w, a)} deriving (Eq, Show, Functor)
   
-instance (Monoid e) => Alternative (ErrWarn e e) where 
+instance Alternative (ErrWarn [e] [e]) where
     empty  = EW $ Left mempty
     EW (Left e1) <|> EW (Left e2) = EW (Left $ e1 <> e2)
     EW (Left e1) <|> EW (Right (w2, r)) = EW $ Right (e1 <> w2, r) -- coupling between @Either e@ and @(e,)@
     r@(EW (Right _)) <|> _ = r
 ```    
- 
+(This definition does not use the more general `instance (Monoid e) => Alternative (ErrWarn e e)` declaration, because of the questionable, explained above, behavior with some monoids like the `First`.  Sadly, this prevents using it with `Max` but serves as a better example of "alternative decency")
+
 This approach, when computing `a <|> b`, does not try to compute `b` if `a` succeeds.
 Thus, this instance matches the common semantics of computing only up to the first success. The approach accumulates all errors encountered up to the point of the first success and returns them as warnings.  
 This is a lawful `Alternative` (satisfies required laws _(1-3)_) and it does not rely on any questionable unification of `empty` and errors.  
@@ -412,7 +418,9 @@ You can find it the linked [_add_blank_target experiments](https://github.com/rp
 ## `Alternative` The Good Parts
 
 For the sake of completeness it should be mentioned that there are instances of `Alternative` such as 
-the list `[]`, or `ZipList` where failures are not a concern.  These are perfectly good uses of `Alternative`.  And, are rather cool.  
+the list `[]`, or `ZipList` where failures are not a concern.  Examples like `LogicT` or other backtracking search mechanisms should be in the same boat (at least from the failure point of view, other aspects can be unclear
+and fascinating [stackoverflow on mplus associativity](https://stackoverflow.com/questions/15722906/must-mplus-always-be-associative-haskell-wiki-vs-oleg-kiselyov)).   
+Also, these examples are rather cool even at the 101 level.  
 
 Languages like JavaScript, Python, Groovy have a concept of _truthiness_. _Truthy_ _Falsy_ are a thing and come with a Boolean algebra of sorts.  Try evaluating this in you browser's console:
 
@@ -434,9 +442,11 @@ Now try these in ghci:
 Alternative is a principled version of the _truthiness_.  The laws properly state the algebra limitations.   
 As we have seen, the problem is in going with this generalization too far.
 
+
+
 An interesting case is the `STM` monad. `a <|> b` is used to chain computations that may want to `retry`.  I imagine, composing `STM` computations this way is rare.  If you wanted to communicate why `a` has decided to retry, how would you do that?  I consider `STM` use of alternatives problematic. 
 
-IMO, if the reason why `a` is ignored in `a <|> b` cannot be easily discerned, then the use of `<|>` should be questioned.  That does not mean rejected.  There could be cases where you really do not care.
+IMO, if the type of possible failures is not trivial then the use of `<|>` should typically be questioned. 
 
 ## Relevant work on Hackage
 
@@ -460,7 +470,19 @@ I am sure, this list is not complete.  Please let me know if you see a relevant 
 
 ## Conclusions, Thoughts
 
-The reasons why errors are being overlooked are not very clear to me. I assembled a possible list when writing about the [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#why-maybe-is-overused-possible-explanations) and that list seems to translate to the `Alternative`.  For example,  `Alternative` is very terse, something with a stronger error semantics will most likely be more verbose; coding with a pure `Alternative` is simple, stronger error semantics will likely be more complex ...     
+Summary of concerns about the `Alternative` typeclass and its instances
+
+*  `<|>` often outputs confusing error information
+*  `<|>` can incorrectly silence important errors
+*  the typeclass definition trivializes failures as `empty`, it lacks proper error semantics
+*  the laws trivialize failures, introducing error information is likely to break the laws
+
+It is possible to implement instances that do a decent error management but it feels like
+this is done despite of the `Alternative` and not because of it.   
+To answer my title: IMO `Alternative` is a wrong abstraction for managing computational failures.
+
+Why errors are being overlooked? I assembled a possible list when writing about the [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#why-maybe-is-overused-possible-explanations) and that list seems to translate to alternative instances.  For example,  code using `<|>` is very terse, something with a stronger error semantics will most likely be more verbose; coding with `<|>` is simple, stronger error semantics will likely be more complex ...     
+But, I have problem grasping the whole picture. I suspect that viewing the code through the lens of formalism could be a part of it: thinking about failures as mathematical falsehoods. Incorrect JSON is not a mathematical falsehood.
 
 Functional Programming (and Haskell) are slowly becoming popular (I program Haskell at work).  Poor error handling will not help in improving the adoption rates.  Haskell is a very effective and a super fast tool for writing new code, but it will never be considered as such by the industry.  Code correctness, safety, maintainability, these are the selling points.  But we can't get to the correctness by overlooking the errors.
 
