@@ -6,7 +6,7 @@ summary: Rethinking Alternative and its instances
 toc: true
 tags: Haskell, maintainability, correctness, general_functional_programming
 ---
-**_subtitle:_ A Constructive Pessimism of the Alternative Typeclass**
+**_subtitle:_ A Constructive Pessimism about the Alternative Typeclass**
 
 Code for this project can be found in my [_add_blank_target experiments](https://github.com/rpeszek/experiments) repo ([_add_blank_target alternative](https://github.com/rpeszek/experiments/tree/master/alternative) folder).  
 This is my second post dedicated to the _error information loss_ in Haskell (the first was about [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html)).  
@@ -204,7 +204,7 @@ The way out is to run `specificComputation` and `bestEffortComputation` separate
 It would be ideal if the following property was true:
 
 _If a typeclass A is defined in the **base** package and A has something to do with failures, then
-there is at least one _A_ instance in **base** allowing to recover the error information_
+there exist at least one instance of _A_ in the **base** allowing to recover the error information_
 
 `MonadFail` fails this property (especially when combined with `MonadPlus`: [_add_blank_target Maybe Overuse - MonadFail](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#monadfail-and-maybe)).  
 
@@ -227,12 +227,12 @@ instance Monoid e => Alternative (Either e) where
 ```
 _(Note: transformers package has an obscure instance in the deprecated `Control.Monad.Trans.Error` module that conflicts with the above instance,  in a real code a `newtype` would be needed to avoid this conflict)_   
 
-_Pessimist Notes:_  This instance is too general. Using it with [_add_blank_target `Last`](https://hackage.haskell.org/package/base-4.14.1.0/docs/Data-Monoid.html#t:Last) monoid violates _(2)_ and has the same [failure at the end](#failure-at-the-end) issue as _attoparsec_. Using [_add_blank_target `First`](https://hackage.haskell.org/package/base-4.14.1.0/docs/Data-Monoid.html#t:First)
+_Pessimist Notes:_  This instance is too general. Using it with the monoid [_add_blank_target `Last`](https://hackage.haskell.org/package/base-4.14.1.0/docs/Data-Monoid.html#t:Last) type violates _(2)_ and has the same [failure at the end](#failure-at-the-end) issue as _attoparsec_. Using [_add_blank_target `First`](https://hackage.haskell.org/package/base-4.14.1.0/docs/Data-Monoid.html#t:First)
 is also questionable.  
 
 Using [_add_blank_target `Max`](https://hackage.haskell.org/package/base-4.14.1.0/docs/Data-Semigroup.html#t:Max) monoid looks interesting! 
 
-**Restricting to `Either [e] a` works very nice:**
+**Restricting it to `Either [e] a` works very nice:**
 
 The required _(1-3)_ laws are satisfied without resorting to any sort of questionable reasoning 
 that treats all errors as `empty`.  Also, `empty` represents a _noOp failure_ computation. This is exactly what I wanted.
@@ -279,7 +279,7 @@ instance Alternative (ErrWarn [e] [e]) where
     EW (Left e1) <|> EW (Right (w2, r)) = EW $ Right (e1 <> w2, r) -- coupling between @Either e@ and @(e,)@
     r@(EW (Right _)) <|> _ = r
 ```    
-(This definition does not use the more general `instance (Monoid e) => Alternative (ErrWarn e e)` declaration, because of the questionable, explained above, behavior with some monoids like the `First`.  Sadly, this prevents using it with `Max` but serves as a better example of "alternative decency")
+(This definition does not use the more general `instance (Monoid e) => Alternative (ErrWarn e e)` declaration, because of the questionable, explained above, behavior with some monoids like `Data.Monoid.First`.  Sadly, this prevents from using it with `Data.Monoid.Max` but serves as a better example of "alternative decency" I am after here)
 
 This approach, when computing `a <|> b`, does not try to compute `b` if `a` succeeds.
 Thus, this instance matches the common semantics of computing only up to the first success. The approach accumulates all errors encountered up to the point of the first success and returns them as warnings.  
@@ -402,7 +402,7 @@ We are no longer being thrown for a loop!
 The _right-catch with warnings_ semantics of `Either e (w, a)` is a decent principled computation that can be extended to other types. 
 For example, a similar semantics could find its way into some parser internals.   
 
-I have created several prototype instances (including a simple parser) that follow the same or similar semantics, they can be found in the linked [_add_blank_target repo](https://github.com/rpeszek/experiments/tree/master/alternative).   
+I have created several prototype applicative instances (including a simple parser) that follow the same or similar semantics, they can be found in the linked [_add_blank_target repo](https://github.com/rpeszek/experiments/tree/master/alternative).   
 
 
 ## Rethinking the Typeclass Itself
@@ -424,7 +424,7 @@ It should be mentioned that there are instances of `Alternative` such as
 the list `[]`, or `ZipList` where failures are not a concern.  Examples like `LogicT` or other backtracking search mechanisms should be in the same boat (at least from the failure point of view, other aspects can be questionable
 and fascinating [_add_blank_target stackoverflow on mplus associativity](https://stackoverflow.com/questions/15722906/must-mplus-always-be-associative-haskell-wiki-vs-oleg-kiselyov)).   
 
-Also, these instances are rather cool even at a 101 level.    
+Also, these instances are rather cool.    
 Languages like JavaScript, Python, Groovy have a concept of _truthiness_. _Truthy_ _Falsy_ are a thing and come with a Boolean algebra of sorts.  Try evaluating this in you browser's console:
 
 ``` javascript
@@ -485,7 +485,7 @@ this is done despite of the `Alternative` typeclass definition and its laws.  To
 
 Why errors are being overlooked? I assembled a possible list when writing about the [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#why-maybe-is-overused-possible-explanations) and that list seems to translate well to the alternative typeclass.  For example,  code using `<|>` is very terse, something with a stronger error semantics will most likely be more verbose; coding with `<|>` is simple, stronger error semantics 
 will likely be more complex ...     
-Mathematical modeling oversimplification could play a role as well.  It feels the concept of mathematical falsehood and program failure are being linked. Incorrect JSON message is not a mathematical falsehood.  
+Mathematical modeling oversimplification could play a role as well.  It feels the concept of mathematical falsehood and program failure are being linked too much. Incorrect JSON message is not a mathematical falsehood.  
 
 The _pessimist_ theme was partially inspired by the following two concepts:  
 [_add_blank_target _Positivity Bias_](https://link.springer.com/referenceworkentry/10.1007%2F978-94-007-0753-5_2219#:~:text=Definition,favor%20positive%20information%20in%20reasoning.)
