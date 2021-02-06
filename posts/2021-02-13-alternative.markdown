@@ -485,7 +485,7 @@ this is done despite of the `Alternative` typeclass definition and its laws.  To
 
 Why errors are being overlooked? I assembled a possible list when writing about the [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#why-maybe-is-overused-possible-explanations) and that list seems to translate well to the alternative typeclass.  For example,  code using `<|>` is very terse, something with a stronger error semantics will most likely be more verbose; coding with `<|>` is simple, stronger error semantics 
 will likely be more complex ...     
-Mathematical modeling oversimplification could play a role as well.  It feels the concept of mathematical falsehood and program failure are being linked too much. Incorrect JSON message is not a mathematical falsehood.  
+Mathematical modeling oversimplification could play a role as well.  It feels the concept of mathematical falsehood and program failure are being linked too much. Incorrect JSON message is not a mathematical falsehood.   
 
 The _pessimist_ theme was partially inspired by the following two concepts:  
 [_add_blank_target _Positivity Bias_](https://link.springer.com/referenceworkentry/10.1007%2F978-94-007-0753-5_2219#:~:text=Definition,favor%20positive%20information%20in%20reasoning.)
