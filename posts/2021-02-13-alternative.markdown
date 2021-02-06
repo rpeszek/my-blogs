@@ -4,7 +4,7 @@ author: Robert Peszek
 featured: true
 summary: Rethinking Alternative and its instances 
 toc: true
-tags: Haskell, maintainability, correctness, error_handling
+tags: Haskell, maintainability, correctness, general_functional_programming
 ---
 **_subtitle:_ A Constructive Pessimism of the Alternative Typeclass**
 
@@ -332,7 +332,6 @@ onKeyword val key = const val <$> A.manyTill ACh.anyChar
                     (A.lookAhead $ A.string key)
                     A.<?> show key
 
-
 data Employee = Employee {
     id :: Int
     , name :: String
@@ -403,11 +402,7 @@ We are no longer being thrown for a loop!
 The _right-catch with warnings_ semantics of `Either e (w, a)` is a decent principled computation that can be extended to other types. 
 For example, a similar semantics could find its way into some parser internals.   
 
-I have created several prototype instances that follow the same or similar semantics, they can be found in the linked [_add_blank_target repo](https://github.com/rpeszek/experiments/tree/master/alternative) 
-
-* [_add_blank_target `r -> Either e (w, a)`](https://github.com/rpeszek/experiments/blob/master/alternative/src/Alternative/Instances/REW.hs) instance
-* Simple parser that behaves just like `Either e (w, a)`: [_add_blank_target `WarnParser`](https://github.com/rpeszek/experiments/blob/master/alternative/src/Alternative/Instances/WarnParser.hs)
-* A mechanism to annotate an existing applicative with static error messages: [_add_blank_target `Annotate`](https://github.com/rpeszek/experiments/blob/master/alternative/src/Alternative/Instances/Annotate.hs)  
+I have created several prototype instances (including a simple parser) that follow the same or similar semantics, they can be found in the linked [_add_blank_target repo](https://github.com/rpeszek/experiments/tree/master/alternative).   
 
 
 ## Rethinking the Typeclass Itself
@@ -418,9 +413,9 @@ I think it is.  IMO any abstraction intended for handling failures should includ
 
 `Alternative` is widely used and replacing it would, probably, be very hard or even impossible.  Replacement 
 would be useful only if the ecosystem accepts it.   
-I have created some simple proof of concept replacements. 
-You can find them the linked [_add_blank_target experiments](https://github.com/rpeszek/experiments) repo ([_add_blank_target alternative](https://github.com/rpeszek/experiments/tree/master/alternative) folder) under the names [_add_blank_target `Vlternative`](https://github.com/rpeszek/experiments/blob/master/alternative/src/Vlternative.hs) (upside down _A_) and
-[_add_blank_target `WonadPlus`](https://github.com/rpeszek/experiments/blob/master/alternative/src/WonadPlus.hs) (upside down _M_).  It is a work in progress. 
+
+The linked [_add_blank_target repo](https://github.com/rpeszek/experiments/tree/master/alternative) contains
+some proof of concept replacements. It is a work in progress. 
 
 
 ## `Alternative` The Good Parts
@@ -454,7 +449,7 @@ As we have seen, the problem is in going with this generalization too far.
 
 An interesting case is the `STM` monad. `a <|> b` is used to chain computations that may want to `retry`.  I imagine, composing `STM` computations this way is rare.  If you wanted to communicate why `a` has decided to retry, how would you do that?  I consider `STM` use of alternatives problematic. 
 
-IMO, if the type of possible failures is not trivial then the use of `<|>` should be questioned.  That does not mean rejected.
+IMO, if the type representing possible failures is not trivial then the use of `<|>` should be questioned.  That does not mean rejected.
 
 ## Relevant work on Hackage
 
@@ -483,15 +478,14 @@ Summary of concerns about the `Alternative` typeclass and its instances
 *  `<|>` often outputs confusing error information
 *  `<|>` can incorrectly silence important errors
 *  the typeclass definition trivializes failures as `empty`, it lacks error semantics
-*  the laws alternative laws are not designed for non trivial failures, introducing error information is likely to break the laws
+*  the laws are not designed for non trivial failures, introducing non-`empty` error information is likely to break them
 
 It is possible to implement instances that do a decent error management but it feels like
-this is done despite of the `Alternative` and not because of it.  To answer my title: IMO `Alternative` is a wrong abstraction for managing computational failures.
+this is done despite of the `Alternative` typeclass definition and its laws.  To answer my title: IMO `Alternative` is a wrong abstraction for managing computational failures.
 
-Why errors are being overlooked? I assembled a possible list when writing about the [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#why-maybe-is-overused-possible-explanations) and that list seems to translate well to the alternative typeclass.  For example,  code using `<|>` is very terse, something with a stronger error semantics will most likely be more verbose; coding with `<|>` is simple, stronger error semantics will likely be more complex ...     
-But, I have a problem with grasping the whole picture. I suspect that viewing the code through the lens of formalism could be a part of it: thinking about failures as mathematical falsehoods, taking Curry-Howard correspondence too far?  Incorrect JSON message is not a mathematical falsehood.  
-
-Functional Programming (and Haskell) are slowly becoming popular (I program Haskell at work).  Poor error handling will not help in improving the adoption rates.  Haskell is a very effective and a super fast tool for writing new code, but it will never be considered as such by the industry.  Code correctness, safety, maintainability, these are the selling points.  But we can't get to the correctness by overlooking the errors.
+Why errors are being overlooked? I assembled a possible list when writing about the [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#why-maybe-is-overused-possible-explanations) and that list seems to translate well to the alternative typeclass.  For example,  code using `<|>` is very terse, something with a stronger error semantics will most likely be more verbose; coding with `<|>` is simple, stronger error semantics 
+will likely be more complex ...     
+Mathematical modeling oversimplification could play a role as well.  It feels the concept of mathematical falsehood and program failure are being linked. Incorrect JSON message is not a mathematical falsehood.  
 
 The _pessimist_ theme was partially inspired by the following two concepts:  
 [_add_blank_target _Positivity Bias_](https://link.springer.com/referenceworkentry/10.1007%2F978-94-007-0753-5_2219#:~:text=Definition,favor%20positive%20information%20in%20reasoning.)
