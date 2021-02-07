@@ -6,13 +6,13 @@ summary: Rethinking Alternative and its instances
 toc: true
 tags: Haskell, maintainability, correctness, general_functional_programming
 ---
-**_subtitle:_ A Constructive Pessimism about the Alternative Typeclass**
+**_subtitle:_ A Constructive ~~Criticism~~ Pessimism about the Alternative Typeclass**
 
 Code for this project can be found in my [_add_blank_target experiments](https://github.com/rpeszek/experiments) repo ([_add_blank_target alternative](https://github.com/rpeszek/experiments/tree/master/alternative) folder).  
 This is my second post dedicated to the _error information loss_ in Haskell (the first was about [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html)).  
 
 ## Nutshell
-The `Alternative` typeclass is a very powerful tool in the FP toolbox. It produces elegant, concise code. `Alternative` instances are also known for producing confusing errors. 
+`Alternative` is a popular functional programming concept and a name of a frequently used Haskell typeclass. `Alternative` helps in writing elegant, concise code. `Alternative` instances are also known for producing confusing errors. 
 
 I realized that there is an interesting connection between the `Alternative` and optimism:    
 Thinking about _the glass being half empty or half full_, look at this computation:
@@ -38,15 +38,21 @@ I am using the term _error_ colloquially, the correct term is _exception_.  _Exc
 class Applicative f => Alternative f where
   empty :: f a
   (<|>) :: f a -> f a -> f a
+  some :: f a -> f [a] -- optional
+  many :: f a -> f [a] -- optional
 ```
 
 _Optimist, First Look_:
 
 *  `empty` typically represents a failed computation
-*  `(<|>)` combines 2 computations returning the first successful result. I like to think about it as _right-catch semantics_.
+*  `(<|>)` combines 2 computations returning one (typically the left-to-right first) successful result. The left-to-right approach is often called left-bias, I think about it as _right-catch semantics_, and is the most commonly used implementation choice.
+*  `some` and `many` run the computation until first failure and return the successful results, `some` expects at least one success, otherwise it will fail. `some` and `many` are a nod towards parsers or other computations that change state. `some` and `many` are likely to yield bottom (e.g.
+ `many (Just 1)` does not terminate). 
+
+
 
 As we know, `MonadPlus` provides a similar semantics for monads.  `Alternative` and `MonadPlus` are most commonly used with parsers.  You are likely to use it with _aeson_, _parsec_ / _megaparsec_, _attoparsec_, etc.  
-In this post the focus is the `Alternative` and the examples use _attoparsec_.  
+In this post the focus is the `Alternative` with the typical right-catching, left-biased `<|>` and the examples use _attoparsec_.  
 
 
 _Pessimist, First Look_:
@@ -55,7 +61,8 @@ _Pessimist, First Look_:
    I consider this problematic and an oversimplification.   
    Unless I can somehow introduce a meaningful zero-information (let me call it _noOp_) failure, this probably will bite.
 * `(<|>)` semantics is unclear about error information. In particular, this definition will prevent any typeclass inductive programming that does interesting things with errors.  
-   
+*  `some` and `many` provide no error information about the failure that ended the production of the result list. I am not discussing `some` or `many` in this post.  
+
 With a _true_ `Alternative` instance, the typically observed behavior is: If all alternatives fail, then the error information comes from the last tried computation.  
 
 I am not that deeply familiar with GHC internals.  However, as a black box, the GHC compiler often behaves in a very similar way.  For example, GHC message could indicate a problem with unifying types; it may suggest that my function needs to be applied to more arguments; ... while the real issue is that I am missing a typeclass instance somewhere or something else is happening that is completely not related to the error message.  From time to time, GHC will throw Haskell developers for a loop.  
@@ -397,12 +404,12 @@ Trying [permissive computation at the end](#permissive-computation-at-the-end) s
 We are no longer being thrown for a loop!  
 
 
-### Extending `Either e (w, a)`
+### Extending `Either [e] ([w], a)`
 
-The _right-catch with warnings_ semantics of `Either e (w, a)` is a decent principled computation that can be extended to other types. 
+The _right-catch with warnings_ semantics of `Either [e] ([w], a)` is a decent principled computation that can be extended to other types. 
 For example, a similar semantics could find its way into some parser internals.   
 
-I have created several prototype applicative instances (including a simple parser) that follow the same or similar semantics, they can be found in the linked [_add_blank_target repo](https://github.com/rpeszek/experiments/tree/master/alternative).   
+I have created several prototype applicative instances (including a simple parser) that follow the same or very similar semantics, they can be found in the linked [_add_blank_target repo](https://github.com/rpeszek/experiments/tree/master/alternative).   
 
 
 ## Rethinking the Typeclass Itself
@@ -415,13 +422,14 @@ I think it is.  IMO any abstraction intended for handling failures should includ
 would be useful only if the ecosystem accepts it.   
 
 The linked [_add_blank_target repo](https://github.com/rpeszek/experiments/tree/master/alternative) contains
-some proof of concept replacements. It is a work in progress. 
+proof of concept replacements of both `Alternative` and `MonadPlus`. I am exited about much improved visibility of errors, 
+for example, `many` / `some` return error information.  It is a work in progress. 
 
 
-## `Alternative` The Good Parts
+## `Alternative` Beyond Parsing
 
 It should be mentioned that there are instances of `Alternative` such as 
-the list `[]`, or `ZipList` where failures are not a concern.  Examples like `LogicT` or other backtracking search mechanisms should be in the same boat (at least from the failure point of view, other aspects can be questionable
+the list `[]`, or `ZipList` where failures are not a concern.  Sorting algorithms using MonadPlus are thumbs up.  Examples like `LogicT` or other backtracking search mechanisms should be in the same boat (at least from the failure point of view, other aspects can be questionable
 and fascinating [_add_blank_target stackoverflow on mplus associativity](https://stackoverflow.com/questions/15722906/must-mplus-always-be-associative-haskell-wiki-vs-oleg-kiselyov)).   
 
 Also, these instances are rather cool.    
@@ -445,9 +453,13 @@ Now try these in ghci:
 Alternative is a principled version of the _truthiness_.  The laws properly state the algebra limitations.   
 As we have seen, the problem is in going with this generalization too far.
 
+_async_ package uses `<|>` to return result form the computation that finishes first.  This seems a good use to me.
 
-
+**Not so good:**   
 An interesting case is the `STM` monad. `a <|> b` is used to chain computations that may want to `retry`.  I imagine, composing `STM` computations this way is rare.  If you wanted to communicate why `a` has decided to retry, how would you do that?  I consider `STM` use of alternatives problematic. 
+
+`IO` itself is an `Alternative` and uses `<|>` as a `catch` that throws away the error information. 
+I dislike the `IO` instance.  If "launching missiles" is wrong, launching missiles and not carrying about what went wrong is worse. 
 
 IMO, if the type representing possible failures is not trivial then the use of `<|>` should be questioned.  That does not mean rejected.
 
@@ -467,6 +479,8 @@ A list of interesting packages that implement `Monoid`-like semantics for `Appli
 [_add_blank_target _monad-validate_](https://hackage.haskell.org/package/monad-validate-1.2.0.0/docs/Control-Monad-Validate.html) provides an interesting and very useful 
 validation _monad_ transformer (this is lawful if you do not compare error outputs) that can accumulate errors, it does not implement `Alternative`.  
 
+A good references about Alternative and MonadPlus in general is the [Typeclassopedia](https://wiki.haskell.org/Typeclassopedia#Failure_and_choice:_Alternative.2C_MonadPlus.2C_ArrowPlus) and [wikibooks](https://en.wikibooks.org/wiki/Haskell/Alternative_and_MonadPlus) both contain interesting links.
+
 There are many stackoverflow answers about Haskell solutions to accumulating errors. These typically refer to some of the packages in the above list, I am not linking them here.  
 I am sure, this list is not complete.  Please let me know if you see a relevant work elsewhere.   
 
@@ -485,7 +499,8 @@ this is done despite of the `Alternative` typeclass definition and its laws.  To
 
 Why errors are being overlooked? I assembled a possible list when writing about the [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#why-maybe-is-overused-possible-explanations) and that list seems to translate well to the alternative typeclass.  For example,  code using `<|>` is very terse, something with a stronger error semantics will most likely be more verbose; coding with `<|>` is simple, stronger error semantics 
 will likely be more complex ...     
-Mathematical modeling oversimplification could play a role as well.  It feels the concept of mathematical falsehood and program failure are being linked too much. Incorrect JSON message is not a mathematical falsehood.   
+Mathematical modeling oversimplification could play a role as well.  Are the concept of mathematical falsehood and `empty` being linked?  Incorrect JSON message is not a mathematical falsehood.   
+I could be wrong on this, but the original usages of MonadPlus may have been related to sorting/searching. Alternative computations with more complex error structure were probably introduced later?  ... and, the instances ended up outgrowing the typeclass? 
 
 The _pessimist_ theme was partially inspired by the following two concepts:  
 [_add_blank_target _Positivity Bias_](https://link.springer.com/referenceworkentry/10.1007%2F978-94-007-0753-5_2219#:~:text=Definition,favor%20positive%20information%20in%20reasoning.)
