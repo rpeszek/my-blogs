@@ -45,7 +45,7 @@ class Applicative f => Alternative f where
 _Optimist, First Look_:
 
 *  `empty` typically represents a failed computation
-*  `(<|>)` combines 2 computations returning one (typically the left-to-right first) successful result. The left-to-right approach is often called left-bias, I think about it as _right-catch semantics_, and is the most commonly used implementation choice.
+*  `(<|>)` combines 2 alternatives returning one that is successful. The most common approach is to return the left-to-right first success. This is called left-bias, I think about it as _right-catch semantics_.
 *  `some` and `many` run the computation until first failure and return the successful results, `some` expects at least one success, otherwise it will fail. `some` and `many` are a nod towards parsers or other computations that change state. `some` and `many` are likely to yield bottom (e.g.
  `many (Just 1)` does not terminate). 
 
@@ -223,7 +223,7 @@ Can we come up with `Alternative` instances that do a decent job of maintaining 
 
 This is a warm-up.
 
-Something very similar already exists (see `Validation` type in [Relevant work on Hackage](#relevant-work-on-hackage) section) but with a non-standard `Applicative` instance that also accumulates errors.  Here, I am using the standard `Either` monad and this is really a `MonadPlus` (with a somewhat questionable right-zero law): 
+Something very similar already exists (see `Validation` type in [Relevant work on Hackage](#relevant-work-on-hackage) section) but with a non-standard `Applicative` instance that also accumulates errors.  The following `Either [e] a` instance is equivalent to _transformers_ / _mtl_ `ExceptT`.  This uses standard `Either` monad and this is a `MonadPlus` (with a somewhat questionable right-zero law): 
 
 ``` haskell
 instance Monoid e => Alternative (Either e) where 
@@ -232,7 +232,9 @@ instance Monoid e => Alternative (Either e) where
     (Left _) <|> r = r
     r <|> _ = r
 ```
-_(Note: transformers package has an obscure instance in the deprecated `Control.Monad.Trans.Error` module that conflicts with the above instance,  in a real code a `newtype` would be needed to avoid this conflict)_   
+_(Note: transformers package has an instance in the deprecated `Control.Monad.Trans.Error` module that conflicts with the above instance,  in a real code a `newtype` would be needed to avoid this conflict)_   
+
+I have included `Monoid e => Alternative (Either e)` instance as a warm-up and to discuss the laws.
 
 _Pessimist Notes:_  This instance is too general. Using it with the monoid [_add_blank_target `Last`](https://hackage.haskell.org/package/base-4.14.1.0/docs/Data-Monoid.html#t:Last) type violates _(2)_ and has the same [failure at the end](#failure-at-the-end) issue as _attoparsec_. Using [_add_blank_target `First`](https://hackage.haskell.org/package/base-4.14.1.0/docs/Data-Monoid.html#t:First)
 is also questionable.  
@@ -262,16 +264,7 @@ f <*> (b <|> c) = (f <*> b) <|> (f <*> c)
 If `f` represents a failed computation then _rhs_ will duplicate `f` errors.   
 This looks like a bigger problem than it really is.  The _lhs_ and _rhs_ contain the same amount of error information.
 
-Expressions like this one
-``` haskell
-employeP = 
-   Employee 
-   <$> idP
-   <*> (nameP1 <|> nameP2)
-   <*> deptP
-   <*> (bossP1 <|> bossP2 <|> bossP3)  
-```
-could contain 1, 2 or 3 errors depending on which field fails to parse.  This seems somewhat complex but, IMO, should not be a show stopper.
+
 
 ### A Decent `Alternative`: `Either [e] ([w], a)` 
 
@@ -295,7 +288,7 @@ But we made a bit of a mockery of things:  `Alternative` no longer returns just 
 
 But wait! To have `Alternative` we need `Applicative`.
 It is possible to implement `Applicative` for this type in more than one way, one even leads to a valid `Monad` and `MonadPlus` (with the right-zero caveat discussed above).   
-That approach does not try to accumulate `e`-s, it only accumulates `w`-s:
+That approach is equivalent to `WriterT w (Except e)`, it does not try to `<*>`-accumulate `e`-s, it only accumulates `w`-s:
 
 ``` haskell
 instance (Monoid w) => Applicative (ErrWarn e w) where
@@ -313,7 +306,13 @@ instance (Monoid w) => Monad (ErrWarn e w) where
 
 instance (Monoid e) => MonadPlus (ErrWarn e e)    
 ```
-`ErrWarn` combines standard `Either e` and `Monoid w => (w,)` monad semantics. The composition of these functors remains a legal monad.
+
+Please note the small difference.  Standard _transformers_ / _mtl_ `ExeptT` and `WriterT` both support `Alternative`
+``` haskell
+ (Monad m, Monoid e) => Alternative (ExceptT e m)	
+ (Monoid w, Alternative m) => Alternative (WriterT w m)
+``` 
+but in a decoupled way, `ErrWarn` couples these two by "writing" `e`-s.
 
 This instance exhibits similar problems with matching the `<*>` semantics as the `Monoid e => Either e` instance from the previous section (i.e. _(5,6)_ are not satisfied).
 
@@ -409,8 +408,10 @@ We are no longer being thrown for a loop!
 The _right-catch with warnings_ semantics of `Either [e] ([w], a)` is a decent principled computation that can be extended to other types. 
 For example, a similar semantics could find its way into some parser internals.   
 
-I have created several prototype applicative instances (including a simple parser) that follow the same or very similar semantics, they can be found in the linked [_add_blank_target repo](https://github.com/rpeszek/experiments/tree/master/alternative).   
+I have created several prototype applicative instances (including a simple `WarnParser` parser and `ErrWarnT` transformer) that follow the same  semantics, they can be found in the linked [_add_blank_target repo](https://github.com/rpeszek/experiments/tree/master/alternative).   
 
+`ErrWarnT` allows to program in `ErrWarnT e e Parser` alternative and annotate failures during parsing. 
+`WarnParser` accumulates `<|>` errors as warnings out of the box. 
 
 ## Rethinking the Typeclass Itself
 
@@ -459,7 +460,7 @@ _async_ package uses `<|>` to return result form the computation that finishes f
 An interesting case is the `STM` monad. `a <|> b` is used to chain computations that may want to `retry`.  I imagine, composing `STM` computations this way is rare.  If you wanted to communicate why `a` has decided to retry, how would you do that?  I consider `STM` use of alternatives problematic. 
 
 `IO` itself is an `Alternative` and uses `<|>` as a `catch` that throws away the error information. 
-I dislike the `IO` instance.  If "launching missiles" is wrong, launching missiles and not carrying about what went wrong is worse. 
+I dislike the `IO` instance.  "Launching missiles" and not knowing what went wrong is positively scary. 
 
 IMO, if the type representing possible failures is not trivial then the use of `<|>` should be questioned.  That does not mean rejected.
 
@@ -469,6 +470,8 @@ IMO, if the type representing possible failures is not trivial then the use of `
 This is interesting.  However, I am starting to think that `Alternative` is just a wrong abstraction for dealing with failures.
 
 [_add_blank_target _semigroupoids_](https://hackage.haskell.org/package/semigroupoids-5.3.5/docs/Data-Functor-Alt.html) offers an _Alt_ that is just a _Functor_ and does not need to have `empty`.  
+
+[_add_blank_target _transformers_](https://hackage.haskell.org/package/transformers-0.5.6.2) ExceptT implements `Alternative` which accumulates "Lefts".  
 
 A list of interesting packages that implement `Monoid`-like semantics for `Applicative` (most also implement `Alternative`) to accumulate errors provided by [_add_blank_target u/affinehyperplane](https://www.reddit.com/user/affinehyperplane/) on 
 [_add_blank_target reddit](https://www.reddit.com/r/haskell/comments/kyo4xk/maybe_considered_harmful/gji7fmx?utm_source=share&utm_medium=web2x&context=3):
@@ -495,7 +498,7 @@ Summary of concerns about the `Alternative` typeclass and its instances
 *  the laws are not designed for non trivial failures, introducing non-`empty` error information is likely to break them
 
 It is possible to implement instances that do a decent error management but it feels like
-this is done despite of the `Alternative` typeclass definition and its laws.  To answer my title: IMO `Alternative` is a wrong abstraction for managing computational failures.
+this is accomplished despite of the `Alternative` typeclass definition and its laws.  To answer my title: IMO `Alternative` is a wrong abstraction for managing computational failures.
 
 Why errors are being overlooked? I assembled a possible list when writing about the [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#why-maybe-is-overused-possible-explanations) and that list seems to translate well to the alternative typeclass.  For example,  code using `<|>` is very terse, something with a stronger error semantics will most likely be more verbose; coding with `<|>` is simple, stronger error semantics 
 will likely be more complex ...     
