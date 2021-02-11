@@ -62,15 +62,20 @@ _Pessimist, First Look_:
 * `(<|>)` semantics is unclear about error information. In particular, this definition will prevent any typeclass inductive programming that does interesting things with errors.  
 *  `some` and `many` provide no error information about the failure that ended the production of the result list. Moving forward, I will not discuss `some` or `many` in this post.  
 
-With a _true_ `Alternative` instance, the typically observed behavior is: If all alternatives fail, then the error information comes from the last tried computation.  
+With a _true_ `Alternative` instance, a somewhat popular behavior is: If all alternatives fail, then the error information comes from the last tried computation.  
 
 I am not that deeply familiar with GHC internals.  However, as a black box, the GHC compiler often behaves in a very similar way.  For example, GHC message could indicate a problem with unifying types; it may suggest that my function needs to be applied to more arguments; ... while the real issue is that I am missing a typeclass instance somewhere or something else is happening that is completely not related to the error message.  From time to time, GHC will throw Haskell developers for a loop.  
 With many of the `Alternative` instances, we are likely to do the same to out users. 
 
 
 **Side-Note:**  Error information that comes out of `(<|>)` can be much better with _not true_ `Alternative`-s.  
-_parsec_ and _megaparsec_ packages implemented sophisticated ways to provide better error messages by looking at things like longest parsed path.  Lack of backtracking is what makes the _(maga)parsec_ `Parser` not a true _Alternative_ (it violates the laws).  Arguably, having no automatic backtracking makes writing code harder.  There appears to be an interesting pragmatic trade-off: _good error messages_ vs _Alternative trueness and easier code_.    
-A great, related, reading is: [_add_blank_target Parsec: “try a <|> b” considered harmful](http://blog.ezyang.com/2014/05/parsec-try-a-or-b-considered-harmful/).  
+_parsec_ and _megaparsec_ packages implemented sophisticated ways to provide better error messages by looking at things like longest parsed path.  Lack of backtracking is what makes the _(maga)parsec_ `Parser` not a true _Alternative_ (it violates the laws).  Arguably, having no automatic backtracking makes writing code harder.  There appears to be an interesting pragmatic trade-off: _good error messages_ vs _better Alternative trueness and easier code_.    
+A great, related, reading is: [_add_blank_target Parsec: “try a <|> b” considered harmful](http://blog.ezyang.com/2014/05/parsec-try-a-or-b-considered-harmful/).   
+
+But, then, most parsers offer very similar combinators allowing to write a parser agnostic code.  This scary quote, with apparent lack of empathy towards the end users, is not something I have came up with:
+
+> _The trick is to use the `parsers` library, which lets you switch out parsing backends. You can prototype with the `trifecta` library (which has good error messages) and then switch to `attoparsec` when you're done_
+
 
 The definition of `Alternative` begs this question:  Why the `Applicative` superclass?  As far as I know this is because of the intended use of `empty` and `<|>`.  We use them in the applicative context.  More on this later.
 
@@ -144,13 +149,56 @@ Here are the results:
 -- >>>  testFail rhs
 -- Fail "bar" [] "string"
 ```
-So we broke the required second law!  Incidentally, we would not be able to break this law using `testSuccess`. 
+So we broke the required second law!  Incidentally, we would not be able to break this law using `testSuccess`.   
+
+
+_attoparsec_ gets a lot of blame for its error output.  Let's try `IO` alternative:
+``` haskell
+uIO = fail "foo" :: IO a
+
+lhsIO = uIO <|> empty
+rhsIO = uIO
+```
+
+ghci:
+
+``` haskell
+>>> lhsIO
+*** Exception: user error (mzero)
+>>> rhsIO
+*** Exception: user error (foo)
+```
+We see the same issue.
 
 One way to look at this, and I believe this is how people are looking at this issue, is that any failure with any error message is considered equivalent to `empty`.  The laws hold if the error information is ignored.  Somewhat of a downer if you care about errors.   
-The other way to look at it is that the `Alternative` typeclass is a wrong abstraction for computations that can produce non trivial errors (e.g. parsers).  
+The second way to look at it is that the `Alternative` typeclass is a wrong abstraction for computations that can produce non trivial errors (e.g. parsers).  
+The third way to look at the issue is that there need to be some special _noOp_ failure that acts just like `mempty` in a `Monoid` and errors _have to be_ `Monoid` like.  
 
 Breaking _(4 - Rigth Zero)_ for _attoparsec_  is left as an exercise. 
 
+**Side-Note:**  Numerous instances of `Alternative` manage to satisfy _(2)_.  
+That includes `ExceptT`, the `Validatation` type listed at the end of this post.  Here is the law working for 'trifecta'
+
+``` haskell
+import Text.Trifecta
+u = string "foo"
+
+lhs = parseTest (u <|> empty) "bar" :: IO ()
+rhs = parseTest u "bar" :: IO ()
+```
+ghci:
+``` haskell
+>>> lhs
+(interactive):1:1: error: expected: "foo"
+1 | bar<EOF> 
+  | ^        
+>>> rhs
+(interactive):1:1: error: expected: "foo"
+1 | bar<EOF> 
+  | ^    
+```
+
+We will see the `Monoid` fix for _(2)_ in the [`Either [e] a`](#either-e-a) section.  
 
 ## Real-World `Alternative` (Optimism with Experience)
 
@@ -182,7 +230,7 @@ parseReply = parseC <|> parseA <|> parseB
 ```
 _(sigh)_
 
-The way out is to parse A, B, and C separately and handle the results (and the parsing errors) outside of the `Parser`, or come up with a different way of not using the alternative.     
+One way out is to parse A, B, and C separately and handle the results (and the parsing errors) outside of the `Parser`.     
 
 The other design risk is in thinking about the second law as 'stable': We will not disturb the computation too much if we append (add at the end of the `<|>` chain) a very restrictive parser that fails most of the time.  
 An example would be fixing an existing parser `p` with a missed corner case parser, `p <|> cornerCaseP`.
@@ -202,6 +250,8 @@ The specs may change and you will never learn that `specificComputation` no long
 
 The way out is to run `specificComputation` and `bestEffortComputation` separately and handle results (e.g. parsing errors if the computation is a parser) outside, or come up with a different way of not using the alternative.   
 
+_Failure at the end_ situation improves a bit with certain (other than _aeson_ or _attoparsec_) alternatives, _Permissive computation at the end_ does not seem to 
+have good available solutions.
 
 ## Pessimistic Instances
 
@@ -264,7 +314,7 @@ This looks like a bigger problem than it really is.  The _lhs_ and _rhs_ contain
 
 
 
-### A Decent Blueprint `Alternative`: `Either [e] ([w], a)` 
+### A Decent Blueprint: `Either [e] ([e], a)` 
 
 What would really be nice, is to have a standard "right-catch with warnings" `Alternative` instance (please let me know if you have seen it somewhere on Hackage):
 
@@ -277,7 +327,7 @@ instance Alternative (ErrWarn [e] [e]) where
     EW (Left e1) <|> EW (Right (w2, r)) = EW $ Right (e1 <> w2, r) -- coupling between @Either e@ and @(e,)@
     r@(EW (Right _)) <|> _ = r
 ```    
-(This definition does not use the more general `instance (Monoid e) => Alternative (ErrWarn e e)` declaration, because of the questionable, explained above, behavior with some monoids like `Data.Monoid.First`.  Sadly, this prevents from using it with `Data.Monoid.Max` but serves as a better example of "alternative decency" I am after here)
+(`instance (Monoid e) => Alternative (ErrWarn e e)` _would have been more general, I am not using it for to avoid issues with instances like `Data.Monoid.First` explained earlier_)
 
 This approach, when computing `a <|> b`, does not try to compute `b` if `a` succeeds.
 Thus, this instance matches the common left bias semantics. The approach accumulates all errors encountered up to the point of the first success and returns them as warnings.  
@@ -400,15 +450,15 @@ Trying [permissive computation at the end](#permissive-computation-at-the-end) s
 We are no longer being thrown for a loop!  
 
 
-### Extending `Either [e] ([w], a)`
+### Extending `Either [e] ([e], a)`
 
-The _right-catch with warnings_ semantics of `Either [e] ([w], a)` is a decent principled computation that can be extended to other types. 
+The _right-catch with warnings_ semantics of `Either [e] ([e], a)` is a decent principled computation that can be extended to other types. 
 For example, a similar semantics could find its way into some parser internals.   
 
 I have created several prototype applicative instances (including a primitive `WarnParser` parser and `ErrWarnT` transformer) that follow the same semantics, they can be found in the linked [_add_blank_target repo](https://github.com/rpeszek/experiments/tree/master/alternative).   
 
-`ErrWarnT` allows to program in `ErrWarnT e e Parser` alternative and annotate failures during parsing. This allows, for example, to pattern match on which alternative has failed.    
-`WarnParser` accumulates `<|>` textual errors as warnings out of the box. 
+`ErrWarnT` allows to program in `ErrWarnT e e f` alternative (e.g. `ErrWarnT e e Parser`) and annotate additional error information on `f` (e.g. during parsing). This allows, for example, to _pattern match_ to figure out which alternatives in `<|>` have failed even if the overall computation has succeeded.  
+`WarnParser` accumulates `<|>` similar errors and warnings out of the box.  
 
 ## Rethinking the Typeclass Itself
 
@@ -457,7 +507,7 @@ _async_ package uses `<|>` to return result form the computation that finishes f
 An interesting case is the `STM` monad. `a <|> b` is used to chain computations that may want to `retry`.  I imagine, composing `STM` computations this way is rare.  If you wanted to communicate why `a` has decided to retry, how would you do that?  I consider `STM` use of alternatives problematic. 
 
 `IO` itself is an `Alternative` and uses `<|>` as a `catch` that throws away the error information. 
-I dislike the `IO` instance.  "Launching missiles" and not knowing what went wrong seems positively scary. 
+I dislike the `IO` instance.  "Launching missiles" and not knowing what went wrong seems not ideal. 
 
 IMO, if the type representing possible failures is not trivial then the use of `<|>` should be questioned.  That does not mean rejected.
 
@@ -479,12 +529,14 @@ A list of interesting packages that implement `Monoid`-like semantics for `Appli
 [_add_blank_target _monad-validate_](https://hackage.haskell.org/package/monad-validate-1.2.0.0/docs/Control-Monad-Validate.html) provides an interesting and very useful 
 validation _monad_ transformer (this is lawful if you do not compare error outputs) that can accumulate errors, it does not implement `Alternative`.  
 
-In the context of parsers, it should be noted that packages like _trifecta_, _(mega)parsec_ do nice job returning textual error messages in the context of failed `<|>`.  
-I have not seen a package that would attempt to provide semantic (non-textual) information about which alternative has failed or one that accumulated warnings when `<|>` is used.  
+In the context of parsers, it should be noted that packages like _trifecta_, _(mega)parsec_ do nice job returning error messages in the context of failed `<|>`.  
+I have not seen a package that would attempt to provide client-side control over error information or one that accumulated warnings when `<|>` is used successfully.  
 
 A good references about Alternative and MonadPlus in general is the [Typeclassopedia](https://wiki.haskell.org/Typeclassopedia#Failure_and_choice:_Alternative.2C_MonadPlus.2C_ArrowPlus) and [wikibooks](https://en.wikibooks.org/wiki/Haskell/Alternative_and_MonadPlus) both contain interesting links.
 
-There are many stackoverflow answers about Haskell solutions to accumulating errors. These typically refer to some of the packages in the above list, I am not linking them here.  
+There are many stackoverflow answers about Haskell solutions to accumulating errors. These typically refer to some of the packages in the above list, I am not linking them here.   
+There are many, many discussions about error output from different parsing libraries.  These are typically focused on criticizing 
+a particular package (typically _attoparsec_) not the `Alternative` typeclass itself.   
 I am sure, this list is not complete.  Please let me know if you see a relevant work elsewhere.   
 
 
