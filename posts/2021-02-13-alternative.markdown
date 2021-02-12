@@ -49,6 +49,7 @@ _Optimist, First Look_:
 *  `some` and `many` run the computation until first failure and return the successful results, `some` expects at least one success, otherwise it will fail. `some` and `many` are a nod towards parsers or other computations that change state. `some` and `many` are likely to yield bottom (e.g.
  `many (Just 1)` does not terminate). 
 
+The definition of `Alternative` begs this question:  Why the `Applicative` superclass?  As far as I know this is because the intended use of `empty` and `<|>` is in the applicative context.  More on this later.
 
 As we know, `MonadPlus` provides a similar semantics for monads.  `Alternative` and `MonadPlus` are most commonly used with parsers.  You are likely to use it with _aeson_, _parsec_ / _megaparsec_, _attoparsec_, etc.  
 In this post the focus is the `Alternative` with the typical right-catching, left-biased `<|>` and the examples use _attoparsec_.  
@@ -58,7 +59,9 @@ _Pessimist, First Look_:
 
 * `empty` does not accept any error information.  It represents a failure of some unknown reason.  
    I consider this problematic and an oversimplification.   
-   Unless I can somehow introduce a meaningful zero-information (let me call it _noOp_) failure, this probably will bite.
+   Unless we introduce a zero-information (let me call it _noOp_) failure, this probably will bite.   
+   I will leave it to you to ponder philosophical questions about _noOp_ (e.g. `Left []`) failure.    
+   What does: nothing went wrong but the computation failed mean?  
 * `(<|>)` semantics is unclear about error information. In particular, this definition will prevent any typeclass inductive programming that does interesting things with errors.  
 *  `some` and `many` provide no error information about the failure that ended the production of the result list. Moving forward, I will not discuss `some` or `many` in this post.  
 
@@ -68,16 +71,17 @@ I am not that deeply familiar with GHC internals.  However, as a black box, the 
 With many of the `Alternative` instances, we are likely to do the same to out users. 
 
 
-**Side-Note:**  Error information that comes out of `(<|>)` can be much better with _not true_ `Alternative`-s.  
-_parsec_ and _megaparsec_ packages implemented sophisticated ways to provide better error messages by looking at things like longest parsed path.  Lack of backtracking is what makes the _(maga)parsec_ `Parser` not a true _Alternative_ (it violates the laws).  Arguably, having no automatic backtracking makes writing code harder.  There appears to be an interesting pragmatic trade-off: _good error messages_ vs _better Alternative trueness and easier code_.    
+**Side-Note:** 
+_parsec_ and _megaparsec_ packages implemented sophisticated ways to provide better error messages by looking at things like longest parsed path.  Lack of backtracking is what makes the _(maga)parsec_ `Parser` not a lawful _Alternative_.  The _megaparsec_ haddock suggest adding `try` to improve the lawfulness.  Adding `try` can mess up error messages. There appears to be an interesting pragmatic trade-off: _good error messages_ vs _more lawful Alternative_.    
 A great, related, reading is: [_add_blank_target Parsec: “try a <|> b” considered harmful](http://blog.ezyang.com/2014/05/parsec-try-a-or-b-considered-harmful/).   
 
-But, then, most parsers offer very similar combinators allowing to write a parser agnostic code.  This scary quote, with apparent lack of empathy towards the end users, is not something I have came up with:
+Most parsers offer very similar combinators allowing to write a parser agnostic code.  This scary quote is not something I have came up with (I consider good error messages in deployed production code to be crucial): 
 
 > _The trick is to use the `parsers` library, which lets you switch out parsing backends. You can prototype with the `trifecta` library (which has good error messages) and then switch to `attoparsec` when you're done_
 
+So, this is clearly a bit of a mess. We will delve deeper into alternative error outputs by looking at the alternative laws next.
 
-The definition of `Alternative` begs this question:  Why the `Applicative` superclass?  As far as I know this is because of the intended use of `empty` and `<|>`.  We use them in the applicative context.  More on this later.
+
 
 ## Alternative Laws, Pessimistically
 
@@ -113,10 +117,12 @@ I think this is OK.  The trade-off is similar to one made by the _monad_validate
 
 _Pessimist's Concerns_:   
 
-*  `empty` typically represents a failure. _(4)_ is problematic if you want to have other possible failures (e.g. failures with different error messages):  
-    `otherFailure <*> empty` is likely to be `otherFailure` not `empty`.  
-*  _The laws actually prevent me from defining alternatives that do interesting things with errors.   
-    For example, (1)_ and _(4)_ prevent expressing the concept of a critical failure   
+*   `empty` typically represents a failure. _(4)_ is problematic if you want to have other possible failures (e.g. failures with different error messages):  
+    `otherFailure <*> empty` is likely to be `otherFailure` not `empty`.   
+    _(1 - 3)_ force a monoidal structure on the failure type.  That seems to be overly restrictive 
+    and questionable (e.g. what is `empty` error?). A semigroup structure would make much more sense here.  
+*   The laws actually prevent me from defining alternatives that do interesting things with errors.   
+    For example, _(1)_ and _(4)_ prevent expressing the concept of a critical failure   
     a sane definition would be: `f` is a critical failure if `f <|> a = f` for any `a`,   
     (i.e. terminate `<|>` with ability to recover outside of `<|>`)   
    `empty` cannot represent a critical failure because of _(1)_.   
@@ -284,17 +290,10 @@ _(Note: transformers package has a conflicting instance in the deprecated `Contr
 
 I have included `Monoid e => Alternative (Either e)` instance as a warm-up and to discuss the laws.
 
-_Pessimist Notes:_  This instance is too general. Using it with the monoid [_add_blank_target `Last`](https://hackage.haskell.org/package/base-4.14.1.0/docs/Data-Monoid.html#t:Last) type violates _(2)_ and has the same [failure at the end](#failure-at-the-end) issue as _attoparsec_. Using [_add_blank_target `First`](https://hackage.haskell.org/package/base-4.14.1.0/docs/Data-Monoid.html#t:First)
-is also questionable.  
-
-Using [_add_blank_target `Max`](https://hackage.haskell.org/package/base-4.14.1.0/docs/Data-Semigroup.html#t:Max) monoid looks interesting! 
-
-**Restricting it to `Either [e] a` works very nice:**
-
 The required _(1-3)_ laws are satisfied without resorting to any sort of questionable reasoning 
-that treats all errors as `empty`.  Also, `[]` represents a _noOp failure_ computation. This is exactly what I wanted.
+that treats all errors as `empty`.  Also, `empty` represents a _noOp failure_ computation. This is exactly what I wanted.
 
-Optional _(4 Right Zero)_ law (`f <*> Left [] = Left []`) is questionable (consider `f = Left es` with any non-trivial `es`).  
+Optional _(4 Right Zero)_ law (`f <*> empty = empty`) is questionable (consider `f = Left e` with a non-trivial `e`).   
 _(7 Left Catch)_ is OK.   
 As we have predicted, the distribution laws are not satisfied.  
 _(5)_ is NOT satisfied:
@@ -321,17 +320,18 @@ What would really be nice, is to have a standard "right-catch with warnings" `Al
 ``` haskell
 newtype ErrWarn e w a = EW {runEW :: Either e (w, a)} deriving (Eq, Show, Functor)
   
-instance Alternative (ErrWarn [e] [e]) where
+instance (Monoid e) => Alternative (ErrWarn e e) where 
     empty  = EW $ Left mempty
     EW (Left e1) <|> EW (Left e2) = EW (Left $ e1 <> e2)
     EW (Left e1) <|> EW (Right (w2, r)) = EW $ Right (e1 <> w2, r) -- coupling between @Either e@ and @(e,)@
     r@(EW (Right _)) <|> _ = r
 ```    
-(`instance (Monoid e) => Alternative (ErrWarn e e)` _would have been more general, I am not using it for to avoid issues with instances like `Data.Monoid.First` explained earlier_)
 
 This approach, when computing `a <|> b`, does not try to compute `b` if `a` succeeds.
 Thus, this instance matches the common left bias semantics. The approach accumulates all errors encountered up to the point of the first success and returns them as warnings.  
 This is a lawful `Alternative` (satisfies required laws _(1-3)_) and it does not rely on any questionable unification of `empty` with non-trivial errors.  
+
+I now feel justified using `Monoid e` constraint. Empty failure makes no sense, but empty warnings make a lot of sense!
 
 But wait! To have `Alternative` we need `Applicative`.
 It is possible to implement `Applicative` for this type in more than one way, one even leads to a valid `Monad` and `MonadPlus` (with the right-zero caveat discussed above).   
@@ -502,6 +502,11 @@ Alternative is a principled version of the _truthiness_.  The laws properly stat
 As we have seen, the problem is in going with this generalization too far.
 
 _async_ package uses `<|>` to return result form the computation that finishes first.  This seems a good use to me.
+
+Several types like `ExceptT`, `Validation` (see [hackage section](#relevant-work-on-hackage) below) allow to use arbitrary monoid
+error types.  `mempty` may not have much sense as an error, but this offers interesting options for accumulating errors. 
+Using it with `Data.Monoid.Max` could be very useful.
+
 
 **Not so good:**   
 An interesting case is the `STM` monad. `a <|> b` is used to chain computations that may want to `retry`.  I imagine, composing `STM` computations this way is rare.  If you wanted to communicate why `a` has decided to retry, how would you do that?  I consider `STM` use of alternatives problematic. 
