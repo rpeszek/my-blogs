@@ -4,7 +4,7 @@ author: Robert Peszek
 featured: true
 summary: Rethinking Alternative and its instances 
 toc: true
-tags: Haskell, maintainability, correctness, general_functional_programming
+tags: Haskell, Maintainability, Correctness, GeneralFunctionalProgramming
 ---
 **_subtitle:_ A Constructive ~~Criticism~~ Pessimism about the Alternative Typeclass**
 
@@ -27,6 +27,9 @@ A half full glass is not what you always want.
 My goal is to consider `Alternative` instances from the point of view of the errors. This "pessimistic" viewpoint yields an interesting prospective on the use of `Alternative` and on its limitations.   
 My second goal is to show a useful instance that is missing in the standard library and is different from the instances I have found in Hackage.  This instances is pessimistically constructed to preserve the failure information.    
 My third goal is to briefly consider a possibility of rethinking the `Alternative` typeclass itself.
+
+This is a long post. You may prefer to pick a section you consider interesting and backtrack from it.  The information is
+largely self-contained (except for referring to the laws). 
 
 I am using the term _error_ colloquially, the correct term is _exception_.  _Exception information loss_ just does not have a ring to it. 
 
@@ -356,7 +359,7 @@ instance (Monoid e) => MonadPlus (ErrWarn e e)
 Please note the small difference.  Standard _transformers_ / _mtl_ `ExeptT` and `WriterT` both support `Alternative`
 ``` haskell
  (Monad m, Monoid e) => Alternative (ExceptT e m)	
- (Monoid w, Alternative m) => Alternative (WriterT w m)
+ (Monoid w, Alternative m) => Alternative (WriterT w m) -- Monoid only used to define @empty@
 ``` 
 but in a decoupled way, `ErrWarn` couples these two by "writing" `e`-s.
 
@@ -468,9 +471,10 @@ I think it is.  IMO any abstraction intended for handling failures should includ
 `Alternative` is widely used and replacing it would, probably, be very hard or even impossible.  Replacement 
 would be useful only if the ecosystem accepts it.   
 
-One conceptually simple improvement would be to split `Alternative` to mimic the `Semigoup` / `Monoid` split.  
-This would clean up some instances like `ExceptT` (the above [`Either [e]`](#either-e-a)) or [`Validation`](#relevant-work-on-hackage) and remove the need for questionable `empty` definitions
-like `Left []`.  Incidentally, this would be the opposite of the [_add_blank_target `MonadZero`](https://wiki.haskell.org/MonadPlus_reform_proposal) proposal.
+One conceptually simple improvement would be to split `Alternative` to mimic the `Semigoup` / `Monoid` split
+(_semigroupoids_ has `Data.Functor.Alt` which seems to fit the bill).  
+This would clean up some instances like `ExceptT` (the above [`Either [e]`](#either-e-a)) or [`Validation`](#relevant-work-on-hackage) by reducing the need for questionable `empty` definitions
+like `Left []`.  Incidentally, this is be the opposite of the [_add_blank_target `MonadZero`](https://wiki.haskell.org/MonadPlus_reform_proposal) proposal.
 
 I would really like to see `e`-s in the typeclass definition:
 ``` haskell
@@ -480,7 +484,6 @@ class Applicative f => Semigroup1 f where
 class Applicative (f e) => Semigroup2 e f where
    (<||>)  :: f e a -> f e a -> f e a 
 ```
-_(Roman numerals can be useful)_
 
 The linked [_add_blank_target repo](https://github.com/rpeszek/experiments/tree/master/alternative) contains
 some loose replacement ideas for `Alternative` and `MonadPlus`.  It is a work in progress. 
@@ -528,7 +531,7 @@ I dislike the `IO` instance.  "Launching missiles" and not knowing what went wro
 
 [_add_blank_target _free_](https://hackage.haskell.org/package/free) package contains a semantic (free) version of _Alternative_.
 
-[_add_blank_target _semigroupoids_](https://hackage.haskell.org/package/semigroupoids-5.3.5/docs/Data-Functor-Alt.html) offers an _Alt_ that is just a _Functor_ and does not need to have `empty`.  
+[_add_blank_target _semigroupoids_](https://hackage.haskell.org/package/semigroupoids-5.3.5/docs/Data-Functor-Alt.html) offers _Alt_ that is just a _Functor_ and does not need to have `empty`.  
 
 [_add_blank_target _transformers_](https://hackage.haskell.org/package/transformers-0.5.6.2) ExceptT implements `Alternative` which accumulates "Lefts".  
 
@@ -556,7 +559,7 @@ I am sure, this list is not complete.  Please let me know if you see a relevant 
 It is possible to implement instances that do a decent error management but it feels like
 this is accomplished despite of the `Alternative` typeclass definition and its laws.  To answer my title: IMO `Alternative` is a wrong abstraction for managing computational failures.   
 
-The more I program in Haskell the more I view Functional Programming as a branch of applied mathematics.  
+The more I program in Haskell the more I view Functional Programming as a branch of Applied Mathematics.  
 Criticizing mathematical abstractions does not make much sense.  Criticism of how well an abstraction fits is application if a fair game.
 
 Why errors are being overlooked? I assembled a possible list when writing about the [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#why-maybe-is-overused-possible-explanations) and that list seems to translate well to the alternative typeclass.  For example,  code using `<|>` is very terse, something with a stronger error semantics will most likely be more verbose; coding with `<|>` is simple, stronger error semantics 
