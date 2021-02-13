@@ -13,6 +13,7 @@ This is my second post dedicated to the _error information loss_ in Haskell (the
 
 ## Nutshell
 `Alternative` is a popular functional programming concept and the name of a frequently used Haskell typeclass. `Alternative` helps in writing elegant, concise code. `Alternative` instances are also known for producing confusing errors. 
+In this post, we do a deep dive into the alternative thinking only about the errors.
 
 I realized that there is an interesting connection between `Alternative` and optimism:    
 Thinking about _the glass being half empty or half full_, look at this computation:
@@ -24,7 +25,7 @@ Would it not be better if some `a` failures caused the whole computation to fail
 _A half full glass_ makes us ignore the failure and focus on `b`...  this is exactly the semantics of `<|>`.    
 A half full glass is not what you always want.
 
-My goal is to consider `Alternative` instances from the point of view of the errors. This "pessimistic" viewpoint yields an interesting prospective on the use of `Alternative` and on its limitations.   
+My goal is to consider the `Alternative` typeclass, its laws, and its instances from the point of view of the errors. This "pessimistic" viewpoint yields an interesting prospective on the use of `Alternative` and on its limitations.   
 My second goal is to show a useful instance that is missing in the standard library and is different from the instances I have found in Hackage.  This instances is pessimistically constructed to preserve the failure information.    
 My third goal is to briefly consider a possibility of rethinking the `Alternative` typeclass itself.
 
@@ -57,7 +58,7 @@ This equivalence is "witnessed" by the [_add_blank_target `Data.Monoid.Alt`](htt
 The definition of `Alternative` begs this question:  Why the `Applicative` superclass?  As far as I know this is because the intended use of `empty` and `<|>` is in the applicative context.  More on this later.
 
 As we know, `MonadPlus` provides a similar semantics for monads.  `Alternative` and `MonadPlus` are most commonly used with parsers.  You are likely to use it with _aeson_, _parsec_ / _megaparsec_, _attoparsec_, etc.  
-In this post the focus is the `Alternative` with the typical right-catching, left-biased `<|>` and the examples use _attoparsec_.  
+In this post the focus is the `Alternative` with the typical right-catching, left-biased `<|>` and the examples typically use _attoparsec_.  
 
 
 _Pessimist, First Look_:
@@ -70,20 +71,21 @@ _Pessimist, First Look_:
 * `(<|>)` semantics is unclear about error information. 
 *  `some` and `many` provide no error information about the failure that ended the production of the result list. I will not discuss `some` or `many` in this post.  
 
-With a _true_ `Alternative` instance, a somewhat popular behavior is: If all alternatives fail, then the error information comes from the last tried computation.  
+A somewhat popular behavior is: If all alternatives fail, then the error information comes from the last tried computation.  Examples of alternatives that behave this way are: _attoparsec_ `Parser`, _aeson_ `Parser`, `IO`.
 
 I am not that deeply familiar with GHC internals.  However, as a black box, the GHC compiler often behaves in a very similar way.  For example, GHC message could indicate a problem with unifying types; it may suggest that my function needs to be applied to more arguments; ... while the real issue is that I am missing a typeclass instance somewhere or something else is happening that is completely not related to the error message.  From time to time, GHC will throw Haskell developers for a loop.  
 With many of the `Alternative` instances, we are likely to do the same to out users. 
 
 
 **Side-Note:** 
-_parsec_ and _megaparsec_ packages implemented sophisticated ways to provide better error messages by looking at things like longest parsed path.  Lack of backtracking is what makes the _(maga)parsec_ `Parser` not a lawful _Alternative_.  The _megaparsec_ haddock suggest adding `try` to improve the lawfulness.  Adding `try` can mess up error messages. There appears to be an interesting pragmatic trade-off: _good error messages_ vs _more lawful Alternative_.    
+_parsec_ and _megaparsec_ packages implemented sophisticated ways to provide better error messages by looking at things like longest parsed path.  Lack of backtracking is what makes the _(maga)parsec_ `Parser` not a lawful _Alternative/MonadPlus_.  The _megaparsec_ haddock suggest adding `try` to improve the lawfulness.  Adding `try` can mess up error messages. There appears to be an interesting pragmatic trade-off: _good error messages_ vs _more lawful alternative behavior_.    
 A great, related, reading is: [_add_blank_target Parsec: “try a <|> b” considered harmful](http://blog.ezyang.com/2014/05/parsec-try-a-or-b-considered-harmful/).   
 
-Most parsers offer very similar combinators allowing to write a parser agnostic code.  This scary quote is not something I have came up with (I consider good error messages in deployed production code to be crucial): 
+A random advice from a discussion about _attoparsec_ errors:
 
-> _The trick is to use the `parsers` library, which lets you switch out parsing backends. You can prototype with the `trifecta` library (which has good error messages) and then switch to `attoparsec` when you're done_
+> _The trick is to use the parsers library, which lets you switch out parsing backends. You can prototype with the trifecta library (which has good error messages) and then switch to attoparsec when you're done_
 
+(I assume that the author was thinking about parsing something, like a standard protocol, where user input cannot cause errors.)  
 So, this is clearly a bit of a mess and we are looking for crazy workarounds. I will delve deeper into alternative error outputs by looking at the alternative laws next.
 
 
@@ -114,7 +116,7 @@ p2 = (Employee <$> employeeIdParser <*> nameParser1) <|> (Employee <$> employeeI
 ```
 it is good to know that these approaches are equivalent.  
 
-The laws are strong enough to restrict what failures can be (that is not a bad thing).  For example, _(1)_ and _(4)_ prevent expressing the concept of a critical failure.  A sane definition would be: `f` is a critical failure if `f <|> a = f` and 
+The laws are strong enough to restrict what failures can be (this is not necessarily a bad thing).  For example, _(1)_ and _(4)_ prevent expressing the concept of a critical failure.  A sane definition would be: `f` is a critical failure if `f <|> a = f` and 
 `f <*> a = f` for any `a`.     
 `empty` cannot represent a critical failure because of _(1)_   
 non-`empty` cannot represent a critical failure because of _(4)_.   
@@ -131,7 +133,6 @@ _Pessimist's Concerns_:
     Would you expect _(5,6)_ to hold in the context of a failure (e.g. parser error messages)?
     My answer is: I do not!  Violating these laws is not necessarily a bad thing.
     The end result is that the programmer needs to make an explicit choice between `p1` and `p2` selecting one with the more desirable error output.  The trade-off is similar to one made by the _monad_validate_ package linked at the end of this article.
-*  _(5,6)_ are likely to prevent `<|>` semantics that accumulates error information (as discussed above)
 
 Let me return to the basic laws, particularly _(2)_: `u <|> empty  =  u`: 
 
@@ -163,7 +164,7 @@ So we broke the required second law.  Incidentally, we would not be able to brea
 This should not be surprising, (1-3) imply a monoidal structure on failures and this is not what _attoparsec_ does.
 
 
-_attoparsec_ gets a lot of blame for its error output.  Let's try `IO` alternative:
+_attoparsec_ gets a lot of blame for its error output.  Let's try the `IO` alternative:
 ``` haskell
 uIO = fail "foo" :: IO a
 
@@ -230,7 +231,7 @@ parseReply = parseA <|> parseB <|> parseC
 
 The external website changed how they report A, now when A is processed `parseA` fails, the user sees: "C is not supported yet!".
 
-The following would be a slightly better code, the user would see `parseB` error message instead ;) :
+The following would be a slightly better code, the user would see `parseB` error message instead:
 
 ``` haskell
 parseReply = parseC <|> parseA <|> parseB 
@@ -277,7 +278,7 @@ Can we come up with `Alternative` instances that do a decent job of maintaining 
 
 This is a warm-up.
 
-This instance is not new. It matches `ExceptT` alternative instance from _transformers_ / _mtl_.
+This instance is not new. It matches the `ExceptT` alternative instance from _transformers_ / _mtl_.
 It uses standard `Either` monad and this is a `MonadPlus` (with a somewhat questionable right-zero law): 
 
 ``` haskell
@@ -437,7 +438,7 @@ Trying [failure at the end](#failure-at-the-end) situation (typo in `"last-first
 -- Left ["\"last-first-name\": not enough input","Failed reading: first-last-name not implemented yet"]
 ```
 (A similar benefit can be achieved by using one of the Hackage _validation_ packages listed
-at the end of this post or using `ExceptT` alternative.)
+at the end of this post or using the `ExceptT` alternative.)
 
 Trying [permissive computation at the end](#permissive-computation-at-the-end) situation (`"boss"` parsing error):
 ``` haskell
@@ -457,9 +458,9 @@ We are no longer being thrown for a loop!
 The _right-catch with warnings_ semantics of `Either [e] ([e], a)` is a decent principled computation that can be extended to other types. 
 For example, a similar semantics could find its way into some parser internals.   
 
-I have created several prototype applicative instances (including a primitive `WarnParser` parser and `ErrWarnT` transformer) that follow the same semantics, they can be found in the linked [_add_blank_target repo](https://github.com/rpeszek/experiments/tree/master/alternative).   
+I have created several prototype alternative instances (including a primitive `WarnParser` parser and `ErrWarnT` transformer) that follow the same semantics, they can be found in the linked [_add_blank_target repo](https://github.com/rpeszek/experiments/tree/master/alternative).   
 
-`ErrWarnT` allows to program in `ErrWarnT e e f` alternative (e.g. `ErrWarnT e e Parser`) and annotate additional error information on `f` (e.g. during parsing). This allows, for example, to _pattern match on errors_ to figure out which alternatives in `<|>` have failed even if the overall computation has succeeded.  
+`ErrWarnT` allows to program in a `ErrWarnT e e f` alternative (e.g. `ErrWarnT e e Parser`) and annotate additional error information on `f` (e.g. during parsing). This allows, for example, to _pattern match on errors_ to figure out which alternatives in `<|>` have failed even if the overall computation has succeeded.  
 `WarnParser` accumulates `<|>` similar errors and warnings out of the box.  
 
 ## Rethinking the Typeclass Itself
@@ -504,7 +505,7 @@ Languages like JavaScript, Python, Groovy have a concept of _truthiness_. _Truth
 > "" || "hello"
 "hello"
 ```
-_Truthiness_ is questionable because Boolean algebra laws (like `a || b = b || a`) no longer hold.
+_Truthiness_ is questionable because the Boolean algebra laws (like `a || b = b || a`) no longer hold.
 
 Now try these in ghci:
 ``` haskell
