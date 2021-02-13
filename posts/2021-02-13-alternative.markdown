@@ -65,7 +65,7 @@ _Pessimist, First Look_:
    I will leave it to you to ponder philosophical questions about _noOp_ (e.g. `Left []`) failure.    
    What does: nothing went wrong but the computation failed mean?  
 * `(<|>)` semantics is unclear about error information. 
-*  `some` and `many` provide no error information about the failure that ended the production of the result list. Moving forward, I will not discuss `some` or `many` in this post.  
+*  `some` and `many` provide no error information about the failure that ended the production of the result list. I will not discuss `some` or `many` in this post.  
 
 With a _true_ `Alternative` instance, a somewhat popular behavior is: If all alternatives fail, then the error information comes from the last tried computation.  
 
@@ -111,13 +111,11 @@ p2 = (Employee <$> employeeIdParser <*> nameParser1) <|> (Employee <$> employeeI
 ```
 it is good to know that these approaches are equivalent.  
 
-Note that any instance of `Alternative` that tries to accumulate failures is likely to have a problem satisfying the distribution laws _(5,6)_, as the _rhs_ combines 4 potential failures and _lhs_ combines 3.   
-The question is: would you expect _(5,6)_ to hold in the context of a failure (e.g. _(mega)parsec_ error messages)?
-My answer is: I do not!  
-The end result is that the programmer needs to make an explicit choice between `p1` and `p2` selecting one with the more desirable error output.   
-I think this is OK.  The trade-off is similar to one made by the _monad_validate_ package linked at the end of this article.
-
-
+The laws are strong enough to restrict what failures can be (that is not a bad thing).  For example, _(1)_ and _(4)_ prevent expressing the concept of a critical failure.  A sane definition would be: `f` is a critical failure if `f <|> a = f` and 
+`f <*> a = f` for any `a`.     
+`empty` cannot represent a critical failure because of _(1)_   
+non-`empty` cannot represent a critical failure because of _(4)_.   
+Critical failures are simply not what `Alternative` is about and that is OK.
 
 _Pessimist's Concerns_:   
 
@@ -125,12 +123,11 @@ _Pessimist's Concerns_:
     `otherFailure <*> empty` is likely to be `otherFailure` not `empty`.   
     _(1 - 3)_ force a monoidal structure on the failure type.  That seems to be overly restrictive 
     and questionable (e.g. what is `empty` error?). A semigroup structure would make much more sense here.  
-*   The laws actually prevent me from defining alternatives that do interesting things with errors.   
-    For example, _(1)_ and _(4)_ prevent expressing the concept of a critical failure   
-    a sane definition would be: `f` is a critical failure if `f <|> a = f` for any `a`,   
-    (i.e. terminate `<|>` with ability to recover outside of `<|>`.)   
-   `empty` cannot represent a critical failure because of _(1)_   
-    non-`empty` cannot represent a critical failure because of _(4)_
+*   Note that any instance of `Alternative` that tries to accumulate failures is likely to have a problem satisfying the 
+    distribution laws _(5,6)_, as the _rhs_ combines 4 potential failures and _lhs_ combines 3.   
+    Would you expect _(5,6)_ to hold in the context of a failure (e.g. parser error messages)?
+    My answer is: I do not!  Violating these laws is not necessarily a bad thing.
+    The end result is that the programmer needs to make an explicit choice between `p1` and `p2` selecting one with the more desirable error output.  The trade-off is similar to one made by the _monad_validate_ package linked at the end of this article.
 *  _(5,6)_ are likely to prevent `<|>` semantics that accumulates error information (as discussed above)
 
 Let me return to the basic laws, particularly _(2)_: `u <|> empty  =  u`: 
@@ -181,7 +178,7 @@ ghci:
 ```
 We see the same issue.
 
-One way to look at this, and I believe this is how people are looking at this issue, is that any failure with any error message is considered equivalent to `empty`.  The laws hold if the error information is ignored.  Somewhat of a downer if you care about errors.   
+One way to look at this, and I believe this is how some programmers are looking at this issue, is that any failure with any error message is considered equivalent to `empty`.  The laws hold if the error information is ignored.  Somewhat of a downer if you care about errors.   
 
 **Side-Note:**  Numerous instances of `Alternative` manage to satisfy _(2)_.  
 That includes `ExceptT`, the `Validatation` type listed at the end of this post.  Here is the law working for 'trifecta'
@@ -205,7 +202,7 @@ ghci:
   | ^    
 ```
 
-We will see the `Monoid` fix for _(2)_ in the [`Either [e] a`](#either-e-a) section.  
+We will see the blueprint `Monoid` fix for _(2)_ in the [`Either [e] a`](#either-e-a) section.  
 
 ## Real-World `Alternative` (Optimism with Experience)
 
@@ -557,7 +554,10 @@ I am sure, this list is not complete.  Please let me know if you see a relevant 
 ## Conclusions, Thoughts
 
 It is possible to implement instances that do a decent error management but it feels like
-this is accomplished despite of the `Alternative` typeclass definition and its laws.  To answer my title: IMO `Alternative` is a wrong abstraction for managing computational failures.
+this is accomplished despite of the `Alternative` typeclass definition and its laws.  To answer my title: IMO `Alternative` is a wrong abstraction for managing computational failures.   
+
+The more I program in Haskell the more I view Functional Programming as a branch of applied mathematics.  
+Criticizing mathematical abstractions does not make much sense.  Criticism of how well an abstraction fits is application if a fair game.
 
 Why errors are being overlooked? I assembled a possible list when writing about the [_add_blank_target Maybe Overuse](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#why-maybe-is-overused-possible-explanations) and that list seems to translate well to the alternative typeclass.  For example,  code using `<|>` is very terse, something with a stronger error semantics will most likely be more verbose; coding with `<|>` is simple, stronger error semantics 
 will likely be more complex ...     
