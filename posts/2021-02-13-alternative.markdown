@@ -35,7 +35,7 @@ _A half empty glass_ makes us think about the failure of `a`:
 _Why_ did `a` fail?   
 Would it not be better if some `a` failures caused the whole computation to fail?...   
 _A half full glass_ makes us ignore the failure and focus on `b`...  this is exactly the semantics of `<|>`.    
-A half full glass is not what you always want and this post looks at the alternative, its laws, and its instances from a "pessimistic" viewpoint or the errors.
+A half full glass is not what you always want. This post looks at the alternative, its laws, and its instances from the "pessimistic" point of view.  In this post pessimism is defined as, simply, thinking about the errors.
 
 This is a long post. You may prefer to pick a section you consider interesting and backtrack from it.  The information is
 largely self-contained (except for referring to the laws). 
