@@ -7,7 +7,7 @@ toc: true
 changelog: <ul> 
      <li> (Feb 13, 2021) Edited <a href="#pessimistic-instances">Pessimistic Instances</a> top section</li> 
      <li> (Feb 14, 2021) <a href="#pessimists-intro-to-alternative">Intro</a> adds a clarification paragraph linking
-     failures to instances (prompted by reddit) </li>
+     failures to instances (prompted by reddit), <a href="#nutshell">Nutshell</a></li> clearly lists goals
      </ul>
 tags: Haskell, Maintainability, Correctness, GeneralFunctionalProgramming
 ---
@@ -20,6 +20,13 @@ This is my second post dedicated to the _error information loss_ in Haskell (the
 `Alternative` is a popular functional programming concept and the name of a frequently used Haskell typeclass. `Alternative` helps in writing elegant, concise code. `Alternative` instances are also known for producing confusing errors. 
 In this post, we do a deep dive into the alternative thinking only about the errors.
 
+The goals for this post are:
+
+* discuss how `Alternative` laws impact the instance ability to keep error information
+* provide examples of how some `Alternative` instances can get programmers in trouble
+* show a 'blueprint' [`Either [e] ([e],_)`](#a-decent-blueprint-either-e-e-a) instance with a strong ability to preserve error information.  This blueprint can be extended to a transformer, parser, etc.
+* very briefly discuss extending or rethinking the `Alternative` typeclass itself
+
 I realized that there is an interesting connection between many `Alternative` instances and optimism:    
 Thinking about _the glass being half empty or half full_, look at this computation:
 `a <|> b`
@@ -28,11 +35,7 @@ _A half empty glass_ makes us think about the failure of `a`:
 _Why_ did `a` fail?   
 Would it not be better if some `a` failures caused the whole computation to fail?...   
 _A half full glass_ makes us ignore the failure and focus on `b`...  this is exactly the semantics of `<|>`.    
-A half full glass is not what you always want.
-
-My goal is to consider the `Alternative` typeclass, its laws, and its instances from the point of view of the errors. This "pessimistic" viewpoint yields an interesting prospective on the use of `Alternative` and on its limitations.   
-My second goal is to show a useful instance that is missing in the standard library and is different from the instances I have found in Hackage.  This instances is pessimistically constructed to preserve the failure information.    
-My third goal is to briefly consider a possibility of rethinking the `Alternative` typeclass itself.
+A half full glass is not what you always want and this post looks at the alternative, its laws, and its instances from a "pessimistic" viewpoint or the errors.
 
 This is a long post. You may prefer to pick a section you consider interesting and backtrack from it.  The information is
 largely self-contained (except for referring to the laws). 
