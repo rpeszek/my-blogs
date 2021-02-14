@@ -6,6 +6,8 @@ summary: Rethinking Alternative and its instances
 toc: true
 changelog: <ul> 
      <li> (Feb 13, 2021) Edited <a href="#pessimistic-instances">Pessimistic Instances</a> top section</li> 
+     <li> (Feb 14, 2021) <a href="#pessimists-intro-to-alternative">Intro</a> adds a clarification paragraph linking
+     failures to instances (prompted by reddit) </li>
      </ul>
 tags: Haskell, Maintainability, Correctness, GeneralFunctionalProgramming
 ---
@@ -18,7 +20,7 @@ This is my second post dedicated to the _error information loss_ in Haskell (the
 `Alternative` is a popular functional programming concept and the name of a frequently used Haskell typeclass. `Alternative` helps in writing elegant, concise code. `Alternative` instances are also known for producing confusing errors. 
 In this post, we do a deep dive into the alternative thinking only about the errors.
 
-I realized that there is an interesting connection between `Alternative` and optimism:    
+I realized that there is an interesting connection between many `Alternative` instances and optimism:    
 Thinking about _the glass being half empty or half full_, look at this computation:
 `a <|> b`
 and assume that `a` fails and `b` succeeds.   
@@ -47,6 +49,9 @@ class Applicative f => Alternative f where
   some :: f a -> f [a] -- optional
   many :: f a -> f [a] -- optional
 ```
+
+The typeclass does not specify the semantics of `empty` and `<|>` other than their monoidal nature.  
+However, many instances link the `empty` and `<|>` semantics to computation failures.
 
 _Optimist, First Look_:
 
