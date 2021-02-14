@@ -4,6 +4,9 @@ author: Robert Peszek
 featured: true
 summary: Rethinking Alternative and its instances 
 toc: true
+changelog: <ul> 
+     <li> (Feb 13, 2021) Edited <a href="#pessimistic-instances">Pessimistic Instances</a> top section</li> 
+     </ul>
 tags: Haskell, Maintainability, Correctness, GeneralFunctionalProgramming
 ---
 **_subtitle:_ A Constructive ~~Criticism~~ Pessimism about the Alternative Typeclass**
@@ -270,7 +273,7 @@ there exist at least one instance of _A_ in the **base** allowing to recover the
 
 `MonadFail` fails this property (especially when combined with `MonadPlus`: [_add_blank_target Maybe Overuse - MonadFail](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html#monadfail-and-maybe)).  
 
-`Alternative` fails it as well.  
+`Alternative` ~~fails it as well~~.  (**EDIT Feb 13, 2021**: It has been pointed out to me on [_add_blank_target reddit by u/gcross](https://www.reddit.com/r/haskell/comments/lj3h47/is_alternative_a_wrong_abstraction_for_handling/gnas3y2?utm_source=share&utm_medium=web2x&context=3) that this is **not a fair criticism**.  _base_ typeclass definition does not really claim any relationship to failures.  I stand corrected on this. I still think that it would be very nice to have error information friendly instance of Alternative in _base_.) 
 
 Can we come up with `Alternative` instances that do a decent job of maintaining error information?  It seems that the answer is yes.  
 
@@ -475,7 +478,7 @@ would be useful only if the ecosystem accepts it.
 One conceptually simple improvement would be to split `Alternative` to mimic the `Semigoup` / `Monoid` split
 (_semigroupoids_ has `Data.Functor.Alt` which seems to fit the bill).  
 This would clean up some instances like `ExceptT` (the above [`Either [e]`](#either-e-a)) or [`Validation`](#relevant-work-on-hackage) by reducing the need for questionable `empty` definitions
-like `Left []`.  Incidentally, this is be the opposite of the [_add_blank_target `MonadZero`](https://wiki.haskell.org/MonadPlus_reform_proposal) proposal.
+like `Left []`.  Incidentally, this would be the opposite of the [_add_blank_target `MonadZero`](https://wiki.haskell.org/MonadPlus_reform_proposal) proposal.
 
 I would really like to see `e`-s in the typeclass definition:
 ``` haskell
@@ -584,7 +587,7 @@ My particular interest is in discussing:
 *   other interesting `Alternative` instances that care about errors
 *   obviously, anything that I got wrong
 
-reddit discussion (TODO)  
+[_add_blank_target reddit](https://www.reddit.com/r/haskell/comments/lj3h47/is_alternative_a_wrong_abstraction_for_handling/) discussion    
 github [_add_blank_target discussions](https://github.com/rpeszek/rpeszek.github.io/discussions/1)
 
 Thank you for reading! 
