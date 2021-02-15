@@ -7,7 +7,8 @@ toc: true
 changelog: <ul> 
      <li> (Feb 13, 2021) Edited <a href="#pessimistic-instances">Pessimistic Instances</a> top section</li> 
      <li> (Feb 14, 2021) <a href="#pessimists-intro-to-alternative">Intro</a> adds a clarification paragraph linking
-     failures to instances (prompted by reddit), <a href="#nutshell">Nutshell</a></li> clearly lists goals
+     failures to instances (prompted by reddit), <a href="#nutshell">Nutshell</a> clearly lists goals </li>
+     <li> (Feb 15, 2021) Added <a href="#readers-response">Reader's Response</a> section</li>
      </ul>
 tags: Haskell, Maintainability, Correctness, GeneralFunctionalProgramming
 ---
@@ -600,3 +601,26 @@ github [_add_blank_target discussions](https://github.com/rpeszek/rpeszek.github
 
 Thank you for reading! 
 
+### Reader's Response
+
+Common critical response on reddit (2021-02-15) can be summarized as: Alternative should not be used like this and there are better ways of writing such code.
+
+> "it seems a bit odd, to me, to criticize and talk about rethinking a typeclass because it does something that it was never intended to do"    
+> "people should be using a typeclass designed for handling errors"   
+> "maybe you are asking too much to Alternative"   
+
+The `ErrWarn` blueprint or other instances with strong error information preserving abilities were not discussed.
+
+There appears to be mixed response to the error information loss being a problem in general.  Some readers claim that this is not a problem, some seem to share my concern.
+
+
+**Author's Defense**  
+
+I agree with the: "Alternative should not be used like this".
+
+Alternative is an example of an abstraction that is very easy to use, it makes coding fast.   
+It will be (and I have seen it) used in ways similar to what I described in this post.   
+
+Any code (alternative or not) producing confusing error output is a concern.   
+IMO, every abstraction and every instance needs to be concerned about the error output quality.
+_Not being designed for error handling_ should not be a thing.
