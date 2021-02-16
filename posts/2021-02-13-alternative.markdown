@@ -8,7 +8,7 @@ changelog: <ul>
      <li> (Feb 13, 2021) Edited <a href="#pessimistic-instances">Pessimistic Instances</a> top section</li> 
      <li> (Feb 14, 2021) <a href="#pessimists-intro-to-alternative">Intro</a> adds a clarification paragraph linking
      failures to instances (prompted by reddit), <a href="#nutshell">Nutshell</a> clearly lists goals </li>
-     <li> (Feb 15, 2021) Added <a href="#readers-response">Reader's Response</a> section</li>
+     <li> (Feb 15, 2021) Added <a href="#readers-response">Reader's Response</a> section, Clarified some laws</li>
      </ul>
 tags: Haskell, Maintainability, Correctness, GeneralFunctionalProgramming
 ---
@@ -90,7 +90,7 @@ With many of the `Alternative` instances, we are likely to do the same to out us
 
 
 **Side-Note:** 
-_parsec_ and _megaparsec_ packages implemented sophisticated ways to provide better error messages by looking at things like longest parsed path.  Lack of backtracking is what makes the _(maga)parsec_ `Parser` not a lawful _Alternative/MonadPlus_.  The _megaparsec_ haddock suggest adding `try` to improve the lawfulness.  Adding `try` can mess up error messages. There appears to be an interesting pragmatic trade-off: _good error messages_ vs _more lawful alternative behavior_.    
+_parsec_ and _megaparsec_ packages implemented sophisticated ways to provide better error messages by looking at things like longest parsed path.  Lack of backtracking is what makes the _(maga)parsec_ `Parser` not a fully lawful _Alternative/MonadPlus_ (violating _right zero_).  The _megaparsec_ haddock suggest adding `try` to improve the lawfulness.  Adding `try` can mess up error messages. There appears to be an interesting pragmatic trade-off: _good error messages_ vs _more lawful alternative behavior_.    
 A great, related, reading is: [_add_blank_target Parsec: “try a <|> b” considered harmful](http://blog.ezyang.com/2014/05/parsec-try-a-or-b-considered-harmful/).   
 
 A random advice from a discussion about _attoparsec_ errors:
@@ -138,8 +138,8 @@ _Pessimist's Concerns_:
 
 *   `empty` typically represents a failure. _(4)_ is problematic if you want to have other possible failures (e.g. failures with different error messages):  
     `otherFailure <*> empty` is likely to be `otherFailure` not `empty`.   
-    _(1 - 3)_ force a monoidal structure on the failure type.  That seems to be overly restrictive 
-    and questionable (e.g. what is `empty` error?). A semigroup structure would make much more sense here.  
+*   _(1 - 3)_ force a monoidal structure on the failures themselves 
+    (under a reasonable assumption that `empty` is a failure and alternating two failures produces a failure). A semigroup structure would make much more sense here (i.e. what is `empty` error?).  
 *   Note that any instance of `Alternative` that tries to accumulate failures is likely to have a problem satisfying the 
     distribution laws _(5,6)_, as the _rhs_ combines 4 potential failures and _lhs_ combines 3.   
     Would you expect _(5,6)_ to hold in the context of a failure (e.g. parser error messages)?
