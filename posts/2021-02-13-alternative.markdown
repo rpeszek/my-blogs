@@ -5,10 +5,11 @@ featured: true
 summary: Rethinking Alternative and its instances 
 toc: true
 changelog: <ul> 
-     <li> (Feb 13, 2021) Edited <a href="#pessimistic-instances">Pessimistic Instances</a> top section</li> 
-     <li> (Feb 14, 2021) <a href="#pessimists-intro-to-alternative">Intro</a> adds a clarification paragraph linking
+     <li> (2021-02-13) Edited <a href="#pessimistic-instances">Pessimistic Instances</a> top section</li> 
+     <li> (2021-02-14) <a href="#pessimists-intro-to-alternative">Intro</a> adds a clarification paragraph linking
      failures to instances (prompted by reddit), <a href="#nutshell">Nutshell</a> clearly lists goals </li>
-     <li> (Feb 15, 2021) Added <a href="#readers-response">Reader's Response</a> section, Clarified some laws</li>
+     <li> (2021-02-15) Added <a href="#readers-response">Reader's Response</a> section</li> 
+     <li> (2021-02-16) Laws, clarified some text</li>
      </ul>
 tags: Haskell, Maintainability, Correctness, GeneralFunctionalProgramming
 ---
@@ -139,7 +140,7 @@ _Pessimist's Concerns_:
 *   `empty` typically represents a failure. _(4)_ is problematic if you want to have other possible failures (e.g. failures with different error messages):  
     `otherFailure <*> empty` is likely to be `otherFailure` not `empty`.   
 *   _(1 - 3)_ force a monoidal structure on the failures themselves 
-    (under a reasonable assumption that `empty` is a failure and alternating two failures produces a failure). A semigroup structure would make much more sense here (i.e. what is `empty` error?).  
+    (under a reasonable assumption that `empty` is a failure and alternating two failures produces a failure). This is a good property but instances often ignore it. A semigroup structure would make more pragmatic sense (i.e. what is `empty` error?).  
 *   Note that any instance of `Alternative` that tries to accumulate failures is likely to have a problem satisfying the 
     distribution laws _(5,6)_, as the _rhs_ combines 4 potential failures and _lhs_ combines 3.   
     Would you expect _(5,6)_ to hold in the context of a failure (e.g. parser error messages)?
