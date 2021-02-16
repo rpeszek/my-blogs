@@ -620,7 +620,7 @@ I agree with the: "Alternative should not be used like this".
 
 Alternative is an example of an abstraction that is very easy to use, it makes coding fast.   
 It most likely will end up being used (I have seen it) in ways similar to what I described in this post.   
-It is important that the developers are aware of the gotchas that come with some of the instances of this abstraction.
+It is important that the developers are aware of the gotchas that come with some of the instances.
 
 Any code (alternative or not) producing confusing error output is a concern.   
 IMO, every abstraction and every instance needs to be concerned about the error output quality.
