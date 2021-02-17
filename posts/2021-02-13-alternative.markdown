@@ -1,6 +1,7 @@
 ---
 title: Is Alternative a Wrong Abstraction for Handling Failures?
 author: Robert Peszek
+lastmodified: February 17, 2021
 featured: true
 summary: Rethinking Alternative and its instances 
 toc: true
@@ -10,8 +11,9 @@ changelog: <ul>
      failures to instances (prompted by reddit), <a href="#nutshell">Nutshell</a> clearly lists goals </li>
      <li> (2021.02.15-16) Added <a href="#readers-response">Reader's Response</a> section</li> 
      <li> (2021.02.16) Laws&colon; clarified some text</li>
+     <li> (2021.02.17) <a href="#rethinking-the-typeclass-itself">Rethinking</a> section reworded a little</li>
      </ul>
-tags: Haskell, Maintainability, Correctness, GeneralFunctionalProgramming
+tags: Haskell, error-messages, maintainability, correctness
 ---
 **_subtitle:_ A Constructive ~~Criticism~~ Pessimism about the Alternative Typeclass**
 
@@ -40,7 +42,9 @@ _A half full glass_ makes us ignore the failure and focus on `b`...  this is exa
 A half full glass is not what you always want. This post looks at the alternative, its laws, and its instances from the "pessimistic" point of view.  In this post pessimism is defined as, simply, thinking about the errors.
 
 This is a long post. You may prefer to pick a section you consider interesting and backtrack from it.  The information is
-largely self-contained (except for referring to the laws). 
+largely self-contained (except for referring to the laws).   
+
+Implementing good error messages is not trivial. This post should not be viewed as criticism but as a challenge.
 
 I am using the term _error_ colloquially, the correct term is _exception_.  _Exception information loss_ just does not have a ring to it. 
 
@@ -86,8 +90,8 @@ _Pessimist, First Look_:
 
 A somewhat popular behavior is: If all alternatives fail, then the error information comes from the last tried computation.  Examples of alternatives that behave this way are: _attoparsec_ `Parser`, _aeson_ `Parser`, `IO`.
 
-I am not that deeply familiar with GHC internals.  However, as a black box, the GHC compiler often behaves in a very similar way.  For example, GHC message could indicate a problem with unifying types; it may suggest that my function needs to be applied to more arguments; ... while the real issue is that I am missing a typeclass instance somewhere or something else is happening that is completely not related to the error message.  From time to time, GHC will throw Haskell developers for a loop.  
-With many of the `Alternative` instances, we are likely to do the same to out users. 
+I am not that deeply familiar with GHC internals.  However, as a black box, the GHC compiler often behaves in a very similar way.  For example, GHC message could indicate a problem with unifying types; it may suggest that my function needs to be applied to more arguments; ... while the real issue is that I am missing a typeclass instance somewhere or something else is happening that is completely not related to the error message.  Generating useful compiler messages must be very hard and this is not a criticism of GHC but a familiar UX example.  
+From time to time, GHC will throw Haskell developers for a loop.  
 
 
 **Side-Note:** 
@@ -478,12 +482,11 @@ I have created several prototype alternative instances (including a primitive `W
 
 ## Rethinking the Typeclass Itself
 
-Is `Alternative` a wrong abstraction for what it is trying to do? 
-I think it is.  IMO any abstraction intended for handling failures should include failures in its semantics. 
+Is `Alternative` a wrong abstraction for alternating failing computations? 
+I think it is.  IMO any abstraction used for working with failures should include failures in its semantics. 
 `Alternative` typeclass does not do that.  
 
-`Alternative` is widely used and replacing it would, probably, be very hard or even impossible.  Replacement 
-would be useful only if the ecosystem accepts it.   
+`Alternative` is widely used and creating an 'alternative' to it will, probably, be very hard or even impossible.  That typeclass would be useful only if the ecosystem accepted it.   
 
 One conceptually simple improvement would be to split `Alternative` to mimic the `Semigoup` / `Monoid` split
 (_semigroupoids_ has `Data.Functor.Alt` which seems to fit the bill).  
@@ -626,3 +629,4 @@ It is important that the developers are aware of the gotchas that come with some
 Any code (alternative or not) producing confusing error output is a concern.   
 IMO, every abstraction and every instance needs to be concerned about the error output quality.
 _Not being designed for error handling_ should not be a thing.  At the same time, error friendlier instances should be a good thing. 
+

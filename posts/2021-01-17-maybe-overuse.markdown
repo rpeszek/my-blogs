@@ -1,14 +1,16 @@
 ---
 title: Maybe Overuse, Stories About Error Information Loss
 author: Robert Peszek
-lastmodified: January 18, 2021
+lastmodified: February 17, 2021
 featured: true
 summary: Discussion of Maybe Overuse anti-patterns in Haskell code
 toc: true
 changelog: <ul> 
-     <li> (Jan 18, 2021) Added <a href="#monadfail-and-maybe">MonadFail</a> subsection to <a href="#maybe-on-hackage">Maybe on Hackage</a></li> 
+     <li> (2021.01.18) Added <a href="#monadfail-and-maybe">MonadFail</a> subsection to <a href="#maybe-on-hackage">Maybe on Hackage</a>
+     </li> 
+     <li> (2021.02.17-now) <a href="#more-links">More Links</a> (list of related links)</li>      
      </ul>
-tags: Haskell, Correctness, Maintainability
+tags: Haskell, error-messages, maintainability
 ---
 
 
@@ -472,7 +474,7 @@ the conveniences it offers and its gotchas.  I prefer designs that provide more 
 
 ## `Alternative` typeclass
 
-`Alternaive` `(<|>)` is very convenient tool often used with parsers.  It can be dangerous on its own merit. It can suppress error information in questionable ways if overused. 
+`Alternaive` `(<|>)` is very convenient tool often used with parsers.  It can be dangerous on its own merit. It can suppress error information in questionable ways if overused (I wrote a separate [_add_blank_target post](https://rpeszek.github.io/posts/2021-02-13-alternative.html) about it). 
 
 There is currently no `Alternative` instance for `Either err` but there is one for `Maybe`. 
 This creates temptation to `unExplain` the `err` ...   
@@ -523,3 +525,12 @@ Discussion links:
 
 *  github [_add_blank_target discussions](https://github.com/rpeszek/rpeszek.github.io/discussions)
 *  [_add_blank_target reddit](https://www.reddit.com/r/haskell/comments/kyo4xk/maybe_considered_harmful/)
+
+
+## More Links
+
+(Links and information added later, after the original post)
+
+* [_add_blank_target The Trouble with Typed Errors](https://www.parsonsmatt.org/2018/11/03/trouble_with_typed_errors.html) - My post is often read as "Use Either" (I would prefer just "Do not overuse Maybe").  Matt Parsons's great post talks about problems with monolithic error types and more.  Extensible errors is important topic worth its own github awesome page.
+
+* [_add_blank_target Haskell Weekly Podcast](https://haskellweekly.news/episode/35.html) has explored my post.  Thank you so much!

@@ -6,7 +6,7 @@ title: About
 **Infrequent:** I do not blog much.  Besides, there are many excellent functional programming blogs already. I will commit a post if something really bugs me or I feel very passionate about a topic that is not otherwise covered by people smarted than me  
 It will be about programming, most likely functional programming.  
 
-**Pragmatic:**  My interests are in software [maintainability](/tags/Maintainability.html) and [correctness](/tags/Correctness.html).  These can easily get very theoretical but the underlying pragmatic benefits and challenges is what interests me.
+**Pragmatic:**  My interests are in software [maintainability](/tags/maintainability.html) and [correctness](/tags/correctness.html).  These can easily get very theoretical but the underlying pragmatic benefits and challenges is what interests me.
 
 ``` haskell
 blog = do 
