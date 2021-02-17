@@ -5,11 +5,11 @@ featured: true
 summary: Rethinking Alternative and its instances 
 toc: true
 changelog: <ul> 
-     <li> (2021-02-13) Edited <a href="#pessimistic-instances">Pessimistic Instances</a> top section</li> 
-     <li> (2021-02-14) <a href="#pessimists-intro-to-alternative">Intro</a> adds a clarification paragraph linking
+     <li> (2021.02.13) Edited <a href="#pessimistic-instances">Pessimistic Instances</a> top section</li> 
+     <li> (2021.02.14) <a href="#pessimists-intro-to-alternative">Intro</a> adds a clarification paragraph linking
      failures to instances (prompted by reddit), <a href="#nutshell">Nutshell</a> clearly lists goals </li>
-     <li> (2021-02-15) Added <a href="#readers-response">Reader's Response</a> section</li> 
-     <li> (2021-02-16) Laws, clarified some text</li>
+     <li> (2021.02.15-16) Added <a href="#readers-response">Reader's Response</a> section</li> 
+     <li> (2021.02.16) Laws&colon; clarified some text</li>
      </ul>
 tags: Haskell, Maintainability, Correctness, GeneralFunctionalProgramming
 ---
@@ -625,4 +625,4 @@ It is important that the developers are aware of the gotchas that come with some
 
 Any code (alternative or not) producing confusing error output is a concern.   
 IMO, every abstraction and every instance needs to be concerned about the error output quality.
-_Not being designed for error handling_ should not be a thing.
+_Not being designed for error handling_ should not be a thing.  At the same time, error friendlier instances should be a good thing. 
