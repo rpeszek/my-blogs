@@ -4,7 +4,7 @@ title: Semiserious
 
 * The problem with most programs is that somebody else wrote them.
 
-* Ideal programming language would make good programs easy and bad programs hard.
+* Ideal programming language would make writing good programs easy and bad programs hard.
   Haskell comes close, except for its support of literal strings.  You can easily do a lot of bad with literal strings.
 
 * Java Streams have a very interesting take on referential transparency. 
