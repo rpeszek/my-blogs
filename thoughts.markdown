@@ -1,5 +1,5 @@
 ---
-title: Loose Thoughts
+title: Semiserious
 ---
 
 * The problem with most programs is that somebody else wrote them.

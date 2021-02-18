@@ -26,7 +26,7 @@ blog = do
 *  This blog [_add_blank_target source code](https://github.com/rpeszek/my-blogs)
 *  My old blog [_add_blank_target Opinions and Programming](http://rpeszek.blogspot.com/)
 
-**About me:**  I work as a Haskell Developer (hooray!) on a quite large Haskell code base.   
+**About me:**  I work for Juris-Futura, Holland and Hart Innovation Lab as a Haskell Developer (hooray!) on a quite large Haskell code base that deals with lots of unstructured data.  
 I have a long history of mainstream programming work, mostly using Java and friends (Groovy, JS, C#, ...).  
 My pet projects use Haskell and friends (Idris, Purescript, Elm, Scalaz, ...).  
 Before becoming a developer, I have done research work in mathematics in areas related to nonlinear analysis.  
