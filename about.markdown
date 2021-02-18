@@ -6,7 +6,7 @@ title: About
 **Infrequent:** I do not blog much.  Besides, there are many excellent functional programming blogs already. I will commit a post if something really bugs me or I feel very passionate about a topic that is not otherwise covered by people smarted than me  
 It will be about programming, most likely functional programming.  
 
-**Pragmatic:**  My interests are in software maintainability and correctness.  These can easily get very theoretical but the underlying pragmatic benefits and challenges is what interests me.
+**Pragmatic:**  My interests are in software [maintainability](/tags/maintainability.html) and [correctness](/tags/correctness.html).  These can easily get very theoretical but the underlying pragmatic benefits and challenges is what interests me.
 
 ``` haskell
 blog = do 
@@ -26,9 +26,11 @@ blog = do
 *  This blog [_add_blank_target source code](https://github.com/rpeszek/my-blogs)
 *  My old blog [_add_blank_target Opinions and Programming](http://rpeszek.blogspot.com/)
 
-**About me:**  I work as a Haskell Developer.  
-I have a long history of mainstream programming work, mostly using Java and friends (Groovy, JS, C#, C++, ...).  
-My pet projects use Haskell and friends (Idris, Purescript, Elm, Scalaz, ...).
+**About me:**  I work as a Haskell Developer (hoorah!) on a quite large Haskell code base.   
+I have a long history of mainstream programming work, mostly using Java and friends (Groovy, JS, C#, ...).  
+My pet projects use Haskell and friends (Idris, Purescript, Elm, Scalaz, ...).  
+Before becoming a developer, I have done research work in mathematics in areas related to nonlinear analysis.  
+I like outdoor activities, skiing in particular.
  
 *  My [_add_blank_target github page](https://github.com/rpeszek)
 *  My [_add_blank_target linked-in](https://www.linkedin.com/in/robert-peszek-20252452/)
