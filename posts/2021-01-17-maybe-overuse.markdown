@@ -531,6 +531,6 @@ Discussion links:
 
 (Links and information added later, after the original post)
 
-* [_add_blank_target The Trouble with Typed Errors](https://www.parsonsmatt.org/2018/11/03/trouble_with_typed_errors.html) - My post is often read as "Use Either" (I would prefer just "Do not overuse Maybe").  Matt Parsons's great post talks about problems with monolithic error types and more.  Extensible errors is important topic worth its own github awesome page.
+* [_add_blank_target The Trouble with Typed Errors](https://www.parsonsmatt.org/2018/11/03/trouble_with_typed_errors.html) - My post is often read as "Use Either" (I would prefer just "Do not overuse Maybe").  Matt Parsons's great article talks about problems with monolithic error types and more.  Extensible error types is important topic worth its own github awesome page.
 
-* [_add_blank_target Haskell Weekly Podcast](https://haskellweekly.news/episode/35.html) has explored my post.  Thank you so much!
+* [_add_blank_target Haskell Weekly Podcast](https://haskellweekly.news/episode/35.html) has discussed this post.  Thank you so much!
