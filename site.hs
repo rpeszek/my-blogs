@@ -20,7 +20,7 @@ main = hakyll $ do
         compile compressCssCompiler
 
     -- contact is currently not visible
-    match (fromList ["about.markdown", "contact.markdown"]) $ do
+    match (fromList ["about.markdown", "thoughts.markdown", "contact.markdown"]) $ do
         route   $ setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/default.html" defaultContext
