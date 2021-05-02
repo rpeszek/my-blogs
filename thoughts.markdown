@@ -10,10 +10,15 @@ title: Semiserious
 * Java Streams have a very interesting take on referential transparency. 
   If you execute a closure twice the second call will fail.
 
-* Rainbow Bikeshed.  If there was a bikeshed of all colors, how would redditers discuss it?   
+* Rainbow Bikeshed.  If a bikeshed had all colors, how would we discuss it?   
 
-* Lack of popularity is a necessary but not sufficient condition of doing something right. 
+* Lack of popularity is a necessary but not sufficient condition of doing something right.  
 
+* Correct code does not need a typechecker.  By using Haskell I am admitting to my incompetence.
+
+* We need type safety preventing useless error messages (e.g. "mempty").
+
+* In Haskell, it is important to not confuse errors with exceptions. Hence the definition:  `type IOError = IOException`
 
 ## Misplaced Quotes
 
