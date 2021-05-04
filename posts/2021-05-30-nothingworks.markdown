@@ -1,140 +1,94 @@
 ---
 title: Almost nothing works. cost of an average large scale software project
 author: Robert Peszek
-
+toc: true
 summary: todo
 ---
 
 
 
-I like to think about the long term cost of a software project.  We typically call it the maintenance cost.  
-What are: clean code, readable code, elegant code, good design, good documentation, best coding practices, agile process, test driven development?  These are all opinions.  What is the maintenance cost?  It is the factual verification of these options.   
+I like to think about the long term cost of a software project.  We call it, dismissively, the maintenance cost.  
+What are these things: clean code, readable code, elegant code, good design, good documentation, best coding practices, agile process, test driven development?  These are all opinions.  What is the maintenance cost?  It is the factual verification of these options.   
 
-It is really hard measure such cost and what contributes to it.  The data is typically not collected and, if it is, it would be only available inside
-the organization.  I never had to put a JIRA ticket number on the timesheet.  (ref to bugs paper)
+It is really hard to measure such cost and what contributes to it.  The data is typically not collected and, if it were, it would not be public.  I never had to put a JIRA ticket number on the timesheet.  (ref to bugs paper)
 
 But, we kinda know what is eating our lunch.   
 
-I am going to discuss several aspects of coding which result in a high maintenance.  I am going to present, what feels like a dystopian reality, in which 
-high maintenance cost is unavoidable,  the only thing that works it taking away our ability of doing certain things. 
+I am going to discuss several aspects of coding which result in a high maintenance.  I am going to present, what feels like a dystopian reality, in which high maintenance cost is unavoidable.  The only thing that works it taking away developer's ability of doing _certain_ things. 
 
-{ ---
+This article is a dump of my 25 years of experience in writing software.  It will touch on different technologies and languages. 
+I will focus on languages where I have had large scale project experience: Java, JavaScript, Groovy, Haskell, and only touch on 
+languages I coded is lesser anger.  
 
-Life is complicated.  What we observe can have many explanations and it is easy to focus on a wrong one.
-I am not a big proponent of Occam's Rasor.  I still believe that if you observe many things and all have the same explanation the case of that explanation is stronger.  I am going to discuss several aspects of coding where past and current status quo has high maintenance cost.  That does not necessarily mean that cost was ignored.  There are other parts of the calculus that could explain these examples.  I will try to discuss these after each example and again at the end.  
+This post is not language specific, it is not about OO or FP, but it will use examples from both domains and will include code examples.
+This post is not about establishing superiority of FP over OO, my goal is to focus on the topic in the title.
 
-I view maintenance cost as very important.  To me the maintenance cost quantifies the code quality.  
-What are: clean code, readable code, well designed code, well documented code, elegant code, test driven development, best coding practices, best development process?  These are all opinions.
-What is the maintenance cost?  It is the factual verification of these options.   
-
-It would be a really interesting data science project to try to correlate certain code characteristics (like use of `null`) with the dollar cost.
-Unfortunately, this would require access to data that is not in public domain and probably not even collected and would be non trivial even if the data was available.  I never had to put JIRA ticket number on a timesheet.  
-The article will examine coding issues that are well known to cause maintenance problems
-and try to understand what works and what does not in avoiding them.  Some examples will be drawn from my personal experience, some are so wildly spread that no personal story is needed to present them.
-
---- }
-
-
-This article is a dump of my 25 years of experience in writing software.  It it touch on different technologies and languages.  
-It will focus on languages I have used professionally in large scale projects:  -- Java, JavaScript, Groovy, Haskell. 
-This post is not language specific, it is not about Haskell or FP, but it will use examples from both domains.
-It is not about establishing superiority of FP over OO, is it just targeting the topic in the title.
-
-You are likely do disagree with me.  You are welcome to do so.  My goal is to simply present my viewpoint and evidence and have you think about it.
+You are likely do disagree with me.  You are welcome to do so and argue a different point.  
+I want to present my viewpoint and evidence and have you think about it.
 I consider this topic scary.  The really scary would be any shallow attempts to fix the problem.  We (humans) are good at shallow and phenomenal at avoiding the real issues.  
 
-## Who am I and how dare I
 
-I started developing software professionally in late 90-ties. 
-Before that I done research in mathematics. 
-As software developer I worked for big tech, small startups, government agencies.  I have worked across many different business domains:  pharmaceutical, telecommunication, supply chain / inventory management, electric power, wildlife management, legal.  
-I worked in product development teams and in R&D groups.   
-I have used many mainstream programming languages (Java, JS, C#, Groovy, C++, ...) for over 20 years.  Finally, I ended up in Haskell (which I do not consider mainstream).  
-I is -probably- clearly rare for a 50+ Java developer to become a professional Haskeller.  That should give me a viewpoint that is different with insights into both domains.  Whether you think of FP as a good think or a hype, this in itself may persuade you to continue reading.  
+## Case Study:  Separation of Concerns 
 
-This post is not language specific, it is not about Haskell or FP, but it will use examples from both domains.
-It is not about establishing superiority of FP over OO, is it just targeting the topic in the title.
+Many things can be decoupled.  I will just focus on one: 
+separating business logic from user presentation.  Code that mashes everything together is not hard to write: you just add a bit after a bit until you finish. But if you (or someone else) have to change it later... You want your tea served separately from your steak. 
 
+Separation of Concerns (whatever the concerns are) requires discipline, lots of thinking, and is an up-front investment.
+Some engineers will view it as a needless complexity.  Do not stop reading if you are one of such people. The goal here is to examine historical evidence of how things change, not to criticize your culinary taste (tea served extra rare).
 
-## Case Study:  Separation of Concerns (UI / Business Logic Separation example)
-
-Just for grins, let us agree that a code that mashes everything together is not the easiest to maintain. 
-It is not hard to write: you just add a bit after a bit until to finish. 
-But if you (or someone else, already feeling sorry for whoever that is) have to change it later...
-There are many things that can be decoupled.  To keep this from being a book I will just focus on one:  separating user presentation form business logic. 
-
-
-### UI from Bussiess Logic
-
-shorten, make less client specific
-
-I have to go historical on this one because the changes between 1990-ties and now can tell us something.
+The changes between 1990-ties and now can tell us something.
 Late 90-ties were the fat client times.  Most of these applications mashed everything together, one line deciding on disabling / enabling a button, the next one was a DB select statement.  
 The slogan was: RAD (Raid Application Development). Tools like Borland C++ Builder, PowerBuilder made writing fat clients easy.  They did not prevent developers from decoupling their code but done nothing to enforce it.  
-Keeping UI separate is not a new concept.  MVC pattern is credited to smalltalk and dates back to 1970.  It was not a forgotten idea either. 
-The information was available to anyone who cared but very few projects did.  
+
+Keeping UI separate is not a new concept.  MVC pattern is credited to Smalltalk and dates back to 1970.  It was not a forgotten idea either. 
+The information was available to anyone who cared.  The interesting bit is that very few projects cared about separating UI from the rest.
 I have no way of quantifying this statement.  I can only offer stories from my personal experience.
 
-In one of my first programming jobs (1998), we (...) managed to persuade the management to rewrite their legacy code using the new cool language called Java. 
-The legacy code base had issues, was leaking memory (you know, you allocate it at the beginning of the function call and free it at the end, then someone 
-modifies the function to return early ...).  
-Java freed us from the memory leak issues.  But we really tried to do a good job beyond memory leaks. The code we were writing was quite elegant. In particular, we were very diligent about separating all kinds of concerns like presentation and business logic. This is a rare example where maintenance cost was considered to be an important part of the bottom line.
-These were the times when I was completely infatuated with OO. 
+In one of my first programming jobs (~ 1997), we managed to persuade the management to rewrite our legacy code using the new cool language called Java. The code we were writing was quite elegant. In particular, we were very diligent about separating all kinds of concerns, separation business logic from being one of them. This is a rare example where maintenance cost was considered to be an important part of the bottom line.
+These were the times when I was completely infatuated with OO, design patterns ... 
 
-That nirvana was in sharp contrast to the surroundings.  Our software was an outlier.  I remember implementing integration pieces for one of our clients.  That client used a very reputable consulting firm (which I will not name) to develop their website.  How do we integrate?  We were told that our best bet is to do HTTP calls. That website was built using a cutting edge technology called JSP (around 1999). 
-It was a coding atrocity.  Files 1000+ lines long that created HTML, did database calls, and everything in-between.   
+Our design had a sharp contrast to the surroundings.  I remember implementing integration pieces for one of our clients.  That client used a very reputable consulting firm (which I will not name) to develop their website.  How do we integrate?  We were told that our best bet is to do HTTP calls. That website was built using a cutting edge technology called JSP (around 1999). 
+It was a code melting pot of everything.  Files 1000+ lines long that created HTML, did database calls, and everything in-between. 
+Obviously such integration would not have much chance of being stable.  User presentation changes would easily break it.
 
-A similar experience (around 1999) was the _Great Plains_ ERP software (I believe now owned by Microsoft) integration.
+A similar experience (probably around 1999) was the _Great Plains_ (I believe now owned by Microsoft) ERP software integration.
 I DUNNO how that looks now, but back then you interacted with it by programmatically interacting with its UI because there was no other way.  
-Great Plains was a big software company back then.  I think I still have a certificate of attending their training in Fargo ND somewhere.
-Big, successful have nothing to do with being well engineered. 
+Great Plains was a big software company. 
+It was programmed by capable engineers not afraid of creating a proprietary language ([Dexterity](https://en.wikipedia.org/wiki/Dexterity_(programming_language))).  
 
-Most of the integrations fell into 2 categories:  going trough the UI or direct DB integration.
+Other integrations were not that different:  it was either going trough the UI or making direct DB calls.
 
-My last experience with fat client app was less than 10 years ago. It was a Borland C++ project I had to maintain as I was working on re-implementing it using browser based single-page app.  It was not any different. 
+My last experience with fat client app was less than 10 years ago. It was a Borland C++ project I had to maintain as I was working on re-implementing it using browser based single-page app.  That C++ project was not any different. 
 
-This has changed.  Today, most integration work is REST API calls,  some GraphQL.  I know of one example where the only possible thing to do was a screen-scap but what was the rule is now exception, what was exception is now the rule.
+This has changed.  Today, most integration work is REST API or GraphQL.  I know of one recent example where the only possible thing to do was a screen-scrap but what was the rule is now exception, what was the exception is now the rule.
 
-My claim is:
+**My claim:** _The current separation of UI and business logic (when present) should be credited to the the back-end / front-end split in the technology stack_. 
 
-_The current separation of UI and business logic in the wild (when present) is forced the the back-end / front-end split in the technology stack_. 
+Browsers with powerful UX capabilities (old buzzword "thin client") changed all of this. Fortunately, you can't very easily do DB calls from the browser.  This is not just about the browser.  Component architectures like CORBA gained some popularity in very late 90-ties and early 2000s (precursors to todays microservices).  Projects that used CORBA had similar benefits because you did not write UI code in COBRA.   
 
-Browsers with powerful UX capabilities and happened (buzzword "thin client") changing all of this. Technology stack has changed. The beauty of this is you can't very easily do DB calls from the browser.  UI and business logic got separated because technology forced that change. 
-It did not have to be the browser.  Component architectures like CORBA were gained some popularity in very late 90-ties and early 2000s (precursors to todays microservices). Projects that used CORBA had similar benefits because you did not write UI code in COBRA.   
+Back to the future: I found this talk by _Brooklyn Zelenka_ 
+[_A Universal Hostless Substrate: Full Stack Web Apps Without a Backend, and More!_](https://www.youtube.com/watch?v=ulai-LGt0yU) very interesting. But it makes me think what will happen when developers are, again, allowed to mix things together.
 
-I am very much into P2P stuff.  I found this talk by _Brooklyn Zelenka_: https://www.youtube.com/watch?v=ulai-LGt0yU very interesting. 
-The tile _A Universal Hostless Substrate: Full Stack Web Apps Without a Backend, and More!_ makes me think what will happen if developers are, again, allow lots of freedom.
+## Technology Limitations are the only Thing that Works
 
+My observation:
 
-_Pre Analysis_:   
-Separation of Concerns (whatever the concerns are) requires discipline, lots of thinking, and is an up-front investment.
-Some engineers will view it as needless complexity.  It is needless only for small, simple projects.
-Decoupling, when done right, makes code more testable, easier to learn, easier to troubleshoot. 
-You want your tea served separately from your stake.  
+_High maintenance cost is the default state of a typical, large software project_   
+_Certain technology stack limitations are effective in lowering that cost, at large, nothing else is_
 
-The project examples form the 90-ties were designed and programmed by capable engineers not afraid of learning new technology (JSP) or even investing in creation of a proprietary language (Great Plains).  
+Enforcing good coding practices is like herding cats.  It may work well on few projects, it does not work in general.
+To be clear, only certain technology restrictions can be beneficial.  For example, the original restricted JS Ajax API resulted
+in the [Callback Hell](the-case-of-callback-hell-in-javascript) nightmare.  
 
-
-## My Hypothesis:  Technology limitation are the only effective way of lowering the cost 
-
-My observation is:
-
-_ average _
-
-_High maintenance cost is the default state of a larger software project_   
-_Technology stack limitations are effective in lowering that cost, on a large scale, nothing else is_
-
-Enforcing good coding practices is like herding cats.  It may work well on few projects, it does not work at large.
-(I will discuss reasons for this at the end).
-The industry has put technology stacks on the pedestal to be worshiped.  We put these on our resumes, attend conferences
-to learn about these.  But the real reason why this works is that technology stack limitation is impossible or hard to go around.   
 An equivalent formulation:
 
 _The Podocide Rule: We will shut ourselves in the foot unless it is hard for us to do so._
 
+I like this one too:
 
-Software Development suffers from an acute case "temporal mico-economics":  Seemingly optimal short term choices are costly to the project in the long term.  
-In my "Adam Smith"'s model of programming, the software developer takes the shortest / easiest / KISS path to accomplish the next incremental goal.  At the zoomed out level this is a maze and is far from shortest or simplest.   
+_Convenience is the enemy of reason_
+
+Software Development suffers from an acute case "temporal mico-economics":  Seemingly optimal short term choices are costly to the project in the long term.  In this Adam Smith's model of programming, the software developer takes the shortest / easiest / KISS path to accomplish the next incremental goal.  At the zoomed out level this is a maze and is far from shortest or simplest.   
 
 This reminds me of how ants move.  An ant (not to be confused with the very old Java build tool) moves in straight short lines which look like a chaotic zig-zag when combined.  Unless, of course, we build a tiny ant tunnel _limiting_ their movements to only one direction.  
 
@@ -145,22 +99,35 @@ That make sound like criticism of agile development.  I think this has much deep
 
 
 __This is clearly very concerning.__ 
+
 Ironically, it will get worse as technology improvements add flexibility and remove limitations.   
 At a first, naive, glance, some may be tempted to limit developers creative freedom.   
 This would be a very bad idea.  We do not want more waterfalls or other cures that will be even worse than the illness. 
 
-Incidentally, Winston W. Royce did not propose Waterfall, he criticized the idea, "the redditers of that time" apparently did not read his paper, just skimmed it, missing the important bits.  
-https://pragtob.wordpress.com/2012/03/02/why-waterfall-was-a-big-misunderstanding-from-the-beginning-reading-the-original-paper/
+Incidentally, Winston W. Royce did not propose [Waterfall](https://pragtob.wordpress.com/2012/03/02/why-waterfall-was-a-big-misunderstanding-from-the-beginning-reading-the-original-paper/), he criticized the idea, "the redditers of that time" apparently missed the important bits.
 
+## Exhibit 1: Shared Mutating State vs Web Applications
 
-{ --
-Some aspects of software development are restricted by the technology stack.  These include things like programming language, hardware and application architecture, protocols, frameworks, libraries, development environment.    
-The software is constrained by its requirements and the technology stack, within that bound most project seek the lowest quality.
---}
+Did you ever had to work on a code where flipping 2 lines was almost certain to break things?  Not all things, mind you, just 10%
+of scenarios to make the testing more interesting.  Let us look at how technology stack impacted the situation. 
 
+As discussed already: most today's apps are split: front-end - back-end - DB.  Back-end runs inside some web framework which runs many threads processing HTTP requests.  The bits of _back-end_ programs that developers write and execute on the web server have really no choice but to read the state from the DB at every single request and immediately write it back.  At the same time, a lot of state becomes encoded in URLs and and such (_Hypermedia as the Engine of Application State_).
 
+This is a big change from fat client times.  This technology reduces the need for shared mutable state by at least a factor!
+It is not because developers are concerned about shared state.  It is because the technology is reducing the need for such state.
 
-## Exhibit 1: `null`
+Reducing does not mean preventing. You do not need to believe in FP to see pragmatic benefits of avoiding mutable state when you can.  Yet, such avoidance hardly something I was able to expect from the code in the past.  One of the worst examples of code I had to maintain in my career was a Java _struts_ page that included about 200 instance variables across inheriting classes.  There were many, many methods that would mutate some subset of these 200 using conditional logic.  Try changing order or inserting exiting method between other two... Several years have passed but I still remember how hard that was.  I imagine, trying to picture interaction of 200 interdependent pieces of state could be fun, unless, there is a deadline. Interestingly, this mess was blamed on _struts_.  The entry form may had 15 fields, how does that justify 200 instance variables?
+
+Mutating global state is very tempting.  Haskell is one of few languages that comes with _Software Transactional Memory_. 
+This is great a very useful and easy to use technology.  The ease of use == danger of overuse.  It not only rimes, it is true.
+In my experience, developers are likely to consider the impact of state loss when application is terminated / restarted but are less
+likely to consider implications on ability to scale a back-end process that uses STM.  Do not take me wrong, I am not saying STM always prevents scaling.   But, depending on the data and the design it might.  
+You may notice the difference in the scope of the problem.  I am mentioning it to show that as long as there is opportunity, the pattern of overuse will exist.
+
+My conclusion is that it is not enough if the technology solves or reduces the problem for us.
+To be effective at large, the technology needs not only to reduce the problem but to limit our ability to create it.  
+
+## Exhibit: `null`
 
 If there is one thing that everyone would agree has causes maintenance issue that would have to be the infamous `null`!   
 The 'billion dollar mistake" quote dates 2009.  Language like ML new it is a bad idea in 1970 and stayed away from introducing it.  
@@ -267,28 +234,29 @@ We are focused on collecting _sunny day_ data and do not want to spend effort on
 `null` is used because it is easy to use and provides the same _sunny day_ output and most importantly delivers the first cut of the product slightly faster.
 In languages like Haskell, `null` is not available so its nearest cousin gets used instead.
 
-
-
 ## Exhibit: Exceptions
 
 This is the next logical stop after `null`.  I imagine nobody will argue that having meaningful errors is an important part of a maintainable software.
 
 I will use Java as an example one more time.  It is interesting to think about what happened to Java checked exceptions.
-They were not popular.  The critics argued that the force unnecessary boilerplate. Java forced developer to write code to handle certain exceptions
-but there was often not much that the developer could do other than logging the exception or re-throwing as another one. 
+They were not popular.  The critics argued that the force unnecessary boilerplate. Java forced developer to write code to handle certain exceptions but there was often not much that the developer could do other than logging the exception or re-throwing it as another one. 
 
 The end result was that the community started avoiding checked exceptions.  C# dropped the concept from the start.
 
-Using Haskell as example: I really wish that there were no untyped errors.  I dislike IOError too.   
-Untyped errors in Utf8 decoding has resulted in many headaches in my current job.  The problem is that the concept of error (untyped) and exception (typically typed) in Haskell relies on a gentelmen's agreements like: "the term exception for expected but irregular situations at runtime and the term error for mistakes in the running program that can be resolved only by fixing the program"
+Using Haskell as example: I really wish that there were fewer untyped errors.  I dislike IOError too.   
+Untyped errors in Utf8 decoding has resulted in many headaches in my current job.  The problem is that the concept of error (untyped) and exception (typically typed) in Haskell relies on a gentelmen's agreements like: "exception for expected but irregular situations at runtime and the error for mistakes in the running program that can be resolved only by fixing the program" or
 "Errors can be prevented by (cheap) checks in advance, whereas exceptions can only be handled after a risky action was run"
-(see https://wiki.haskell.org/Error_vs._Exception).  Many libraries violate such agreements, client programs lack diligence of confirming to these rules, and on top of all of this the rules themselves are not very consistent.
+(see https://wiki.haskell.org/Error_vs._Exception).  Many libraries violate such agreements, client programs lack diligence of confirming to these rules, and on top of all of this the rules themselves are not very consistent.  You head will spin, if, after reading this, you consider this definition:
+
+```
+type IOError = IOException
+```
 
 Incidentally, limiting the use of untyped exceptions is happening in Rust, and for a good reason.  It is very hard to provide type level guarantees about things if you can bypass the type system.  I can only hope that `panic` will not become easier to use and more popular.  
 
 Why I do not like untyped errors?  Programming answer:  the concept of encapsulation is not a bad one if used correctly, information hiding is great if
-the information can remain hidden.  You do not want a program you invoke to start boiling water and have you guess that you need to turn off the gas at the end.  Untyped exceptions do just that.   
-Mathematical answer:  There is no place for untyped errors in Curry-Howard isomporphism, mathematics is gone.   
+the information can remain hidden.  You do not want a program you call to start boiling water and have you guess that you need to turn off the gas at the end.  Untyped exceptions do just that.   
+Mathematical answer:  There is no place for untyped errors in Curry-Howard isomporphism,  mathematics is gone.   
 
 
 Incidentally, type level exceptions are making a comeback in Rust for a good reason.  It is very hard to provide type level guarantees about things
@@ -302,28 +270,9 @@ Java started in a good direction but offered only partial limitation (forcing ha
 Limitations with available workarounds do not work.  If unchecked exceptions were harder to use or limited in scope this might have worked.  Haskell makes it easy for users to define untyped errors asking that the users do not overuse them.  This has not worked 
 
 
-Credit where is due:  Java stack traces. 
-
-Java checked exception -> stop using it rather than improve it. 
-C# removes these.  I missed them in Haskell (IOException).
-
-
 ## Code Reuse 
 
 big ticket item.  Good to notice what works what does not.
-
-
-## Exhibit 3: Mutating State vs Web Applications
-
-
-Front-End - Back-end - DB
-
-Struts. approching 200 instance variables.
-
-vs
-Front-End - Back-end (STM)
-
-
 
 ## Exhibit 4: Memory Bugs
 
@@ -345,8 +294,17 @@ no access to direct pointer programming, or type safety over memory and pointer 
 Again technology stack change.
 
 
+## Configuration
 
-## Exhibit 5:  Callback Hell
+### Hard-coding gets the job done
+
+### yaml 
+
+
+## The case of Callback Hell in JavaScript
+
+On the surface this looks very similar to the `null` problem.  People agree it is bad, Continuation Passing Style is an old technique...
+The issue here is that a clean implementation of CPS would have been hard on top of . 
 
 JS programs were famous for being not maintainable.  The apptly named _Callback Hell_ is one of the reasons for that reputation. 
 Again, nobody twisted anyone's arm.  Continuation Style code dates back at least to 1950-ties.  
@@ -354,16 +312,7 @@ A more monadic style JS `promises` like constructions date back to 1994 in Haske
 
 The way forward was the technology stack change and introduction to ES6.
 
-
--- ## Exhibit 6:  Reactive Programming 
-
-## The Configuration
-
-### Hard-coding gets the job done
-
-### yaml 
-
-
+https://github.com/dmitriz/cpsfy
 
 ## Agile
 
