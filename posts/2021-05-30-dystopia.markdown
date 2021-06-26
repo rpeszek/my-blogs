@@ -1,5 +1,6 @@
 ---
-title:  A Journey over Dystopia where Common Sense and Programming Practices Do Not Work.
+title:  A Journey to Dystopia where Developers are not to be Trusted, Common Sense and Programming Practices Do Not Work.
+title4:  A Journey to Dystopia where Common Sense and Programming Practices Do Not Work.
 title3: Almost nothing works. cost of an average large scale software project
 title2:  Convenience is Not Cost Effective. On Limiting the Cost of Software Projects.
 author: Robert Peszek
@@ -9,130 +10,123 @@ summary: todo
 
 > _"Good judgemnet comes from experience, and a lot of that comes from bad judgment"_,  Will Rogers
 
+
 ## Introduction to Dystopia 
 
-We rarely think about the long term cost of the software project.  We call it, dismissively, the maintenance cost.  
-We talk about: clean code, readable code, elegant code, good design, best coding practices, agile process, test driven development ...  
-Let's call all these things Programming Practices. These things are all opinions.  The maintenance cost is the factual verification of these options.   
-I know, this is so disappointing, it is not the WTF/minute rate during code reviews, it is the maintenance cost.  
+The motivation from this post came from a recent conversation with my colleague about projects that worked and some that did not. The conversation focused on things like continuous integration and process e.g. deployment pipelines verifying a lot of things, merging to master requiring approved PR, etc...   
+I realized that there is something deeply saddening about this.  It is all about one thing: not trusting the developer. 
 
-It is hard to measure maintenance cost and what contributes to it. The data is not collected or is not public. 
-I never had to put a JIRA ticket number on the timesheet. 
-Software projects typically do not monitor defect rates.  I remember only one job were defect statistics were computed, and that is because
-I computed them (a project developer) out of my own curiosity. Popular Agile measurements, like, velocity, burn down charts can reflects
-defect rates only indirectly and are targeting initial development cost, not a long term maintenance cost. 
-(ref to bugs paper).
-You can argue that many projects have a good amount of automated testing and measure things like coverage rates.  That is true, but 
-these also do not map to the maintenance cost directly.
+Can not trusting the developer explain all advancements in software programming?  
 
-Our understanding of what causes maintenance issues is mostly anecdotal and this post is no different.   
+First let me clarify our definition of "projects that worked".  A "project that works" has low defect rate and are easy to maintain.  
+I started to think about it more and I examined examples of maintenance issues with known solutions or improvements.  
+All of these examples had something in common:  the solution or improvement was not a result of some added flexibility but
+a result of increased restrictions to what developer is allowed to do. I will share many of these examples here.
 
-I am going to discuss several aspects of coding that have been blamed for high maintenance.  I am going to show, what feels like a dystopian reality, in which high maintenance cost is unavoidable.  The only thing that works it taking away developer's ability of doing _certain_ things.  Programming guidelines do not work.  I will play devil's advocate a bit and will examine well known topics, like _mutating state_, _null_, _typed exceptions_ deriving conclusions that are seemingly counterintuitive and contrary to common belief.  
+_The Podocide Rule: We will shoot ourselves in the foot unless it is very hard for us to do so._
 
-The big question is why is this the case.  I am largely going to leave it unanswered other that for this trivial high level remark:
-The high maintenance cost should be considered an axiom.   
-Short term goals and short term cost overshadow long term considerations.  This is true about the software industry.
-This generalizes to economics,  possibly whole western civilization, or maybe the whole humanity.  If short term gain is considered against sustainability, short term gain will win every time. We tend to dismiss warnings about the future as something that we can deal with tomorrow.  (And that must be true... we will say the same thing the next day).
+This rule is a more dystopian and general version of [Hyrum's Law](https://www.hyrumslaw.com/) and similar observations. 
+In this dystopia, development practices and coding guidelines just do not work, chains and shackles do.
 
 I consider this topic scary.  The really scary would be any shallow attempts to fix the problem.  We (humans) are good at shallow and phenomenal at avoiding the real issues.  
 
-This article is a dump of my 25 years of experience in writing software and working for the software industry.  
-This post is not language specific, it is not about OO or FP, but it will use examples from both domains and will include code snippets.  
-This post is not about establishing superiority of FP over OO, my goal is to focus on the topic at hand.
+The underlying reasons seem to be complex and touch on the business bottom lines and economics,
+lack of maturity (i.e. [Uncle Bob's](https://www.youtube.com/watch?v=ecIWPzGEbFc) exponential job growth argument), education, 
+equating popular with good (e.g. obsession with things like the TOBIE index), human nature, democracy and Socrates' death.  
 
-On the topic of FP. There is a lot of talk about FP needing a killer app.  Considering lowering the maintenance cost to be that killer app  explains why FP is such a niche. It is the killer app the industry does not care about. I will not try to dwell into lack of FP popularity again in this post. 
+As an analogy, compare writing prose with writing mathematical proofs.  The second is much more restrictive.  
+Writing software is more attuned to strictness of mathematics then the willy-nilliness of prose.  
+This seems to be the crux of the problem.  Effective programming needs rules and boundaries. 
 
-You are likely do disagree with me.  You are welcome to do so. I want to present my viewpoint and evidence and have you think about my examples.
+What we have hard time admitting is that: 
+
+_Writing low defect, easy to maintain software is not easy at all.   
+We are more likely to fail then to succeed in achieving it._
+
+It takes a lot of time and effort to learn how to code well and few are willing or even have time to do that.
+
+Many examples I am going to present can be explained by typical business bottom line which focuses on short term delivery goals and ignores long term considerations.  However, I think this is not the only cause of maintenance issues.
+
+You are likely do disagree with me.  You are welcome to do so. I want to present the evidence and have you think about my examples.
 You are also likely to agree with some of my examples and disagree with others.
 I would like to ask you to focus on the examples we agree on instead of the once we do not. 
-I know, this violated the non-spoken rule of reddit.
+I know, this violated the unspoken rule of reddit, can we try it anyway?
 
-I felt conflicted writing this.  I prefer writing code not prose. I typically feel a need to write prose if something really bugs me.
-This is the case here.  ... 
+I felt conflicted writing this.  I prefer writing code to writing prose. I typically feel a need to write prose if something really bugs me. This is the case here.  
 
-## Case Study:  User Interface Separation
+
+## Exhibit 1: User Interface Separation
 
 Keeping UI separate is not a new concept.  MVC pattern is credited to Smalltalk and dates back to 1970-ties. 
 Separation of business logic from user presentation was a well known idea for as long as I remember.   
-It is interesting to observe how a typicall business software app has eveloved in that regard.  The changes between 1990-ties and now can tell us something interesting.
+It is interesting to observe how a typical business software app has evolved in that regard.  The changes between 1990-ties and now can tell us something interesting.
+
+I personally like the idea of separating concerns. A melting pot of everything can get unruly and hard to maintain. You want your tea served separately from your steak.  Separation of Concerns (whatever the concerns are) requires discipline, lots of thinking, and is an up-front investment. Some engineers always viewed it as a needless complexity.  
+_My goal is not to evangelize separation of concerns, just to show a historical pattern._
+If you like your tea extra rare, it is fine by me.   
+(Side Note: And, of course, it may contain nuts.)
 
 Mid to late 90-ties were the fat client times.  Most of these applications mashed everything together, one line disabled / enabled a button, the next one was a DB select statement.  Early web applications were not any different.  
 
-I am not claiming all projects mashed everything together.  I worked on quite a few that separated UI, but only on one where this was a design choice not forced by the technology. 
-My first programming job, in late 90-ties, included a rewrite of parts of an old code base using a new and cool language called Java. 
-I was one of 2 programmers wroking on the new code. Both or us were very much into OO, design patterns...
-We were very diligent about separating all kinds of concerns, separation business logic from UI being one of them. The goal was to replace a
-hard to maintain legacy code and the maintenance cost was considered important.  
-I believe such projects were rare. 
+I am not claiming all projects done that.  I worked on quite a few that separated UI, but only on one where this was a design choice not forced by the technology.  
+My first programming job, in late 90-ties, included a rewrite of parts of an old code base using a new and cool language called Java. I was one of 2 programmers working on the new code. Both or us were very much into OO, design patterns...
+The goal was to replace a hard to maintain legacy code and the maintenance cost was considered important.  
+To us, that meant separating things.  We were very diligent about separating all kinds of concerns, that included business logic and UI. 
 
-I personally like the idea of separating concerns. A melting pot of everything can get unruly and hard to maintain. You want your tea served separately from your steak.  _My goal is not to evangelize separation of concerns, just to show the historical pattern._
-If you like your tea extra rare, it is fine by me.
+Here are some examples of projects I remember from the old days:
 
-Here are some examples of projects I rememeber from the old days:
-
-*  JSP pages we had to intergrate with (cutting edge in 1999) that mashed everything together (I remember being actually shocked by 1500+ line long files that done DB calls and everything else).  The only thing we could do it to mimic the UI in making GET and POST calls.
+*  JSP pages I had to intergrate with (cutting edge in 1999) that mashed everything together (I remember being actually shocked by 1500+ line long files that done DB calls and everything else).  The only thing we could do it to mimic the UI in making GET and POST calls.
 *  Integration work for ERP software called _Great Plains_ (I think now owned by Microsoft).  The only thing to do there was to programmatically interact with its UI using their tools.
-*  Borland C++ and Java Swing apps I had to maintain, where the UI control and business logic was placed in event handlers.
+*  Borland C++ and Java Swing apps I had to maintain, where the UI control and DB calls were was mashed together in event handlers.
 
-It is worth noting that _Great Plains_ was programmed by capable engineers who were not afraid of creating a proprietary language ([Dexterity](https://en.wikipedia.org/wiki/Dexterity)).  Similarty JSP pages were the cutting age back then, the project was implemented but a very reputable consulting firm that hired good developers.  
-Separation of Concerns (whatever the concerns are) requires discipline, lots of thinking, and is an up-front investment.
-Some engineers always viewed it as a needless complexity.  But I do not think mashing the code together was intentional. 
-It happens natrually when you just add a bit after a bit until you finish.
+It is worth noting that _Great Plains_ was programmed by capable engineers who were not afraid of creating a proprietary language ([Dexterity](https://en.wikipedia.org/wiki/Dexterity)).  Similarty JSP pages were the cutting age back then, the project was implemented but a very reputable consulting firm that hired good developers. 
 
 The key obeservation is that this has changed. 
 
 **My claim:** _The current separation of UI and business logic (when present) should be credited to the the back-end / front-end split and the micro-service design of the technology stack_. 
 
-You can't easily do DB calls from the browser. You would not control UI from a micro-service. Technology forced the change on us.
+You can't easily do DB calls from the browser. You would not control UI from a micro-service. Technology forced the change on us.   
 
 Back to the future: I found this talk by _Brooklyn Zelenka_ 
 [_A Universal Hostless Substrate: Full Stack Web Apps Without a Backend, and More!_](https://www.youtube.com/watch?v=ulai-LGt0yU) very interesting. But it makes me think what will happen when developers are, again, allowed to mix things together.
 
-## Observations
+### Decoupling of Concerns and Effects
 
-Assume a fixed technology stack, e.g. ....  Consider the evolution of programming practices that use that stack.
-Some programming practices can improve the short term development cost,  some may improve the long term cost.  
-It is reasonable to assume that there is a negative correlation between both costs.
+The decoupling fanatics (like myself) who like the tea to be made out of tea will all love effect systems.  
 
-My observation:
+In my current work, many applications have just a few lines of code we call top level.  These lines can do almost anything
+but there is a very few of them.  The rest can only do what is allowed.  For example: can call another micro-service
+only it that service is listed in the application effect list, can only use environment variable if that variable is listed in the type level list of allowed names...  We are talking some serious vuluntary diet here!  Using this approach, the application is decomposed into cascading set of DSLs and compilers for these DSLs (separation of concerns right there).  You can do thing like
+isolate access to parts of database between parts of the app or separate use of configuration from the implementation of where the configuration comes from.   The shackles can be applied to parts of the app or the whole micro-service.  
 
-_Technology Stack Limitation Rule:_  
-_Within given technology stack, the selected coding practices optimize initial development cost only._
-_Maintenance cost can only be lowered by changing the technology stack to one that limits the use of the selected coding practices_.
+This looks like another counterexample to my claim: these restrictions have not been forced on developers and yet we still have them!  It is a counterexample, but consider how many projects use concepts like these.  The overall number of projects that use functional programming languages is probably much smaller than 1% only a small portion of these will use effect system or something similar.  If this is a counterexample, it is one that proves the rule.
 
-It is no uncommon for the same programmers who worked on the initial implementation to have to maintain it.  
-Thus, an equivalent formulation is:
 
-_The Podocide Rule: We will shoot ourselves in the foot unless it is very hard for us to do so._
+## Exhibit 2: `null`
 
-__This is clearly very concerning.__  I am right, it will get worse as technology improvements add flexibility and remove limitations.  At first and naive glance, some may be tempted to limit developers creative freedom.  This would be a very bad idea.  We do not want more waterfalls or other cures that will be even worse than the illness. 
-Incidentally, Winston W. Royce did not propose the [waterfall](https://pragtob.wordpress.com/2012/03/02/why-waterfall-was-a-big-misunderstanding-from-the-beginning-reading-the-original-paper/) approach, he criticized the idea, and "the redditers of that time" apparently missed the important bits.
+If there is one thing that everyone agrees on is bad that would have to be the infamous `null`!   
+The concept dates back to 1960-ties.  The 'billion dollar mistake" quote dates 2009 but `null` was considered to be a problem much earlier. 
 
-## Exhibit 1: `null`
+One big reason why `null` is a problem is that checking if value is null at the point of usage is not very practical, if you start doing this for every variable you will start cursing very very fast.
 
-If there is one thing that everyone agrees on is causing maintenance issues that would have to be the infamous `null`!   
-The concept dates back to 1965.  The 'billion dollar mistake" quote dates 2009 but the problem was known much earlier. 
+What is often missed is that `null` is _not a limitation_, it is a _language feature_.  It is completely conceivable to write programs that simply do not use it (never create `null` values).  Interestingly, we never did that. The languages that not have null-pointer like issues are the languages which do not have `null` or the languages which make `null` harder to use (e.g. _Scala_).  
+xxx Explain final declaration that forces null when conditionally instantiated.  This is forces a localized use of null. 
+The argument applies to the non-localized use.
 
-What is often missed is that `null` is _not a limitation_, it is a _language feature_.  It is completely conceivable writing programs
-that do not use `null`.  Interestingly we never do.  As such, the languages that not have null-pointer like issues are the once which do not have `null` or the once which make `null` harder to use (e.g. _Scala_).  
+If we decide to use `null` sometimes, we could consistently name variables indicating that they are created with a possible null values.  E.g. `middleInitalNullable`. This would require naming consistency and refactoring if we change our mind of what can have nulls.  This approach seems like a perfectly reasonable approach for reducing the issue.  I have never seen it done!
+One problem is ecosystem compliance.  "Gentlemen Agreements" are hard enough to enforce on a project level.  Things like requirements to have "empty constructors" throw in a wrench too.    
 
-We could be very diligent at checking if value is null at the point of usage, if you start doing this you will start cursing it very fast.
-
-We could just start to consistently name variables indicating that they are created with a possible null values.  E.g. `middleInitalNullable`. This would require naming consistency and refactoring if we change our mind of what can have nulls.  This approach seems like a perfectly reasonable approach to address the issue.  I have never seen it done!
-
-You could do better and define a DIY replacement for `null` and use it instead (in a pseudo-Java):
+You could do better and define a DIY replacement for `null` and use it instead (in a pseudo-Java, uppercase chars represent types):
 
 ``` 
 Option<T> = <R> . (R, T -> R) -> R
 ```
 
-(uppercase chars represent types).  
-
 `Option` is simply a function of two parameters, one of them is a function.  This construction has been know for a very long time.
-The approach is called _Continuation Passing Style (Programming Lingo), Church Encoding (Lambda Calculus Lingo), a special case of Yoneda (Category Theory Lingo), Haskellers will recognize `maybe` with lowercase "m"_).
-It can be used to replace `null` and it does not even need to use `null` in its implementation.  
+The approach is called _Continuation Passing Style (Programming Lingo), Church Encoding (Lambda Calculus Lingo), a special case of Yoneda (Category Theory Lingo), Haskellers will recognize `maybe` with lowercase "m"_).  
+It can be used to replace `null` and it does not even need to use `null` in its implementation (see [SideNote section below](TODO)).
 
-The above construction only assumes that the language supports type variables and higher order functions or something equally expressive.  It could be easily implemented in Java 1.5 (2004) without any lambda features. 
+The above construction only assumes that the language supports type variables and higher order functions or something equally expressive.  For example, it could have been easily implemented in Java 1.5 (2004) which did not had lambdas. 
 
 Putting Java in the spotlight, Java 8 (2014) introduced `Optional` that is not exactly the same but can be helpful in eliminating null dereferencing issues. _Guava_ (Google libary with Java utils) had `Optional` similar to later Java 8 version in 2011. 
 
@@ -144,19 +138,69 @@ Here are some interesting questions:
 My guess (to both questions) is: few or very few.
 
 'The billion dollar mistake' was just in giving programmers the ability to use `null`, no one forced us to use it.  
-The only way to eradicate the issue is to use language that does not have the `null` or makes it hard to use.  If `null` is available we will use it, ...even when implementing the std library `Optional` class that is intended to get rid of it.   
+The only way to eradicate the issue is to use language that does not have the `null` or makes it hard to use.  If `null` is available we will use it (...even when implementing the std Java 8 library `Optional` class that is intended to get rid of it).   
 
 
 ### FP Option / Maybe like types
 
-This problem goes deeper.  `Option` like types are not a full solution to the `null` problem.  `Option` is still problematic since (1) it represents an unspecified error condition, (2) is convenient to use.
+This problem goes deeper.  `Option` like types are not a full solution to the `null` problem.  `Option` is still problematic since (1) it represents an unspecified error condition, (2) is easy to use.
+
+_The ease of use == a danger of overuse_  
+
+It not only rimes, it is true.
 The end result is that a lot of code has _unspecified errors_ and with extra effort these errors could have been specified. I wrote a whole post about it here: 
 [Maybe Overuse, Stories About Error Information Loss](https://rpeszek.github.io/posts/2021-01-17-maybe-overuse.html).
 
 IMO most software projects have a big _sunny day scenario_ bias.  Sunny day is what ships the product out of the door while
 _rainy day_ is what happens in production.   
-`null` is used because it is easy to use and provides the same _sunny day_ output and, most importantly, delivers the first cut of the product a bit faster.  This is a very localized optimization, lanaguages like Java or JavaScript are not fast in initial development, but they are familiar.  Easy and fast is in the eye of the beholder.   
+`null` is used because it is easy to use and provides the same _sunny day_ output and, most importantly, delivers the first cut of the product a bit faster.  This is a very localized optimization, lanaguages like Java or JavaScript are not really fast in initial development, but they are familiar.  Easy and fast is in the eye of the beholder.   
 In languages like Haskell, `null` is not available so its nearest cousin gets overused instead.
+
+### Side Note:  A simple implementation of a DIY `null` replacement in Java
+
+This is just a sketch.  
+
+``` java
+interface Option<T> {
+    <R> R option(R empty, Function<T,R> some);
+}
+public final class OptionSome<T> implements Option<T> {
+    private T t;
+    public OptionSome(T t) {
+        this.t = t;
+    }
+    public <R> R option(R empty, Function<T,R> some) {
+        return some.apply(t);
+    }
+}
+public final class OptionNone<T> implements Option<T> {
+    public OptionNone() {
+    }
+    public <R> R option(R empty, Function<T,R> some) {
+        return empty;
+    }
+}
+```
+
+A one-liner in about 20 lines!  We don't use Java for its development speed.   
+Of course, you should change it by adding  `toString()`, `equals()`, `hashCode()`, make constructors private and provide static constructor methods, still will be (< 60 lines), then provide ways to check if it is empty or not (< 70 lines), add `map`, make it composable with something people call `flatMap` (< 100 lines)...  
+I think, this should work in any Java version >= 1.5 (2004), by adding a, missing back then, `Function` class (another ~100 lines).
+
+Oh, and to use it with 3rd party libraries you still will need to convert from and to `null`:
+
+``` java
+public class ToFromNullable {
+    public static <T,R> Option<T> fromNullable(T t) {
+        if (t == null) {return new OptionNone(); } else {return new OptionSome(t);}
+    }
+    public static <T,R> T toNullable(Option<T> o) {
+        return o.option(null, r -> r);
+    }
+}
+```
+
+The point is: a `null` replacement is and was quite doable.
+
 
 
 ## Exhibit 2: Shared Mutating State vs Web Applications
@@ -164,13 +208,13 @@ In languages like Haskell, `null` is not available so its nearest cousin gets ov
 Did you ever had to work on a code where flipping 2 lines was almost certain to break it?  Not completely, that would be simple, just some scenarios.  Shared mutable state can do that. 
 
 A typical web app back-end, when processing a request, is going to: read some data from the database,  do some data processing, write some data back and return some data to the front-end.  There is no user request specific global state.  That design allows the web application to process concurrent requests from many users.
-As a bonus, a lot of state becomes encoded in URLs and such (we call it _Hypermedia as the Engine of Application State_).
+As a bonus, a lot of state becomes encoded in in the HTTP conversation (e.g. in URLs). We call it _Hypermedia as the Engine of Application State_.
 
 This is a big change from the fat client times. The apps we write today are almost stateless by comparison.
 It is not because developers are concerned about mutable state.  It is because the technology took it away from them.
 
-Reducing does not mean preventing. One of more costly pieces of code I had to maintain was a Java _struts_ page that included over 100 instance variables across inheriting classes.  There were many, many methods that would mutate some subset of these 100 variables using conditional logic that depended on some other subset of these variables.  Try changing order or inserting a method between...  Trying to picture interaction of 100+ interdependent pieces of state could be fun, unless, there is a deadline. Interestingly, this mess was blamed on _struts_.  The entry form may had maybe 15 fields, how does that justify 100 instance variables?
-You may think that we do not overuse instance variables any more?  Try reading code for some vue.js components!
+Reducing does not mean preventing. One of more costly pieces of code I had to maintain was a Java _struts_ page that included over 180 instance variables across inheriting classes.  There were many, many methods that would mutate some subset of these 180 variables using conditional logic that depended on some other subset of these variables.  Try changing order or inserting a method between...  Trying to picture interaction of 180 interdependent pieces of state could be fun, unless, there is a deadline. Interestingly, this mess was blamed on _struts_.  The entry form may had maybe 15 fields, how does that justify 180 instance variables?
+You may think that we do not overuse instance variables any more?  Try reading code for some of the vue.js components!
 
 Haskell is one of few languages that comes with STM, the _Software Transactional Memory_. 
 This is really nice and easy to use technology.  
@@ -186,7 +230,7 @@ To be effective at large, the technology needs not only to reduce the problem bu
 
 ## Exhibit 3: Typed Exceptions
 
-There is no consensus about typed exceptions being a good thing.  I consider type level information about exceptions to be good, but my goal is not to persuade you: rather to examine when technology limitations can effectively impact how we write code.
+There is no consensus about typed exceptions being a good thing.  I consider type level information about exceptions to be good, but my goal is not to persuade you.  Typed exceptions are a very interesting case study for how technology limitations can effectively impact how we write code.
 
 Limiting the use of untyped exceptions is happening in Rust, and for a good reason.  It is very hard to provide type level guarantees about things if you can bypass the type system.  Linear types do not like untyped exceptions.  No logic does.   
 In Rust, exceptions are typed but you also have ability to `panic!` bypassing the type limitations. 
@@ -231,13 +275,30 @@ _Easy to use untyped exceptions almost eliminated the use of checked exceptions 
 
 On the subject of exceptions, it should be observed that the languages rerely limit the programmer from expressing
 errors using a `Result` / `Either` like construction.  _The problem is typically not the language limitations, rather it is the freedoms._  
-I can reply the arugment from my `null` section:
+I can replay the arugment from my `null` section:
 
 Any language that can express type variables and higher order functions, can express `Result` / `Either` like type:
 
 ```
 result<E,T> = forall R . (E -> R, T -> R) -> R
 ```
+
+## Exhibit 5: Memory Bugs
+
+This has been discussed a lot.  Here are some examples I pulled from the internet:  
+[Microsoft eyes Rust](https://visualstudiomagazine.com/articles/2019/07/18/microsoft-eyes-rust.aspx)   
+[Security bugs in Chrome](https://www.zdnet.com/article/chrome-70-of-all-security-bugs-are-memory-safety-issues/) 
+
+And I want to just summarize what has been said:
+
+*  Best programming practices are not good enough to avoid these problems
+*  Partial solutions (like smart pointers in newer versions of C++) are not good enough either
+*  Limiting what developers can do: works
+
+Limiting what developer can do means:  no memory management (garbage collection handles it),  
+no access to direct pointer programming, or type safety over memory and pointer use (linear types, Rust).   
+The pattern repeats.
+
 
 ## Exhibit 4: Libraries and Code Reuse ???
 
@@ -261,54 +322,136 @@ There is no reason why the same level of code reuse could not be accomplished on
 extra freedom developers have in deciding on how to reuse.
 
 
-## Exhibit 5: Memory Bugs
+## Exhibit 6: Hard-coding
 
-This has been discussed a lot.  Here are some examples I pulled from the internet:  
-[Microsoft eyes Rust](https://visualstudiomagazine.com/articles/2019/07/18/microsoft-eyes-rust.aspx)   
-[Security bugs in Chrome](https://www.zdnet.com/article/chrome-70-of-all-security-bugs-are-memory-safety-issues/) 
-
-And I want to just summarize what has been said:
-
-*  Best programming practices are not good enough to avoid these problems
-*  Partial solutions (like smart pointers in newer versions of C++) are not good enough either
-*  Limiting what developers can do: works
-
-Limiting what developer can do means:  no memory management (garbage collection handles it),  
-no access to direct pointer programming, or type safety over memory and pointer use (linear types, Rust).   
-The pattern repeats.
-
-### Exhibit 6: Hard-coding gets the job done
-
-This is an intersting example because it is virtually impossible for the technology to limit the use of Strings.
+This is an interesting example because it is virtually impossible for the technology to limit the use of Strings.
 How to do limit the convenience of hardcoding email address or deployment specific configuration and force people
 to create configuration files, parse them, handle what happens when they do not exist...
 
-This gets even more interesting. In maintstream language any piece of code can read a configuration file.  
-There is some work to do that but it is not unsurmountable.  
-Reading a file is a non-referenially transparent side-effect and functional language will not let you do it that easily.  
-Getting access to configuration data could require a bigger refactoring than in a maintream language. 
-
-This is an amplified version of what we have examined so far:  Not only the technology does not prevent developer from 
-doing wrong, it makes it hard to do right and easy to do wrong.  
+This gets even more interesting in pure functional language. 
+Reading a configuration file or environment variable is a non-referenially transparent side-effect and functional language will not let you do it that easily.  
+Getting access to configuration data could require a bigger refactoring work. 
 
 I have seen a measurable increase in hard-coding since I moved to work on Haskell code bases.  
 This also shows how complex the overall situation is. Technology can prevent
-developers from certain errors, but piling up the restrictions it can make doing the right things harder too.
+developers from certain errors, but piling up the restrictions can have a detrimental effect on how easy it is to do certain 
+good things.  And if a good thing is hard to do...
+
+
+## Static Typing
+
+We are talking about effective chains and shackles, type systems have to be on the list. 
+The verdict is (not surprisinlgy) mixed about them even being useful.  Some people claim that static typing will slow
+down development time.  I say, if the type system does not increase your productivity 4-5x, then you are using a wrong one!
+
+Let me examine this a bit closer.  You could define types wrong.
+Something I have observed in Haskell code bases is that the layers of complexity when unraveled can expose
+some embarrassingly obvious design issue.  Layer of abstraction can be like
+trees that prevent us from seeing the forest.  For example, a sophisticated design for communication between 
+processes that prevent communicating errors!   
+Problems like these are rare.
+Typically static typing allows to introduce meaningful restrictions.  So why are static types not uniformly 
+accepted and approved of?
+
+Could a mixed reception of static types be explained by developers trying out a wrong type system?  Do language designers need 
+chains and shackles too?  What would these be?  Functional Programming languages derive their limitations from formalism.
+PLT (Programming Language Theory) is very mathematical.  Not sure what that is for Java, ES6, or C++ committee.  
+Sure, there are language specific goals (like performance for C++), but these do nothing for the maintainability.  
+This is obviously all fiction.  Language designers are not benevolent dictators and they will create languages that the industry
+wants.
+
+Assuming, for grins, that mathematics is a good shackle.  There are many mathematical constructions 
+that come from the Type Theory like linear types,  higher ranks,  higher kinded types...  
+To bore Haskell readers to death, I will go to basics.  Lets compare 
+
+_Types need to form algebra (Algebraic Data Types)_
+_Everything needs to be an Object_
+
+And try to create a library for manipulating JSON values. 
+
+To clarify my point. 
+
+
+## Other Examples
+
+
+## Counter Examples
+
+C++ 11 and up,  Generics,  Lambdas,  Java 8 and up Vavr like libraries 
 
 
 
 ----- REMOVE (reuse some?)
 ## Making Sense of the Dystopia
 
-### Type Safety
+### The Industry, The Managers, The Bottom Line
+
+Many of the above examples have this in common: developer selecting an implementation path that is quicker short term and more
+costly long term.  
+It is unrealistic to expect that developers will deliver a low maintenance code if the management prioritizes short term cost and short term goals.  
+
+In many places, the time to market pressure tends to be the driving factor. 
+For many projects, the maintenance cost is simply passed to the customers. 
+Such cost structure matches the process that emphasizes delivery timelines over quality.
+Even if the customers do no pay for the maintenance, the cost is typically overshadowed by short term delivery goals. 
+
+Software Development suffers from an acute case "temporal mico-economics":  Seemingly optimal short term choices are costly to the project in the long term.  This approach is consistent between what the management expects and what developer deliver.
+
+Notice that the long term maintenance cost is rarely collected. I never had to put a JIRA ticket number on the timesheet. 
+Software projects typically do not monitor defect rates.  I remember only one job were defect statistics were computed, and that is because I computed them (a project developer) out of my own curiosity. Popular Agile measurements, like, velocity, burn down charts can reflects defect rates only indirectly and are targeting initial development cost, not a long term maintenance cost.  
+You can argue that many projects have a good amount of automated testing and measure things like coverage rates.  That is true, but 
+these also do not map to the maintenance cost directly.
+
+Another big part of the issue is the corporate inertia.  Nobody gets fired for not changing the old process or for selecting 'proven' old tools, even if the old process and the old tools do not work well. Programmers do not have decision power.  MBAs are not competent to make technical decisions and will resist change and prefer known evil.  That environment trickles down to development and developers are going to create `null` values and memory leaks just as they did in the last project.
+
+For example, I know a whole industry segment which produces a lot of data outputs with high accountability and correctness requirements. Their standard practice is called "double programming" (2 indepedently programmed data output derivations need to agree) but, believe it or not, programmers do not use any version control!  Something like git is not a part of their technology stack.  Version control is not what any of these companies do and hence none feels any pressure to change.
+This is the same pattern.  Learning something like git will add a short term cost and hence is not considered as an option.
+There are two possible reactions to this story:  what is your point (from programmers in that industry), shocked (everyone else). 
+
+
+### Socrates Death
+
+xxx
+There is no correlation (of if there is one it is negative) between developer knowledge level and his/her ability to impact the project direction.  
+I expect a large portion of developers to not understand half of this post.  I also expect this group to has
+strong opinions about programming.  This group has big, deciding, impact on where the industry goes.
+That is why Socrates died.
+
+Technology selections are popularity contests. People read TOBIE index, RedMonk index, Google trends...
+
+Anti-theoretical bias and education can also be blamed.   
+A short quiz:  What does this mathematical formula have to do with programming:
+
+```
+a ^ (b ^ c) = a ^ (b * c)
+```
+
+How about this one:
+
+```
+a ^ (b + c) = a ^ b * a ^ c
+```
+
+If you know the answer, where did you learn it?  In school, in university, yourself?  I have not learned it in school or in university.  
+
+Here is another evidence from my personal life:  At some point to improve my marketability I decided to remove my PhD (mathematics) from my resume.  It was something that was suggested by my friend and worked very well.  It felt like cheating so I ended up disclosing it only after the interview with the something like "Please do not hold it against me ...".   
+I have heard more then one conversation criticizing someone's decision of pursuing a PhD.  
+Discriminating against knowledge cannot be beneficial.
+
+
+
+----
+
+### Types
+
+_Correct code does not need a typechecker.  By using Haskell I am admitting to my incompetence._
 
 Lots of developers think about type safety as a way to prevent accidental typos or maybe preventing using a String instead of an Int.  
 I am not talking about such litte restrictions.
 
 Im my current work, many apps, have just a few lines of code we call top level.  These lines can do almost anything
 but there is a very few of them.  The rest can only do what is allowed.  For example: can call another micro-service
-only it that service is listed in the app effect list, can only use environment variable if that variable is listed in the type level list
-of allowed names...   
+only it that service is listed in the app effect list, can only use environment variable if that variable is listed in the type level list of allowed names...   
 
 There is almost no limit to how far you can go with enforcing restrictions.   
 One of my favorite examples is a `C` style `printf` where the data you can use is
@@ -353,6 +496,12 @@ for in the devops space.
 Semantic Functions???
 
 These all seem like excellent ideas and will help improve the situation of a small <1% of software projects.
+
+### Type Systems
+
+e.g.  types that are not willy-nilly form mathematical algebra...
+
+
 
 ### The Industry, The Managers, The Bottom Line
 

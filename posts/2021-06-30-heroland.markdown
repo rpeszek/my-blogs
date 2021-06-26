@@ -1,0 +1,63 @@
+---
+title:  A Land of Heroes Fighting The Unsustainable. A view of Software Industry from Java to Haskell.
+author: Robert Peszek
+toc: true
+summary: todo
+---
+
+## Introduction
+
+I just came back from a walk with my dogs.  We are cleaning their paws thoroughly.  We see dead frogs, there are post about dead snakes on nextdoor. 
+Many vets think that increased cancer rates and dog deaths are caused by some new pesticide or herbicides.  Whatever you views about: the overuse of chemicals, compassion for animals, climate change, ecological disasters, ... is, you would probably will agree with me that sustainability is something the human race does not do well.  What we do well is short term tangible goals.  
+
+I have been working as a software developers for about 25 years.  I have worked on a wide spectrum ranging from total crap to very well written code. 
+Work is a big part of our lives and approaching retirement age makes me want to reflect on what I have seen and learned.  
+My journey as a software developer contrast with my previous job in academia.  Actually, there is some similarity between grading 50+ calculus exams
+and fixing bugs in lots of incompetent code.  The interesting difference is that, sometimes, that incompetent code is mine...  
+My goal here is to reflect on why programming projects are hard to maintain and often end up in the (mutating, of course) state of a complete mess.  
+
+The tools we use to a large extent shape what we do to.  After 20+ years of mainstream I have converted to coding in Haskell. 
+This post is not about comparing imperative to functional.  I have seen and have worked on some well written OO and FP code and have
+seen and worked on abundance of crap in both domains. 
+To be Turing Complete a programming language needs to allow for code that is a complete rubbish.   
+Some of the reasons for bad code are well addressed by functional approach.  You can't go wrong if you have a formal correctness argument (it is hard to argue
+with Mathematics, what the mainstream does is to simply ignore her.)
+But the underlying reasons for mess are often orthogonal to the coding paradigm you use.  There really may not be a silver bullet for everything.
+
+I think, the state of programming projects must come as a surprise to new programmers.  It takes time to unravel the project complexities and technology complexities, but after they do they will meet the complex maze of ad hoc decisions and arbitrary complexities. 
+Should the industry be more up-front about what is under the surface?
+
+
+
+## Business Bottom Line
+
+I have some understanding of economics but it is rusty.  It has been 27 years since I done research in mathematical finance.  So please view these as only
+common sense observations of an non-expert.  
+
+
+
+
+Silicon Valley associates in our brains with big software.  A less frequently formed association is one with venture capital.  The proximity of Hollywood and 
+the very similar characteristics of these 2 investments (creating a movie vs creating a software) must have a big role in the growth of the Valley.  
+The business model, at least initially, was clear: initial cost of design and development followed by potentially big profits of distributing the software (very similar to movies).  The trick here is to minimize that initial cost.  
+That business model was well established before software industry created itself and, largely, remains unchanged.  It is not restricted to Silicon Valley either. 
+The one common denominator to almost all software companies (startups or not) and all software projects is the time to market pressure.
+It is completely unreasonable to expect that the developers will magically address long term concerns (known as the low maintenance cost) if the management prioritizes short term cost and short term goals.  
+
+There is one notable exception to that Hollywood Style model:  Bell Labs.  And we all know how different that was!
+Adjusted for the inflation (advancements in hardware and tooling) the quality of 1970's work as Bell Labs is simply unmatched.   
+I never worked for Bell Labs but I did work for a research group at Bellcore / Telcordia and I heard stories. ...
+
+That is not to say that a long term commitment to technology instead of short term delivery goals always work.  Obviously not, we are just humans and will not always make future proof choices.  We may criticize successful projects like C++, Java because they could have been designed better or not successful once like Bell Lab's Plan 9 because they failed.  Hindsight is 20/20.   ....
+
+
+
+## Prototypes vs Production
+
+
+
+
+
+
+
+No code -low code.
