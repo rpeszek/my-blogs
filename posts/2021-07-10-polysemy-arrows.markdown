@@ -1,5 +1,5 @@
 ---
-title: Polysemy with Semantic Arrow Effects
+title: Polysemy with Arrow Effects
 author: Robert Peszek
 lastmodified: Jun 27, 2021
 featured: true
@@ -11,19 +11,21 @@ tags: Haskell
 Code for this project can be found in my [_add_blank_target experiments](https://github.com/rpeszek/experiments) repo ([_add_blank_target polysemy-arrows](https://github.com/rpeszek/experiments/tree/master/polysemy-arrows) folder).   
 It is based on [_add_blank_target _polysemy 1.3.0.0_](https://hackage.haskell.org/package/polysemy-1.3.0.0) 
 
-**Motivation:**  At work I use a proprietary effect system which is based on [_add_blank_target arrows](https://www.haskell.org/arrows).  I like it quite a lot, but... 
+The goal of this post is to show how to use arrow syntax when working with or creating _polysemy_ effects.
+
+**Motivation:**  At work I use a proprietary effect system which is based on [_add_blank_target arrows](https://www.haskell.org/arrows).  I like it quite a bit, but... 
 For something like an effect system, proprietary is not ideal.  Effect system has a huge syntactic and semantic impact on the code.  IMO it is a worthy goal to try limit the fragmentation of the ecosystem and focus (in the industrial context) on using only few most established effect libraries.  
-This task became my pet project in recent days, and I have done some proof of concept work to add arrows to [_add_blank_target _polysemy_](https://hackage.haskell.org/package/polysemy), this post summarizes my effort.
-I believe similar approach can be used with other monadic effect libraries (like [_add_blank_target _fused-effects_](https://hackage.haskell.org/package/fused-effects)) but I have not done the exercise. _polysemy_ seems much closer to the design of the library we use and was my first choice.
+This task became my pet project over the weekend, and I have done some proof of concept work to add arrows to [_add_blank_target _polysemy_](https://hackage.haskell.org/package/polysemy), this post summarizes my effort.
+I believe similar approach can be used with other monadic effect libraries (like [_add_blank_target _fused-effects_](https://hackage.haskell.org/package/fused-effects)) but I have not done that exercise. _polysemy_ seems much closer to the design of the library we use and was my first choice.
 
 **Nutshell:**  There are two reasons for using arrows: syntactic and semantic.  This blog, I am afraid, is about the first one.  It is mostly about syntax sugar. 
 Polysemy's `Sem r` enjoys unconstrained `Monad` instance, and that translates to arrow effects getting the equivalent `ArrowApply` for free.  
-The code I am about to present is trivial (at least in the mathematical sense). Monads and arrows loaded with power of `ArrowApply` are equivalent.  Semantic arrows I am about to present are just monads in arrow's clothing.  There is still some coding that needs to 
+The code I am about to present is trivial (at least in the mathematical sense). Monads and arrows loaded with power of `ArrowApply` are equivalent.  Semantic arrows I am going to implement here are just monads in arrow's clothing.  There is still some coding that needs to 
 happen to implement the transformation and this code is the main subject of this post. 
 
-_Algebraic effects for Arrows_ that are less expressive (e.g. are not `ArrowApply` or even `ArrowChoice`) are meaningfully different and will be briefly discussed in the next section.  
+_Algebraic effects for arrows_ that are less expressive (e.g. are not `ArrowApply` or even `ArrowChoice`) are meaningfully different and will be briefly discussed in the next section.  
 
-The code I write at work uses semantic fully loaded `ArrowApply` arrows.  We have build a lot of functionality that is directly concerned with inputs and outputs and arrows are a perfect syntactic match.  DSL expressiveness is also what we want.
+The code I write at work uses fully loaded `ArrowApply` arrow effects.  We have build a lot of functionality that is directly concerned with inputs and outputs and arrows are a perfect syntactic match for us.  DSL expressiveness is also what we want.
 
 My coding goal in this post is to:
 
@@ -34,7 +36,7 @@ Another words, a programmer should be able to create monadic effects using arrow
 This is largely accomplished by using the [_add_blank_target Kleisli](https://hackage.haskell.org/package/base-4.15.0.0/docs/Control-Arrow.html#t:Kleisli) type
 and an effect construction that mimics [_add_blank_target ArrowMonad](https://hackage.haskell.org/package/base-4.15.0.0/docs/Control-Arrow.html#t:ArrowMonad).
 
-Most of my coworkers have, at some point, done a presentation or a tutorial about arrows. ([_add_blank_target Jake's talk](https://www.youtube.com/watch?v=msQiLyExM3w), [_add_blank_target Jason's talk](https://www.youtube.com/watch?v=YqVTCZFPoyQ)).   
+Many of my coworkers have, at some point, done a presentation or a tutorial about arrows. ([_add_blank_target Jake's talk](https://www.youtube.com/watch?v=msQiLyExM3w), [_add_blank_target Jason's talk](https://www.youtube.com/watch?v=YqVTCZFPoyQ)).   
 I guess this post qualifies as one and, thus, I am joining the club.  
 
 This post assumes the reader has at least basic familiarity with the concepts of arrows and algebraic effects. 
@@ -46,11 +48,11 @@ Since this will mostly be about syntax sugar, I need to talk about the semantics
 In this section I want to explore the realm of theoretical possibilities for what arrow algebraic effects could possibly look like and how could they differ from monadic algebraic effects.  
 
 It is interesting to think about arrows from the point of view of code expressiveness.  Syntax aside, you can view arrow code as a subset
-of monadic code.  Monadic code is the most expressive, arrows are much more restrictive ([_add_blank_target Idioms are oblivious, arrows are meticulous, monads are promiscuous](https://www.cl.cam.ac.uk/~jdy22/papers/idioms-are-oblivious-arrows-are-meticulous-monads-are-promiscuous.pdf) by Lindley, Wadler, Yallop).  In Haskell, additional `ArrowChoice` instance is needed to be able to write conditional statements,  `ArrowApply` is needed to partially apply things.  To focus this fantasy exploration, we forget about `ArrowChoice` and `ArrowApply` for a moment and consider what arrow effect system would look like for DSLs based on the `Arrow` typeclass only.
+of monadic code.  Monadic code is the most expressive, arrows are much more restrictive ([_add_blank_target Idioms are oblivious, arrows are meticulous, monads are promiscuous](https://www.cl.cam.ac.uk/~jdy22/papers/idioms-are-oblivious-arrows-are-meticulous-monads-are-promiscuous.pdf) by Lindley, Wadler, Yallop).  In Haskell, additional `ArrowChoice` instance is needed to be able to write conditional (`if` and `case`) statements,  `ArrowApply` is needed to partially apply things.  To focus this fantasy exploration, I want to forget about `ArrowChoice` and `ArrowApply` for a moment and consider what arrow effect system would look like for DSLs based on the `Arrow` typeclass only.
 
-If arrow code as a subset of monadic code then monadic handlers (interpreters) have to also work on arrow DSLs.  (With some adjustments of course, this is exactly what this post implements.)  The question is what other kind of interesting interpreters we could do that would not work on promiscuous monads but will work on meticulous arrows?
+If arrow code as a subset of monadic code then monadic handlers (interpreters) have to also work on arrow DSLs.  (With some adjustments of course, this is exactly what this post implements.)  The question is what kind of other interesting interpreters one could come up with, that wouldn't work on promiscuous monads but would work on meticulous arrows?
 
-For one thing, arrows should be able to interpret to other arrows.  Basically, the handlers should be able live outside of the standard function space.  There are examples of open source code out there that actually does that.
+For one, arrow effects should be able to interpret to other interesting arrows.  Basically, the handler (defined as the final interpreter / compilation target) should be able live outside of the standard (monadic) function space.  There are examples of open source code out there that go in this direction.
 One example is tweag's [_add_blank_target funflow](https://hackage.haskell.org/package/funflow-1.3.2/docs/Control-Arrow-Free.html).
 
 That sounds interesting but it is good to see a more practical benefit.  To do that lets think about what it means to have lack of conditional statements.
@@ -99,13 +101,13 @@ For example, you can imagine interpreter that determines statically if `put` ope
 Again, this translates to more power given to interpreters, no `put`-s could, for example, mean more aggressive optimization that somehow caches the state.  
 
 
-### Imagining ArrowMinus
+### Chris Penner's ~~arr~~ow idea
 
-A very interesting [_add_blank_target Berlin's FP Group](https://www.youtube.com/channel/UCNp-DVb8cQRIOo32sZhWgNg) presentation by Chris Penner [_add_blank_target Deconstructing Lambdas—An Awkward Guide to Programming Without Functions](https://www.youtube.com/watch?v=xZmPuz9m2t0) envisions a world where `Arrow` does not have [_add_blank_target `arr`](https://hackage.haskell.org/package/base-4.15.0.0/docs/Control-Arrow.html#v:arr).   
-From a DSLs prospective, `Arrow`'s `arr` translates to ability to use any standard `a -> b` function inside the DSL.  
+A very interesting [_add_blank_target Berlin's FP Group](https://www.youtube.com/channel/UCNp-DVb8cQRIOo32sZhWgNg) presentation by Chris Penner [_add_blank_target Deconstructing Lambdas—An Awkward Guide to Programming Without Functions](https://www.youtube.com/watch?v=xZmPuz9m2t0) envisions a world with something `Arrow`-like that does not have the [_add_blank_target `arr`](https://hackage.haskell.org/package/base-4.15.0.0/docs/Control-Arrow.html#v:arr).   
+From a DSLs prospective, `Arrow`'s `arr` translates to ability to use any Haskell `a -> b` function inside the DSL.  
 Removing this ability is very interesting, but is also a hard stop when trying to reuse any monadic effects library.  
 
-It seems that Chris Penner's vision can exist with some Arrow-Minus like constructions that care about inputs and outputs
+It seems that Chris Penner's vision could be implemented with some Arrow-Minus like construction that cares about inputs and outputs
 and algebraic effect system that will be completely divorced from monadic effects.
 
 The point this section tried to make is that Arrow-like effect systems that are not convertible to monadic effects are very interesting is semantically important.  The rest of this post is about interpreting arrows using polysemy and is more a syntax sugar thing.
@@ -143,9 +145,13 @@ test :: IO ()
 test = interpreter echo
 ```
 
+I have spelled out the effect stack in the type signature of the `interpreter` combinator
+for extra clarity.  I will do that in following examples as well.  
 The goal is to replace monadic computations with arrows.
 
-## SemArr type
+## `SemArr` type
+
+Let me introduce our semantic arrow type:
 
 ``` Haskell
 import qualified Control.Arrow as Arr
@@ -179,7 +185,7 @@ Applicative m => Applicative (Kleisli m a)
 `SemArr r a b` is a monad in arrow's clothing. 
 
 
-## Arrow consumption
+## Consuming _polysemy_ effects using arrows
 
 This is section will not be interesting.  We can tranform monads to arrows using Kleisli, duh:
 ``` Haskell
@@ -207,14 +213,16 @@ testA :: IO ()
 testA = interpreter echoA ()
 ```
 
+`readTTYA` and `writeTTYA` are arrow-ised versions of the monadic `readTTY` and `writeTTY` primitives.
+
 Notice the change in type signature for `interpreter`.  Interpreter now threads the input data into the computation and spells out the output at the end.
 You can also view it as compiling the `SemArr r a b` arrow down to `Kleisli IO a b` (only with `Kleisli` unwrapped for extra convenience).
 
 Lets move onto some more interesting stuff:
 
-## Arrow Effects, The Plumbing
+## Arrow Effects. The Plumbing
 
-One of the syntactic advantages of using arrow effects, at least for me, is the simplified construction of effect algebra GADTs.  This definition nicely spells out the input and the output:
+One of the syntactic advantages of using arrow effects, at least for me, is the simplified construction of effect algebra GADT.  This definition nicely spells out the input and the output:
 
 ``` Haskell
 data Teletype2 a b where
@@ -271,9 +279,9 @@ Combining `Eff2` with `Eff2Free` is what I need to move forward.
 This ended up being much more minimalist, we get arrows for free from using `SemArr r a b`. 
 
 What is reallly needed is ability to pre-compose mapped functions before the lifted effect. This free construction needs
-to be compatible with the _Contravariant Functor_ and there should be flexibility of how it is done.
+to be compatible with the _Contravariant Functor_ and there should be some flexibility of how it is done.
 
-## Arrow Effects
+## Creating Arrow Effects
 
 Here is the whole program that uses Arrow-like effect algebra, arrow instruction primitives, and arrow DSL program:
 
@@ -326,10 +334,10 @@ testA2 = interpreter echo2A ()
 * `readTTY2A` and `writeTTY2A` are available for by arrow code. In particular, these can be used to create
 new arrow effects that compile down to `Eff2 (Eff2Free Teletype2)`. 
 
-This is the most interesting case of nesting and is shown next:
+Implementing arrow effects on top of other arrows effects seems to be the most interesting case of nesting and is shown next:
 
 
-## Nested Effects
+## Creating Nested Effects
 
 `DoEcho2` has a non-unit input and output making it more interesting. 
 We will interpret it down to `Teletype2` effect by writing the output, reading the new input and returning it as the result.
@@ -364,19 +372,21 @@ testEchoerA :: String -> IO String
 testEchoerA  = interpreterEchoer (doEcho2A >>> doEcho2A) 
 ```
 
-`echoer2ToKl` plays the role of interpreter for the effect algebra. It is implemented using arrows!  
+`echoer2ToKl` plays the role of an interpreter for the effect algebra. It is implemented using arrows!  
 The `interpretEff2` combinator (defined in the [plumbing](#arrow-effects-the-plumbing) section) returns the interpreter that _polysemy_ understands.  
 I view `interpreterEchoer` as a natural transformation between `SemArr r a b` arrow and `Kelisly IO a b` arrow (ignoring the `runKleisli` unwrapping).  
 
-This provides a two way street to writing compilation stacks: 
+We have a two way street to writing compilation stacks: 
 
-* compose `Sem r` compilers that remove effects from the `r` record and compile monadic computation `Sem r1 a` to a simpler monadic computation  `Sem r2 a`
-* compose `SemArr r` compilers that compile `SemArr r1 a b` arrow to simpler `SemArr r1 a b` arrow.
+* compose `Sem r` compilers that remove effects from the `r` record and compile monadic computation `Sem r1 a` to a simpler monadic computation  `Sem r2 a` (the standard _polysemy_'s approach)
+* compose `SemArr r` compilers that compile `SemArr r1 a b` arrow to simpler `SemArr r2 a b` arrow.
 
 or mixing both ways.  These options are all possible (my git repo has the necessary combinators).  
 
 
-## Conclusions
+## Final Thoughts
+
+We have accomplished the goal.  We can program _polysemy_ effects by using interchangeably the monadic and the arrow syntax.
 
 The goal of refactoring a large code base to change effect library will not be easy and I am not even sure it will be attempted.  
 The differences are not just in the use of arrows vs monads.
