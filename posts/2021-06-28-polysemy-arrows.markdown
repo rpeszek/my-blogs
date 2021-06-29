@@ -100,8 +100,8 @@ interpreting `Modify` than just `Get`/`Put` (for example, do something that is m
 
 
 **Arrow effect handlers could conceivably do crazy stuff:**  
-Static control flow makes for a much more predictable syntax tree. 
-For example, you can imagine interpreter that determines statically if `put` operation is used or not!  
+Static control flow makes for a much more predictable syntax tree.  In an example mentioned in the above paper, the 
+interpreter statically infers when the `put` operation is used and when is not!  
 Again, this translates to more power given to the interpreters, no `put`-s could, for example, mean a more aggressive optimization that somehow caches the state...  
 
 
