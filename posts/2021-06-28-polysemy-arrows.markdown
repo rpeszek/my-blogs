@@ -403,7 +403,7 @@ We have accomplished the goal.  We can program _polysemy_ effects by using inter
 This seems to be an interesting engineering problem: effective refactoring methods for swapping effect systems.  
 The task of refactoring a large code base to change its effect library will not be easy and I am not even sure it will be attempted.  
 The differences are not just in the use of arrows vs monads.
-The effects are declared polymorphically in both cases but in very different ways.  The collection of base effects like `State` have subtle differences...  
+The effects are declared polymorphically in both cases but in very different ways.  The collections of the base (batteries included) effects has subtle differences.  There are subtle but important differences in error handling ...  
 It will require much more footwork to be able to do it piece by piece.   
 
 The `Eff2` / `Eff2Free` tooling is not really arrow specific. I believe, it could be used with other things. That is the reason behind the names (for not using something like `EffArr`).  However, whatever you come up with (e.g. a free Profunctor construction) this will be just dressing a monad in some other clothing - it will be syntactic only. The `Arrow` seems to be the only meaningful exception, because it comes with the syntax extension (the Arrows pragma).
