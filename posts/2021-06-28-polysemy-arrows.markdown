@@ -1,10 +1,14 @@
 ---
 title: Arming polysemy with Arrows
 author: Robert Peszek
-lastmodified: Jun 28, 2021
+lastmodified: Jul 02, 2021
 featured: true
 summary: How to add semantic arrows (monadic effects in arrow's clothing) to polysemy
 toc: true
+changelog: <ul> 
+     <li> (2021.07.02) Added <a href="#tweag-workflows">Tweag Workflows</a> section and Semantic Note in 
+     <a href="#creating-arrow-effects">Creating Arrow Effects</a> </li>
+     </ul>
 tags: Haskell
 ---
 
@@ -105,16 +109,38 @@ interpreter statically infers when the `put` operation is used and when is not!
 Again, this translates to more power given to the interpreters, no `put`-s could, for example, mean a more aggressive optimization that somehow caches the state...  
 
 
+### Tweag Workflows
+
+_u/Ywen_ pointed out to me [_add_blank_target here](https://www.reddit.com/r/haskell/comments/o9y7re/arming_polysemy_with_arrows/h3oru2a?utm_source=share&utm_medium=web2x&context=3) that I missed a very cool presentation in the last ICFP, and indeed I did!  
+References: [_add_blank_target Composing Effects into Tasks and Workflows](https://richarde.dev/papers/2020/workflows/workflows.pdf) by Parès, Bernardy, and Eisenberg; [_add_blank_target kernmantle](https://github.com/tweag/kernmantle) effects library;
+here it is on [_add_blank_target youtube](https://www.youtube.com/watch?v=AiHOBF3BiLY&t=834s).
+
+The paper is about creating data science workflow pipelines that decouple two runtime phases: config-time and process-time.
+This allows for fail-early benefits (if config-time effects fail).
+
+This approach uses an arrow (without _ArrowApply_) DSL that contains both applicative (config-phase) effects and monadic (process-time) effects. 
+Applicative effect algebra GADTs separately defines parameters that the DSL _has to provide statically_ and parameters that can be used  in dynamic arrow invocation. Thus, the interpreters have more power to infer information about the statically used configuration.  This allows config-time interpreters to check, for example, if some statically specified model training data file exists and fail early if it does not, interpreters can pre-download needed artifacts, etc.
+
+The beauty of this is that the data scientist creating the pipeline uses one DSL to orchestrate the workflow and the config-time and process-time effects are all in the same script.  Haskell type safety prevents the script creator from defining static configuration using (dynamic) results from previous computations. 
+
+The presentation (see the youtube link) also shows a general arrow type that generalizes `Kleisli`, [_add_blank_target `Cokleisli`](https://hackage.haskell.org/package/comonad-5.0.8/docs/Control-Comonad.html#t:Cokleisli) (from _comondad_), and
+[_add_blank_target `Cayley`](https://hackage.haskell.org/package/profunctors-5.6.2/docs/Data-Profunctor-Cayley.html) 
+(from _profunctors_).
+
+Separation between static and dynamic data is impossible when using monadic / ArrowApply computations.  I will discuss this a little bit more in the [Creating Arrow Effects](#creating-arrow-effects) section of this post.
+
 ### Chris Penner's ~~arr~~ow idea
 
-Very interesting [_add_blank_target Berlin's FP Group](https://www.youtube.com/channel/UCNp-DVb8cQRIOo32sZhWgNg) presentation by Chris Penner [_add_blank_target Deconstructing Lambdas—An Awkward Guide to Programming Without Functions](https://www.youtube.com/watch?v=xZmPuz9m2t0) envisions a world with something `Arrow`-like that does not have the [_add_blank_target `arr`](https://hackage.haskell.org/package/base-4.15.0.0/docs/Control-Arrow.html#v:arr).   
+A very interesting [_add_blank_target Berlin's FP Group](https://www.youtube.com/channel/UCNp-DVb8cQRIOo32sZhWgNg) presentation by Chris Penner [_add_blank_target Deconstructing Lambdas—An Awkward Guide to Programming Without Functions](https://www.youtube.com/watch?v=xZmPuz9m2t0) envisions a world with something `Arrow`-like that does not have the [_add_blank_target `arr`](https://hackage.haskell.org/package/base-4.15.0.0/docs/Control-Arrow.html#v:arr).   
 From a DSLs prospective, `Arrow`'s `arr` translates to the ability to use any Haskell `a -> b` function inside the DSL.  
 Removing this ability is very interesting. It is also a hard stop when trying to reuse any monadic effects library.  
 
 It seems that Chris Penner's vision could be implemented with some Arrow-Minus like construction that cares about inputs and outputs
 and algebraic effect system that will be completely divorced from monadic effects.
 
-The point I tried to make in this section is that Arrow-like effect systems that are not convertible to monadic effects are very interesting and semantically important.  The rest of this post is about interpreting arrows using polysemy and is more a syntax sugar thing.
+**The point** I tried to make in this section is that Arrow-like effect systems that are not convertible to monadic effects are very interesting and semantically important.  The rest of this post is about interpreting arrows using polysemy and is more a syntax sugar thing.
+
+Now back to _polysemy_ and monads:
 
 
 ## Monadic polysemy, Working example
@@ -345,6 +371,16 @@ testA2 = interpreter echo2A ()
 * `readTTY2` and `writeTTY2` primitives can be used by any monadic polysemy code to create new effects or to use in programs where effect the `Eff2 (Eff2Free Teletype2)` is available.
 * `readTTY2A` and `writeTTY2A` are available for any arrow code. In particular, these can be used to create
 new arrow effects that compile down to `Eff2 (Eff2Free Teletype2)`. 
+
+**Semantic Note:**  Notice that, when defining monadic version of `Teletype` GADT, we used value level `String` in the `WriteTTY`
+constructor, now the `String` input is defined squarely on the type level.  
+We could consider defining `WriteTTY2` as `WriteTTY2 :: String -> Teletype2 () ()` instead.   
+This would yield 
+`String -> SemArr r () ()` type for the above `writeTTY2A`.  In the expressive world of _monads_ / _ArrowApply_ both constructions are largely equivalent. 
+Not so in the more restrictive universe of general arrows we discussed in the [Semantics](#arrow-effects.-semantics) section.  
+The new construction would allow a more static handling of the `String` parameter by the interpreter but the `String` parameter would not be available for 
+dynamic use at the DSL level. We would not be able to write the above `echo2A` program.
+A code example of this is provided in the included repo [_add_blank_target here](https://github.com/rpeszek/experiments/blob/05e23cdca5766b947b731d9084bdfe96c7bcbaae/polysemy-arrows/src/Teletype2B.hs)
 
 Implementing arrow effects on top of other arrows effects seems to be the most interesting case of nesting and is shown next:
 
