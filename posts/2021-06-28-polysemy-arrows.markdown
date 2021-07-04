@@ -1,13 +1,14 @@
 ---
 title: Arming polysemy with Arrows
 author: Robert Peszek
-lastmodified: Jul 02, 2021
+lastmodified: Jul 04, 2021
 featured: true
 summary: How to add semantic arrows (monadic effects in arrow's clothing) to polysemy
 toc: true
 changelog: <ul> 
-     <li> (2021.07.02) Added <a href="#tweag-workflows">Tweag Workflows</a> section and Semantic Note in 
-     <a href="#creating-arrow-effects">Creating Arrow Effects</a> </li>
+    <li> (2021.07.02) Added Semantic Note in 
+     <a href="#creating-arrow-effects">Creating Arrow Effects</a> section </li>
+     <li> (2021.07.02-04) Added <a href="#tweag-workflows">Tweag Workflows</a> section </li>
      </ul>
 tags: Haskell
 ---
@@ -112,7 +113,7 @@ Again, this translates to more power given to the interpreters, no `put`-s could
 ### Tweag Workflows
 
 _u/Ywen_ pointed out to me [_add_blank_target here](https://www.reddit.com/r/haskell/comments/o9y7re/arming_polysemy_with_arrows/h3oru2a?utm_source=share&utm_medium=web2x&context=3) that I missed a very cool presentation in the last ICFP, and indeed I did!  
-References: [_add_blank_target Composing Effects into Tasks and Workflows](https://richarde.dev/papers/2020/workflows/workflows.pdf) by Parès, Bernardy, and Eisenberg; [_add_blank_target kernmantle](https://github.com/tweag/kernmantle) effects library;
+References: [_add_blank_target Composing Effects into Tasks and Workflows](https://richarde.dev/papers/2020/workflows/workflows.pdf) by Parès, Bernardy, and Eisenberg; [_add_blank_target _kernmantle_](https://github.com/tweag/kernmantle) effects library;
 here it is on [_add_blank_target youtube](https://www.youtube.com/watch?v=AiHOBF3BiLY&t=834s).
 
 The paper is about creating data science workflow pipelines that decouple two runtime phases: config-time and process-time.
@@ -121,11 +122,11 @@ This allows for fail-early benefits (if config-time effects fail).
 This approach uses an arrow (without _ArrowApply_) DSL that contains both applicative (config-phase) effects and monadic (process-time) effects. 
 Applicative effect algebra GADTs separately defines parameters that the DSL _has to provide statically_ and parameters that can be used  in dynamic arrow invocation. Thus, the interpreters have more power to infer information about the statically used configuration.  This allows config-time interpreters to check, for example, if some statically specified model training data file exists and fail early if it does not, interpreters can pre-download needed artifacts, etc.
 
-The beauty of this is that the data scientist creating the pipeline uses one DSL to orchestrate the workflow and the config-time and process-time effects are all in the same script.  Haskell type safety prevents the script creator from defining static configuration using (dynamic) results from previous computations. 
-
 The presentation (see the youtube link) also shows a general arrow type that generalizes `Kleisli`, [_add_blank_target `Cokleisli`](https://hackage.haskell.org/package/comonad-5.0.8/docs/Control-Comonad.html#t:Cokleisli) (from _comondad_), and
 [_add_blank_target `Cayley`](https://hackage.haskell.org/package/profunctors-5.6.2/docs/Data-Profunctor-Cayley.html) 
 (from _profunctors_).
+
+I am in the process of absorbing this work. I may update this comment when I understand _kernmantle_ better.
 
 Separation between static and dynamic data is impossible when using monadic / ArrowApply computations.  I will discuss this a little bit more in the [Creating Arrow Effects](#creating-arrow-effects) section of this post.
 
