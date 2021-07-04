@@ -119,8 +119,8 @@ here it is on [_add_blank_target youtube](https://www.youtube.com/watch?v=AiHOBF
 The paper is about creating data science workflow pipelines that decouple two runtime phases: config-time and process-time.
 This allows for fail-early benefits (if config-time effects fail).
 
-This approach uses an arrow (without _ArrowApply_) DSL that contains both applicative (config-phase) effects and monadic (process-time) effects. 
-Applicative effect algebra GADTs separately defines parameters that the DSL _has to provide statically_ and parameters that can be used  in dynamic arrow invocation. Thus, the interpreters have more power to infer information about the statically used configuration.  This allows config-time interpreters to check, for example, if some statically specified model training data file exists and fail early if it does not, interpreters can pre-download needed artifacts, etc.
+This approach uses an arrow (without _ArrowApply_ and with optional (opt-in) _ArrowChoice_) DSL that contains both applicative (config-phase) effects that do not depend on the result of previous computation and monadic (process-time) effects that do. 
+The effect algebra GADTs separately define parameters that the DSL _has to provide statically_ and parameters that can be used in dynamic arrow invocation. Thus, the interpreters have more power to infer information about the statically used configuration.  This allows interpreters to perform config-time checks, for example, if some statically specified model training data file exists and fail early if it does not, interpreters can pre-download needed artifacts at the config-time, etc.
 
 The presentation (see the youtube link) also shows a general arrow type that generalizes `Kleisli`, [_add_blank_target `Cokleisli`](https://hackage.haskell.org/package/comonad-5.0.8/docs/Control-Comonad.html#t:Cokleisli) (from _comondad_), and
 [_add_blank_target `Cayley`](https://hackage.haskell.org/package/profunctors-5.6.2/docs/Data-Profunctor-Cayley.html) 
