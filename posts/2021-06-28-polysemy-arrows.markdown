@@ -8,7 +8,7 @@ toc: true
 changelog: <ul> 
     <li> (2021.07.02) Added Semantic Note in 
      <a href="#creating-arrow-effects">Creating Arrow Effects</a> section </li>
-     <li> (2021.07.02-04) Added <a href="#tweag-workflows">Tweag Workflows</a> section </li>
+     <li> (2021.07.02-05) Added <a href="#tweag-workflows">Tweag Workflows</a> section </li>
      </ul>
 tags: Haskell
 ---
@@ -122,9 +122,9 @@ This allows for fail-early benefits (if config-time effects fail).
 This approach uses an arrow (without _ArrowApply_ and with optional (opt-in) _ArrowChoice_) DSL that contains both applicative (config-phase) effects that do not depend on the result of previous computation and monadic (process-time) effects that do. 
 The effect algebra GADTs separately define parameters that the DSL _has to provide statically_ and parameters that can be used in dynamic arrow invocation. Thus, the interpreters have more power to infer information about the statically used configuration.  This allows interpreters to perform config-time checks, for example, if some statically specified model training data file exists and fail early if it does not, interpreters can pre-download needed artifacts at the config-time, etc.
 
-The presentation (see the youtube link) also shows a general arrow type that generalizes `Kleisli`, [_add_blank_target `Cokleisli`](https://hackage.haskell.org/package/comonad-5.0.8/docs/Control-Comonad.html#t:Cokleisli) (from _comondad_), and
+The presentation (see the youtube link) also shows a general `ArrowFromEffects` arrow type that generalizes `Kleisli`, [_add_blank_target `Cokleisli`](https://hackage.haskell.org/package/comonad-5.0.8/docs/Control-Comonad.html#t:Cokleisli) (from _comondad_), and
 [_add_blank_target `Cayley`](https://hackage.haskell.org/package/profunctors-5.6.2/docs/Data-Profunctor-Cayley.html) 
-(from _profunctors_).
+(from _profunctors_).  `Cayley` plays an important role in _kernmantle_. As the interpretation target, it allows for isolating: the process-time computation (typically IO) and the config-time computation that can be used to analyze program configuration without running it.  
 
 I am in the process of absorbing this work. I may update this comment when I understand _kernmantle_ better.
 
