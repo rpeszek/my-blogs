@@ -501,7 +501,7 @@ Have you ever seen a job posting asking for someone with a significantly differe
 I think this is not optimal in long term.  This bias creates groups with a narrow pool of experience and 
 expertise.
 
-I have to consider myself as a cookie cutter too. The choices I made in the code I design can be biased 
+I have to consider myself a cookie cutter too. The choices I made in the code I design can be biased 
 by my recent work.
 
 **Summary**
