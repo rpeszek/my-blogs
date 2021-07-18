@@ -299,14 +299,21 @@ compare it to
 printList' = L.foldr (\a str -> show a <> "," <> str) "(START)" 
 ```
 
-These are effectively the same. 
+These are effectively the same!
 
- _recursion-schemes_ defines alternative name _cata_ for _fold_.
-_cata_ seems to be more popular and stands for _catamorphism_.
+Ability to fold arbitrary recursive data is rely very convenient.  For example, JSON data served
+by some micro-services may lack consistency (not all micro-services are implemented in Haskell, you know)
+
+> "what if I told you you can fold any JSON value"
+
+Morpheus, The Matrix
+
+ _recursion-schemes_ defines _cata_ as an alternative name for _fold_.
+_cata_ seems to be more popular and stands for _catamorphism_. (**end**)
 
 **Continuing the warm-up:** 
 
-We can do effectful things to!
+We can do effectful things too!
 
 ```Haskell
 printIO :: forall p a. (Show p, Show a) => ProbTree p a -> IO String
@@ -339,7 +346,7 @@ It produces this output:
 ```
 
 
-**The Solution**
+**Solution using fold:**
 
 A common trick, when using recursion schemes, is to use the folding type itself as the _carrier_, that is to fold `ProbTree Float a` onto itself.
 _recusion-schemes_ provides a convenient `embed` function that typically can be used to implement all the uninteresting cases:
