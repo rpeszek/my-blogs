@@ -14,7 +14,7 @@ The goal of this post is to present a simple example that uses recursion schemes
 My other goal is to discuss my thoughts about reasons for getting stuck on finding the right solution. 
 
 **Motivation:**  
-I encountered a programming problem, last week, that kept defeating me. 
+Last week I encountered a programming problem that kept defeating me. 
 It took me forever just to figure out how to translate the requirements into something I can code. 
 The gist of this problem turned out to be very straightforward: implement a probability tree diagram (a decision tree annotated with probabilities).  Well not really, but close enough.   
 I think, now, that the problem is simple, but it was not the case during 
@@ -452,7 +452,7 @@ This experience put me in a philosophical mood of trying to pin-point the reason
 
 ### Time Pressure   
 
-A hard deadline of a few hours is just not something that happens in software engineering when
+A hard deadline of a few hours does not happen in software engineering when
 writing a new code.  It does for some data scientist.  It also happens in competitive programming. 
 I am not a competitive programmer.
 
@@ -496,7 +496,7 @@ I will just not think in terms that are not in my short memory, especially when 
 
 ### Cookie cutters
 
-Looking at the job interview process, notice the focus on finding someone with a very closely fitting background.  
+Even looking at the job interview process, notice the focus on finding someone with a very closely fitting background.  
 Have you ever seen a job posting asking for someone with a significantly different skill set from what the group already has? Hiring managers want to find cookie-cutters that can make cookies of a very similar shape that their team bakes.  
 I think this is not optimal in long term.  This bias creates groups with a narrow pool of experience and 
 expertise.
