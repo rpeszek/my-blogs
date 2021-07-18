@@ -10,12 +10,12 @@ tags: Haskell
 
 Code for this project can be found in my [_add_blank_target experiments](https://github.com/rpeszek/experiments) github repo ([_add_blank_target probability-tree-schemes](https://github.com/rpeszek/experiments/tree/master/probability-tree-schemes) folder).   
 
-The goal of this post is present a simple example that uses recursion schemes.
-My other goal is to discuss my thoughts about reasons for getting stuck. 
+The goal of this post is to present a simple example that uses recursion schemes.
+My other goal is to discuss my thoughts about reasons for getting stuck on finding the right solution. 
 
 **Motivation:**  
 I encountered a programming problem, last week, that kept defeating me. 
-It took me forever just to figure out how to translate the requirements to something I can code. 
+It took me forever just to figure out how to translate the requirements into something I can code. 
 The gist of this problem turned out to be very straightforward: implement a probability tree diagram (a decision tree annotated with probabilities).  Well not really, but close enough.   
 I think, now, that the problem is simple, but it was not the case during 
 the few hours I initially have spent on it.  This experience was somewhat surprising to me as I have worked for several years with decision graphs (not trees, but still). I just I failed to make the association. 
@@ -437,7 +437,7 @@ Obviously, finding better and even better ways for writing code is a subject of 
 not going to discuss that.
 
 Haskell is an amazingly efficient tool for writing new code when our fingertips know what to do.  
-Sometimes they do not, and then it not much better than other languages.  It lets us brute force something to satisfy the requirements.
+Sometimes they do not, and then it is not much better than other languages.  It lets us brute-force the code to satisfy the requirements.
 It is Turing complete, meaning that you can write as much nonsense as you want.  
 
 What bit me is:
@@ -452,10 +452,11 @@ This experience put me in a philosophical mood of trying to pin-point the reason
 
 ### Time Pressure   
 
-For writing a new code, a few hour time scale with a hard deadline is just not something that happens in software engineering.  It does for some data scientist.  It also happens in competitive programming. 
+A hard deadline of a few hours is just not something that happens in software engineering when
+writing a new code.  It does for some data scientist.  It also happens in competitive programming. 
 I am not a competitive programmer.
 
-Software engineers have to sometimes work with a short hard timeline when troubleshooting critical application errors. I believe, seasoned developers get years of conditioning that puts them into a troubleshooting mind set when under stress. This is not a creative mindset effective in designing a new code.
+Software engineers have to sometimes work with a short hard timeline when troubleshooting critical application errors. I believe, seasoned developers get years of conditioning that puts them into a troubleshooting mindset when under stress. This is not a creative mindset effective in designing a new code.
 
 For code that is not a cookie-cutter,  I believe I write the best code at night, when I sleep.  Sometimes I need a few nights. It took two nights (no involvement otherwise) and then < 1 hour of coding for the core examples presented here.  It is not just about the time spend on the task, it is often about the latency.
 
@@ -474,7 +475,7 @@ It takes more effort to sort through a bigger bag.  There are some interesting i
 allowing really good programmers to find a trick faster.  One such indexer is the Category Theory. 
 In general, any conceptual understanding of something is a record in some imaginary index.
 
-The index record does not contain all the details, it is just a pointer, it takes time load the actual details into short memory.  That could involve looking up some stuff in the code or re-reading an article...
+The index record does not contain all the details, it is just a pointer, it takes time to load the actual details into short memory.  That could involve looking up some stuff in the code or re-reading an article...
 Developer is a magician that needs time to prepare before he pulls out an **old** trick.  
 
 
@@ -485,7 +486,7 @@ Muscle memory tends to be a long term memory ("it is like riding a bike"), it is
 (e.g. a ski instructor skiing with a slight wedge, static body when making a shot in tennis...). 
 Muscle memory is a long term memory, however athletes still require a warm-up lap / game / run...
 
-For a long time, I have observed something very similar in programmers.  Programming work is surprisingly repetitive,  we train something that resembles a 'muscle memory' without even realizing it.  We can do things much faster when we work on familiar problems. We are expert cookie-cutters.
+For a long time, I have observed something very similar in programmers.  Programming work is surprisingly repetitive,  we develop something that resembles a 'muscle memory' without even realizing it.  We can do things much faster when we work on familiar problems. We are expert cookie-cutters.
 Programmers tend to repeat the previously used patterns, even if these patterns are inferior to other methods (bad muscle habits).  
 
 Mainstream resistance to FP can be viewed as a example of muscle memory inertia. 
@@ -500,14 +501,14 @@ Have you ever seen a job posting asking for someone with a significantly differe
 I think this is not optimal in long term.  This bias creates groups with a narrow pool of experience and 
 expertise.
 
-I need to consider myself as a cookie cutter too. The choices are made in the code designed are very much biased 
+I have to consider myself as a cookie cutter too. The choices I made in the code I design can be biased 
 by my recent work.
 
-**IMO Summary**
+**Summary**
 
 My conclusion is this: it does not really matter if you get stuck and can't figure it out for a few days. 
 For some problems you will be stuck for much longer. 
-I am talking about pursuit of a well designed code, not a brute force kludge. 
+I am talking about pursuit of a well designed code, not a brute-force kludge. 
 What really matters is not giving up and eventually figuring it out. 
 
 > “You must understand, young Hobbit, it takes a long time to say anything in Old Entish. And we never say anything unless it is worth taking a long time to say.”   
