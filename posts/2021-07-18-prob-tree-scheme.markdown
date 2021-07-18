@@ -304,7 +304,7 @@ These are effectively the same!
 Ability to fold arbitrary recursive data is rely very convenient.  For example, JSON data served
 by some micro-services may lack consistency (not all micro-services are implemented in Haskell, you know)
 
-> "what if I told you you can fold any JSON value"
+> "What if I told you you can fold any JSON value?"
 
 Morpheus, The Matrix
 
