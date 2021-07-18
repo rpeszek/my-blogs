@@ -57,7 +57,7 @@ the usage as I go.
 
 Keeping `p` as a type variable is convenient and, for example, could allow me to use it for (`Natural`) distribution counts or other things that probabilities can morph into.
 
-### Why this is useful?
+### Why is this useful?
 
 Think about traversing the above tree in `a`. You will be traversing the _leaves_ only. You can use it, for example, with _QuickCheck_ to define frequencies (or probability distribution) that generate records with different characteristics (defined by `a`-s), or a frequency with which certain types of records (as defined by `a`-s) are being picked from some data set.  Decision Trees are very popular because of their applicability to business processes.  This approach allows to use decision trees to define probability distribution for the target outcomes (for the decision tree leaves).
 
@@ -485,12 +485,12 @@ Muscle memory tends to be a long term memory ("it is like riding a bike"), it is
 (e.g. a ski instructor skiing with a slight wedge, static body when making a shot in tennis...). 
 Muscle memory is a long term memory, however athletes still require a warm-up lap / game / run...
 
-For a long time, I have observed something very similar in programmers.  Programming work is surprisingly repetitive, so we train something that resembles 'muscle memory' without even realizing it.  We can do things much faster when we work on familiar problems. We are expert cookie-cutters.
+For a long time, I have observed something very similar in programmers.  Programming work is surprisingly repetitive,  we train something that resembles a 'muscle memory' without even realizing it.  We can do things much faster when we work on familiar problems. We are expert cookie-cutters.
 Programmers tend to repeat the previously used patterns, even if these patterns are inferior to other methods (bad muscle habits).  
 
-Mainstream resistance to FP can be viewed as a example of muscle memory resistance. 
+Mainstream resistance to FP can be viewed as a example of muscle memory inertia. 
 
-The analogy is not perfect. We do not need to do a warm-up typing when we start work, instead, we do need longer warm-up period when switching to a programming area we neglected for months or years.  For me, that applies especially to the ability to translate 'real world requirements' to code design.  
+The analogy is not perfect. We do not need to do a warm-up typing when we start work, instead, we do need longer warm-up period when switching to a programming area we neglected for months or years.  For me, that applies especially to the ability to translate 'real world requirements' to code design. 
 I will just not think in terms that are not in my short memory, especially when under time pressure.
 
 ### Cookie cutters
@@ -500,7 +500,7 @@ Have you ever seen a job posting asking for someone with a significantly differe
 I think this is not optimal in long term.  This bias creates groups with a narrow pool of experience and 
 expertise.
 
-So I need to consider myself as a cookie cutter too. The choices are made in the code designed are very much biased 
+I need to consider myself as a cookie cutter too. The choices are made in the code designed are very much biased 
 by my recent work.
 
 **IMO Summary**
