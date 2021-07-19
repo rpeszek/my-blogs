@@ -480,7 +480,7 @@ For code that is not a cookie-cutter,  I believe I write the best code at night,
 Time pressure can be very destructive. It can reduce both the development speed and the code quality.  
 That applies to longer time scales as well. Software industry, in my experience, is focused on short term goals.
 Quality is a long term goal.  
-No project can afford no time constraints, so a balance needs to be struck. I believe the trade-offs are not well
+No project can afford to have no time constraints, so a balance needs to be struck. I believe the trade-offs are not well
 understood by the decision makers.  ... But this is well beyond what this post is about.
 
 'Uncle Bob' (Robert C. Martin) likes to talk about a process in which you are not done when you finish writing the code and it works. It is the sweat time for making the code nice.
