@@ -305,7 +305,7 @@ These are effectively the same!
 Ability to fold arbitrary recursive data is rely very convenient.  For example, JSON data served
 by some micro-services may lack consistency (not all micro-services are implemented in Haskell, you know)
 
-> "What if I told you you can fold any JSON value?"
+> "What if I told you it is possible to fold JSON values?"
 
 Morpheus, The Matrix
 
@@ -467,6 +467,8 @@ We are not perfect, probably nothing shows it better than the software we write.
 
 Stapp's Law
 
+Stapp and Murphy (his coworker) laws are not about giving up, these statements are about understanding our limitations and acting on this understanding.  
+
 ### Time Pressure   
 
 A hard deadline of a few hours does not (typically) happen in software engineering when
@@ -524,14 +526,25 @@ by my other work.
 
 **Summary**
 
-My conclusion is this: it does not really matter if you get stuck and can't figure it out for a few days. 
-For some problems you will be stuck for much longer.   
-I am talking about pursuit of a well designed code, not a brute-force kludge.   
+We can't change who we are, we are unlikely to change the industry.
+
+Instead, we can try to train "good movements" into our "muscle memory" and grow our bag of tricks.
+
+> "In short, I suggest that the programmer should continue to understand what he is doing, that his growing product remains firmly within his intellectual grip."
+
+Edsger W. Dijkstra
+
+
+My conclusion is this: it does not really matter if I get stuck and can't figure it out for a few days. 
+For some problems I will be stuck for much longer.   
+I am talking about pursuit of a well designed code, not finding a brute-force kludge.   
 What really matters is not giving up and eventually figuring it out. 
+
 
 > “You must understand, young Hobbit, it takes a long time to say anything in Old Entish. And we never say anything unless it is worth taking a long time to say.”   
 
 J.R.R Tolkien and Treebeard
+
 
 
 
