@@ -12,6 +12,7 @@ Code for this project can be found in my [_add_blank_target experiments](https:/
 
 The goal of this post is to present a simple example that uses recursion schemes.
 My other goal is to discuss my thoughts about reasons for getting stuck on finding the right solution. 
+It will be a bit of a rant.
 
 **Motivation:**  
 Last week I encountered a programming problem that kept defeating me. 
@@ -441,7 +442,7 @@ I clearly do not like code like this, but it does provide more imperative intuit
 
 This is about the cases where we know or knew how to do thing well but we get stuck anyway. 
 Obviously, finding better and even better ways for writing code is a subject of a never ending research, I am
-not going to discuss that.
+not going to discuss that.  
 
 Haskell is an amazingly efficient tool for writing new code when our fingertips know what to do.  
 Sometimes they do not, and then it is not much better than other languages.  It lets us brute-force the code to satisfy the requirements.
@@ -453,27 +454,36 @@ What bit me is:
 * Difficulty in identifying a nice abstraction to solve the problem
 * The abstractions I ended up wanting to use were not in my short memory
 
-So instead I went pushing a brute force solution...
+So instead I went pushing a brute-force solution...
 
-This experience put me in a philosophical mood of trying to pin-point the reasons why sometimes the code just writes itself and sometimes we get stuck.  
+This experience put me in a philosophical mood of trying to pin-point the reasons why sometimes the code just writes itself and sometimes we get stuck.  **It will be a rant.**
+
+### Human condition
+
+The underlying reason for why I do something wrong is typically me.  
+We are not perfect, probably nothing shows it better than the software we write.  
+
+> "The universal aptitude for ineptitude makes any human accomplishment an incredible miracle"
+
+Stapp's Law
 
 ### Time Pressure   
 
-A hard deadline of a few hours does not happen in software engineering when
+A hard deadline of a few hours does not (typically) happen in software engineering when
 writing a new code.  It does for some data scientist.  It also happens in competitive programming. 
-I am not a competitive programmer.
+I am not a competitive programmer and I believe very few programmers are.
 
-Software engineers have to sometimes work with a short hard timeline when troubleshooting critical application errors. I believe, seasoned developers get years of conditioning that puts them into a troubleshooting mindset when under stress. This is not a creative mindset effective in designing a new code.
+Software engineers have to (sometimes) work with a short hard timeline when troubleshooting critical application errors. I believe, seasoned developers get years of conditioning that puts them into a troubleshooting mindset when under stress. This is not a creative mindset effective in designing a new code.
 
 For code that is not a cookie-cutter,  I believe I write the best code at night, when I sleep.  Sometimes I need a few nights. It took two nights (no involvement otherwise) and then < 1 hour of coding for the core examples presented here.  It is not just about the time spend on the task, it is often about the latency.
 
 Time pressure can be very destructive. It can reduce both the development speed and the code quality.  
 That applies to longer time scales as well. Software industry, in my experience, is focused on short term goals.
-Quality is a long term goal. 
+Quality is a long term goal.  
 No project can afford no time constraints, so a balance needs to be struck. I believe the trade-offs are not well
 understood by the decision makers.  ... But this is well beyond what this post is about.
 
-'Uncle Bob' (Robert C. Martin) likes to talk about a process in which you are not done when you finish writing code, and the code works. It is the sweat time for making the code nice.
+'Uncle Bob' (Robert C. Martin) likes to talk about a process in which you are not done when you finish writing the code and it works. It is the sweat time for making the code nice.
 
 ### Large Bag of Tricks
 
@@ -493,10 +503,11 @@ Muscle memory tends to be a long term memory ("it is like riding a bike"), it is
 (e.g. a ski instructor skiing with a slight wedge, static body when making a shot in tennis...). 
 Muscle memory is a long term memory, however athletes still require a warm-up lap / game / run...
 
-For a long time, I have observed something very similar in programmers.  Programming work is surprisingly repetitive,  we develop something that resembles a 'muscle memory' without even realizing it.  We can do things much faster when we work on familiar problems. We are expert cookie-cutters.
-Programmers tend to repeat the previously used patterns, even if these patterns are inferior to other methods (bad muscle habits).  
+For a long time, I have observed something very similar in programmers.  Programming work is surprisingly repetitive,  we develop something that resembles 'muscle memory' without even realizing it.  We can do things much faster when we work on familiar problems. We are expert cookie-cutters.
 
-Mainstream resistance to FP can be viewed as a example of muscle memory inertia. 
+Programmers tend to repeat the previously used patterns, even if these patterns are inferior to other methods ("bad muscle habits").  
+
+Mainstream resistance to FP can be viewed as an example of resistance to change the "muscle memory". 
 
 The analogy is not perfect. We do not need to do a warm-up typing when we start work, instead, we do need longer warm-up period when switching to a programming area we neglected for months or years.  For me, that applies especially to the ability to translate 'real world requirements' to code design. 
 I will just not think in terms that are not in my short memory, especially when under time pressure.
@@ -508,14 +519,14 @@ Have you ever seen a job posting asking for someone with a significantly differe
 I think this is not optimal in long term.  This bias creates groups with a narrow pool of experience and 
 expertise.
 
-I have to consider myself a cookie cutter too. The choices I made in the code I design can be biased 
-by my recent work.
+I have to consider myself a cookie cutter too. The choices I made in the code I design are be biased 
+by my other work.
 
 **Summary**
 
 My conclusion is this: it does not really matter if you get stuck and can't figure it out for a few days. 
-For some problems you will be stuck for much longer. 
-I am talking about pursuit of a well designed code, not a brute-force kludge. 
+For some problems you will be stuck for much longer.   
+I am talking about pursuit of a well designed code, not a brute-force kludge.   
 What really matters is not giving up and eventually figuring it out. 
 
 > “You must understand, young Hobbit, it takes a long time to say anything in Old Entish. And we never say anything unless it is worth taking a long time to say.”   
