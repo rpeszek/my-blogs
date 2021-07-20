@@ -21,9 +21,10 @@ The gist of this problem turned out to be very straightforward: implement a prob
 I think, now, that the problem is simple, but it was not the case during 
 the few hours I initially have spent on it.  This experience was somewhat surprising to me as I have worked for several years with decision graphs (not trees, but still). I just I failed to make the association. 
 
-I am sharing my experience in this post.  I want to discuss my beliefs pertaining to the question in the tile.  I will do that at the end of this post in [Why Finding the Right Solution is Sometimes Hard?](#why-finding-the-right-solution-is-sometimes-hard).
+I am sharing my experience in this post.  This post shows the solution program, and as such, ended up becoming a "tutorial" of sorts about the recursion schemes.  I tried to make it easy to read even if some Haskell code is more at an intermediate level.
 
-This post also shows the solution program, and as such, ended up becoming a sort of "tutorial" about the recursion schemes.  I tried to make it easy to read even if some Haskell code is more at an intermediate level.
+At the end of this post ([Why Finding the Right Solution is Sometimes Hard?](#why-finding-the-right-solution-is-sometimes-hard)) I rant about my beliefs pertaining to the question in the title. 
+
 
 ## The Problem
 
@@ -445,7 +446,7 @@ I clearly do not like code like this, but it does provide more imperative intuit
 
 ## Why Finding the Right Solution is Sometimes Hard?
 
-This is about the cases where we know or knew how to do thing well but we get stuck anyway. 
+**Rant Alert.** This is about the cases where we know or knew how to do thing well but we get stuck anyway. 
 Obviously, finding better and even better ways for writing code is a subject of a never ending research, I am
 not going to discuss that.  
 
@@ -461,7 +462,7 @@ What bit me is:
 
 So instead I went pushing a brute-force solution...
 
-This experience put me in a philosophical mood of trying to pin-point the reasons why sometimes the code just writes itself and sometimes we get stuck.  **It will be a rant.**
+This experience put me in a philosophical mood of trying to pin-point the reasons why sometimes the code just writes itself and sometimes we get stuck.  
 
 ### Human condition
 
