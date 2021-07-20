@@ -522,6 +522,8 @@ I will just not think in terms that are not in my short memory, especially when 
 
 ### Cookie cutters
 
+Cookie cutting is not just about repeating ingrained habits.  I believe there is some project to project, program to program, inertia which makes us want to repeat the same approach.  This is not necessarily a bad thing if we are aware of it and if we are not afraid to explore other options.
+
 Even looking at the job interview process, notice the focus on finding someone with a very closely fitting background.  
 Have you ever seen a job posting asking for someone with a significantly different skill set from what the group already has? Hiring managers want to find cookie-cutters that can make cookies of a very similar shape that their team bakes.  
 I think this is not optimal in long term.  This bias creates groups with a narrow pool of experience and 
