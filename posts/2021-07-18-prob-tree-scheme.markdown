@@ -52,7 +52,8 @@ All the instances I have declared, `Functor, Foldable, Traversable`, are intende
 I will not care much about `a`-s in this post.  I will care about the `p`-s.  
 
 This type is really a `Bifunctor` (Functor in both `p` and `a`), and most of the code I am going to show could just use that.
-However, for some examples I will need something stronger, kinda _Bi-Traversable_ so I will use _lens_ to get me
+However, for some examples I will need something stronger, I need it to be `Traversable` in `p`.  
+I will just use the [_add_blank_target _lens_](https://hackage.haskell.org/package/lens) package to get 
 what I need.  You do not need to know much about lenses to read on. I will try to explain 
 the usage as I go.
 
@@ -60,7 +61,11 @@ Keeping `p` as a type variable is convenient and, for example, could allow me to
 
 ### Why is this useful?
 
-Think about traversing the above tree in `a`. You will be traversing the _leaves_ only. You can use it, for example, with _QuickCheck_ to define frequencies (or probability distribution) that generate records with different characteristics (defined by `a`-s), or a frequency with which certain types of records (as defined by `a`-s) are being picked from some data set.  Decision Trees are very popular because of their applicability to business processes.  This approach allows to use decision trees to define probability distribution for the target outcomes (for the decision tree leaves).
+Decision Trees are popular because of their ability to visualize outcomes of various processes.  
+It is sometimes useful to know the distribution of the final outcomes. Think about using _QuickCheck_ to randomly generate final outcomes or, maybe, randomly pick these outcomes from some big dataset of samples.  
+`ProbTree p a` would use `a` to hold the generated values or to describe them in some way.
+It is convenient to keep the data samples `a` separate from probabilities `p` (instead of just using something like `RoseTree (p,a)`) because we care about these samples only at the final outcome / leaf level.  
+The extra `String` label is for my own convenience.  It allows me to trace how the recursion schemes work and will be handy in this presentation.
 
 ### Plumbing 
 
@@ -115,7 +120,7 @@ compWithFloats ::
    (ProbTree Float a -> ProbTree Float a) 
    -> ProbTree NodeProb a 
    -> ProbTree CumulativeProb a
-compWithFloats fn tree = over probabilityT CumulativeProb $ fn $ over probabilityT unNodeProb tree 
+compWithFloats fn = over probabilityT CumulativeProb . fn . over probabilityT unNodeProb
 ```
 
 ### Example Tree
