@@ -24,7 +24,7 @@ The gist of this problem turned out to be very straightforward: implement a prob
 I think, now, that the problem is simple, but it was not the case during 
 the few hours I initially have spent on it.  This experience was somewhat surprising to me as I have worked for several years with decision graphs (not trees, but still). I just I failed to make the association. 
 
-I am sharing my experience in this post.  This post shows the solution program, and as such, ended up becoming a "tutorial" of sorts about the recursion schemes.  I tried to make it easy to read even if some Haskell code is more at an intermediate level.
+I am sharing my experience in this post.  This post shows the solution program, and as such, ended up becoming a "tutorial" of sorts about the recursion schemes.  I tried to make it easy to read even if some Haskell code is more at an intermediate level. In this tutorial I will get in trouble couple of times arriving at an incorrect solution. 
 
 At the end of this post ([Why Finding the Right Solution is Sometimes Hard?](#why-finding-the-right-solution-is-sometimes-hard)) I rant about my beliefs pertaining to the question in the title. 
 
