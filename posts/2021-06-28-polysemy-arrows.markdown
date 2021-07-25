@@ -9,6 +9,8 @@ changelog: <ul>
     <li> (2021.07.02) Added Semantic Note in 
      <a href="#creating-arrow-effects">Creating Arrow Effects</a> section </li>
      <li> (2021.07.02-05) Added <a href="#tweag-workflows">Tweag Workflows</a> section </li>
+    <li> (2021.07.24) Minor changes in 
+     <a href="#tweag-workflows">Tweag Workflows</a> section </li>
      </ul>
 tags: Haskell
 ---
@@ -124,9 +126,9 @@ The effect algebra GADTs separately define parameters that the DSL _has to provi
 
 The presentation (see the youtube link) also shows a general `ArrowFromEffects` arrow type that generalizes `Kleisli`, [_add_blank_target `Cokleisli`](https://hackage.haskell.org/package/comonad-5.0.8/docs/Control-Comonad.html#t:Cokleisli) (from _comondad_), and
 [_add_blank_target `Cayley`](https://hackage.haskell.org/package/profunctors-5.6.2/docs/Data-Profunctor-Cayley.html) 
-(from _profunctors_).  `Cayley` plays an important role in _kernmantle_. As the interpretation target, it allows for isolating: the process-time computation (typically IO) and the config-time computation that can be used to analyze program configuration without running it.  
+(from _profunctors_).  `Cayley` plays an important role in _kernmantle_. As the interpretation target, it allows for isolating: the process-time computation and the config-time computation that can be used to analyze program configuration without running it.  
 
-I am in the process of absorbing this work. I may update this comment when I understand _kernmantle_ better.
+The ideas in the paper apply well beyond data-science workflows. I am still in the process of absorbing this paper and code. 
 
 Separation between static and dynamic data is impossible when using monadic / ArrowApply computations.  I will discuss this a little bit more in the [Creating Arrow Effects](#creating-arrow-effects) section of this post.
 
