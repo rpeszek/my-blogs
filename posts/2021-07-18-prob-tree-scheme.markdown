@@ -544,7 +544,7 @@ computeProbFn = cata fn
     fn (LeafF n l a) p = Leaf (p * n) l a
 ```
 
-What we are accumulating, is the ability to conjure a descendant tree at any point, from the current probability `Float`.  
+What we are accumulating, is the ability to conjure a descendant tree at any point from the current probability `Float`.  
 We "conjure" the tree by modifying how the children are being "conjured": we pre-compose `(* n)` (`n` is current node probability) to 
 each of the functions that "conjure" the children. This forces recomputation of the probabilities all the way down to the leaves.   
 This, no longer stops at depth 2. 
