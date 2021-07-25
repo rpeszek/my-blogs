@@ -5,6 +5,9 @@ lastmodified: Jul 18, 2021
 featured: true
 summary: About a simple tree recursion problem that gave me grief. 
 toc: true
+changelog: <ul> 
+    <li> (2021.07.24) Fixed/Reworked `cata` examples (per <a target="_blank" href="https://www.reddit.com/r/haskell/comments/onrhtw/probability_tree_diagrams_recursion_schemes_why/h684cpr?utm_source=share&utm_medium=web2x&context=3">r/Tarmen</a>) and changed definition of example tree.
+     </ul>
 tags: Haskell
 ---
 
@@ -29,7 +32,7 @@ At the end of this post ([Why Finding the Right Solution is Sometimes Hard?](#wh
 ## The Problem
 
 Consider a tree with edges (or nodes) annotated with probability weights.  The problem I am going to solve is simple:
-calculate the path likelihoods for each of the _leaves_.  Basically multiply all the probabilities down each branch all the way to the leaf. 
+calculate the path likelihoods for each of the _leaves_.  Basically multiply all the probabilities down each branch all the way to the leaf.  
 
 This is obviously not so hard, and the biggest challenge was to figure out that this was what the requirements needed.  
 The solution seems like a good exercise and I am sharing my solutions here.
@@ -47,6 +50,8 @@ data ProbTree p a =
 
 makeBaseFunctor ''ProbTree
 ```
+
+The goal is implement a function that transforms `ProbTree NodeProb a` into `ProbTree CumulativeProb a`. 
 
 I will be using [_add_blank_target _recursion-schemes_](https://hackage.haskell.org/package/recursion-schemes) package and `makeBaseFunctor` generates the code I will need to fold or unfold the tree.
 All the instances I have declared, `Functor, Foldable, Traversable`, are intended for the consumption of the goodies `a`.
@@ -66,7 +71,8 @@ Decision Trees are popular because of their ability to visualize outcomes of var
 It is sometimes useful to know the distribution of the final outcomes. Think about using _QuickCheck_ to randomly generate final outcomes or, maybe, randomly pick these outcomes from some big dataset of samples.  
 `ProbTree p a` would use `a` to hold the generated values or to describe them in some way.
 It is convenient to keep the data samples `a` separate from probabilities `p` (instead of just using something like `RoseTree (p,a)`) because we care about these samples only at the final outcome / leaf level.  
-The extra `String` label is for my own convenience.  It allows me to trace how the recursion schemes work and will be handy in this presentation.
+The extra `String` label is for my own convenience.  It allows me to trace how the recursion schemes work and will be handy in this presentation.    
+`ProbTree p a` may not be the nicest to use when implementing recursion-schemes.  All the better as the choice of training!
 
 ### Plumbing 
 
@@ -132,21 +138,29 @@ I am now in the position to define a simple example tree:
 exTree :: ProbTree NodeProb ()
 exTree = over probabilityT NodeProb $ Branches 1 "R" [
    Branches 0.5 "1" [
-      Leaf 0.5 "11" ()
-      , Leaf 0.5 "12" ()
+      Branches 0.5 "11" [
+          Leaf 0.5 "111" ()
+          , Leaf 0.5 "112" ()
+       ]
+       , Branches 0.5 "12" [
+          Leaf 1 "121" ()
+       ]
    ]
    , Branches 0.5 "2" [
-      Leaf 0.3 "21" ()
-      , Leaf 0.3 "22" ()
-      , Leaf 0.4 "23" ()
+      Leaf 0.2 "21" ()
+      , Leaf 0.4 "22" ()
+      , Branches 0.4 "23" [
+          Leaf 0.5 "231" ()
+          , Leaf 0.5 "232" ()
+       ]
    ]
  ]
 ```
 the lens `over` allows me to type the Floats and `map` these to the `NodeProb` type to indicate what the numbers represent at the type level. 
-I will use this example moving forward. The final result of what I want to compute annotated with labels should look like this:
+I will use this example moving forward. The final result (leaves only) of what I want to compute annotated with labels should look like this:
 
 ```
-(0.25,"11"),(0.25,"12"),(0.15,"21"),(0.15,"22"),(0.2,"23")
+((0.25,"111"),(0.25,"112"),(0.5,"121"),(0.1,"21"),(0.2,"22"),(0.2,"231"),(0.2,"232")
 ```
 
 
@@ -212,7 +226,7 @@ makeNonMutable ::  ProbTree (MutableFloat s) a -> ST s (ProbTree Float a)
 makeNonMutable = traverseOf probabilityT readSTRef
 
 -- >>> tstMutable
--- "(0.25,\"11\",()),(0.25,\"12\",()),(0.15,\"21\",()),(0.15,\"22\",()),(0.2,\"23\",())"
+-- "(0.125,\"111\",()),(0.125,\"112\",()),(0.25,\"121\",()),(0.1,\"21\",()),(0.2,\"22\",()),(0.1,\"231\",()),(0.1,\"232\",())"
 tstMutable :: String
 tstMutable = printLeaves $ computeProbMutable exTree  
 ```
@@ -341,70 +355,86 @@ It produces this output:
 
 ```Haskell
 *Schemes> tstPrintIO
-(0.5,"11",())
-(0.5,"12",())
-"Processed so far: [\"done leaf 11\",\"done leaf 12\"]"
-(0.3,"21",())
-(0.3,"22",())
-(0.4,"23",())
-"Processed so far: [\"done leaf 21\",\"done leaf 22\",\"done leaf 23\"]"
+(0.5,"111",())
+(0.5,"112",())
+"Processed so far: [\"done leaf 111\",\"done leaf 112\"]"
+(1.0,"121",())
+"Processed so far: [\"done leaf 121\"]"
+"Processed so far: [\"done branch 11\",\"done branch 12\"]"
+(0.2,"21",())
+(0.4,"22",())
+(0.5,"231",())
+(0.5,"232",())
+"Processed so far: [\"done leaf 231\",\"done leaf 232\"]"
+"Processed so far: [\"done leaf 21\",\"done leaf 22\",\"done branch 23\"]"
 "Processed so far: [\"done branch 1\",\"done branch 2\"]"
 "done branch R"
 ```
+#### Solution using Anamorphism
+
+Instead of using `fold` / `cata`-morphism, I will first use it opposite: `unfold` / `ana`-morphism to solve the problem of computing 
+commutative probabilities.  
+We will solve the problem by unfolding the tree onto itself (I will be constructing `ProbTreeF`).  
+_recusion-schemes_ provides a convenient `project` function that typically can be used to implement all the uninteresting cases
+when unfolding the structure onto itself:
+
+```Haskell
+-- >>> printLeaves . computeProb $ exTree
+-- "(0.125,\"111\",()),(0.125,\"112\",()),(0.25,\"121\",()),(0.1,\"21\",()),(0.2,\"22\",()),(0.1,\"231\",()),(0.1,\"232\",())"
+computeProb :: ProbTree NodeProb a -> ProbTree CumulativeProb a
+computeProb = compWithFloats (unfold fn)
+  where
+    fn :: ProbTree Float a -> ProbTreeF Float a (ProbTree Float a)
+    fn (Branches n l xs) = BranchesF n l (L.map (over probability (* n)) xs)
+    fn x = project x
+```
+the only interesting case is unfolding the `Branches n l xs` constructor.  It is unfolded into `BranchesF n l xs'` where `xs'` is a list of children with probability modified by the current value on the branch.
+This line makes the computation flow towards the leaves.  Thus, we can assume that the current probability value `n`
+has been already computed. 
+
+Note that to test print the outcome, we have unfolded the tree in `computeProb` and then folded it using `printLeaves` there is a convenience function `hylo` or `refold` included in _recursion-schemes_ package that does exactly that.  
 
 
-**Solution using fold:**
+#### Back to Catamorphism. Bad solution attempt.
 
-A common trick, when using recursion schemes, is to use the folding type itself as the _carrier_, that is to fold `ProbTree Float a` onto itself.
+(EDITED, previous version of this post had it wrong, thanks [_add_blank_target r/Tarmen](https://www.reddit.com/r/haskell/comments/onrhtw/probability_tree_diagrams_recursion_schemes_why/h684cpr?utm_source=share&utm_medium=web2x&context=3))
+
+In the previous section, I have unfolded the tree onto itself.  That did not really unfold or construct much as the unfolding type was the tree itself. 
+We can as well try the same trick using `cata` or `fold`, since we will not be destroying / folding much either.  
+
 _recusion-schemes_ provides a convenient `embed` function that typically can be used to implement all the uninteresting cases:
 
 ```Haskell
 -- |
--- >>> printLeaves . computeProb $ exTree
--- "(0.25,\"11\",()),(0.25,\"12\",()),(0.15,\"21\",()),(0.15,\"22\",()),(0.2,\"23\",())"
-computeProb :: ProbTree NodeProb a -> ProbTree CumulativeProb a
-computeProb = compWithFloats (cata fn)
+-- >>> printLeaves . computeProbBad $ exTree
+-- "(0.25,\"111\",()),(0.25,\"112\",()),(0.5,\"121\",()),(0.1,\"21\",()),(0.2,\"22\",()),(0.2,\"231\",()),(0.2,\"232\",())"
+computeProbBad :: ProbTree NodeProb a -> ProbTree CumulativeProb a
+computeProbBad = compWithFloats (cata fn)
   where
       fn :: ProbTreeF Float a (ProbTree Float a) -> ProbTree Float a
       fn (BranchesF n l xs) = Branches n l (L.map (over probability (* n)) xs)
       fn x = embed x
 ```
 
-the only interesting case is folding the `BranchesF n l xs` constructor.  It is folded into `BranchesF n l xs'` where `xs'` is a list of children with probability modified by the current value on the branch.
-This line makes the computation flow towards the leaves.  Thus, we can assume that the current probability value `n`
-has been already computed. 
+notice there is a problem, the numbers are off.  This approach does not recurse all the way down to the leaves! 
+It works perfectly fine if my tree had depth 2 and not if it was taller.  
+`cata` is happy to do the minimal job and apply the adjustment only once, the tree `Branches` is unwrapped into `BranchesF`
+but the nested `xs` elements already have the correct folding type, there is nothing here forcing recursive correction of probabilities
+all the way down to the leaves.
 
-#### Anamorphism
+#### ST Example
 
-We have folded the tree onto itself.  That does not really fold / destroy much. 
-We can as well do the same trick with unfolding, since we will not be unfolding much either.  
-We can unfold Tree onto itself:
+**Repeating the bad attempt:** 
 
-```Haskell
--- >>> printLeaves . computeProb $ exTree
--- "(0.25,\"11\",()),(0.25,\"12\",()),(0.15,\"21\",()),(0.15,\"22\",()),(0.2,\"23\",())"
-computeProb' :: ProbTree NodeProb a -> ProbTree CumulativeProb a
-computeProb' = compWithFloats (unfold fn)
-  where
-    fn :: ProbTree Float a -> ProbTreeF Float a (ProbTree Float a)
-    fn (Branches n l xs) = BranchesF n l (L.map (over probability (* n)) xs)
-    fn x = project x
-```
+Let's look into this issue a little deeper using a more imperative approach. 
 
-Again we have a convenience function to handle all the not interesting cases called `project`.
-And, again, the interesting case is flowing the computation down the branched towards the leaves. 
-Other that for swapping `ProbTree` with `ProbTreeF`, this computation is identical on the `fold`.  
-Alternative name for `unfold` is `ana` for _anamorphism_.
-
-#### ST
-
-If you looked closely at the `printIO` example in the [Catamorphism](#catamorphism) section, you may have noticed that that the fold of `Branches` was able to effecty things on the children.  We can use the same approach to our advantage.   
+If you looked closely at the `printIO` example in the [Catamorphism](#catamorphism) section, you may have noticed that that the fold of `Branches` was able to do effecty things on the children.  We can use the same approach to our advantage.   
 We will go into a mutating
 franzy and fold `ProbTree` into just `MutableFloat s`:
 
 ```Haskell
-computeST :: forall s a . ProbTree (ST s (MutableFloat s)) a -> ST s (MutableFloat s)
-computeST = fold fn
+computeSTBad :: forall s a . ProbTree (ST s (MutableFloat s)) a -> ST s (MutableFloat s)
+computeSTBad = fold fn
   where
       fn :: ProbTreeF (ST s (MutableFloat s)) a (ST s (MutableFloat s)) -> ST s (MutableFloat s)
       fn (LeafF n _ _) = n
@@ -412,7 +442,7 @@ computeST = fold fn
       fn (BranchesF stmn lb ixs) = do
            mn :: MutableFloat s <- stmn
            n :: Float <- readSTRef mn -- read branch proability
-           mxs :: [MutableFloat s] <- sequence ixs -- get access to mutable probablities for children 
+           mxs :: [MutableFloat s] <- sequence ixs -- get access to mutable probablities for direct children 
            mapM_ (`modifySTRef` (n *)) mxs -- mutate the children's probabilities (This even sounds wrong!)
            stmn -- return back the untouched branch probability
 ```
@@ -421,28 +451,102 @@ Making this into a pure function requires even crazier mutations (this reuses pr
 `makeNonMutable`):
 
 ```Haskell
-computeProbMutable :: forall a . ProbTree NodeProb a -> ProbTree CumulativeProb a
-computeProbMutable = compWithFloats (
+computeProbMutableBad :: forall a . ProbTree NodeProb a -> ProbTree CumulativeProb a
+computeProbMutableBad = compWithFloats (
     \t -> runST $ do
         mutable <- makeMutable t
         mutable' <- traverseOf probabilityT (pure . pure) mutable
-        computeST mutable'
+        computeSTBad mutable'
         makeNonMutable mutable
     )
-
--- |
--- >>> tstMutable
--- "(0.25,\"11\",()),(0.25,\"12\",()),(0.15,\"21\",()),(0.15,\"22\",()),(0.2,\"23\",())"
-tstMutable :: String
-tstMutable = printLeaves $ computeProbMutable exTree    
 ```
 
 the result of `computeST mutable` is discarded, and I use `pure . pure` (double effectful?), how crazy is that!  
-I am actually surprised that it even works.
 
-I clearly do not like code like this, but it does provide more imperative intuitions about the recursive fold.
+But, we see exactly the same issue as with our naive `cata` attempt in the previous section:
+
+```Haskell
+-- |
+-- >>> tstMutableBad
+-- "(0.25,\"111\",()),(0.25,\"112\",()),(0.5,\"121\",()),(0.1,\"21\",()),(0.2,\"22\",()),(0.2,\"231\",()),(0.2,\"232\",())"
+tstMutableBad :: String
+tstMutableBad = printLeaves $ computeProbMutableBad exTree
+```
+This approach applies the correction only to children's probabilities.  We need to apply the correction all the way down the child subtree!  
+
+**So let's fix it:**
+
+``` Haskell
+computeST :: forall s a . ProbTree (ST s (MutableFloat s)) a -> ST s [MutableFloat s]
+computeST = fold fn
+  where
+      fn :: ProbTreeF (ST s (MutableFloat s)) a (ST s [MutableFloat s]) -> ST s [MutableFloat s]
+      fn (LeafF n _ _) =  (:[]) <$> n
+      
+      fn (BranchesF stmn lb ixs) = do
+        mn :: MutableFloat s <- stmn
+        n :: Float <- readSTRef mn -- read branch proability
+        mxs :: [MutableFloat s] <- concat <$> sequence ixs -- get access to mutable probablities for children 
+        mapM_ (`modifySTRef` (n *)) mxs -- mutate the subtree's probabilities 
+        pure $ mn : mxs --return all mutable floats, including the current node
+
+computeProbMutable :: forall a . ProbTree NodeProb a -> ProbTree CumulativeProb a
+computeProbMutable = ...
+
+-- |
+-- >>> tstMutable
+-- "(0.125,\"111\",()),(0.125,\"112\",()),(0.25,\"121\",()),(0.1,\"21\",()),(0.2,\"22\",()),(0.1,\"231\",()),(0.1,\"232\",())"
+tstMutable :: String
+tstMutable = printLeaves $ computeProbMutable exTree
+```
+
+It works!  The trick was to change to folding structure to accumulate all mutable floats for the whole subtree and keep mutating them.   
+The key is to find the correct structure to fold onto. 
+
+I do not like code like this type of code, but, I think, it does provide interesting imperative intuitions about the recursive fold.
 
 
+#### Catamorphism. Good Attempt
+
+One way to fix it would be to design some intermediate folding data type that would allow us to correctly change descendant node
+probabilities.  But there is a nicer solution that learns from the previous `ST` example:
+
+```Haskell
+import           Control.Monad.Reader 
+
+-- >>> printLeaves . computeProbRdr $ exTree
+-- "(0.125,\"111\",()),(0.125,\"112\",()),(0.25,\"121\",()),(0.1,\"21\",()),(0.2,\"22\",()),(0.1,\"231\",()),(0.1,\"232\",())"
+computeProbRdr :: ProbTree NodeProb a -> ProbTree CumulativeProb a
+computeProbRdr = compWithFloats (\t -> runReader (computePropRdr t) 1)
+
+computePropRdr :: ProbTree Float a -> Reader Float (ProbTree Float a)
+computePropRdr = cata fn
+  where
+    fn :: ProbTreeF Float a (Reader Float (ProbTree Float a)) -> Reader Float (ProbTree Float a)
+    fn (BranchesF n l xs) = do
+      p <- ask
+      xss <- mapM (local (*n)) xs
+      pure $ Branches (p * n) l xss
+    fn (LeafF n l a) = do
+      p <- ask
+      pure $ Leaf (p * n) l a  
+```
+
+If you are not using `Reader` a lot it may be easier to look at this, more explicit solution:
+
+```Haskell
+computeProbFn :: ProbTree Float a -> Float -> ProbTree Float a
+computeProbFn = cata fn
+  where
+    fn :: ProbTreeF Float a (Float -> ProbTree Float a) -> (Float -> ProbTree Float a)
+    fn (BranchesF n l xs) p = Branches (p * n) l $ L.map (\fn -> fn . ( *n ) $ p ) xs
+    fn (LeafF n l a) p = Leaf (p * n) l a
+```
+
+What we are accumulating, is the ability to conjure a descendant tree at any point, from the current probability `Float`.  
+We "conjure" the tree by modifying how the children are being "conjured": we pre-compose `(* n)` (`n` is current node probability) to 
+each of the functions that "conjure" the children. This forces recomputation of the probabilities all the way down to the leaves.   
+This, no longer stops at depth 2. 
 
 ## Why Finding the Right Solution is Sometimes Hard?
 
@@ -546,14 +650,14 @@ Edsger W. Dijkstra
 My conclusion is this: it does not really matter if I get stuck and can't figure it out for a few days. 
 For some problems I will be stuck for much longer.   
 I am talking about pursuit of a well designed code, not finding a brute-force kludge.   
-What really matters is not giving up and eventually figuring it out. 
-
+What really matters is not giving up and eventually figuring it out.   
 
 > “You must understand, young Hobbit, it takes a long time to say anything in Old Entish. And we never say anything unless it is worth taking a long time to say.”   
 
 J.R.R Tolkien and Treebeard
 
-
+... The original version of this post had bugs.  
+Yeah, what really matters is not giving up and eventually figuring it out;)
 
 
 
