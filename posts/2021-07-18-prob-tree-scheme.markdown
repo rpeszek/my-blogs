@@ -509,7 +509,8 @@ I do not like code like this type of code, but, I think, it does provide interes
 #### Catamorphism. Good Attempt
 
 One way to fix it would be to design some intermediate folding data type that would allow us to correctly change descendant node
-probabilities.  But there is a nicer solution that learns from the previous `ST` example:
+probabilities.  But there is a nicer solution that learns from the previous `ST` example and is very close to the idea of 
+folding the tree onto itself:
 
 ```Haskell
 import           Control.Monad.Reader 
