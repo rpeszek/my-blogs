@@ -6,7 +6,7 @@ featured: true
 summary: About a simple tree recursion problem that gave me grief. 
 toc: true
 changelog: <ul> 
-    <li> (2021.07.24) Fixed/Reworked `cata` examples (per <a target="_blank" href="https://www.reddit.com/r/haskell/comments/onrhtw/probability_tree_diagrams_recursion_schemes_why/h684cpr?utm_source=share&utm_medium=web2x&context=3">r/Tarmen</a>) and changed definition of example tree.
+    <li> (2021.07.24-25) Fixed/Reworked `cata` examples (per <a target="_blank" href="https://www.reddit.com/r/haskell/comments/onrhtw/probability_tree_diagrams_recursion_schemes_why/h684cpr?utm_source=share&utm_medium=web2x&context=3">r/Tarmen</a>) and changed definition of example tree.
      </ul>
 tags: Haskell
 ---
@@ -57,7 +57,16 @@ I will be using [_add_blank_target _recursion-schemes_](https://hackage.haskell.
 All the instances I have declared, `Functor, Foldable, Traversable`, are intended for the consumption of the goodies `a`.
 I will not care much about `a`-s in this post.  I will care about the `p`-s.  
 
-This type is really a `Bifunctor` (Functor in both `p` and `a`), and most of the code I am going to show could just use that.
+This type is really a `Bifunctor` (Functor in both `p` and `a`), and most of the code I am going to show could just use that.  Instead of implementing `Bifunctor` instance I will use:
+
+```Haskell
+import qualified Data.List as L
+
+probMap :: (p1 -> p2) -> ProbTree p1 a -> ProbTree p2 a
+probMap fn (Leaf p l a) = Leaf (fn p) l a
+probMap fn (Branches p l xs) = Branches (fn p) l $ L.map (probMap fn) xs
+```
+
 However, for some examples I will need something stronger, I need it to be `Traversable` in `p`.  
 I will just use the [_add_blank_target _lens_](https://hackage.haskell.org/package/lens) package to get 
 what I need.  You do not need to know much about lenses to read on. I will try to explain 
@@ -160,7 +169,7 @@ the lens `over` allows me to type the Floats and `map` these to the `NodeProb` t
 I will use this example moving forward. The final result (leaves only) of what I want to compute annotated with labels should look like this:
 
 ```
-((0.25,"111"),(0.25,"112"),(0.5,"121"),(0.1,"21"),(0.2,"22"),(0.2,"231"),(0.2,"232")
+"(0.125,"111"),(0.125,"112"),(0.25,"121"),(0.1,"21"),(0.2,"22"),(0.1,"231"),(0.1,"232")"
 ```
 
 
@@ -286,8 +295,6 @@ If this is new to you it will take some time digest.  (**end**)
 As a warm-up let's fold the tree by collecting information about leaves onto a single String:
 
 ```Haskell
-import qualified Data.List as L
-
 printLeaves :: forall p a. (Show p, Show a) => ProbTree p a -> String
 printLeaves = fold fn
   where
@@ -372,8 +379,7 @@ It produces this output:
 ```
 #### Solution using Anamorphism
 
-Instead of using `fold` / `cata`-morphism, I will first use it opposite: `unfold` / `ana`-morphism to solve the problem of computing 
-commutative probabilities.  
+Instead of using `fold` / `cata`-morphism, I will first use its opposite: `unfold` / `ana`-morphism to solve the problem of computing the commutative probabilities.  
 We will solve the problem by unfolding the tree onto itself (I will be constructing `ProbTreeF`).  
 _recusion-schemes_ provides a convenient `project` function that typically can be used to implement all the uninteresting cases
 when unfolding the structure onto itself:
@@ -395,7 +401,7 @@ has been already computed.
 Note that to test print the outcome, we have unfolded the tree in `computeProb` and then folded it using `printLeaves` there is a convenience function `hylo` or `refold` included in _recursion-schemes_ package that does exactly that.  
 
 
-#### Back to Catamorphism. Bad solution attempt.
+#### Back to Catamorphism. 
 
 (EDITED, previous version of this post had it wrong, thanks [_add_blank_target r/Tarmen](https://www.reddit.com/r/haskell/comments/onrhtw/probability_tree_diagrams_recursion_schemes_why/h684cpr?utm_source=share&utm_medium=web2x&context=3))
 
@@ -416,17 +422,24 @@ computeProbBad = compWithFloats (cata fn)
       fn x = embed x
 ```
 
-notice there is a problem, the numbers are off.  This approach does not recurse all the way down to the leaves! 
-It works perfectly fine if my tree had depth 2 and not if it was taller.  
-`cata` is happy to do the minimal job and apply the adjustment only once, the tree `Branches` is unwrapped into `BranchesF`
-but the nested `xs` elements already have the correct folding type, there is nothing here forcing recursive correction of probabilities
-all the way down to the leaves.
+notice there is a problem, the numbers are off.  The problem is subtle. The _lens_ over just modifies the current node, what we want is to apply the probability modification to the whole subtree:
+
+``` Haskell
+-- >>> printLeaves . computeProbCata $ exTree
+-- "(0.125,\"111\",()),(0.125,\"112\",()),(0.25,\"121\",()),(0.1,\"21\",()),(0.2,\"22\",()),(0.1,\"231\",()),(0.1,\"232\",())"
+computeProbCata :: ProbTree NodeProb a -> ProbTree CumulativeProb a
+computeProbCata = compWithFloats (cata fn)
+  where
+      fn :: ProbTreeF Float a (ProbTree Float a) -> ProbTree Float a
+      fn (BranchesF n l xs) = Branches n l (L.map (probMap (* n)) xs)
+      fn x = embed x
+```
+
+This works, but it is interesting to play little more with folding just to see how else I can get in trouble.
 
 #### ST Example
 
-**Repeating the bad attempt:** 
-
-Let's look into this issue a little deeper using a more imperative approach. 
+**Bad attempt:** 
 
 If you looked closely at the `printIO` example in the [Catamorphism](#catamorphism) section, you may have noticed that that the fold of `Branches` was able to do effecty things on the children.  We can use the same approach to our advantage.   
 We will go into a mutating
@@ -472,7 +485,7 @@ But, we see exactly the same issue as with our naive `cata` attempt in the previ
 tstMutableBad :: String
 tstMutableBad = printLeaves $ computeProbMutableBad exTree
 ```
-This approach applies the correction only to children's probabilities.  We need to apply the correction all the way down the child subtree!  
+This approach applies the correction to probabilities of the node children.  We need to apply the correction all the way down the child subtree!  
 
 **So let's fix it:**
 
@@ -505,11 +518,9 @@ The key is to find the correct structure to fold onto.
 
 I do not like code like this type of code, but, I think, it does provide interesting imperative intuitions about the recursive fold.
 
+#### Catamorphism. Reader Example.
 
-#### Catamorphism. Good Attempt
-
-One way to fix it would be to design some intermediate folding data type that would allow us to correctly change descendant node
-probabilities.  But there is a nicer solution that learns from the previous `ST` example and is very close to the idea of 
+But there is a nice solution that learns from the previous `ST` example and is very close to the idea of 
 folding the tree onto itself:
 
 ```Haskell
@@ -548,6 +559,19 @@ What we are accumulating, is the ability to conjure a descendant tree at any poi
 We "conjure" the tree by modifying how the children are being "conjured": we pre-compose `(* n)` (`n` is current node probability) to 
 each of the functions that "conjure" the children. This forces recomputation of the probabilities all the way down to the leaves.   
 This, no longer stops at depth 2. 
+
+#### Summary
+ 
+I have shown a few ways to compute `ProbTree CumulativeProb a`.  I ended up getting in trouble a couple of times.
+_In fact, the original version of this post had bugs in it!_  Recursion is dangerous, recursion has gotcha's, it has to!  Recursion is power with a price tag. Types is not very helpful when we recurse:
+
+```Haskell
+myUndefined :: a
+myUndefined = myUndefined
+```
+
+It is easy to get in trouble!  
+
 
 ## Why Finding the Right Solution is Sometimes Hard?
 
@@ -637,7 +661,7 @@ expertise.
 I have to consider myself a cookie cutter too. The choices I made in the code I design are be biased 
 by my other work.
 
-**Summary**
+### Summary
 
 We can't change who we are, we are unlikely to change the industry.
 
@@ -657,8 +681,9 @@ What really matters is not giving up and eventually figuring it out.
 
 J.R.R Tolkien and Treebeard
 
-... The original version of this post had bugs.  
+The original version of this post had bugs.  
 Yeah, what really matters is not giving up and eventually figuring it out;)
+I this post I ate my own dog food.  
 
 
 
