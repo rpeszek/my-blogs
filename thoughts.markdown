@@ -20,6 +20,12 @@ title: Semiserious
 
 * In Haskell, it is important to not confuse errors with exceptions. Hence the definition:  `type IOError = IOException`
 
+* The most sought-after property of a Turing-complete language is its ability to create completely unmaintainable programs.
+
+* A corollary of Robert C. Martin's observation that more than a half of software engineers have less than 5 years of experience is that we will keep repeating the same approaches over and over.  That period seems to be twice the Martin's number (about 10 years).
+
+* In low-code, what else is low?
+
 ## Misplaced Quotes
 
 * Properly written code never fails, hence the error handling is not necessary.

@@ -323,9 +323,9 @@ _barbies_ validation of `Person` required a traversal of the _HKD_ type.  So, ma
 where fields are unified into one type. Keeping up with the _reasonablypolymorphic_ example:
 
 ``` haskell
-{-## LANGUAGE DeriveFunctor ##-}
-{-## LANGUAGE DeriveFoldable ##-}
-{-## LANGUAGE DeriveTraversable ##-}
+{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveFoldable #-}
+{-# LANGUAGE DeriveTraversable #-}
 
 data Person' a = Person' { 
     pName' :: a
@@ -416,10 +416,10 @@ isDrinkingAge' (Age a) = a >= 21
 If we feel strongly about checking age on the `Person` type, we can use Haskell's ability to program with polymorphic fields: 
 
 ``` haskell
-{-## LANGUAGE TypeApplications ##-}
-{-## LANGUAGE DataKinds ##-}
-{-## LANGUAGE FlexibleContexts ##-}
-{-## LANGUAGE DuplicateRecordFields ##-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 
 import GHC.Records
 
