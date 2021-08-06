@@ -26,6 +26,10 @@ title: Semiserious
 
 * In low-code, what else is low?
 
+* Case against _copy and paste_:  There is only one thing worse than a bad idea, and that is a bad idea that went viral.
+
+* Case against Deep Learning AI that writes code: garbage in, garbage out.
+
 ## Misplaced Quotes
 
 * Properly written code never fails, hence the error handling is not necessary.
