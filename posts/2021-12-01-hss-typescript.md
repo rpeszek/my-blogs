@@ -1,5 +1,5 @@
 ---
-title: Haskeller's Notes on TypeScript
+title: Types Enthusiast's Notes on TypeScript
 author: Robert Peszek
 lastmodified: Jul 04, 2021
 featured: true
@@ -8,35 +8,28 @@ toc: true
 tags: TypeScript
 ---
 
-My goal in this post is to focus on types in TypeScript and examine what is nice and what is not so nice from the view point of a functional programmer using the language.  
+This is a TypeScript post from a programmer who loves types and uses them a lot.  
 
-I will try to stay close to idiomatic use of TypeScript but with some twists to demonstrate some interesting uses of types. 
-I hope this post will be interesting to like-minded JavaScript and TypeScript developer who enjoy exploring types and try using the type checker to its full advantage. Haskellers and other developers who love types may find TypeScript interesting and exciting, as did I.
+I will try to stay close to idiomatic use of TypeScript but with little twists to demonstrate some interesting uses of types. 
+I hope this post will be interesting to like-minded JavaScript and TypeScript developer who enjoy exploring types and try using the type checker to its full advantage. Practitioners of other strongly typed languages may find TypeScript interesting and exciting, as did I.
 
-I will use some basic functional concepts like currying without explaining them.  I assume some familiarity with TypeScript but reader not familiar with the language should be able to guess/infer most of it. I will not use any Haskell code. 
+I will use some basic functional concepts like currying without explaining them.  I assume some familiarity with TypeScript but reader not familiar with the language should be able to guess/infer most of it. 
 
-I am currently leading a re-write of a legacy front-end component that was originally written using Vue.js, the goal is to rewrite it using new React.js and TypeScript.  
-My goal in this post is to share my experience with TypeScript and my approach to using it.  
-This is my first non-Haskell project in about 3 years.  I have my FP hat on when writing TS.  
+I am currently leading a re-write of a legacy front-end component that was originally written using Vue.js, the goal is to rewrite it using new React.js and TypeScript.  My goal in this post is to share my experience with TypeScript and my approach to using it.  
+This is my first non-Haskell project in about 3 years.  I have my FP hat on when writing in TS.  TS and JS may try to punch some
+holes in that hat but it still keeps me warm protects my brain.   
 Also, I have not done any major JS development in the last 9 years which makes this experience even more interesting.  
-I think all of this gives me a different and fresh perspective (and a reason to write this for others to see).  
-Some call it a bad muscle memory, my muscles have already forgotten! (I hope this statement does not offend anyone.
-It seemed to ring true in my career.)
+I think all of this gives me a different and a fresh perspective (and a reason to write this post for others to see).  
 At the same time, please to correct me if I get anything wrong.  
 
-What is TypeScript for?  Is it just a JavaScript add-on used to prevent trivial code errors?  
-Or, will TypeScript more fundamentally change the way JavaScript code is written?
+What is TypeScript for?  Is it just a JavaScript add-on used to prevent typos and trivial code errors?  
+Or, will TypeScript more fundamentally change the way the code is written?
 Please have these questions in mind when reading these notes.
-
-
 
 ## TypeScript is great!
 
 It literally took me less than one minute of playing with TS to get excited about it.   
-Just look at the union types  
-(this may require something like `strictNullChecks` compiler configuration, in this post 
-I assume conservative configuration flags, something you get by default with scaffolding, e.g. a typescript react project
-`create-react-app my-project --template typescript`):
+Just look at the union types:
 
 ```TypeScript
 type Person = {firstNm: string, lastNm: string} | null
@@ -54,6 +47,11 @@ const getName = (p:Person): string => {
 
 How cool!  
 
+(The above code may require something like `strictNullChecks` compiler configuration, in this post 
+I assume conservative configuration flags, something you get with scaffolding, e.g. a typescript react project
+`create-react-app my-project --template typescript` by default.
+Code examples have been tested with TypeScript v4.4.4 and v4.5.2.)
+
 Talking about my "literal" excitement, my next play example was to check that I can implement `Either` (I am not trying to implement my own Either type, only to play with the language):
 
 ```TypeScript
@@ -65,15 +63,14 @@ let x: Either<number, string> = {type: "left", content: 1}
 //let wrong: Either<number, string> = {type: "left", content: "one"} // will not compile
 ```
 
-it almost looks like dependent types! TS calls these literal types.  And, TS is serious about strings too:
+it almost looks like dependent types! TS calls these literal types.  And, TS is serious about string fields too:
 
 ```TypeScript
 let y: Either<number, string> = {"type": "left", "content": 1}
 //let wrong: Either<number, string> = {"type": "left", "content": "one"} // will not compile
 ```
-
-TypeScript uses literal string types to create type safety over the use of DOM (e.g. DOM events).  This is brilliant!  I am sure literal types will many other uses.  
-`ts-pattern` library uses literal types to implement _pattern matching_. Exhaustive check is part of it.   
+  
+TypeScript `ts-pattern` library uses literal types to implement _pattern matching_. Exhaustive check is part of it.   
 Again, really cool.
 
 All of these are really exciting developments to me.
@@ -81,7 +78,7 @@ All of these are really exciting developments to me.
 Continuing with play examples, here is the full JSON grammar defined in TS.
 
 ```TypeScript
-export type JsonVal = 
+type JsonVal = 
 | {type: "object", val: Map<string, JsonVal>}
 | {type: "array", val: JsonVal[]}
 | {type: "string", val: string}
@@ -89,18 +86,19 @@ export type JsonVal =
 | {type: "bool", val: boolean}
 | {type: "null"}
 
-export const tstj : JsonVal = {type:"array", val:[{type: "null"}, {type: "number", val: 5}]} //compiles
+const tstj : JsonVal = {type:"array", val:[{type: "null"}, {type: "number", val: 5}]} //compiles
 //const wrong : JsonVal = {type:"array", val:[{type: "number", val: {type: "string", val: "5"}}]} //does not compile, number cannot a nested string
 //const wrong2 : {type: "object",  val:[{type: "null"}, {type: "number", val: 5}]} //does not compile, object is not an array
 
 ```
 
 This could have been expressed with OO classes, but it would not be very easy, would it?  
+I wrote `JsonVal` definition without thinking, I have committed `Data.Aeson.Value` (Haskell's commonly used type for JSON values) definition to memory and I just mimicked it.  Then I looked at it again ... TS supports complex recursive definitions!
+Do I even trust this to work?  The answer is: mostly yes.  More on this at the end of this post.  
 
-If you like me and love types, you may have played with some dependently typed code.  Some cool
-examples are xxx.
+TypeScript provides ability to do type level programming that goes beyond the demonstrated use of literal types.  All of this is oriented toward creating type safety over various idiomatic JS code and is limited in scope but is a step forward in the use of types.  Again, more on this at the end of this post.
 
-As far as mainstream languages go (I consider _Scala_, _Reason ML_ not in the mainstream list), TypeScript could be the most interesting choice today IMO.  
+As far as mainstream languages go (I consider _Scala_ or _Reason ML_ not in the mainstream list), TypeScript could be the most interesting choice today IMO.  
 
 
 
@@ -108,11 +106,11 @@ As far as mainstream languages go (I consider _Scala_, _Reason ML_ not in the ma
 
 For the rest of this post I will focus on _office.js_ library.  It is a Microsoft product (like TypeScript). 
 _office.js_ comes with TypeScript type definitions.  
-It is also relatively old and like a lot of other JS ecosystem libraries that TS programs end up needing to use have been retrofitted to TS.  
-It seems like a good 'comprehensive' example to examine the benefits and some of the frustrations of using TS in anger.  
+It is also relatively old and has been retrofitted for TS. Many other JS ecosystem libraries have gone the same route.   
+It seems like a good 'comprehensive' example for examining the benefits (and frustrations) of using TS in anger.  
 Despite some hardships, TS makes working with office.js much, much easier!
 
-As the name suggests, _office.js_ provides API for working with Microsoft Office. 
+As the name suggests, _office.js_ provides API for working with _Microsoft Office_. 
 It allows implementing applications that work inside the office suite of products (Microsoft calls these apps add-ins).  
 As a working example, we will play with code that extracts data from an email opened in Outlook. 
 This is not an office.js tutorial but, I hope, the code should be clear to follow. 
@@ -141,7 +139,7 @@ Properly initialized office add-in will have runtime access to `item: Office.Mes
 To retrieve the email body I need to use `item.body.getAsync`.  But wait, the type signature for that version of `getAsync` accepts not only a callback function but also a body type parameter.
 
 I am going to resist the temptation to overload the above `officePromise`.
-Instead I will move in a direction that will give us a stronger foundation.
+Instead I will move in a direction that is more fundamental.
 
 For now, assume that we want 'html' body format, the code can look something like this:
 
@@ -154,7 +152,8 @@ const partiallyAppliedBodyFn = (fn: ((res: Office.AsyncResult<string>) => void))
 const body  = await officePromise<string> (partiallyAppliedBodyFn) // body: string
 ```
 
-I had to type annotate (TS calls these annotations) this to work (give `partiallyAppliedBodyFn` a type).  That looks like a lot of typing to just partially apply `item.body.getAsync`!
+I had to type annotate (add type information to the LHS of the `const` definition) for this to work. 
+That looks like a lot of typing to just partially apply `item.body.getAsync`!
 
 ### Happy path
 
@@ -181,24 +180,19 @@ This worked out quite well and the type checker was able to infer the types!
 This ended up being a happy path.   
 
 
-### Bumpy path
+### Bumps on the path
 
-In practice, the type checker will often need some help.  
-In other times the issue is a incorrect program that type checker rightfully rejects, but it is not clear why. 
-Adding type annotations can help if figuring to see where the compilation breaks.  
-I think of this as a poor man's REPL.  
+In practice, the type checker will often need some help.  Even more often the programmer will need help figuring what he or she has done wrong causing the type checker to object.
 
-Here are some of the thing that, in my experience, can sometimes confuse TS type checker
-and require extra type annotations:
+This seemingly very simple code that uses a 3 parameter overload of `item.body.getAsync`
 
-* name overloading (this is a classic reason for a language to have problem inferring types)
-* functions as parameters (this is very unfortunate)
-* tuples (typescript overloads list syntax [] to define tuples - heterogeneous lists, e.g. [number, string]). Note, this is a form of syntax overloading and could be a part of the reason why type inference suffers.
+```TypeScript
+//this snipet compiles
+const emptyConfig : any = {}
+const body3  = await officePromise (curry3(item.body.getAsync)(bodyType)(emptyConfig)) 
+```
 
-To demonstrate a more bumpy path, I will use a 3 parameter overload of `item.body.getAsync` which accepts additional `any` parameter in the second position  
-(I am not including `curry3` boilerplate code, it is easy to do and very similar to the above `curry` function, it converts a 3 parameter function to its curried form)
-
-To have this one compile I had to add a lot of type signatures:
+took me quite a fight to figure out.  At some point I had this code:
 
 ```TypeScript
 /* Note: the following body3 does not compile */
@@ -220,24 +214,23 @@ const paritallyAppliedBody = (fn: ((res: Office.AsyncResult<string>) => void)) =
 const body3  = await officePromise<string> (paritallyAppliedBody) //finally compiles!
 ```
 
-But this was not necessary. The only thing the type-checker needed was to spell out the type of the new parameter:
+I think of such annotating work as a poor man's REPL.  
 
+One type that is notorious for needing annotations is the TypeScript tuple.
+Typescript overloads list syntax [] to define tuples (or heterogeneous lists). This is an example of a tuple type: `[number, string]`. 
+The syntax overloading probably does not help TS in inferring the type and the type checker gives up or infers wrong type (the array).
 
-```TypeScript
-const body3  = await officePromise (curry3(item.body.getAsync)(bodyType)({} as any)) //compiles with no annotations!
-```
+Using types requires experience, knowledge, and some patience.  TS is sometimes a struggle for me, and I miss not having good tooling like a REPL (I did try _ts_node_ and _tsun_) for interacting with the type checker. But I am working in TS for only about 1 month now.  
 
+The good news is that it gets easier with practice. Haskell type checker can be stubborn and hard to persuade sometimes, yet I am more effective in Haskell than in any other language I worked in (maybe 4-5X more effective), and I have a lot of respect for it.  I am sure TypeScript will get easier with time too!  More advanced types come with more misleading errors, it takes experience to translate the error
+message to a likely underlying cause.
 
-This is not a very happy path indeed and I am concerned that many developers will give up when trying to write this type of code.  
-It is definitely not easy for me, and I miss not having good tooling, like a REPL, for interacting with the type checker.  
+---xxx
+
+I am concerned that many developers will give up when trying to write this type of code.  
 My concern is also that developers will resort to unsafe type coercion / type casting. 
-There will be a lot of `myvar as WhatIWant`. Yet another concern is that some developers will consider the above code examples too complicated and cumbersome to use.  
+There will be a lot of `myvar as WhatIWant`. 
 
-What is also interesting is that the above code is sort-a equivalent to this one line:
-
-```
-const body3  = await officePromise (curry3(item.body.getAsync)(bodyType)({} as any)) //compiles with no annotations!
-```
 
 ### Leveling the bumps
 
@@ -257,19 +250,21 @@ const partiallyAppliedBodyFn1 = (fn: ((res: Office.AsyncResult<string>) => void)
 const partiallyAppliedBodyFn2 = (fn: OfficeCallack<string>) => item.body.getAsync(bodyType, fn)
 ```
 
-and, finally, here is the `curry3` example in just one line:
+Notice no more redundant parameter definitions in the type signature and much easier to read syntax. 
+
+Here is the `curry3` example. Instead of annotating the LHS, it is sometimes more convenient
+to apply types to the polymorphic function:
 
 ```TypeScript
-//this compiles!
 const body3  = await officePromise<string> (curry3<Office.CoercionType, any, OfficeCallack<string>, void> (item.body.getAsync)(bodyType)) 
 ```
 
-Notice no more redundant parameter definitions in the type signature and much easier to read syntax. 
+### It is all worth it at the end
 
-I rewrote some legacy code using the above techniques.
-That resulted in some 5X size reduction and overall big improvement in readability and correctness when compared
+I rewrote some legacy code using the techniques in this section.
+That effort resulted in some 5X size reduction and overall big improvement in readability and correctness when compared
 to the code I am replacing or to code in the _office.js_ documentation.  
-A lot of the improvement comes from using `await` `async` syntax sugar but converting functions to their curried form and figuring out more terse ways to type annotate also result in a significant syntactic simplification. 
+A lot of the improvement comes from using `await` `async` syntax sugar but converting functions to their curried form and figuring out more terse ways to type annotate also results in added clarity and significant syntactic simplification. 
 
 
 ## Type checker bloopers 
@@ -329,10 +324,30 @@ _office.js_ documentation, and the IntelliSense claims that I can get it from `i
 (There is an overloaded version without `options` parameter as well)
 
 When I tried to use it, this property was always `undefined`.  
-Similarly, the types tell me that I have `item.body.setTypeAsync`, which is also not there (and probably should not be with a read only email access).  
 Seems like _office.js_ types sometimes lie.
 
-None of this should be used to blame TypeScript or to be used as an argument against it.    
+We should look at the type definition of the _office.js_ `item` a little closer.
+
+The `item` property is overloaded to be one of these types (let me call them _facets_):
+
+```
+Office.AppointmentCompose (for working with calendar)
+Office.AppointmentRead  (for working with calendar)
+Office.MessageCompose  (for interacting with a new email being composed)
+Office.MessageRead  (for interacting with received or sent email being viewed by the user)  
+```
+
+These _facet_ types are all different.  For example, to get email subject you use `item.subject: string` if you are working with `Office.MessageRead` or `item.subject: Office.Subject` if you are working with `Office.MessageCompose` (`Office.Subject` contains `getAsync`, `setAsync` methods).  
+
+The type of `item` it is not, as I would expect: `AppointmentCompose | AppointmentRead | MessageCompose | MessageRead`.
+Rather it is closer to (I have not listed all the `&`): `AppointmentCompose & AppointmentRead & MessageCompose & MessageRead`.  
+
+Basically the type chosen by _office.js_ combines all the available properties, methods, overloads into one type. 
+This is simply an incorrect type for `item`.  Runtime values do not satisfy that type, the satisfy the union type.
+As the result, you program is very likely to type check when using a property or method that does not exist
+on the runtime value and your program will experience runtime failures.
+
+None of this should be used to blame TypeScript or to be used as an argument against it. 
 None of this should be a surprise.  
 Less trustworthy types are a limitation we have to accept if we want gradual typing over JS. 
 
@@ -364,19 +379,11 @@ Here is a piece documentation from _office.js_ about `Office.context.mailbox.ite
 TS offers a neat alternative to casting.  I will explain it by _not_ following the _office.js_ documentation ;)
 
 As I indicated already, _office.js_ allows me to interact with outlook email using `Office.context.mailbox.item`.  
-However `item` property is overloaded and can be one of the following type definitions (let me call them _facets_): 
+However `item` property is overloaded into several types discussed in previous section (let me call them _facets_): 
 
-```
-Office.AppointmentCompose (for working with calendar)
-Office.AppointmentRead  (for working with calendar)
-Office.MessageCompose  (for interacting with a new email being composed)
-Office.MessageRead  (for interacting with received or sent email being viewed by the user)  
-```
-
-These _facet_ types are all different.  For example, to get email subject you use `item.subject: string` if you are working with `Office.MessageRead` or `item.subject: Office.Subject` if you are working with `Office.MessageCompose` (`Office.Subject` contains `getAsync`, `setAsync` methods).  
 The legacy code I am currently re-implementing is retrieving `subject` by checking what kind of `subject` is defined in the `item` object and using it accordingly, it does a similar _"check before you get"_ game to retrieve `to`, `from`, `cc` and other email information.    
 Such approach is typical, almost idiomatic to JS.  It is also hard to maintain as making changes directed at one _facet_ can easily break the other _facets_. 
-(... and stable e2e tests for MS office, ...I am still not sure how to do these.)
+And you can test your heart out on all emails you can think about (I still have not figure out how to do e2e testing for office apps well) and your app will crash and burned if used with a calendar appointment.
 
 So what is the new TypeScript-idiomatic way to do it?  TS has the `is` types: 
 
@@ -396,10 +403,12 @@ export const doSomethingWithComposedEmail = async (item: Office.MessageCompose) 
 And I can use these almost without any casting (`item` needs to be widened to `any` because of the way _office.js_ has unfortunately typed it): 
 
 ```TypeScript
-//Unfortunatelly downcasting / widening "const item : any" is needed for type safety, 
-//this probably has to do with office.js using "&" instead of "|" in type definition of the "Office.context.mailbox.item" itself
-//so it looks to me that office.js `Office.context.mailbox.item` type is not defined right
-const item : any = Office.context?.mailbox?.item
+//Unfortunatelly a corrective cast of "item" is needed. 
+//this has to do with office.js incorrectly using "&" instead of "|" in type definition of the "Office.context.mailbox.item" itself
+type CorrectedItemType = Office.AppointmentCompose |  Office.AppointmentRead |  Office.MessageCompose |  Office.MessageRead
+
+
+const item : any = Office.context?.mailbox?.item as CorrectedItemType | undefined
 
 if(isMessageRead(item)) {
   //doSomethingWithComposedEmail(item) //this will not type check!
@@ -412,7 +421,7 @@ if(isMessageRead(item)) {
 }
 ```
 
-This is really nice!
+This is really nice of TypeScript!
 
 Ideally the office.js would provide `isMessageRead`, `isMessageCompose`, etc. as part of the API. 
 This is not a criticism. `office.js` API is old and TS integration has been added to it late.   
@@ -464,7 +473,7 @@ Contrast this with ternary operator, it returns.  But ternary syntax is designed
 
 The wildest kludge I have seen for this is (we want `const` not `let`):
 
-```
+```TypeScript
 const x = (() => {
   if(p) {
     const res = 1 //first multiline computation
@@ -479,37 +488,138 @@ const x = (() => {
 At the same time, the code we end up writing today uses callbacks and very often returns a TS `void`,  so the imperative `if-else` construction is almost good enough.  Sometimes problems have a way to work themselves out, magically.  I find that fascinating.  
 
 But there is something still very much lacking in the type safety department. 
-`if-else if-else` do not provide any mechanism for the type checker to verify that the program checked all possible conditions.
-
-`switch` statement does not do that either.  
-
-`contrived` can only accept `1` or `2` as its argument
+`if-else if-else` do not provide any mechanism for the type checker to verify that the program checked all possible conditions. E.g.
 
 ```TypeScript
 export const contrived = (n: 1 | 2) : number => {
-    if(n === 1) {
+    if(n === 1) 
        return 1;
-    } else if (n === 2) {
-        return 2;
-    } else {
-        return 3; // contrived will not compile if I comment this line
-    }
+    else if (n === 2)
+      return 2;
+    else 
+      return 3; // contrived will not compile if I comment the final else
+
 }
 ```
 
-but I have to add the catch-all `else` and return a default value from it even though I covered all the possibilities in the `if-if else`. 
+(Think of `1` and `2` as 2 `Office.MessageCompose`-like "facets" currently offered by an API, you want to know what code needs to change when the API offers a `3`-rd facet)
 
-As a less contrived example, recall the four `item` _facets_ types offered by _office.js_:
-`Office.AppointmentCompose`, `Office.AppointmentRead`, `Office.MessageCompose`, and 
-`Office.MessageRead` and assume you wrote 200K lines of code that use them viraly. 
+Interestingly TS uses the `switch` statement to solve this problem:
 
-Your app proudly handles all 4. Microsoft came up with new version of Outlook that also does _Notes_. New _office.js_ has not changed except for adding 2 new _facets_.  
-What do you do to check all the places where the new _Office.NoteCompose_ and _Office.NoteRead_ are not handled?
+```TypeScript
+//This compiles!
+const contrived_better = (n: 1 | 2) : number => {
+    switch(n) {
+       case 1:
+        return n
+       case 2:
+        return n 
+    } 
+}
+```
 
-Amazingly the solution for this exists in TypeScript but it is a library solution, not a language solution.  TypeScript `ts-pattern` library has you covered!
-Hmm _office.js_ does not use `ts-pattern` so you would need to do some extra work yourself but you could do that!
+That is a nice example of useful addition of types.
 
-I am not going to steal the `ts-pattern` thunder and refer to the library documentation and this blog post: xxx
+Even better solution is a library solution, not a language solution.  TypeScript `ts-pattern` library has you covered!
+I am not going to steal the `ts-pattern` thunder and refer to the library documentation and this blog post: 
+https://dev.to/gvergnaud/bringing-pattern-matching-to-typescript-introducing-ts-pattern-v3-0-o1k
+
+
+## TypeScript, The Interesting Types
+
+The book about types I recommend to everyone I know, and I do not know anyone else who read it, is [TAPL](https://www.goodreads.com/book/show/112252.Types_and_Programming_Languages).  Apparently, software developers want to have some life outside of programming. Who knew?  
+The good news, again, is that types dramatically increase programming efficiency so learning them is a good investment.
+In addition to reading, a good thing to do is to play with types to see what you can do with them.  For example, this code https://github.com/rpeszek/ts-typecheck-peano pushes TS compiler to its limit.  
+
+TypeScript is somewhat unique in supporting what is called _Structural Types_. 
+_Structural Types_ are a very natural fit for JS objects.
+Types like `Person` from the beginning of this post are structural. That means the name `Person` is simply an alias, what defines the type is the RHS of the definition, not the LHS.  Contrast this with an OO class definition. Two structurally identical classes are still considered different types (this is called _nominal typing_).    
+Structural types are much more intuitive.  IMO nominal typing could be why OO languages like Java or FP languages like Haskell 
+are hard to learn (not the only reason but a reason, in both cases).  
+
+The recursive type example `type JsonVal` surprised me.  Here it the [TAPLish]() reason why. 
+Programming language theory established two approaches for implementing recursive types _iso-recursion_ (good fit for nominal types, the compilation technique is very similar to how _recursion schemes_ and `data Fix` work in Haskell) and _equi-recursion_ (good fit for structural types).   
+`JsonVal` looks like an equi-recursive definition, effectively an infinite structure.  These are much harder to implement. 
+The methodology behind equi-recursion involves monotone functions and other things I never found time to understand very well.  Hard stuff and quite a bit of math.
+I have not digged in deep enough to know that TS uses equi-recursion.  No matter what it does is IMO impressive.  
+
+`JsonVal`-like types appear to be hard on the TS type checker.  I have played with some advanced recursive types and have experienced it first hand. I got quite a few 'Type instantiation is excessively deep and possibly infinite' 
+(e.g. code in https://github.com/rpeszek/ts-typecheck-peano).  But I did not succeed in creating a simple example to demonstrate this.
+
+I will demonstrate something slightly different:
+
+```TypeScript
+type List<T> = 
+| {type: "nil"} 
+| {type: "cons", head: T, tail: List<T>}
+
+const ul_123  = {type: "cons", head: 1, tail: {type: "cons", head: 2, tail: {type: "cons", head: 3, tail: {type: "nil"}}}}
+
+//const l_123  :List<number> = ul_123 //compiler error: Argument of type ... is not assignable to type ...
+
+const l_123 :List<number> = {type: "cons", head: 1, tail: {type: "cons", head: 2, tail: {type: "cons", head: 3, tail: {type: "nil"}}}}
+
+```
+
+That is a recursive definition of the functional _cons_ list.  `ul_123` is an equivalent of `[1,2,3]` encoded matching the structure. 
+Compiler will not let me assign it to `const l_123 :List<number>`.  Similarly, I would not be able to use it as a parameter to a function
+that expects `(l : List<number>)`.  I had to cut-paste the LHS of `ul_123` into `l_123` for `l_123` to type check.
+This is quite different than typical structural types in TS.
+
+IMO, it is still impressive that TS is able to pull these off.  The damage with these recursive types is that you will need to 
+do some type coercion to help the type checker out.  Small price to pay!
+
+Literal types are very emaciated (I remember reading somewhere that is was a design decision) and look like a very thinned down `GHC.TypeLits` in Haskell.
+They do not offer any DIY extensiblility. For example, you can do some very basic type level string manipulation, you cannot
+concatenate strings or add numbers.  
+
+TypeScript allows for type-level ternary as well as various type level built-in functions (e.g. `keyof`).   
+Apparently, the type level programming in TypeScript is _Turing complete_
+(see https://github.com/microsoft/TypeScript/issues/14833).    
+That means, that at least syntactically, types in TypeScript are very powerful and can express a lot.   
+
+Type level programming in TS is oriented toward creating type safety for various
+JS code idioms rather than than creating a foundation for DIY type level programming.  
+IMO this makes it harder to learn.  The _Turing completeness_, I think, is completely accidental.   
+
+IMO the best new language design direction would be to move towards a dependently typed semantics in which type level 
+and value level code is the same (e.g. Idris).
+If it is not the same than at least very similar (e.g. Haskell).  
+TS cannot and should not do that.  We do not want JavaScript on the type level!
+
+At the same time the lack of synergy between type level and value level programs makes things 
+very complicated to program. E.g.:
+
+```TypeScript
+//example type from https://www.typescriptlang.org/docs/handbook/2/conditional-types.html
+type Flatten<Type> = Type extends Array<infer Item> ? Item : Type; 
+
+const head = <T> (t: T[]) : Flatten<T[]> => {
+    return t[0] //compiles
+}
+
+const generalizedHead = <T> (t: T) : Flatten<T> => {
+    if(Array.isArray(t)) 
+        return t[0]
+    else 
+        // return t //compiler error: Type 'T' is not assignable to type 'Flatten<T>'
+        return t as any //ghrrr!
+}
+
+type HasContent<C> = {content: C}
+
+type GetContent<T> = T extends HasContent <infer C> ? C : T
+
+const getContent = <C, T extends HasContent<C>> (t: T) : GetContent<T> => {
+   //return t.content //compiler error:  Type 'C' is not assignable to type 'GetContent<T>'
+   return t.content as any //ghrrr!
+}
+```
+
+It feels clunky.  It feels like type level and value level have a broken marriage.
+It also feels very confusing.
+
+
 
 ## Final Thoughts 
 
@@ -517,46 +627,10 @@ What is the TypeScript for?  Is it just an add-on that helps to prevent trivial
 Or, will TypeScript change the way we write code?  This is for its practitioners to decide.
 I hope the examples I gave here will persuade some of you to explore more advanced use of types and to more dramatically change how you write the code.
 
-TypeScript is somewhat unique in supporting what a programming language theorists call structural types.  
-The above examples: `Person`, `JsonVal` are structural, that means the names `Person` / `JasonValue` are simply aliases, what defines the type is the RHS of the definition, not the LHS.  Contrast this with an OO class definition. Two structurally identical classes are still considered different types (this is called nominal typing).    
-Structural types are harder to implement, in particular for recursive types.
-I was pleasantly surprised that TypeScript allowed me to code the recursive `JsonVal` example.  
-There are very few languages that support structural types and I am very excited about TypeScript being one of them.
+Programming language can impact how people write code.  Some languages have really done a service to humanity making humans better 
+coders.  Some not so much.  I think TypeScript is and will be in the first category.  
 
-I am not going to try to list things TypeScript types cannot do.  That would be a ridiculously long list.  
-Instead, I can try to guess what will be the most missed feature for FP-iers:
-The higher kinded types (HKT) with ability to do some ad hoc polymorphism (e.g. typeclasses).   
-I remember this one to be, for a very long time, the most requested feature in F# and I think will be just that, a feature request, forever. 
-There is a light-weight HKT workaround that FP-iers have used in non-FP languages.  This work-around is described for TypeScript here:
-https://www.thesoftwaresimpleton.com/blog/2018/04/14/higher-kinded-types
+TypeScript is a reach language supporting various OO features like interfaces and classes which I have not discussed.  These notes have been written by a Haskeller after all.  To be honest, I considered myself OO evangelist during the first 10-12 years of my professional programming, that was long enough. 
 
-In nutshell, TS can define types like `MyList<T>` were `T` is a type variable, e.g. `MyList<string>`. 
-It cannot define `<T>string`, or more generally `F<T>` where both `F` and `T` are type variables, one abstracting over things like `MyList`, `Option`, `Queue`, the other over things like `number`, `boolean`, `string`, `Person`.  
-Being able to do that is really useful, especially if you can also do some ad-hoc polymorphism (e.g. typeclasses) with it.  
-TypeScript FP libraries, like _fp-ts_ are not able to take full advantage of polymorphism available in more functional languages 
-like _Scala_, _Haskell_, _Purescript_, ...  
-Higher Kinded Types are also needed for many other cool concepts like recursion schemes, effect systems, lots of cool stuff.  
-
-Nuances of implementing gradual types on top of JS are well beyond my level of understanding.  My intuition tells me that HKT could (theoretically) be implementable but typeclass like polymorphism could not. 
-Ad-hoc polymorphism depends on a runtime dispatch mechanism and OO class-like dispatch (which in TS/JS is just a property lookup) will not be compatible with it.
-TS is basically JS with types and hence its limitation.  
-
-TypeScript is a reach language supporting various OO features like interfaces and classes which I have not discussed.  These have been Haskeller's notes after all.
-  
-
-### Ideas for a future post
-
-This post focused on types more than it did on FP.  These two areas, however, are often very intertwined.
-
-It is very interesting to observe how some parts of the JS ecosystem are getting more immutable and more functional.  
-New version of React.js is a great example of a change in this direction.  
-It is also interesting to observe where the language and the ecosystem adapts to accommodate these changes and where it refuses to do so.  
-
-One very interesting example is the imperative if-else which makes it awkward to work with immutable data but is what JS and TS offers for conditional code.   
-At the same time, the code we end up writing today very often returns a TS `void`,  so the imperative `if-else` construction is almost (no exhaustivity check) good enough.  Sometimes problems have a way to work themselves out, magically.  I find that fascinating.  
-... and I ended up using the imperative if-else a lot in this post.
-
-Modern React.js has so many interesting design topics to discuss: 
-referential transparency in component design, optics for working with component model state ...    
-
+This post was focused on types, not that much on FP. 
 If places like reddit do not level me with the ground after this post, I may be tempted to write separate posts focusing on React.js and few other mainstream front-endish topics that are FP related.  
