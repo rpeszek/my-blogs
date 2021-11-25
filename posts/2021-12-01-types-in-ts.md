@@ -120,6 +120,7 @@ To start, I want to extracts the email body from the email.
 To access data, _office.js_ often uses an old style `getAsync` methods that I will modernize using a custom conversion to a `Promise`.  Node's `util.promisify` will not work well for this task.  This is how this could be done in TS:
 
 ```JavaScript
+/* Utility to convert office functions to promises */
 export const officePromise = <T> (getasync: ((fx: ((r: Office.AsyncResult<T>) => void)) => void)): Promise<T> => {
   return new Promise((resolve, reject) => {
     getasync((res: Office.AsyncResult<T>) => {
@@ -144,6 +145,7 @@ Instead I will move in a direction that is more fundamental.
 For now, assume that we want 'html' body format, the code can look something like this:
 
 ```JavaScript
+//retrieving email body, 1st attempt
 const bodyType = Office.CoercionType.Html
  
 const partiallyAppliedBodyFn = (fn: ((res: Office.AsyncResult<string>) => void)) => 
@@ -173,6 +175,7 @@ const tst2 = curry(addtst)(1)(2) //tst2 = 3
 And I have a much simpler code that compiles right off the bat: 
 
 ```JavaScript
+//Happy path one liner to get email body
 const body = await officePromise (curry(item.body.getAsync)(bodyType)) 
 ```
 
@@ -235,7 +238,7 @@ There will be a lot of `myvar as IWantIt`, or everything will be the `any`.
 Cumbersome type annotations are not a good excuse to give up!  In fact there is a way to simplify the type annotations quite a bit.  For example, I can define a helper alias:
 
 ```JavaScript
-//define my own reusable type for Office getAsync callbacks
+//DIY reusable type for Office getAsync callbacks
 export type OfficeCallack<T> = (x: Office.AsyncResult<T>) => void
 ```
 
@@ -254,7 +257,10 @@ Here is the `curry3` example again, this time fully type-applied. Instead of ann
 to apply types to the polymorphic function:
 
 ```JavaScript
-const body3  = await officePromise<string> (curry3<Office.CoercionType, any, OfficeCallack<string>, void> (item.body.getAsync)(bodyType)) 
+//type applied version
+const body3  = await officePromise<string> (
+    curry3<Office.CoercionType, any, OfficeCallack<string>, void> (item.body.getAsync)(bodyType)
+    ) 
 ```
 
 ### It is all worth it
@@ -272,16 +278,19 @@ Yet, the code size reduction and improved code clarity speak for themselves so I
 All of these compile:
 
 ```JavaScript
+//correctly annotated
 const good : (a: Office.CoercionType) 
           => (b: ((asyncResult: Office.AsyncResult<string>) => void)) 
           => void
     = curry (item.body.getAsync)
 
+//compiles but it should not
 const nonsense1 : (a: Office.CoercionType) 
           => (b: ((asyncResult: Office.AsyncResult<string>) => void)) 
           => void
     = curry (curry (item.body.getAsync)) 
 
+//compiles but it should not
 const nonsense2 = (curry(curry)) 
 ```
 
@@ -297,6 +306,7 @@ Compiler issues aside, I want to talk about the most obvious gotcha.
 I am going back to my `NullablePerson` example. This will be a good conversation starter:
 
 ```JavaScript
+//Questionable JSON parsing example
 const p : NullablePerson = JSON.parse("John Smith")
 ```
 
@@ -334,12 +344,14 @@ These _facet_ types are all different.  For example, to get email subject you u
 The type of `item` it is not, as I would expect: 
 
 ```JavaScript 
+//Type I expected
 AppointmentCompose | AppointmentRead | MessageCompose | MessageRead
 ``` 
 
 Rather it is closer (I have not listed all the `&`-s) to: 
 
 ```JavaScript 
+//Actual Type
 AppointmentCompose & AppointmentRead & MessageCompose & MessageRead
 ```  
 
@@ -395,6 +407,7 @@ And you can test your heart out on all emails you can think about (I still have 
 So what is the new TypeScript-idiomatic way to do it?  TS has the `is` type: 
 
 ```JavaScript
+//Safer type coercion
 export const isMessageRead = (d:any) : d is Office.MessageRead => {
   return (d.itemType === Office.MailboxEnums.ItemType.Message) && d.getAttachmentsAsync === undefined
 } 
@@ -445,6 +458,7 @@ Use it with care.
 This JavaScript code:
 
 ```JavaScript
+//Bad code
 function blah(lhs: string, rhs: Person) {
   if (lhs === rhs) {
     //Do something
@@ -457,6 +471,7 @@ function blah(lhs: string, rhs: Person) {
 is a programming bug and will not type-check in TypeScript.  You can just replace it with:
 
 ```JavaScript
+//Actual equivalent
 function blah(lhs: string, rhs: Person) {
   //Do somethign else
 }
@@ -478,9 +493,10 @@ In my very first example passing `undefined` to `getName(p: NullablePerson)` wil
 My coding preference would be to rewrite the my first example like this:
 
 ```JavaScript
-//Reusable utility type with convenience functions
+//Reusable utility type
 export type Undefined = null | undefined
 
+//Convenience function
 export const isUndefined = (d: any): d is Undefined =>
    (d === null) || (d === undefined)
 
@@ -528,6 +544,7 @@ Contrast this with ternary operator, it returns.  But ternary syntax is designed
 The wildest kludge I have seen for this is (If we want `const` and not `let`):
 
 ```JavaScript
+//make if-else into a function kludge
 const x = (() => {
   if(p) {
     const res = 1 //some complex multi-line computation
