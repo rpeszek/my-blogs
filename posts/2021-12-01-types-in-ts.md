@@ -15,6 +15,7 @@ I will try to stay close to an idiomatic use of TypeScript but with little twist
 I hope this post will be interesting to like-minded JavaScript and TypeScript developer who enjoy exploring types and try using the type checker to its full advantage. Practitioners of other strongly typed languages may find TypeScript interesting and exciting, as did I.
 
 I will use some basic functional concepts like currying without explaining them.  I assume some familiarity with TypeScript but reader not familiar with the language should be able to guess/infer what the example code does. 
+There is only one prerequisite to reading this:  interest in types.
 
 I am currently leading a re-write of a legacy front-end component that was originally written using Vue.js, the goal is to rewrite it using new React.js and TypeScript.  My goal in this post is to share my experience with TypeScript and my approach to using it.  
 This is my first non-Haskell project in about 3 years.  I have my FP hat on when writing TS.  TS and JS may try to punch some
@@ -27,6 +28,15 @@ At the same time, please make sure to correct me if I get anything wrong.
 What is TypeScript for?  Is it just a JavaScript add-on used to prevent typos and trivial code errors?  
 Or, will TypeScript more fundamentally change the way the code is written?
 Please have these questions in mind when reading these notes.
+
+This is a long post, probably the longest I ever wrote.  It will cover a lot of topics.   
+You should make yourself a large coffee
+... or better yet pickup a water bottle to stay hydrated.
+
+> “And we never say anything unless it is worth taking a long time to say.”   
+
+_J.R.R Tolkien and Treebeard about discussing types in TypeScript_
+
 
 ## TypeScript is great!
 
@@ -50,10 +60,12 @@ const getName = (p:NullablePerson): string => {
 
 How cool!  
 
-(The above code may require something like `strictNullChecks` compiler flag. In this post 
+_The above code may require something like `strictNullChecks` compiler flag. In this post 
 I assume compiler features are enabled, something you get by default with scaffolding, e.g. using
-`create-react-app my-project --template typescript`.
-The code examples have been tested with TypeScript v4.4.4 and v4.5.2.)
+`create-react-app my-project --template typescript`.  
+The code examples have been tested with TypeScript v4.4.4 and v4.5.2.  
+This post is a pandoc transformation of a markdown document and code examples are not interactive.
+However, many code examples are published in ts-notes folder in this repo: [_add_blank_target ts-experiments](https://github.com/rpeszek/ts-experiments)_
 
 Talking about my "literal" excitement, my next play example implements `Either` (I am not trying to implement my own Either type, only to play with the language):
 
@@ -134,7 +146,7 @@ export const officePromise = <T> (getasync: ((fx: ((r: Office.AsyncResult<T>) =>
 
 ```
 
-_Side Note:_ Here is my first criticism of TS. What could possibly be the goal of having to name function parameters (`fx:` and `r:` in the above example) in the type definitions in a not dependently typed language?  I cannot come up with anything.  This seems like needless boilerplate and makes writing and reading the code harder.  I will show a work-around for this later in this post.
+_Side Note:_ Here is my first criticism of TS. What could possibly be the goal of having to name function parameters in the type definitions (`fx:` and `r:` in the above example) in a not dependently typed language?  I cannot come up with anything.  This seems like needless boilerplate and makes writing and reading the code harder.  I will show a work-around for this later in this post.
 
 Properly initialized office add-in will have the runtime access to `item: Office.MessageRead` (available statically as `Office.context.mailbox.item`). `item` allows access to elements of the email with which the add-in interacts.  
 To retrieve the email body I need to use `item.body.getAsync`.  But wait, the type signature for that version of `getAsync` accepts not only a callback function but also a body type parameter.
@@ -186,51 +198,64 @@ This ended up being a happy path.
 ### Bumps on the path
 
 In practice, the type checker will often need some help. 
-Even more often, the programmer (me) will need help figuring what why the code is not compiling.
+Even more often, the programmer (me) will need help figuring why the code is not compiling.
 
-This, a seemingly very simple, code that uses a 3 parameter overload of `item.body.getAsync`
+For example, `item.body.getAsync` offers a 3 parameter overload
+which accepts additional `Office.AsyncContextOptions`.  Using it is much harder.
+
 
 ```JavaScript
-//this snipet compiles
+const emptyConfig : Office.AsyncContextOptions = {}
+//does not compile: "Type ... is not assignable to type ..." 
+//const body3  = await officePromise (curry3(item.body.getAsync)(bodyType)(emptyConfig)) 
+```
+
+Interestingly the following does compile, why why why!
+
+```JavaScript
+//this snipet compiles but uses 'any'
 const emptyConfig : any = {}
 const body3  = await officePromise (curry3(item.body.getAsync)(bodyType)(emptyConfig)) 
 ```
 
-and took me quite a fight to figure out.  At some point I had this code:
+To understand what is happening, I sometimes need to spend time annotating things, or picking up the exact overload I want. E.g.
 
 ```JavaScript
-/* Note: the following version of body3 does not compile */
-// const body3 : string = await officePromise<string> (curry3(item.body.getAsync)(bodyType)({}))
-
-// So I type annotate it everywhere
-const curriedBody : (ct: Office.CoercionType) => 
-                    (a: any) => 
-                    (fn: (x: Office.AsyncResult<Office.CoercionType>) => void) => 
-                    void 
-        = curry3(item.body.getAsync)
-
-/* Note: This version of body3 will not compile */
-// const body3  = await officePromise<string> (curriedBody(bodyType)({}))    
-
-//so I annotate some more
-const paritallyAppliedBody = (fn: ((res: Office.AsyncResult<string>) => void)) => curriedBody(bodyType)({})
-
-const body3  = await officePromise<string> (paritallyAppliedBody) //finally compiles!
+const useThisAsync = (coercionType: Office.CoercionType
+                     , options: Office.AsyncContextOptions
+                     , callback: (asyncResult: Office.AsyncResult<string>) => void): void => {
+      item.body.getAsync(coercionType, options, callback)
+    }
 ```
 
-I think of such annotating work as a poor man's REPL.  
+I think of such annotating work as a poor man's REPL.  It can be tedious.   
 
-One type that is notorious for needing annotations is the TypeScript tuple.
-Typescript overloads array syntax `[]` to define tuples (or heterogeneous lists). This is an example of a tuple type: `[number, string]`. 
-The syntax overloading probably does not help TS in inferring the type and the type checker gives up or infers wrong type (the array).
+The issue in this particular case is that not only `item.body.getAsync` has two overloads but the one I want is accepting union type argument and the callback is optional:
 
-Using types requires experience, knowledge, and some patience.  TS is sometimes a struggle for me, and I miss not having good tooling like a REPL (I did try _ts_node_ and _tsun_) for interacting with the type checker. But I am working in TS for only about 1 month now.  
+```JavaScript
+(method) Office.Body.getAsync(coercionType: string | Office.CoercionType
+  , options: Office.AsyncContextOptions
+  , callback?: ((asyncResult: Office.AsyncResult<string>) => void) | undefined): void 
+```
 
-The good news is that it gets easier with practice. Haskell type checker can be stubborn and hard to persuade sometimes, yet I am more effective in Haskell than in any other language (maybe 4-5X more effective).  I have developed a lot of respect for _ghc_ (Haskell compiler).  I am sure TypeScript will get easier with time too!  More advanced types come with more misleading errors, it takes experience to translate a misleading error message to the underlying cause of a compilation error.
+So there are really _overloads within overloads_ and the type checker gets confused. 
+The type checker appears to have a problem with backtracking when analyzing branching overloads.  
+Overloading is an issue with type inference in general (e.g. the reason why Haskell does not overload names).  
 
-I am concerned that many developers will give up trying to write this type of code.  
+_If you are the API owner, my advise is to not overload._
+
+One type that is notorious for needing annotations is the TypeScript's _tuple_.
+Typescript overloads array syntax `[]` to define tuples (you may prefer the term heterogeneous lists). This is an example of a tuple type: `[number, string]`. 
+The syntax overloading probably does not help TS in inferring the type and the type checker gives up or infers wrong type (the array). 
+
+Using types requires experience, knowledge, and some patience.  Using TS is sometimes a struggle for me, and I miss not having good tooling like a REPL (I did try _ts_node_ and _tsun_) for interacting with the type checker.
+
+The good news is that it gets easier with practice. Haskell type checker can be stubborn and hard to persuade sometimes, yet I am more effective in Haskell than in any other language (maybe 4-5X more effective).  I have developed a lot of respect for _ghc_ (Haskell compiler).  I am sure TypeScript will get easier on time too!  I am working in TS for only about 1 month now.   
+More advanced types come with more misleading error messages, it takes experience to find the underlying cause for a misleading compilation error.
+
+I am concerned that **many developers will give up** trying to write this type of code.  
 My concern is also that developers will resort to unsafe type coercion / type casting. 
-There will be a lot of `myvar as IWantIt`, or everything will be the `any`.
+There will be a lot of `myvar as IWantIt`, or everything will be the `any` type.
 
 
 ### Leveling the bumps
@@ -251,19 +276,20 @@ const partiallyAppliedBodyFn1 = (fn: ((res: Office.AsyncResult<string>) => void)
 const partiallyAppliedBodyFn2 = (fn: OfficeCallack<string>) => item.body.getAsync(bodyType, fn)
 ```
 
-Notice no more redundant parameter definitions in the type signature and a much easier to read syntax. 
+Notice **no more redundant argument definitions** in the type signature and a much easier to read syntax. 
 
 Here is the `curry3` example again, this time fully type-applied. Instead of annotating the LHS, it is sometimes more convenient
-to apply types to the polymorphic function:
+to apply types to the polymorphic function.  As you can see this sometimes is more effective:
 
 ```JavaScript
-//type applied version
+//type applied version, just compiles!
+const emptyConfig : Office.AsyncContextOptions = {}
 const body3  = await officePromise<string> (
-    curry3<Office.CoercionType, any, OfficeCallack<string>, void> (item.body.getAsync)(bodyType)
-    ) 
+  curry3<Office.CoercionType, Office.AsyncContextOptions, OfficeCallack<string>, void> (item.body.getAsync)(bodyType)(emptyConfig)
+  ) 
 ```
 
-### It is all worth it
+### It's all worth it
 
 I rewrote some legacy code using the techniques in this section.
 That effort resulted in some 5X size reduction and an overall big improvement in readability and correctness when compared
@@ -296,32 +322,29 @@ const nonsense2 = (curry(curry))
 
 and all, except the first one, should not type check.  
 
-Trying to run `nonsense1` or `nonsense2` created weird results for me, things did not work but no errors were reported in the console or anywhere.  
-
 
 ## Can I trust the types?
 
-Compiler issues aside, I want to talk about the most obvious gotcha.  
-
+Compiler issues aside, I want to talk about the most obvious gotcha. 
 I am going back to my `NullablePerson` example. This will be a good conversation starter:
 
 ```JavaScript
 //Questionable JSON parsing example
-const p : NullablePerson = JSON.parse("John Smith")
+const p : NullablePerson = JSON.parse('"John Smith"')
 ```
 
-That will not work well, will it?  You will get errors caused by `undefined` at the time you try to use, say, `p.firstNm: string`.
+That will not work well, will it?  You will get errors caused by `undefined` at the time you try to use, say, `p.firstNm: string`.   
+`JSON.parse` function is declared to return `any` type.  As the name suggests, `any` can be assigned to any type, here it is assigned to  `NullablePerson` even though the runtime value will be a `string`.
+Using `any` like this bypasses type safety checks and should be used with care.  
 
 Now, look at the top rated answer in this stackoverflow: 
-[how-to-parse-json-string-in-typescript](https://stackoverflow.com/questions/38688822/how-to-parse-json-string-in-typescript).
+[_add_blank_target how-to-parse-json-string-in-typescript](https://stackoverflow.com/questions/38688822/how-to-parse-json-string-in-typescript). 
 It appears that the above code matches the user community's preferred way of parsing JSON. 
-Yes, better ways are available (look at less popular answers to the same stackoverflow).
-
-I wonder what is a sane way of introducing TypeScript as a small subset of a wild west JavaScript code base?
-I DUNNO.
+Yes, better ways are available (look at less popular answers to the same stackoverflow, I will discuss
+TS `t is T` types in [Casting Section](#casting-casting-in-a-bad-light)).  
 
 Let me return to _office.js_.    
-In the example above, I have hard-coded the use of 'http' as the email body type. Is there a way to retrieve what is the underlying body type in the viewed email?  _office.js_ documentation, and the IntelliSense claims that I can get it from `item.body.getTypeAsync`:
+In the example above, I have hard-coded the use of 'http' as the email body type. Is there a way to retrieve what is the underlying body type in the email?  _office.js_ documentation, and the IntelliSense claims that I can get it from `item.body.getTypeAsync`:
 
 > (method) `Office.Body.getTypeAsync(options: Office.AsyncContextOptions, callback?: ((asyncResult: Office.AsyncResult<Office.CoercionType>) => void) | undefined): void` _(+1 overload)_
 > Gets a value that indicates whether the content is in HTML or text format.
@@ -330,18 +353,19 @@ In the example above, I have hard-coded the use of 'http' as the email body type
 When I tried to use it, this property was always `undefined` (and simply not there when inspected in Developer Tools).  Seems like _office.js_ types sometimes lie.
 
 We should look at the type definition of the _office.js_ `Office.context.mailbox.item` a little closer.  
-This property is overloaded to be one of these types (let me call them _facets_):
+This property is overloaded to be one of the following types (let me call them _facets_):
 
 ```
-Office.AppointmentCompose (for working with calendar)
-Office.AppointmentRead  (for working with calendar)
-Office.MessageCompose  (for interacting with a new email being composed)
+Office.AppointmentCompose (for editiing calendar entry)
+Office.AppointmentRead  (for viewing calendar entry)
+Office.MessageCompose  (for editing new email)
 Office.MessageRead  (for interacting with received or sent email being viewed by the user)  
 ```
 
-These _facet_ types are all different.  For example, to get email subject you use `item.subject: string` if you are working with `Office.MessageRead` or `item.subject: Office.Subject` if you are working with `Office.MessageCompose`. `Office.Subject` contains `getAsync`, `setAsync` methods and is completely not a `string`.  
+These _facet_ types are all different.  For example, to get email subject you use `item.subject:string` if you are working with `Office.MessageRead` or `item.subject:Office.Subject` if you are working with `Office.MessageCompose`.   
+`Office.Subject` contains `getAsync`, `setAsync` methods and is completely not a `string`.  
 
-The type of `item` it is not, as I would expect: 
+The type of `item` provided by _office.js_ it is not, as I would expect: 
 
 ```JavaScript 
 //Type I expected
@@ -368,32 +392,43 @@ Rather, it is on the TypeScript developers (including API developers) to be extr
 What are the types good for if you cannot trust that they are accurate?
 
 
+**Side Note about `any`:**  `any` type is a little crazy.  It is, what is called _top_ (you can assign any other type to it). It is also a _bottom_ (it can be assigned to any other type).  I have not seen anything like this
+anywhere outside of TypeScript. Typically languages separate their tops from their bottoms ;).  
+I think a good way to look at any as saying "hey, TS, please suspend type checking, I know what I am doing.".
+I will not delve more into this.
+
 ## Casting _casting_ in a bad light 
 
-**Side Note (with Rant Alert)**  The actual use of casting is quite popular in some statically typed languages (e.g. Java) and is very rare in others.  
-The reasons could be both historical and pragmatic.  
+**Side Note (with Rant Alert)**  The actual popularity of casting differs from language to language.
+The reasons could be both historical, habitual (Java), or pragmatic.  
 One of my favorites, Idris, documents `believe_me` and `really_believe_me` as
 
 > Use it with care - it can result in segfaults or worse!
 
-I love it!  The best way to prevent programmers from doing bad things is type safety, the second best is scaring them!   
+Haskell's `unsafeCoerce` has similarly discouraging documentation.    
+I love it!  The best way to prevent programmers from doing bad things is the type safety, the second best is scaring them!   
 
-Joking aside, I would expect that the more strict and advanced the types, the more the need for unsafe type coercion.     
-Ability to write a program to persuade the type checker about type equality without using casting (this is called a _proof_) is only available in some languages (e.g. 
-Coq, Idris, Haskell) but even then such programs can be cumbersome or even undecidable (impossible to implement).   
+Joking aside, advanced types are harder to type check. The type checker is more likely to reject a "correct" program if more advanced types are involved.  Using advanced types increases the need for unsafe type coercion.  
+Ability to write a program to persuade the type checker about type equality without coercion (writing actual _proof of type equality_) is an advanced feature only available in some languages (e.g. 
+Coq, Idris, Haskell) but even then writing such programs is often challenging or even impossible.   
+(I consider writing such proofs to be one the highest level type games that a developer can play. 
+It is both a challenge and fun. A great intro reading is [_add_blank_target TDD with Idris](https://www.manning.com/books/type-driven-development-with-idris)) 
 
-I remember reading about a study that looked at a large number of github repos across many programming languages. It tried to see how often language features that are considered unsafe in that language are used.  The correlation I remember was negative (the more advanced and strict the language the less frequently the github code tried to subvert it).  This is counter intuitive, but I also may remember it wrong.
+I remember reading about a study that looked at a large number of github repos across many programming languages. It tried to see how often certain language features, that are considered unsafe in that language, are used.  The correlation I remember was exactly opposite of my intuition (the more advanced and strict the language the less frequently the github code tried to subvert it).  This is counter intuitive, but I also may remember it wrong.
 
-I have used unsafe coercion in both Haskell and Idris in my toy projects. Unsafe coercion is not used in production code I maintain.
+I use unsafe coercion frequently when experimenting with code or as means to move forward with a not finished code. Such code never ends up committed.  In TS I use `{} as any` for this. Throwing exception would work too.  
+This programming practice is foreign to most languages _but becomes a necessity if you start using more types_. 
+This technique is analogous to using `undefined` in Haskell or holes in Idris. 
 
-I can’t help but wonder how popular is (or will be) the use of type casting in TS programs.  
+Unsafe coercion is sometimes used together with auxiliary type safety (e.g. when types guarantee that the cast is safe but it is hard to persuade type checker to OK your code).   
+**(Side Note and Rant Alert End)**
+
+I can’t help but wonder how popular is (or will be) the use of type casting in TS programs (or use of `any` which is morally as bad).  
 Here is a piece documentation from _office.js_ about `Office.context.mailbox.item`:
 
 > If you want to see IntelliSense for only a specific type or mode, **cast this** item to one of the following:  
 >      `AppointmentCompose`  
 >      `AppointmentRead` ...     
-
-**(Rant Alert End)**
 
 TS offers a neat alternative to casting.  I will explain it by _not_ following the _office.js_ documentation ;)
 
@@ -402,12 +437,12 @@ However `item` property is overloaded into several types discussed in previous s
 
 The legacy code I am currently re-implementing is retrieving `subject` by checking what kind of `subject` it is and using it accordingly, it does a similar _"check before you get"_ game to retrieve `to`, `from`, `cc` and other email information.    
 Such approach is typical, almost idiomatic to JS.  It is also hard to maintain as making changes directed at one _facet_ can easily break the other _facets_. 
-And you can test your heart out on all emails you can think about (I still have not figure out how to do e2e testing for office apps) and your app will still crash and burn if used with an office calendar appointment.
+And you can test your heart out on all emails you can think about (I still have not figured out how to do e2e testing for office apps) and your app will still crash and burn if used with an office calendar appointment.
 
-So what is the new TypeScript-idiomatic way to do it?  TS has the `is` type: 
+So what is the new TypeScript-idiomatic way to do it?  TS has the `is` types: 
 
 ```JavaScript
-//Safer type coercion
+//Safer type coercion, 'd is Office.MessageRead' is not a proof, hand waving is welcome
 export const isMessageRead = (d:any) : d is Office.MessageRead => {
   return (d.itemType === Office.MailboxEnums.ItemType.Message) && d.getAttachmentsAsync === undefined
 } 
@@ -432,7 +467,7 @@ type CorrectedItemType = Office.AppointmentCompose |  Office.AppointmentRead |  
 //
 //A possibly clearer alternative is to do this:
 //
-//const item : any = Office.context?.mailbox?.item
+//const item : unknown = Office.context?.mailbox?.item
 //
 const item = Office.context?.mailbox?.item as CorrectedItemType | undefined
 
@@ -447,10 +482,11 @@ if(isMessageRead(item)) {
 }
 ```
 
-This is a really nice work TypeScript!
+This is a really nice work TypeScript!  Simple to use, yet very useful.   
+`t is T` type is one of the tools that typescriptlang documents under [_add_blank_target narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html). 
 
-I hope the TS community develops a healthy aversion to casting.  Why would you use type checker if you keep subverting it?
-Use it with care. 
+I hope the TS community develops a healthy aversion to casting.  Why would you use type checker if you keep subverting it?  I also hope that exporting functions returning `t is T` will become a standard practice for APIs.  
+Use casting with care. 
 
 
 ## Big kudos for making `===` type safe!
@@ -477,20 +513,20 @@ function blah(lhs: string, rhs: Person) {
 }
 ```
 
-TypeScript prevents my code from using `===` if it can not unify on both types, e.g. unless something like `any` is used on one sides of `===` (class inheritance can also unify the types in OO code).
-To me this huge and a big reason to avoid using `any`.
+TypeScript prevents my code from using `===` if it can not unify on both types, e.g. unless something like `any` is used on one side of `===` (class inheritance can also unify the types in OO code).
+It is another special case bundled into [_add_blank_target narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html).
 
-This is a big deal. `===` is typically used to compare things like `string` or `number` _id_-s and it is not that uncommon to accidentally try to compare something like an _id_ to something completely different.  
-
-I have seen analogous errors in many programming languages including even _Scala_.  
-
+This is a big deal. `===` is typically used to compare things like `string` or `number` _id_-s and it is not that uncommon to accidentally try to compare something like an _id_ to something completely different.   
+I have seen analogous errors in many programming languages including even _Scala_. 
 
 ## `null` / `undefined` safety
 
-In my very first example passing `undefined` to `getName(p: NullablePerson)` will cause an error.  Did you notice? 
+In my very first example an `undefined` runtime value of `p` will cause `getName(p: NullablePerson)` to error.  Did you notice?   
+Passing `undefined` explicitly in the code will not type check, but there is the infamous `any` type. 
 
-`getName(p: NullablePerson)` is `null`-safe, it is not `undefined`-safe.  
-My coding preference would be to rewrite the my first example like this:
+`getName(p: NullablePerson)` is `null`-safe, it is not `undefined`-safe. 
+
+My coding preference would be to rewrite my first example like this:
 
 ```JavaScript
 //Reusable utility type
@@ -498,7 +534,7 @@ export type Undefined = null | undefined
 
 //Convenience function
 export const isUndefined = (d: any): d is Undefined =>
-   (d === null) || (d === undefined)
+   (d === null) || (d === undefined) //probably equivalent to (d == null), I prefer not to use '=='
 
 
 const getName2 = (p:Person | Undefined): string => {
@@ -512,10 +548,10 @@ const getName2 = (p:Person | Undefined): string => {
 }
 ```
 
-This is much more safe.  
+This is much more safe.  There is a semantic difference between `null` and `undefined` but most code does not care.
 
-_Side Note:_ If _null_ is a billion dollar mistake, is `null` + `undefined` two billions?  
-Unifying these 2 disasters into one could be a net saving of lots of dollars!   
+_Side Note:_ If _null_ is a billion dollar mistake, is `null` + `undefined` two billions? 
+Unifying these 2 disasters into one could be a net saving of lots of dollars! 
 To pay me back, send me some happy thoughts and add some type safety to your code!
 
 TypeScript also provides `?` syntax for declaring object fields. E.g.
@@ -524,7 +560,7 @@ TypeScript also provides `?` syntax for declaring object fields. E.g.
 type Person2 = {firstNm: string, middleNm?: string, lastNm: string}
 ```
 
-It does not unify `null` and `undefined`. My preference is to declare this as:
+It does not unify `null` and `undefined` and the type of `person.middleNm` is `string | undefined`. My preference is to declare optional fields also using the above `Undefined` type:
 
 ```JavaScript
 middleNm? : string | Undefined
@@ -533,30 +569,8 @@ middleNm? : string | Undefined
 
 ## Improving `if-else`
 
-This post has shown a few examples of TypeScript magically preventing from placing code
-in a wrong branch of conditional `if-else` blocks. 
-
-However, `if-else if-else` construction can be awkward to use.  It was designed for for imperative code that mutates things. In today's more immutable approach to programming it should feel antiquated.  
-The problem with `if-else` is that it does not return anything.
-
-Contrast this with ternary operator, it returns.  But ternary syntax is designed for simple one-liners only.
-
-The wildest kludge I have seen for this is (If we want `const` and not `let`):
-
-```JavaScript
-//make if-else into a function kludge
-const x = (() => {
-  if(p) {
-    const res = 1 //some complex multi-line computation
-    return res
-  } else {
-    const res = 2 //some complex multi-line computation
-    return res
-  }
-})()
-```
-
-At the same time, a lot of JS/TS code today uses callbacks and very often returns a TS `void`,  so the imperative `if-else` construction is almost good enough.  Sometimes problems have a way to work themselves out, magically.  I find that fascinating.  
+This post has shown a few examples where TypeScript's [_add_blank_target narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) almost magically prevented placing code
+in a wrong branch of conditional `if-else` blocks.  
 
 But there is something still very much lacking in the type safety department. 
 `if-else if-else` do not provide any mechanism for the type checker to verify that the program checked all possible conditions. E.g.
@@ -575,7 +589,7 @@ const contrived = (n: 1 | 2) : number => {
 
 (Think of `1` and `2` as `Office.MessageCompose`-like "facets" currently offered by an API, you want to know what code needs to change when the API offers a `3`-rd facet.)
 
-Interestingly TS uses the `switch` statement to solve this problem:
+Interestingly, TS uses the `switch` statement to solve this problem:
 
 ```JavaScript
 //This compiles!
@@ -589,11 +603,37 @@ const contrived_better = (n: 1 | 2) : number => {
 }
 ```
 
-That is another nice example of TS enhancing JS with additional type safety.
+That is another nice example of TS enhancing JS with a nice type safety feature.
 
 Even better solution is a library solution, not a language solution.  TypeScript `ts-pattern` library has you covered!
 I am not going to steal the `ts-pattern` thunder and refer to the library documentation and this blog post: 
-https://dev.to/gvergnaud/bringing-pattern-matching-to-typescript-introducing-ts-pattern-v3-0-o1k
+[_add_blank_target https://dev.to/gvergnaud/bringing-pattern-matching-to-typescript-introducing-ts-pattern-v3-0-o1k](https://dev.to/gvergnaud/bringing-pattern-matching-to-typescript-introducing-ts-pattern-v3-0-o1k)
+
+
+**Side Note Rant Alert:**  `if-else if-else` construction can be awkward to use.  It was designed for imperative use that mutates things. In today's more immutable approach to programming it should feel antiquated. 
+The problem with `if-else` is that it does not return anything.
+
+Contrast this with ternary operator which returns.  But ternary syntax is designed for simple one-liners.
+
+The wildest kludge I have seen for this is (If we want `const` and not `let`):
+
+```JavaScript
+//make if-else into a function kludge
+const x = (() => {
+  if(p) {
+    const res = 1 //some complex multi-line computation
+    return res
+  } else {
+    const res = 2 //some complex multi-line computation
+    return res
+  }
+})()
+```
+
+At the same time, a lot of JS/TS code today uses callbacks and very often returns a TS `void`,  so the imperative `if-else` construction is almost good enough.  Sometimes problems have a way to work themselves out, magically.  I find that fascinating.   
+
+You can rinse and repeat the same rant changing `if-else` to `switch`.  
+**(Side Note Rant End)**
 
 ## The importance of return types
 
@@ -606,17 +646,17 @@ An old common sense design principle called the Postel’s law says
 
 Protecting the exact output type at its definition point (declaration of the function returning it) is the simplest way 
 of enforcing some level of design sanity.   
-Relying on inferred return types is unstable.  Another developer comes in and makes an adjustment and your function now returns some unexpected union type.  Depending on how your function is used, this could cause compilation issues elsewhere or not.
+Relying on inferred return types is unstable.  Another developer comes in and makes an adjustment. Your function now returns some unexpected union type.  Depending on how your function is used, this could cause compilation issues elsewhere or not.
 How can you reason about input-output if you really on outputs being inferred? 
 
-Just for grins, think about 'T' in TDD as 'Type'. To do that TDD overload, you define the return type upfront and keep fixing your code (no casting) until it compiles. OK, that would require some fancy types to fully replace Test-DD but, still, is a good way to do programming in a statically typed environment. 
+Just for grins, think about 'T' in TDD as 'Type'. To do that TDD overload, you define the return type upfront and keep fixing your code (no casting in the final product) until it compiles. OK, that would require some fancy types to fully replace Test-DD but, still, is a good way to do programming in a statically typed environment. 
 
 I am exposed to some of this at my work.  I maintain a number of micro-services that 
 interact with other web services and serverless functions and I have to deal with parsing their JSON outputs.  Output sanity is important.
 
 ## The Interesting Types
 
-[TAPL](https://www.goodreads.com/book/show/112252.Types_and_Programming_Languages) is 
+[_add_blank_target TAPL](https://www.goodreads.com/book/show/112252.Types_and_Programming_Languages) is 
 the book about types I recommend to everyone I meet, ... so far unsuccessfully.  
 (And I should stop doing it when shopping in the supermarket.)  
 Apparently, software developers want to have some life outside of programming. Who knew?  
@@ -647,7 +687,7 @@ I have not dug in deep enough to know how TS compiles `JsonVal` like types.  No 
 
 > 'Type instantiation is excessively deep and possibly infinite' 
 
-compiler errors (e.g. code in [https://github.com/rpeszek/ts-typecheck-peano](https://github.com/rpeszek/ts-typecheck-peano)).  
+compiler errors (e.g. code in [_add_blank_target https://github.com/rpeszek/ts-typecheck-peano](https://github.com/rpeszek/ts-typecheck-peano)).  
 But I did not succeed in creating a simple example to demonstrate this.
 
 I will demonstrate something slightly different:
@@ -671,30 +711,30 @@ that expects `(l : List<number>)`.  I had to cut-paste the LHS of `ul_123` into 
 This is quite different from how typical structural types in TS behave.
 
 IMO, it is still impressive that TS is able to pull these off.  The damage could be that you will need to 
-do some type coercion to help the type checker out.  I consider such types very useful. 
+do some type coercion to help the type checker out.  I consider this feature very useful. 
 
 
 ### Type level programming
 
-Literal types are very limited in scope (I remember reading somewhere that is was a design decision).
+TS literal types are very limited in scope (I remember reading somewhere that is was a design decision).
 For example, you can do some very basic type level string manipulation but you cannot
 concatenate strings or do any arithmetic on numbers and have no way of defining any additional features on your own.  
 
 TypeScript allows for type-level ternary (_Conditional Types_) as well as various type level built-in functions (e.g. `keyof`).   
 Apparently, the type level programming in TypeScript is _Turing complete_
-(see https://github.com/microsoft/TypeScript/issues/14833).    
-That means, that at least syntactically, types in TypeScript are very powerful.   
+(see [_add_blank_target https://github.com/microsoft/TypeScript/issues/14833](https://github.com/microsoft/TypeScript/issues/14833)).    
+That means that semantically types in TypeScript are very powerful.   
 
-Type level programming in TS is oriented toward creating type safety for various
+Type level programming in TS is oriented towards creating type safety for various
 JS code idioms rather than than creating a foundation for DIY type level programming. 
-IMO this makes it harder to learn.  The _Turing completeness_, I think, is completely accidental.   
+IMO this makes it harder to learn.  The _Turing completeness_, I think, was completely accidental.   
 
 IMO the best language design direction is for the type level 
 and the value level code to look the same (e.g. dependently typed language like Idris).
 The second best approach is for type level and value level to be very similar (e.g. Haskell).  
 TS cannot and should not do either.  We do not want JavaScript (or very similar) on the type level!
 
-At the same time the lack of synergy between type level and value level programs makes things 
+At the same time, the lack of synergy between type level and value level programs makes things 
 very complicated. E.g.:
 
 ```JavaScript
@@ -723,24 +763,33 @@ const getContent = <C, T extends HasContent<C>> (t: T) : GetContent<T> => {
 }
 ```
 
-It feels clunky.  It feels like type level and value level have a broken marriage.
+It feels clunky.  It feels like type level and value level have a broken marriage. 
 It also feels very confusing.
 
 I have no idea how popular the TS type level features are.  I would guess not very.  
-But, I also think that they will keep improving and may get a good developer following if they do. 
+But, I also think that they will keep improving and may end up with a decent amount of use.
 
 ## Final Thoughts 
 
-What is the TypeScript for?  Is it just an add-on that helps to prevent trivial code errors?  
-Or, will TypeScript change the way we write code?  This is for its practitioners to decide.
-I hope the examples I gave here will persuade some of you to explore more advanced use of types and to more dramatically change how you write the code.  
-The message I tried to convey in this post is that types are worth exploring, learning, and getting good at using.  
-I hope this was an interesting reading for you.  
+What is the TypeScript for?  Is it an add-on that helps to prevent trivial code errors?  
+Or, will TypeScript change the way we write code?  I think is it absolutely the first but it could also be the second.
+TypeScript has one thing going for it that languages like _Haskell_, _OCaml_, _Scala_ do not have:
 
-Programming language can impact how people write code.  Some languages have really done a service to humanity making humans better 
-coders.  Some not so much.  I think TypeScript is and will be in the first category.  
+_The low barrier to entry._ 
 
-TypeScript is a reach language supporting various OO features like interfaces and classes which I have not discussed.  These notes have been written by a Haskeller after all.  To be honest, I considered myself OO evangelist during the first 10-12 years of my professional programming, that was long enough for me. 
+Many will come for trivial type safety but will stay for more advanced features. 
+Programming languages can impact how people write code.  Some languages have done a service to humanity making humans better 
+coders.  Others not so much.  I think TypeScript is and will be in the first category.  
 
-This post was focused on types, not that much on FP. 
-If places like reddit do not level me mentally with the ground after this post, I may be tempted to write separate posts focusing on React.js and few other mainstream front-endish topics that are more FP related.  
+Or maybe I am wrong about all of this.  Maybe a low barrier to entry is not a good thing.  I have not made up my mind on this.
+
+I hope the examples I gave here will persuade some of you to explore more advanced uses of types.  
+The message I tried to convey is that types are worth exploring, learning, and getting good at.  
+
+TypeScript is a reach language supporting various OO features like interfaces and classes which I have not discussed.  
+These notes have been written by a Haskeller after all.  To be honest, I tried to evangelize OO for the first 10-12 years of my programming career, that was long enough. 
+
+This post was focused on types, not so much on FP. 
+If places like reddit do not level me with the ground, I may be tempted to write separate posts focusing on _React.js_ and few other mainstream front-endish topics from the FP point of view.  
+
+I hope this was an interesting reading for you.  Thank you for staying with me all the way to the end of this post.
