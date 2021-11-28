@@ -20,7 +20,7 @@ title: Semiserious
 
 * In Haskell, it is important to not confuse errors with exceptions. Hence the definition:  `type IOError = IOException`
 
-* The most sought-after property of a Turing-complete language is its ability to create completely unmaintainable programs.
+* The most sought-after property in a Turing-complete language is its ability to create completely unmaintainable programs.
 
 * A corollary of Robert C. Martin's observation that more than a half of software engineers have less than 5 years of experience is that we will keep repeating the same approaches over and over.  That period seems to be twice the Martin's number (about 10 years).
 
@@ -29,6 +29,8 @@ title: Semiserious
 * Case against _copy and paste_:  There is only one thing worse than a bad idea, and that is a bad idea that went viral.
 
 * Case against Deep Learning AI that writes code: garbage in, garbage out.
+
+* The two things wrong about the saying "somebody is wrong on the internet" are: the suggestion of a small quantity and the singling out of the internet.
 
 ## Misplaced Quotes
 
