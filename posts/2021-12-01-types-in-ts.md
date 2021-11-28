@@ -1,13 +1,14 @@
 ---
-title: Types Enthusiast's Notes on TypeScript
+title: Types Enthusiast's Notes on Using TypeScript in Anger
 author: Robert Peszek
 lastmodified: Jul 04, 2021
 featured: true
-summary: TODO
+summary:  Long post or a tiny book about advanced types in TypeScript 
 toc: true
 tags: TypeScript
 codestyle: ts
 ---
+**Subtitle: _A long post or a tiny book about advanced types in TypeScript_**
 
 This is a TypeScript post from a programmer who loves types and uses them a lot.  
 
@@ -59,12 +60,14 @@ const getName = (p:NullablePerson): string => {
 
 How cool!  
 
+**Disclaimers:**   
 _The above code may require something like `strictNullChecks` compiler flag. In this post 
 I assume strict compiler flags are on, something you get by default with scaffolding, e.g. using
 `create-react-app my-project --template typescript` is close enough.  
 The code examples have been tested with TypeScript v4.4.4, and partially with v4.5.2.  
 This post is a pandoc output of a markdown document and code examples are not interactive.
-All examples (except for examples using office.js) are published in ts-notes folder in this repo: [_add_blank_target ts-experiments](https://github.com/rpeszek/ts-experiments)_
+All examples (except for examples using office.js) are published in ts-notes folder in this repo: [_add_blank_target ts-experiments](https://github.com/rpeszek/ts-experiments)   
+A lot of interaction with TS happens using IntelliSense, I have used vscode v1.62.3 (2021-11-17T08:00:36.721Z), Linux x64 5.4.0-90-generic snap._
 
 Talking about my "literal" excitement, my next play example implements `Either` (I am not trying to implement my own Either type, only to play with the language):
 
@@ -243,10 +246,10 @@ The issue in this particular case is that, not only `item.body.getAsync` has two
 ```
 
 So there are really _overloads within overloads_ and the type checker gets confused. 
-The type checker appears to have a problem with backtracking when analyzing branching overloads.  (And I get a headache too.)
+The type checker appears to have a problem with backtracking when analyzing branching overloads.  (I do not blame TS, and I get a headache too.)
 Overloading is an issue with type inference in general (e.g. the reason why Haskell does not overload names).  
 
-_If you are an API owner, my advise is to not overload._
+_If you are an API owner, my advice is to not overload._
 
 One type that is notorious for needing annotations is the TypeScript's _tuple_.
 Typescript overloads array syntax `[]` to define tuples (you may prefer the term heterogeneous lists). This is an example of a tuple type: `[number, string]`. 
@@ -296,7 +299,7 @@ const body3  = await officePromise<string> (
   ) 
 ```
 
-This DIY type hole technique is sometimes useful to help figure out stubborn types: [_add_blank_target Type holes in TS](https://dev.to/gcanti/type-holes-in-typescript-2lck).  Sometimes the only thing you learn is that the type checker is confused.
+This DIY type hole technique is sometimes useful to help figure out stubborn types: [_add_blank_target Type holes in TS](https://dev.to/gcanti/type-holes-in-typescript-2lck).  Sometimes the only thing you learn is that the type checker is confused. 
 As an example, returning to my failed `body3` example:
 
 ```JavaScript
@@ -304,7 +307,7 @@ declare function _<T>(): T
 const body3  = await officePromise (curry3 (item.body.getAsync)(Office.CoercionType.Html)(_())) 
 ```
 
-The IntelliSense suggests (sorry) a BS type for `_()`:
+If you hover over the `_` function, the IntelliSense suggests this BS (sorry) type for `_`:
 
 ```JavaScript
 (alias) _<((asyncResult: Office.AsyncResult<string>) => void) | undefined>(): ((asyncResult: Office.AsyncResult<string>) => void) | undefined
@@ -315,6 +318,15 @@ it will show the type correctly:
 
 ```JavaScript
 (alias) _<Office.AsyncContextOptions>(): Office.AsyncContextOptions
+```
+
+Sadly, the ` _<T>(): T` is also not universally useful, e.g. this will not compile:
+
+```TypeScript
+//const test = curry(_()) //compilation error 
+
+//interestingly the following unifies as <unknown, unknown, unknown>curry
+const test = curry({} as any)
 ```
 
 Using types requires some experience, knowledge, and patience. 
@@ -354,7 +366,7 @@ const nonsense1 : (a: Office.CoercionType)
     = curry (curry (item.body.getAsync)) 
 
 //compiles but it should not
-const nonsense2 = (curry(curry)) 
+const nonsense2 = curry(curry)
 ```
 
 and all, except the first one, should not.  
@@ -367,16 +379,15 @@ And more gore coming right up.
 ## Can I trust the types?
 
 Compiler issues aside, I want to talk about the most obvious gotcha. 
-I am going back to my `NullablePerson` example. JSON incompatibility issues are a real maintenance challenge. This will be a good conversation starter:
+I am going back to my `Person` example. JSON incompatibility issues are a real maintenance challenge. This will be a good conversation starter:
 
 ```JavaScript
 //Questionable JSON parsing example
-const p : NullablePerson = JSON.parse('"John Smith"')
+const p : Person = JSON.parse('"John Smith"')
 ```
 
-That will not work well, will it?  You will get errors caused by `undefined` at the time you try to use, say, `p.firstNm: string`.   
-`JSON.parse` function is declared to return `any` type.  As the name suggests, `any` can be assigned to any type, here it is assigned to `NullablePerson` even though the runtime value will be a `string`.
-Using `any` bypasses type safety checks.  
+The actual run-time `p` value will be a `string`, while the type checker is now convinced it is a `Person`  
+`JSON.parse` function is declared to return `any` type.  Using `any` bypasses type checking. `any` can be assigned to any type, here it is assigned to `Person`.  
 
 Now, look at the top rated answer in this stackoverflow: 
 [_add_blank_target how-to-parse-json-string-in-typescript](https://stackoverflow.com/questions/38688822/how-to-parse-json-string-in-typescript). 
@@ -384,7 +395,7 @@ It appears that the above code matches the user community's preferred way of par
 Yes, better ways are available (look at less popular answers to the same stackoverflow, I will discuss
 TS type guards in [Casting Section](#casting-casting-in-a-bad-light)).  
 
-Now, since I already may have angered a larger part of the TS community (did I? I hope not.), **let me return to _office.js_**  to beat on it a little more.   
+Now, since I already may have angered a large part of the TS community (did I? I hope not.), **let me return to _office.js_**  to beat on it a little more.   
 In my [happy path example](#happy-path), I have hard-coded the use of 'http' as the email body type.  Both _office.js_ documentation and the IntelliSense tells me that I can retrieve underlying email body type using an overloaded `item.body.getTypeAsync` method:
 
 > (method) `Office.Body.getTypeAsync` ...
@@ -435,16 +446,16 @@ Less trustworthy types are a limitation we have to accept if we want gradual typ
 Rather, it is on the TypeScript developers (including API developers) to be extra diligent in making sure that the types match the values.   
 What are the types good for if you cannot trust that they are accurate?
 
-> You take the blue pill—the story ends, you wake up in your bed and believe whatever you want to believe. 
-> You take the red pill—you stay in Wonderland, and I show you how deep the rabbit hole goes
+> "You take the blue pill—the story ends, you wake up in your bed and believe whatever you want to believe.   
+> You take the red pill—you stay in Wonderland, and I show you how deep the rabbit hole goes"
 
-_Morpheus about not trusting TypeScript and red pill known by some as developer tools_
+_Morpheus about not trusting gradual typing_
 
 
-**Side Note about the `any` type:**  `any` type is a little crazy.  It is, what is often called _the top_ (you can assign any other type to it). It is also what is called _the bottom_ (it can be assigned to any other type).  I have not seen anything like this
+**Side Note about the `any` type:**  `any` type is a little crazy.  It is, what is often called a _top_ (you can assign any other type to it). It is also what is called a _bottom_ (it can be assigned to any other type).  I have not seen anything like this
 anywhere outside of TypeScript. Typically languages separate their tops from their bottoms ;).   
 Using `any` is like saying "hey, TS, please suspend type checking, I know what I am doing". 
-This is the antithesis of type safety but what else can TS do and maintain JS compatibility?  Actually, TS has a very clever solution for this described in the next section.   
+This is the antithesis of type safety, but what else can TS do and maintain JS compatibility?  Actually, TS has a very clever solution for this, it is described in the next section.   
 I view `any` as a form of unsafe type coercion.  
 
 ## Casting _casting_ in a bad light 
@@ -452,29 +463,22 @@ I view `any` as a form of unsafe type coercion.
 I will use the term casting and type coercion interchangeably. TypeScript documentation also uses the term _type assertion_. I view the `any` type to be in the same boat as well.  
  
 **Side Note on casting at large:**  The actual popularity of casting differs from language to language.
-The reasons could be both historical, habitual (Java?), or pragmatic. 
-In some languages (e.g. Haskell) type coercion can be dangerous causing segfaults or worse. This discourages its use. 
-In vm (e.g. Java) or interpreted (e.g. TS) languages wrong runtime value type will only cause an exception (which is not that scary and will probably not discourage the use of casting).
+In some languages type coercion is dangerous and cause segfaults or worse. This discourages its use. 
+In interpreted languages, like TS, a wrong run-time value type will only cause an exception. This is less scary and could encourage the use of casting.
 
-With more involved types is is often harder to write code that type checks.  That increases the appeal of casting or finding some ingenious alternatives for nudging the type checker into agreeing.    
+With more involved types it is often harder to write code that type checks.  That increases the appeal of casting or finding some ingenious alternatives for nudging the type checker into agreeing.    
 
-Some languages offer ability to write a program to persuade the type checker about type equality (writing actual _proof of type equality_). This is an advanced feature and available in only few languages (e.g. 
-Coq, Idris, Haskell). Writing such programs is often challenging or even impossible. 
+Some languages offer ability to write a program to persuade the type checker about type equality (write actual _proof of type equality_). This is an advanced feature and is available in only few languages (e.g. Coq, Idris, Haskell). Writing such programs is often challenging or even impossible.   
 (I consider writing such proofs to be one of the highest level type games that a developer can play. 
 It is both a challenge and fun. A great intro is [_add_blank_target TDD with Idris](https://www.manning.com/books/type-driven-development-with-idris)) 
 
-There are alternatives to type coercion that allow programs to type check but will just throw error when executed.
-In TS this could look like:
-
-```TypeScript
-declare function _<T>(): T
-```
-
-and can be useful when experimenting with code. This is exploratory code that is not committed and I do not try running it. 
-(the ref again: [_add_blank_target Type holes in TS](https://dev.to/gcanti/type-holes-in-typescript-2lck)).   
-Such programming practice is foreign to most languages but becomes almost a necessity when working with more involved types.   
-This technique is analogous to using `undefined` in Haskell and PureScript (a library in PS) or holes in Idris.  
-The polymorphic `_(): T` is much better than using something like `{} as any`. TS does not narrow types when `any` is used.
+There is an alternative to type coercion that allows programs to type check but will throw exception when executed.  
+This can be useful for interacting with the type checker when writing code.   
+We have seen a TS version of this already (`function _<T>(): T`). 
+(the ref again: [_add_blank_target Type holes in TS](https://dev.to/gcanti/type-holes-in-typescript-2lck).)   
+The polymorphic (generic) `_(): T` is typically much better than using something like `{} as any`. TS does not narrow types when `any` is used.   
+Such programming practice is foreign to most languages but becomes very convenient when working with more involved types.   
+(FYI) This technique is analogous to using `undefined` in Haskell and PureScript (a library in PS) or holes in Idris.   
 **(Side Note End)**
 
 I can’t help but wonder how popular is (or will be) the use of type casting in TS programs.   
@@ -681,7 +685,7 @@ Protecting the exact output type at its definition point (declaration of the fun
 Relying on inferred return types is unstable.  Another developer comes in and makes an adjustment. Your function now returns some unexpected union type.  Depending on how your function is used, this could cause compilation issues elsewhere (not good) or not (even worse).
 How can you reason about input-output if you really on outputs being inferred? 
 
-Just for grins, think about 'T' in TDD as 'Type'. To do that TDD overload, you define the return type upfront and keep fixing your code (no casting in the final product) until it compiles. OK, that would require some fancy types to fully replace T(est)DD but, still, is a good way to do programming in a statically typed environment. 
+Just for grins, think about 'T' in _TDD_ as 'Type'. To do that _TDD_ overload, you define the return type upfront and keep fixing your code (no casting in the final product) until it compiles. OK, that would require some fancy types to fully replace _T(est)DD_ but, still, is a better way to do programming in a statically typed environment. 
 
 ## The Interesting Types
 
@@ -689,7 +693,7 @@ Just for grins, think about 'T' in TDD as 'Type'. To do that TDD overload, you d
 the book about types I recommend to everyone I meet, ... so far unsuccessfully. 
 (And I should stop doing it when shopping in the supermarket.) 
 Apparently, software developers want to have some life outside of programming. Who knew?  
-The good news is that types dramatically increase programming efficiency so learning them is a good investment. 
+The good news is that types dramatically increase programming efficiency so learning them is a good investment.   
 This section of the post will be little more TAPL-ish. 
 
 ### Structural Types
@@ -711,7 +715,7 @@ beast. The compiler needs to deal with the whole beast. This approach is much ha
 
 `JsonVal` looks like an equi-recursive definition. 
 The methodology behind equi-recursion involves monotone functions and other things I never found time to understand very well.  Hard stuff and quite a bit of math.
-I have not dug in deep enough to know how TS compiles `JsonVal` like types.  No matter what it does it is IMO impressive.  
+I have not dug in deep enough to know how TS compiles `JsonVal` like types.  No matter what it does, it is IMO impressive.  
 
 `JsonVal`-like types appear to be hard on the TS type checker.  I have played with some advanced recursive types and have experienced it first hand. I got quite a few 
 
@@ -735,16 +739,20 @@ const l_123 :List<number> = {type: "cons", head: 1, tail: {type: "cons", head: 2
 
 ```
 
-That is a recursive definition of the functional _cons_ list.  `ul_123` is an equivalent of `[1,2,3]` encoded matching the structure. 
-Compiler will not let me assign it to `const l_123 :List<number>`.  Similarly, I would not be able to use it as a parameter to a function
-that expects `(l : List<number>)`.  I had to cut-paste the LHS of `ul_123` into `l_123` for `l_123` to type check. 
-This is quite different from how typical structural types in TS behave.
+That is a recursive definition of a functional _cons_ list.  `ul_123` is an equivalent of `[1,2,3]` encoded matching the `List<number>` structure.   
+TS will not let me assign it to `const l_123 :List<number>`.  Similarly, I would not be able to use it as a parameter to a function
+that expects `(l : List<number>)`.  I had to cut-paste the RHS of `ul_123` into `l_123` for it to type check. 
+This is quite different from how typical structural types in behave in TS.
 
-IMO, it is still impressive that TS is able to pull these off.  The damage could be that you will need to 
-do some type coercion to help the type checker out.  I consider this feature very useful. 
+IMO, it is still impressive that TS is able to pull these off.  The damage is that you will sometimes need to 
+help the type checker out.  I consider this feature very useful. 
 
 
 ### Type level programming
+
+TS literal types as singletons (i.e. type `"boo"` has exactly one value `"boo":"boo"`).  
+Singletons allow to magically connect type expression with values.  They should not be that hard to implement
+and it is interesting why they are so uncommon.  Kudos to TS for introducing these!  They are, clearly, a great fit for JS.  
 
 TS literal types are very limited in scope (I remember reading somewhere that is was a design decision).
 For example, you can do some very basic type level string manipulation but you cannot
@@ -803,6 +811,11 @@ But, I also think that they will keep improving and may end up with a decent amo
 I hope the examples I gave here will persuade some of you to explore more advanced uses of types and 
 not scare you with bumpy path and type checking blooper examples. 
 The message I tried to convey is that types are worth exploring, learning, and getting good at.   
+
+I was a bit harsh on _office.js_. Sorry! Some negativity is, unfortunately, unavoidable when discussing types.
+After all, if types are about preventing errors, then to show their effectiveness you need to show what they are preventing.
+As I said before, _office.js_ predated TS and was not designed with type safety in mind so picking too much on it was probably 
+not fair.
 
 What is the TypeScript for?  Is it an add-on that helps to prevent trivial code errors?  
 Or, will TypeScript change the way we write code?  I think is it absolutely the first but it could also be the second.
