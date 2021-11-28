@@ -307,7 +307,7 @@ declare function _<T>(): T
 const body3  = await officePromise (curry3 (item.body.getAsync)(Office.CoercionType.Html)(_())) 
 ```
 
-If you hover over the `_` function, the IntelliSense suggests this BS (sorry) type for `_`:
+If you hover over the `_` function, the IntelliSense suggests this completely wrong type for `_`:
 
 ```JavaScript
 (alias) _<((asyncResult: Office.AsyncResult<string>) => void) | undefined>(): ((asyncResult: Office.AsyncResult<string>) => void) | undefined
@@ -386,7 +386,7 @@ I am going back to my `Person` example. JSON incompatibility issues are a real m
 const p : Person = JSON.parse('"John Smith"')
 ```
 
-The actual run-time `p` value will be a `string`, while the type checker is now convinced it is a `Person`  
+The actual run-time `p` value will be a `p:string`, while the type checker is now convinced it is a `p:Person`.   
 `JSON.parse` function is declared to return `any` type.  Using `any` bypasses type checking. `any` can be assigned to any type, here it is assigned to `Person`.  
 
 Now, look at the top rated answer in this stackoverflow: 
@@ -402,7 +402,7 @@ In my [happy path example](#happy-path), I have hard-coded the use of 'http' as 
 > Gets a value that indicates whether the content is in HTML or text format.
 
 When I tried to use it, this property was always `undefined`, I never seen it using the developer tools either.
-A version incompatibility? I do not think it is, I am using online office and the latest office.js.
+A version incompatibility? I do not think it is, I am using online office and the latest available office.js (@types/office-js@1.0.221).
  
 _Seems like _office.js_ types sometimes lie._
 
