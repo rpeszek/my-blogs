@@ -3,12 +3,13 @@ title: Types Enthusiast's Notes on Using TypeScript in Anger
 author: Robert Peszek
 lastmodified: Jul 04, 2021
 featured: true
-summary:  A long post or a short book about advanced types in TypeScript by a TypeScript Newb.
+summary:  A long post or a very short book about advanced types in TypeScript by a TypeScript Newb.
 toc: true
 tags: TypeScript
 codestyle: ts
 ---
-**Subtitle: _A long post or a short book about advanced types in TypeScript by a TypeScript Newb_**
+**Subtitle: _A long post or a very short book about advanced types in TypeScript by a TypeScript Newb_**
+
 
 This is a post about TypeScript from a programmer who loves types and uses them a lot.  
 
@@ -21,16 +22,19 @@ There is only one prerequisite to reading this: interest in types.
 I am currently leading a re-write of a legacy front-end component that was originally written using Vue.js, the goal is to rewrite it using the new React.js and TypeScript.  My goal in this post is to share my experience with TypeScript and my approach to using it.  
 This is my first non-Haskell project in 3 years.  I have my FP hat on when writing TS.  TS and JS may try to punch some holes in that hat but it still keeps me warm and protected.  
 
-Also, I have not done any major JS development in the last 9 years which makes this experience even more interesting. (Please make sure to correct me if I get anything wrong or I if am missing something.) 
-I think all of this gives me a different and a fresh perspective and a reason to write this post for others to see.  For some readers parts of this post will feel strange, established practices like overloading will be considered a bad thing, writing experimental code that won't even run will be a good thing.  Strange is a corollary of different.
+Also, I have not done any major JS development in the last 9 years which makes this experience even more interesting. (Please make sure to correct me if I get anything wrong or if I am missing something.)   
+I think all of this gives me a different and a fresh perspective and a reason to write this post for others to see.  For some readers, parts of this post will feel strange, established practices like overloading will be considered a bad thing, writing experimental code that won't even run will be a good thing.  Strange is a corollary of different.
  
 What is TypeScript for?  Is it just a JavaScript add-on used to prevent typos and trivial code errors?  
 Or, will TypeScript more fundamentally change the way the code is written?
 Please have these questions in mind when reading these notes.
 
 This is a long post, probably the longest I have ever written.  It will cover a lot of topics.   
+_(I am sorry about any misprints.
+It seems I have goblins in my laptop that toy with me, remove or change words. 
+Proofreading this beast of a post is a Sisyphean task.)_   
 You should make yourself a large coffee
-... or better yet pickup a water bottle to stay hydrated.
+... or better yet pickup a water bottle to stay hydrated.  
 
 > “And we never say anything unless it is worth taking a long time to say.”   
 
