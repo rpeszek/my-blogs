@@ -14,7 +14,7 @@ codestyle: ts
 This is a post about TypeScript from a programmer who loves types and uses them a lot.  
 
 I will try to stay close to an idiomatic use of TypeScript but with little twists to demonstrate some interesting uses of types. 
-I hope this post will be interesting to like-minded JavaScript and TypeScript developer who enjoy exploring types and try using the type checker to its full advantage. Practitioners of other strongly typed languages may find TypeScript interesting and exciting, as did I.
+I hope this post will be interesting to like-minded JavaScript and TypeScript developer who enjoy exploring types and try using the type checker to its full advantage. Practitioners of other statically typed languages may find TypeScript interesting and exciting, as did I.
 
 I will use some basic functional concepts like currying without explaining them.  I assume some familiarity with TypeScript but reader not familiar with the language should be able to guess/infer what the example code does. 
 There is only one prerequisite to reading this: interest in types.
@@ -369,6 +369,12 @@ Hopefully the future will bring us mainstream grade interactive tools that allow
 help solving type puzzles. For now it is mostly the programmer who connects the dots.  
 The good news is that it gets easier and easier with practice. I am working in TS for only about 2 months now and I already see a difference.   
 
+One common concern among developers about using types (especially more advanced types) is a slowdown in the development speed.  
+There is some truth to this in general because of things like compilation times in some language environments. 
+I cannot comment on TS compilation times for large projects.  I my experience, having type checker is a huge 
+productivity buster.  Even with my limited experience in TS and some bumps on the way, writing similar code in plain JS would have taken me  more time and I would be less confident about the code.  Productivity boost I get from using Haskell is much more significant, but I use it a lot, it has more types, and requires much less boilerplate. This is not a good benchmark for what to expect from TS. 
+This is somewhat personal so your experience may vary.  IMO the possibility for significant productivity boost is there.
+
 ### It's all worth it
 
 I rewrote some legacy code using the techniques in this section.
@@ -485,10 +491,10 @@ _... nightmares of JavaScript running on my walls and ceilings make me wake up s
 
 
 **Side Note about the `any` type:**  `any` type is a little crazy.  It behaves like the _top_ (you can assign any other type to it). It is also behaves like the _bottom_ (it can be assigned to any other type).   
-Normally, bottom-like types are either empty or contain something like a _null_ only.  
+Normally, bottom-like types are either empty or contain only a _null_ value.  
 Normally, languages separate their tops from their bottoms ;).  Otherwise you could inject
 anything into any type (sounds familiar?).   
-However, combining top and bottom into one _any_-like type seems to the right thing to do in gradually typed languages (e.g. Python has it too).   
+However, combining top and bottom into one _any_ type seems to the right thing to do in gradually typed languages (e.g. Python does it too).   
 Using `any` is like saying "hey, TS, please suspend type checking, I know what I am doing". 
 This is the antithesis of type safety, but what else can TS do and maintain JS compatibility?  
 Actually, TS has a very clever solution for this, it is described in the next section.   
@@ -583,6 +589,20 @@ I hope the TS community develops a healthy aversion to casting.  Why would you
 Use casting with care, or better yet use `t is T` types instead.  
 
 And I have successfully avoided any puns on choosing wrong actors for a movie!
+
+
+## Egg or Chicken
+
+Think about these two distinct approaches to writing code:  
+
+* Values / programs follow types
+* Types follow programs / values
+
+IMO this distinction is not something most programmers think about.  
+In statically typed languages with powerful type systems the first approach is dominant.  Whole libraries, APIs, large parts of code bases are understood by just looking at the types.  OO advice to _program to interfaces not implementations_ can be viewed as a special case of the first approach as well.  When using the first approach, you will think about, say, JSON parsing as implementing a mapping from the JSON Value type to your type.  If you are defining your type so JS's `JSON.parse` will just work (with a type guard of course), you are using the second approach.  I imagine gradual types (e.g. TypeScript), will always come with a decent amount of the second approach.
+The _type guards_ fit very well in that space. 
+Both approaches are IMO valid, and can and should coexist. Pushing for more of the first is always a nice goal.
+IMO it is important to make an explicit decision which approach is used and where in the program.
 
 
 ## Interesting safety
@@ -863,7 +883,7 @@ Or maybe I am wrong about all of this.  Maybe a low barrier to entry is not a go
 
 What about developers who know their types and want to have a mainstream job where they can use their skills?  TypeScript could make a difference for these folk too.  Mainstream programming landscape seems just nicer for everyone with TypeScript being a part of it. ... I am almost sure my place will be hiring a front-end developer next year.  
 
-TypeScript is a reach language supporting various OO features like interfaces and classes which I have not discussed. These notes have been written by a Haskeller after all. To be honest, I tried to evangelize OO for the first 10-12 years of my programming career, IMO that was long enough. 
+TypeScript is a reach language supporting various OO features like interfaces, classes, mixins which I have not discussed. These notes have been written by a Haskeller after all. To be honest, I tried to evangelize OO for the first 10-12 years of my programming career, IMO that was long enough.  I am not trying to discourage their use (maybe just a little bit), rather I am pointing out that there is a ton of blogs about these already. 
 
 This post was focused on types, not so much on FP. 
 If places like reddit do not level me with the ground, I may be tempted to write separate posts focusing on _React.js_ and few other mainstream front-endish topics from the FP point of view.  
