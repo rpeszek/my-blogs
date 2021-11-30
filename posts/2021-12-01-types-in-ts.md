@@ -599,10 +599,14 @@ Think about these two distinct approaches to writing code:
 * Types follow programs / values
 
 IMO this distinction is not something most programmers think about.  
-In statically typed languages with powerful type systems the first approach is dominant.  Whole libraries, APIs, large parts of code bases are understood by just looking at the types.  OO advice to _program to interfaces not implementations_ can be viewed as a special case of the first approach as well.  When using the first approach, you will think about, say, JSON parsing as implementing a mapping from the JSON Value type to your type.  If you are defining your type so JS's `JSON.parse` will just work (with a type guard of course), you are using the second approach.  I imagine gradual types (e.g. TypeScript), will always come with a decent amount of the second approach.
-The _type guards_ fit very well in that space. 
-Both approaches are IMO valid, and can and should coexist. Pushing for more of the first is always a nice goal.
-IMO it is important to make an explicit decision which approach is used and where in the program.
+In statically typed languages with powerful type systems the first approach is dominant.  Whole libraries, APIs, large parts of code bases are understood by just looking at the types.  OO advice to _program to interfaces not implementations_ can be viewed as a special case of the first approach as well.  When using the first approach, you will think about, say, JSON parsing as implementing a mapping from the JSON Value type to your type.  If you are defining your type so JS's `JSON.parse` will just work (with a type guard of course), you are using the second approach.   
+When working with _office.js_ I constantly think about how to extract types from it (second approach).   
+When implementing the `curry` boilerplate I am 100% in the first approach.  The same is true when I write React.js code (but my use of React is not mainstream, possibly a topic of another post).   
+
+I imagine gradual types (e.g. TypeScript), will always come with a decent amount of the second approach.
+_Type guards_ fit very well in that space. 
+Both approaches are IMO valid, and can and should coexist. However, pushing for more of the first is always a nice goal.   
+IMO it is important to be aware about which approach is used and where in the program.
 
 
 ## Interesting safety
