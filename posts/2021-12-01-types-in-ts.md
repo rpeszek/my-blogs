@@ -24,6 +24,9 @@ This is my first non-Haskell project in 3 years.  I have my FP hat on when writi
 
 Also, I have not done any major JS development in the last 9 years which makes this experience even more interesting. (Please make sure to correct me if I get anything wrong or if I am missing something.)   
 I think all of this gives me a different and a fresh perspective and a reason to write this post for others to see.  For some readers, parts of this post will feel strange, established practices like overloading will be considered a bad thing, writing experimental code that won't even run will be a good thing.  Strange is a corollary of different.  We will work with TS to solve type puzzles, discover a completely wrong code that compiles and a correct code that does not.  We will explore many curios sides of TS.  
+It is a bad idea to try to invent techniques for dealing with more involved types instead of using what is already 
+available in other languages.  I will not write any non-TypeScript code or go into specifics of 
+other type systems, however I may (infrequently) reference other languages (e.g. Haskell) when there is conceptual relevance worth noticing.  
  
 What is TypeScript for?  Is it just a JavaScript add-on used to prevent typos and trivial code errors?  
 Or, will TypeScript more fundamentally change the way the code is written?
@@ -309,7 +312,10 @@ A DIY type hole technique is sometimes useful to help figure out stubborn types 
 You can use it to learn a lot about how type checker works.  E.g. in my `Either` example:
 
 ```JavaScript
-export declare function _<T>(): T  //A type hole function will allow me to ask type questions
+//genric (why not say polymorphic) bottom function will allow me to ask type questions
+export const _ = <T>(): T => {
+    throw new Error("hole"); 
+}
 
 const tstnum: Either<number, string> = {type: "left", content: _()}
 ```
@@ -371,6 +377,8 @@ I am mostly left to my own devices when working with more involved types in TS.
 Hopefully the future will bring us mainstream grade interactive tools that allow asking type questions, browsing types,
 help solving type puzzles. For now it is mostly the programmer who connects the dots.  
 The good news is that it gets easier and easier with practice. I am working in TS for only about 2 months now and I already see a difference.   
+
+_A good code needs two type checkers: TypeScript and You_
 
 One common concern among developers related to using types (especially more advanced types) is a slowdown in the development speed.  
 There is some truth to this in general because of things like compilation times in some language environments. 
@@ -497,7 +505,7 @@ _... nightmares of JavaScript running on my walls and ceilings make me wake up s
 
 ### Side Note about the `any` type
 
-`any` type is a little crazy.  It behaves like the _top_ (you can assign any other type to it). It is also behaves like the _bottom_ (it can be assigned to any other type). 
+`any` type is a little crazy.  It behaves like the _top_ (you can assign any other type to it). It is also behaves like the _bottom_ (it can be assigned to any other type, maybe except of _never_). 
 The bottom type supposed to be empty, this one clearly is not.  
 
 _As the result any value can have any type._
@@ -538,7 +546,7 @@ It is both a challenge and fun. A great intro is [_add_blank_target TDD with Idr
 
 There is an alternative to type coercion that allows programs to type check but will throw exception when executed.  
 This can be useful for interacting with the type checker when writing code. 
-We have seen a TS version of this already (`function _<T>(): T`) in [Leveling Bumps](#leveling-the-bumps). 
+We have seen a TS version of this already (function `_<T>(): T`) in [Leveling Bumps](#leveling-the-bumps). 
 Such programming practice is foreign to most languages but becomes very convenient when working with more involved types.   
 An an FYI, this technique is analogous to using `undefined` in Haskell and PureScript (a library in PS) or holes in Idris.   
 **(Side Note End)**
@@ -778,10 +786,6 @@ This section of the post will be little more TAPL-ish.
 
 ### On the complexity of TS types
 
-I would like to let you on a secret:
-
-_A good code needs two type checkers: TypeScript and You_
-
 I consider the terms _simple_ and _easy_ to have different semantics.  
 Pulling 3 languages out of thin air:  Elm types are very simple,  Haskell types are simple but get involved with language extensions,  TypeScript types are complex.  
 
@@ -845,7 +849,9 @@ Structural types can be more intuitive to use (if you are not thinking about the
 
 ### Recursive Types 
 
-`type JsonVal` from the beginning of this post surprised me.  Here it the TAPLish reason why.  
+`type JsonVal` from the beginning of this post surprised me. It is recursive, the name `JsonVal` appears on both the
+LHS and the RHS of the definition. 
+Here it the TAPLish reason why this is interesting.  
 The two established approaches for implementing recursive types are 
 
 * _iso-recursion_ (good fit for nominal types) If you know _recursion schemes_, the compilation technique is very similar to how 
@@ -951,6 +957,8 @@ But, I also think that they will keep improving and may end up with a decent amo
 I hope the examples I gave here will persuade some of you to explore more advanced uses of types and 
 not scare you with bumpy path and type checking bloopers. 
 The message I tried to convey is that types are worth exploring, learning, and getting good at.   
+I also tried to seed the idea that types could be an important design tool.  Types are a tool to reason
+about the code.   
 
 I was a bit harsh on _office.js_. Sorry! Some negativity is, unfortunately, unavoidable when discussing types.
 After all, if types are about preventing errors, then to show their effectiveness you need to show what they are preventing.
