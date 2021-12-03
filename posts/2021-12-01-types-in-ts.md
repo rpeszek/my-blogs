@@ -10,32 +10,34 @@ codestyle: ts
 ---
 **_A long post or a very short book about advanced types in TypeScript_**
 
+**DRAFT version** _(I am sorry about any misprints.
+It seems I have goblins in my laptop that toy with me, remove or change words. 
+Proofreading this beast of a post appears to be a Sisyphean task.)_   
 
-This is a post about TypeScript from a programmer who loves types and uses them a lot.  
+## Introduction
 
-I will try to stay close to an idiomatic use of TypeScript but with little twists to demonstrate some interesting uses of types. 
-I hope this post will be interesting to like-minded JavaScript and TypeScript developer who enjoy exploring types and try using the type checker to its full advantage. Practitioners of other statically typed languages may find TypeScript interesting and exciting, as did I.
+I love types and I use them a lot. Types allow me to code much faster and with much more confidence. 
+These notes are about types in TypeScript.
+I hope these notes will be interesting to like-minded JavaScript and TypeScript developers who enjoy exploring types and try using the type checker to its full advantage. Practitioners of other statically typed languages may find TypeScript interesting and exciting, as did I.
 
-I will use some basic functional concepts like currying without explaining them.  I assume some familiarity with TypeScript but reader not familiar with the language should be able to guess/infer what the example code does. 
-There is only one prerequisite to reading this: interest in types.
+These notes will use idiomatic TypeScript but with little twists to demonstrate some interesting uses of types. 
+Some familiarity with TypeScript is assumed, but readers not familiar with the language should be able to guess/infer what is going on in the code. 
+I will use some basic functional programming concepts, like currying, without explaining them.  We will cover some grad level CS topics but at a high level and in layman terms.
+There is only one prerequisite to reading these notes: some interest in types.
 
 I am currently leading a re-write of a legacy front-end component that was originally written using Vue.js, the goal is to rewrite it using the new React.js and TypeScript.  One of the goals in this post is to share my experience with TypeScript and my approach to using it.  
-This is my first non-Haskell project in 3 years.  I have my FP hat on when writing TS.  TS and JS may try to punch some holes in that hat but it still keeps me warm and protected.  
+This is my first non-Haskell project in 3 years.  I have my FP hat on when writing TS.  TS and JS may try to punch some holes in that hat but it still keeps me warm and protected.  These notes are all about types, but a little bit of FP may sneak in impacting my code examples.
 
 Also, I have not done any major JS development in the last 9 years which makes this experience even more interesting. (Please make sure to correct me if I get anything wrong or if I am missing something.)   
-I think all of this gives me a different and a fresh perspective and a reason to write this post for others to see.  For some readers, parts of this post will feel strange, established practices like overloading will be considered a bad thing, writing experimental code that won't even run will be a good thing.  Strange is a corollary of different.  We will work with TS to solve type puzzles, discover a completely wrong code that compiles and a correct code that does not.  We will explore many curios sides of TS.  
-It is a bad idea to try to invent techniques for dealing with more involved types instead of using what is already 
-available in other languages.  I will not write any non-TypeScript code or go into specifics of 
-other type systems, however I may (infrequently) reference other languages (e.g. Haskell) when there is conceptual relevance worth noticing.  
+I think all of this gives me a different and a fresh perspective and a reason to write this post for others to see.  At the same time, for some readers, parts of this post will feel strange. Established practices like overloading will be considered a bad thing, writing experimental code that won't even run will be a good thing.  Strange is a corollary of different.  We will work with TS to solve type puzzles, encounter a completely wrong code that compiles and a correct code that does not.  We will explore many curios sides of TS.  
+I will present practical examples, coding strategies, and some theoretical topics.  Discussion of advanced types could benefit from introducing some Programming Language Theory and comparison with languages that use a lot of types (e.g. Haskell).  I decided 
+to restrict such notes only to areas where I saw a strong conceptual relevance to TS, relevance that can enhance understanding of TS itself.   
  
 What is TypeScript for?  Is it just a JavaScript add-on used to prevent typos and trivial code errors?  
 Or, will TypeScript more fundamentally change the way the code is written?
 Please have these questions in mind when reading these notes.
 
 This is a long post, probably the longest I have ever written.  It will cover a lot of topics.   
-_(I am sorry about any misprints.
-It seems I have goblins in my laptop that toy with me, remove or change words. 
-Proofreading this beast of a post appears to be a Sisyphean task.)_   
 You should make yourself a large coffee
 ... or better yet pickup a water bottle to stay hydrated.  
 
@@ -66,14 +68,14 @@ const getName = (p:NullablePerson): string => {
 
 How cool!  
 
-**Disclaimers:** (imagine this is a very small font)   
-_The above code may require something like `strictNullChecks` compiler flag. In this post 
+**Disclaimers:** (imagine this is a very small font:)   
+_The above code may require something like `strictNullChecks` compiler flag. In my notes
 I assume strict compiler flags are on, something you get by default with scaffolding, e.g. using
 `create-react-app my-project --template typescript` is close enough.  
 The code examples have been tested with TypeScript v4.4.4 and v4.5.2.  
 This post is a pandoc output of a markdown document and code examples are not interactive.
 Most code examples are published in _ts-notes_ folder in this repo: [_add_blank_target ts-experiments](https://github.com/rpeszek/ts-experiments)   
-A lot of interaction with TS happens using IntelliSense, I have used vscode v1.62.3 (2021-11-17T08:00:36.721Z), Linux x64 5.4.0-90-generic snap._
+A lot of interaction with TS happens using IntelliSense, I have used vscode v1.62.3 (2021-11-17T08:00:36.721Z), Linux x64 5.4.0-90-generic snap which comes with TS support built in._
 
 Talking about my "literal" excitement, my next play example implements `Either` (I am not trying to implement my own Either type, only to play with the language):
 
@@ -93,7 +95,7 @@ let y: Either<number, string> = {"type": "left", "content": 1}
 //let wrong: Either<number, string> = {"type": "left", "content": "one"} // will not compile
 ```
   
-TypeScript `ts-pattern` library uses literal types to implement _pattern matching_. Exhaustive check is part of it.   
+TypeScript [_add_blank_target _ts-pattern_](https://www.npmjs.com/package/ts-pattern) library uses literal types to implement _pattern matching_. Exhaustive check is part of it.   
 Again, really cool. All of these are really exciting developments to me.
 
 Continuing with play examples, here is the full JSON grammar defined in TS.
@@ -123,7 +125,7 @@ As far as mainstream languages go (I consider _Scala_ or _Reason ML_ border line
 
 This was my intro/trailer section. If the code that excited me feels interesting to you, you may enjoy reading on.  There will be some gory details (not a lot violence), some triumphs and failures.  You have to decide if type safety is your genre. 
 
-Developers can be divided into 2 camps:  Those who use types because that is the most effective way to write software and those who do not use types because that is the most effective way to write software. 
+Developers are divided into 2 camps:  Those who use types because that is the most effective way to write software and those who do not use types because that is the most effective way to write software. 
 Since you are still reading, I assume you are in the camp 1.
 
 
@@ -217,9 +219,10 @@ Even more often, the programmer (me) will need help figuring why the code is not
 
 For example, `item.body.getAsync` offers a 3 parameter overload
 which accepts additional `Office.AsyncContextOptions`.  Using it is much harder.
-
+(I will not delve into what the extra argument is for, I just want to see if my code will compile with 3 parameters)
 
 ```JavaScript
+//trying to pass extra parameter to body.getAsync
 const emptyConfig : Office.AsyncContextOptions = {}
 //body3 does not compile: "Type ... is not assignable to type ..." 
 //const body3  = await officePromise (curry3(item.body.getAsync)(Office.CoercionType.Html)(emptyConfig)) 
@@ -245,7 +248,7 @@ const useThisAsync = (coercionType: Office.CoercionType
 
 I think of such annotating work as a poor man's REPL.  It can be tedious.   
 
-The issue in this particular case is that, not only `item.body.getAsync` has two overloads, but the one I want is accepting a union type argument and the callback is optional:
+It appears that the issue is that, not only `item.body.getAsync` has two overloads, but the one I want is accepting a union type argument and the callback is optional:
 
 ```JavaScript
 (method) Office.Body.getAsync(coercionType: string | Office.CoercionType
@@ -253,11 +256,11 @@ The issue in this particular case is that, not only `item.body.getAsync` has two
   , callback?: ((asyncResult: Office.AsyncResult<string>) => void) | undefined): void 
 ```
 
-So there are really _overloads within overloads_ and the type checker gets confused. 
-The type checker appears to have a problem with backtracking when analyzing branching overloads. (I do not blame TS, I get a headache too.)
+So there are really _overloads within overloads_ and the type checker probably gets confused. 
+The type checker appears to sometimes have a problem with backtracking when analyzing branching overloads. (I do not blame TS, I get a headache too.)
 Overloading is an issue with type inference in general (e.g. the reason why Haskell does not overload names).  
 
-_If you are an API owner, my advice is to not overload._
+_If you are an API owner, my advice is to not overload. IntelliSense works better, type inference works better, developer head hurts less without overloads._
 
 One type that is notorious for needing annotations is the TypeScript's _tuple_.
 Typescript overloads array syntax `[]` to define tuples (you may prefer the term heterogeneous lists). This is an example of a tuple type: `[number, string]`. 
@@ -294,14 +297,14 @@ The next version is **my personal preference** (it separates the type and the im
 const partiallyAppliedBodyFn3 : ((_: OfficeCallack<string>) => void) = fn => item.body.getAsync(Office.CoercionType.Html, fn)
 ```
 
-Returning to my failed `body3` example, instead of trying to specify a full type signature, it is sometimes more convenient to apply the types.  Here, I have the polymorphic `curry3` function that I can apply the types 
+Returning to my failed `body3` example, instead of trying to specify a full type signature, it is sometimes more convenient to apply the types.  Here, I have our generic (some call it polymorphic) `curry3` function that I can apply the types 
 `<Office.CoercionType,Office.AsyncContextOptions,OfficeCallack<string>,void>` to:
 
 ```JavaScript
 //type applied version, it just compiles!
 const emptyConfig : Office.AsyncContextOptions = {}
 const body3  = await officePromise<string> (
-  curry3<Office.CoercionType, Office.AsyncContextOptions, OfficeCallack<string>, void> 
+  curry3<Office.CoercionType, Office.AsyncContextOptions, OfficeCallack<string>, void> //explicity specified type parameters
      (item.body.getAsync)
      (Office.CoercionType.Html)
      (emptyConfig)
@@ -534,6 +537,9 @@ I view `any` as a form of type coercion or casting.
 ## Casting _casting_ in a bad light 
 
 I will use the term casting and type coercion interchangeably. TypeScript documentation also uses the term _type assertion_. I view `any` type to be in the same boat as well (it is a form of implicit type coercion).  
+TS uses the `v as T` or `<T> v` syntax to cast expression `v` into type `T`, e.g. `iAmSureIsString as string`.    
+(The second notation is somewhat unfortunate as it is very similar to type application and generic/polymorphic function declaration e.g. `const f = <T>(): T` declares,  `<T>f()` casts, `f<T>()` applies, confused yet? 
+I recommend the `v as T` syntax to make casts clear and searchable in you code.)  
  
 **Side Note on casting at large:**  The popularity of casting differs from language to language.
 In some languages type coercion is dangerous, can cause segfaults or worse. This may discourage its use. 
