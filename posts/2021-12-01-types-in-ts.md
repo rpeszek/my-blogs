@@ -23,13 +23,13 @@ I love types and I use them a lot. Types allow me to code much faster and with m
 These notes are about types in TypeScript.
 I hope these notes will be interesting to like-minded JavaScript and TypeScript developers who enjoy exploring types and try using the type checker to its full advantage. Practitioners of other statically typed languages may find TypeScript interesting and exciting, as did I.  These notes may help you to decide if TS is something you want to add to your quiver.
 
-I am spearheading a re-write of a legacy front-end component at work, the goal is to rewrite it using the new React.js and TypeScript.  One of my goals in these notes is to share my experience with TypeScript and my approach to using it.  
+I am spearheading a rewrite of a legacy front-end component at work, the goal is to rewrite it using the new React.js and TypeScript.  One of my goals in these notes is to share my experience with TypeScript and my approach to using it.  
 
 You can take a quick look at the TOC to get a handle on what these notes are about.   
 There is only one prerequisite to reading these notes: interest in types.   
 We will stay close to idiomatic TypeScript but with little twists to demonstrate some interesting uses of types. 
 Some familiarity with TypeScript is assumed, but readers not familiar with the language should be able to guess/infer what is going on. I will use some basic functional programming concepts, like currying, without explaining them.   
-The end of this post gets little more theoretical and may be harder to follow for some readers.
+The end of this post gets a little more theoretical and may be harder to follow for some readers.
     
 This is my first non-Haskell project in 3 years.  I have my FP hat on when writing TS.  These notes are all about types, but a tiny bit of FP may sneak in, e.g. currying. 
 Also, I have not done any major JS development in the last 9 years which makes this experience even more interesting.  
@@ -38,7 +38,7 @@ _Please make sure to correct me if I get anything wrong or if I am missing somet
 
 I think all of this gives me a different perspective than most typescripters have and a reason to write this post for others to see.  
 For some readers, parts of this post will feel strange. Established practices like overloading will be considered a bad thing, writing experimental code that won't even run will be a good thing.  Strange is a corollary of different.  
-We will work with TS to solve type puzzles, figure out how to effectively beg TS to accept our code, encounter code examples that compile but really, really should not, and a code that should compile but it doesn't. 
+We will work with TS to solve type puzzles, figure out how to effectively beg TS to accept our code, encounter code examples that compile but really, really should not, and code that should compile but it doesn't. 
 If these are all vanilla to you, then well you still may find something interesting, otherwise
 you will find something that is, at least, new to you.
 These notes present practical examples, coding strategies, and some theoretical topics.  The end of the post includes a few tiny bits of Programming Language Theory.  A few high level comparisons with languages that use a lot of types (e.g. Haskell, PureScript, Elm) are also included if there is a strong conceptual relevance to TS.  
@@ -49,7 +49,7 @@ Please have these questions in mind when reading these notes.
 
 This is a long post, probably the longest I have ever written.  It will cover a lot of topics.   
 You should make yourself a large coffee
-... or better yet pickup a water bottle to stay hydrated.  
+... or better yet pick up a water bottle to stay hydrated.  
 ... actually you are likely to get overwhelmed if you try reading all notes in one sitting (this happens to me when I try to just proofread them) so if these topics look interesting, then bookmark and come back later. 
 
 > “And we never say anything unless it is worth taking a long time to say.”   
@@ -130,14 +130,14 @@ This could have been expressed with OO classes, but it would not be very easy, w
 I wrote the `JsonVal` definition without thinking, I have committed `Data.Aeson.Value` (Haskell's commonly used type for JSON values) definition to memory and I just mimicked it.  Then I looked at it again ... holly ... TS supports complex recursive definitions!
 More on this at the end of this post.  
 
-TypeScript provides ability to do type level programming that goes beyond the demonstrated uses of literal types.  All of this is oriented toward creating type safety over various kinds of idiomatic JS code and is limited in scope.  Again, more on this at the end of this post.
+TypeScript provides the ability to do type level programming that goes beyond the demonstrated uses of literal types.  All of this is oriented toward creating type safety over various kinds of idiomatic JS code and is limited in scope.  Again, more on this at the end of this post.
 
-As far as mainstream languages go (I consider _Scala_ or _Reason ML_ border line just outside the mainstream), TypeScript could be the most interesting choice today IMO.  
+As far as mainstream languages go (I consider _Scala_ or _Reason ML_ a border line just outside the mainstream), TypeScript could be the most interesting choice today IMO.  
 
 This was my intro/trailer section. If the code that excited me feels interesting to you, you may enjoy reading on.  There will be some gory details (not a lot violence), some triumphs and failures.  You have to decide if type safety is your genre. 
 
 Developers are divided into 2 camps:  Those who use types because that is the most effective way to write software and those who do not use types because that is the most effective way to write software. 
-Since you are still reading, I assume you are in the camp 1.
+Since you are still reading, I assume you are in camp 1.
 
 
 ## _office.js_.  Using TS in anger
@@ -148,12 +148,12 @@ It is also relatively old and has been retrofitted for TS. Many other JS ecosyst
 It seems like a good 'comprehensive' example for examining the benefits (and frustrations) of using TS in anger.   
 Despite some hardships, TS makes working with office.js much, much easier!
 
-As the name suggests, _office.js_ provides API for working with _Microsoft Office_. 
+As the name suggests, _office.js_ provides an API for working with _Microsoft Office_. 
 It allows implementing custom apps that work inside the office suite of products (Microsoft calls these apps add-ins).  
 As a working example, we will play with code that extracts data from an email opened in Outlook.   
 This is not an office.js tutorial but, I hope, the code should be clear to follow. 
 
-To start, I want to extracts the email body from the email.  
+To start, I want to extract the email body from the email.  
 To access data, _office.js_ often uses an old style `getAsync` methods that I will modernize using a custom conversion to a `Promise`.  Node's `util.promisify` will not work well for this task.  This is how this could be done in TS:
 
 ```JavaScript
@@ -174,7 +174,7 @@ export const officePromise = <T> (getasync: ((fx: ((r: Office.AsyncResult<T>) =>
 _Side Note:_ Here is my first criticism of TS. What could possibly be the goal of having to name function parameters in the type definitions (`fx:` and `r:` in the above example) in a not dependently typed language? 
 You will not use them, they are inside the type definition!  Do they serve a documentation purpose?  This seems like a needless boilerplate and makes writing and reading the code harder.  I will show a work-around for this later in this post.   
 The declaration syntax overloads the meaning of both `:` and `=>`.  Function form `A` to `B` is (depending where in the declaration) either `(a: A) => B` or `(a: A): B`.  I will show a work-around for this later in this post as well.    
-TS type definitions are over-parenthesized,  hard to read, confusing to write.  This syntax does not scale well to more involved types and makes reasoning about types harder.   
+TS type definitions are over-parenthesized,  hard to read, and confusing to write.  This syntax does not scale well to more involved types and makes reasoning about types harder.   
 I am adding a big fat **IMO** to this side note, readability is in the eye of ... well the reader.  But seriously...   
 _(Side Note End)_
 
@@ -275,7 +275,7 @@ Overloading is an issue with type inference in general (e.g. the reason why Hask
 
 _If you are an API owner, my advice is to not overload. IntelliSense works better, type inference works better, developer head hurts less without overloads._
 
-One type that is notorious for needing annotations is the TypeScript's _tuple_.
+One type that is notorious for needing annotations is TypeScript's _tuple_.
 Typescript overloads array syntax `[]` to define tuples (you may prefer the term heterogeneous lists). This is an example of a tuple type: `[number, string]`. 
 The syntax overloading probably does not help TS in inferring the type and the type checker gives up or infers the wrong type (the array). 
 
@@ -397,7 +397,7 @@ More advanced types come with more misleading error messages, it takes experienc
 I am mostly left to my own devices when working with more involved types in TS. 
 Hopefully the future will bring us mainstream grade interactive tools that allow asking type questions, browsing types,
 help solving type puzzles. For now it is mostly the programmer who connects the dots.  
-The good news is that it gets easier and easier with practice. I am working in TS for only about 2 months now and I already see a difference.   
+The good news is that it gets easier and easier with practice. I have been working in TS for only about 2 months now and I already see a difference.   
 
 _A good code needs two type checkers: TypeScript and You_
 
@@ -406,7 +406,7 @@ _A good code needs two type checkers: TypeScript and You_
 
 One common concern among developers related to using types (especially more advanced types) is a slowdown in the development speed.  
 There is some truth to this in general because of things like compilation times in some language environments. 
-I cannot comment on TS compilation times for large projects, so far it is not a problem for me.  I my experience, having type checker is a huge 
+I cannot comment on TS compilation times for large projects, so far it is not a problem for me.  In my experience, having a type checker is a huge 
 productivity buster.  Programming languages have not been created equal.  In my experience, the more types the faster the development speed. 
 Efficiency considerations are somewhat personal so your experience may vary.  
 
@@ -415,6 +415,7 @@ That effort resulted in significant size reduction and an overall big improvemen
 to the code I was replacing or to code in the _office.js_ documentation.  
 A lot of the improvement comes from using `await` `async` syntax sugar but converting functions to their curried form and figuring out more terse ways to type annotate also results in added clarity and significant syntactic simplification. 
 
+We are not done with _office.js_.  I will use it for more examples and more coding in anger in future notes.
 
 ## Type checking bloopers 
 
@@ -442,7 +443,7 @@ const nonsense2 = curry(curry)
 and all, except the first one, should not.  
 I expect the type checker to be effective at rejecting nonsensical code.  If it happens, it should be rare, contrived code, unlikely for developers to write.  My examples are somewhat surprising since higher order functions are not uncommon in JavaScript.  The second example is a piece of code I accidentally wrote in my project. It took some effort to figure out why my program does not work.  
 
-I think these are examples of growing pains. TS type checker will fix these in the future. 
+I think these are examples of growing pains. TS will fix these in the future. 
 Today, I have to be prepared for a little fight with TS and I also have to accept that sometimes TS is wrong. 
 
 
@@ -471,8 +472,8 @@ In my [happy path example](#happy-path), I have hard-coded the use of 'http' as 
 > (method) `Office.Body.getTypeAsync` ...
 > Gets a value that indicates whether the content is in HTML or text format.
 
-When I tried to use it, this property was always `undefined`, I never seen it using the developer tools either.
-A version incompatibility? I do not think it is, I am using online office and the latest available office.js (@types/office-js@1.0.221).
+When I tried to use it, this property was always `undefined`, I never saw it using the developer tools either.
+A version incompatibility? I do not think it is, I am using office online and the latest available office.js (@types/office-js@1.0.221).
  
 _Seems like _office.js_ types sometimes lie._
 
@@ -525,10 +526,10 @@ _... nightmares of JavaScript running on my walls and ceilings make me wake up s
 
 ### Side Note about the `any` type
 
-`any` type is a little crazy.  It behaves like the _top_ (you can assign any other type to it). It is also behaves like the _bottom_ (it can be assigned to any other type, maybe except of _never_). 
-The bottom type supposed to be empty, this one clearly is not.  
+`any` type is a little crazy.  It behaves like the _top_ (you can assign any other type to it). It also behaves like the _bottom_ (it can be assigned to any other type, maybe except of _never_). 
+The bottom type is supposed to be empty, this one clearly is not.  
 
-_As the result any value can have any type._
+_As a result, any value can have any type._
 
 We should have some fun with this.
 
@@ -541,10 +542,10 @@ const myCallback = (n: number): void => {
     return sadVoid;
 }
 ```
-You can have your own favorite `null` that is not `null` value, your can _define_ your own `undefined`. 
+You can have your own favorite `null` that is not `null` value, you can _define_ your own `undefined`. 
 Sky and your creativity are the limits.  (I will spoil this party and say that I do not recommend doing it.)  
 
-Bottom type that is not empty will cause language to be unsound. Allowing any value in bottom, I would call it insane.   
+Bottom type that is not empty will cause language to be unsound. Allowing all values in the bottom type, I would call it insane.   
 However, using _any_ type similar to TS' seems to the right thing to do in gradually typed languages and is common practice (e.g. Python does it too). 
 Using `any` is like saying "hey, TS, please suspend type checking, I know what I am doing". 
 This is the antithesis of type safety, but what else can TS do and maintain JS compatibility?  
@@ -557,16 +558,16 @@ I view `any` as a form of type coercion or casting.
 I will use the term casting and type coercion interchangeably. TypeScript documentation also uses the term _type assertion_. I view `any` type to be in the same boat as well (an implicit type coercion).  
 TS uses the `t as T` or `<T> t` syntax to cast expression `t` into type `T`, e.g. `iAmSureIsString as string`.    
 (The second notation, `<T> t`, is somewhat unfortunate as it is very similar to type application and generic function declaration e.g. `const f = <T>():T` declares,  `<T>f()` casts, `f<T>()` applies. 
-I recommend the `v as T` syntax to make casts clear and searchable in you code.)  
+I recommend the `v as T` syntax to make casts clear and searchable in your code.)  
  
 **Side Note on casting at large:**  Typically (and rightly) casting is considered to be a last resort, _only cast if you must_.
 
 With more involved types it is often harder to write code that type checks.  That increases the appeal of casting or finding some other alternatives for nudging the type checker into agreeing.    
-Some languages offer ability to write a program to persuade the type checker about type equality (write actual _proof of type equality_). This is an advanced feature and is available in only few languages (e.g. Coq, Idris, Haskell). Writing such programs is often challenging or even impossible.   
+Some languages offer the ability to write a program to persuade the type checker about type equality (write actual _proof of type equality_). This is an advanced feature and is available in only a few languages (e.g. Coq, Idris, Haskell). Writing such programs is often challenging or even impossible.   
 (I consider writing such proofs to be one of the highest level "type games" that a developer can play. 
 It is both a challenge and fun. A great intro is [_add_blank_target TDD with Idris](https://www.manning.com/books/type-driven-development-with-idris)) 
 
-There is an alternative to type coercion that allows programs to type check but will throw exception when executed.  
+There is an alternative to type coercion that allows programs to type check but will throw an exception when executed.  
 This can be useful for interacting with the type checker when writing code. 
 We have seen a TS version of this already (function `_<T>(): T`) in [Leveling Bumps](#leveling-the-bumps). 
 Such programming practice is foreign to most languages but becomes very convenient when working with more involved types.   
@@ -588,7 +589,7 @@ As I indicated already, I can interact with outlook email using `Office.context.
 However, `item` property is overloaded into several types discussed in previous note (I called them _facets_): 
 
 The legacy code I am currently re-implementing is retrieving the email subject using `item.subject` and checking what kind of `email.subject` it is (a string, has asyc methods, etc) and using it accordingly.  It does a similar _"check before you get"_ game to retrieve `to`, `from`, `cc` and other email information. 
-Such approach is typical, almost idiomatic to JS.  It is also hard to maintain as making changes directed at one _facet_ can easily break the other _facets_. 
+Such an approach is typical, almost idiomatic to JS.  It is also hard to maintain as making changes directed at one _facet_ can easily break the other _facets_. 
 And you can test your heart out on all emails you can think about (we still have not figured out how to do e2e testing for office apps) and your app will still crash and burn if used with an office calendar appointment.
 
 So what is the new TS-idiomatic way to do it?  TS has the `is` types: 
@@ -607,7 +608,7 @@ const doSomethingWithViewedEmail = async (item: Office.MessageRead): void => {..
 const doSomethingWithComposedEmail = async (item: Office.MessageCompose): void => {...}
 ```
 
-(OK, checking `getAttachmentsAsync` is ugly, office could provide some nicer and more stable way to identify the exact `item` type.  This is still not bad. Let's move on.)
+(OK, checking `getAttachmentsAsync` is ugly, office.js could provide some nicer and more stable way to identify the exact `item` type.  This is still not bad. Let's move on.)
 
 I can use these almost without any casting (except for correcting the type _office.js_ gave me): 
 
@@ -648,14 +649,14 @@ And I have successfully avoided any puns on choosing wrong actors for a movie!
 
 The TS's `never` type is an interesting one.    
 `never` is the proper _bottom_ (can be assigned to anything, it is empty, nothing else can be assigned to it).  
-So, since we can't assign it, lets do it anyway (this code compiles):
+So, since we can't assign it, let's do it anyway (this code compiles):
 
 ```JavaScript
 // never assigned to fully polymorphic <T>T type
 const nevr : never = _()
 ```
 
-It may look contradictory, but this is a correct behavior. 
+It may look contradictory, but this is correct behavior. 
 Recall how I implemented `_: () => T` (in [Leveling Bumps](#leveling-the-bumps) note).  I used `throw new Error` which has the `never` type.
 The definitions of `_: () => T` and the above `const nevr` tell me that 
 
@@ -676,13 +677,13 @@ const onlyA: SameAs<number> = {type: "right", content:_()} //_ is number
 const impossible: SameAs<number> = {type: "left", content:_()} //_ is never
 ```
 
-checking the `_` tells us that we cannot construct `impossible`.  I have not seen that approach used in TS yet.
+checking the (`_`) tells us that we cannot construct `impossible`.  I have not seen that approach used in TS yet.
 
 
 ## Interesting safety
 
 TypeScript [_add_blank_target narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) provides a ton of super cool features. 
-TS can effectively unify and narrow types used in number of JS operators such as `typeof`, `===`, `==`
+TS can effectively unify and narrow types used in a number of JS operators such as `typeof`, `===`, `==`
 and apply this information to `if-else`, `switch` statements.  This post has already shown a few examples where this, almost magically, prevents placing code in a wrong branch of conditional if-else blocks.
 
 Here are my favorites:
@@ -734,7 +735,7 @@ const contrived = (n: 1 | 2): number => {
 }
 ```
 
-Think of `1` and `2` as `Office.MessageCompose`-like "facets" currently offered by some API, you want to know what code needs to change when the API offers a `3`-rd facet.  Do you remember "Just one more thing" from lieutenant Columbo?  I maybe just much older than you...
+Think of `1` and `2` as `Office.MessageCompose`-like "facets" currently offered by some API, you want to know what code needs to change when the API offers a `3`-rd facet.  Do you remember "Just one more thing" from Lieutenant Columbo?   I may just be much older than you...
 
 Interestingly, TS uses the `switch` statement to solve this problem:
 
@@ -752,7 +753,7 @@ const contrived_better = (n: 1 | 2): number => {
 
 That is another nice example of TS enhancing JS with a nice type safety feature.
 
-IMO even better solution is a library (_ts-pattern_) solution, not a language solution.  
+IMO an even better solution is a library (_ts-pattern_) solution, not a language solution.  
 I am not going to steal the _ts-pattern_ thunder and refer to the library documentation and this blog post: 
 [_add_blank_target https://dev.to/gvergnaud/bringing-pattern-matching-to-typescript-introducing-ts-pattern-v3-0-o1k](https://dev.to/gvergnaud/bringing-pattern-matching-to-typescript-introducing-ts-pattern-v3-0-o1k)
 
@@ -816,7 +817,7 @@ If you are defining your type so JS's `JSON.parse` will just work (with a type g
 When working with _office.js_ I constantly think about how to extract types from it (second approach).   
 When implementing the `curry` boilerplate I am 100% in the first approach.  The same is true when I write React.js code (but my use of React is not mainstream and possibly a topic of another post).   
 
-I imagine any gradual types, will come with a decent amount of the second approach.
+I imagine any gradual types will come with a decent amount of the second approach.
 TS _Type guards_ fit very well in that space.   
 
 Both approaches are IMO valid, and can and should coexist. However, moving towards the first is always a nice goal.   
@@ -918,7 +919,7 @@ Gradual typing over JS is, clearly, not a very easy thing to do, so the types ha
 To us, TS users, type complexity translates to a sometimes confused type checker requiring developer
 intervention when types get just a little more involved.   
 For a comparison, I could write a whole application in Haskell (assuming Haskell with no language extensions) without specifying 
-a type even once, all types fully inferred by the type checker.  (Not that I would really want to do that, I like defining types. It is about type checker ability to help me more and needing less of my help.)
+a type even once, all types fully inferred by the type checker.  (Not that I would really want to do that, I like defining types. It is about the type checker's ability to help me more and needing less of my help.)
 
 I view it as a trade-off:  suffer a little because of type complexity but see your code when debugging using developer tools _vs_ introduce a language that has nicer types, compiles down to JS, and assume that you will not be using the debugger.
 
@@ -928,7 +929,7 @@ I view it as a trade-off:  suffer a little because of type complexity but see yo
 the book about types I recommend to everyone, ... so far unsuccessfully.   
 Apparently, software developers want to have some life outside of programming. Who knew?  
 The good news is that types dramatically increase programming efficiency so learning them is a good investment.   
-This section of the post will be little more TAPL-ish with some more advanced CS. 
+This section of the post will be a little more TAPL-ish with some more advanced CS. 
 
 
 ### Structural Types
@@ -940,12 +941,12 @@ Structural types can be more intuitive to use (if you are not thinking about the
 
 ### Subtyping
 
-Structural types are great but each JS object structure ends up being its own type.  That is a lot of types.  
-Sometimes you want do define functions that work across types.  This is were subtyping comes in. 
+Structural types are great but each JS object structure ends up being its own type.  That's a lot of types.  
+Sometimes you want to define functions that work across types.  This is where subtyping comes in. 
 
 Structural type is a subtype (i.e. extends) another type if it is more specific. 
 You can assign a subtype to the supertype.  
-The thing to remember is that you can assign a more specific type to more general type.
+The thing to remember is that you can assign a more specific type to a more general type.
 Not the other way around. 
 
 Here are some examples of this happening for the union types. 
@@ -1017,7 +1018,7 @@ const whatIsThat = amIFooOrBar({foo: "foo", bar: "bar"})
 TS compiler is working as expected.  The behavior of `amIFooOrBar` on `fooAndBar` is something you may 
 not have thought about when implementing it.
 
-Personally, I try to avoid using subtyping features.  They can be very useful but IMO should be not overused. 
+Personally, I try to avoid using subtyping features.  They can be very useful but IMO should not be overused. 
 Subtyping is related to Object Orientation.  OO programming has an appeal of simplicity and I was seduced by it for
 many years.  It took me a long time to realize that OO is not that simple. That is a long story, outside of this note's scope.
 This comment should be filed under IMO as many developers disagree.  
@@ -1039,7 +1040,7 @@ type JsonVal =
 | {type: "null"}
 ```
 
-and here it the TAPLish reason why this is interesting.    
+and here is the TAPLish reason why this is interesting.    
 The two established approaches for implementing recursive types are 
 
 * _iso-recursion_ (good fit for nominal types) If you know _recursion schemes_, the compilation technique is very similar to how 
@@ -1076,7 +1077,7 @@ const l_123: List<number> = {type: "cons", head: 1, tail: {type: "cons", head: 2
 That is a recursive definition of a functional _cons_ list.  `ul_123` is an equivalent of `[1,2,3]` encoded matching the `List<number>` structure.   
 TS will not let me assign it to `const l_123: List<number>`.  Similarly, I would not be able to use it as a parameter to a function
 that expects `(l: List<number>)`.  I had to cut-paste the RHS of `ul_123` into `l_123` for it to type check. 
-This is quite different from how typical structural types in behave in TS.
+This is quite different from how typical structural types behave in TS.
 
 IMO, it is still impressive that TS is able to pull these off.  The damage is that you will sometimes need to 
 help the type checker out.  I consider this feature very useful. 
@@ -1085,14 +1086,14 @@ help the type checker out.  I consider this feature very useful.
 ### Type level programming
 
 TS literal types are singletons (i.e. type `"boo"` has exactly one value `"boo":"boo"`).   
-Singletons allow to magically connect types with values. That way, the values can be type checked!   
+Singletons magically connect types with values. That way, the values can be type checked!   
 Literal types should not be that hard to implement in a programming language and it is interesting why they are so uncommon.  Kudos to TS for introducing these!  They are, clearly, a great fit for JS.  
 
-TS literal types are very limited in scope (I remember reading somewhere that is was a design decision).
+TS literal types are very limited in scope (I remember reading somewhere that it was a design decision).
 For example, you can do some very basic type level string manipulation but you cannot
 concatenate strings or do any arithmetic on numbers and have no way of defining any additional features on your own.  
 
-TypeScript allows for type-level ternary (_Conditional Types_) as well as various type level built-in functions (e.g. `keyof`).   
+TypeScript allows for type-level ternary (_Conditional Types_) as well as various type-level built-in functions (e.g. `keyof`).   
 Apparently, the type level programming in TypeScript is _Turing Complete_
 (see [_add_blank_target https://github.com/microsoft/TypeScript/issues/14833](https://github.com/microsoft/TypeScript/issues/14833)).    
 However, type level programming in TS is focused on creating type safety for various
@@ -1142,7 +1143,7 @@ But, I also think that they will keep improving and may end up with a decent amo
 ## Final Thoughts 
 
 I hope the examples I gave here will persuade some of you to explore more advanced uses of types and 
-not scare you with bumpy path and type checking bloopers. 
+not scare you with bumpy paths and type checking bloopers. 
 The message I tried to convey is that types are worth exploring, learning, and getting good at.   
 I also tried to seed the idea that types could be an important design tool.  Types are a tool to reason
 about the code.   
@@ -1153,7 +1154,7 @@ As I said before, _office.js_ predated TS and was not designed with the type saf
 not fair.  The lesson here could be that even when using plain JS it is good to think about types.
 
 What is the TypeScript for?  Is it an add-on that helps to prevent trivial code errors?  
-Or, will TypeScript change the way we write code?  I think is it absolutely the first but it could also be the second.
+Or, will TypeScript change the way we write code?  I think it is absolutely the first but it could also be the second.
 TypeScript has one thing going for it that languages like _Haskell_, _OCaml_, _Scala_ do not have:
 
 _The low barrier to entry._ 
@@ -1164,8 +1165,8 @@ Or maybe I am wrong about all of this.  Maybe a low barrier to entry is not a go
 
 What about developers who know their types and want to have a mainstream job where they can use their skills?  TypeScript could make a difference for these folk too.  Mainstream programming landscape seems just nicer for everyone with TypeScript being a part of it. ... I am almost sure my place will be hiring a front-end developer next year.  
 
-TypeScript is a reach language supporting various OO features like interfaces, classes, mixins which I have not discussed. These notes have been written by a Haskeller after all. To be honest, I tried to evangelize OO for the first 10-12 years of my programming career, IMO that was long enough.  I am not trying to discourage their use (maybe just a little bit), rather I am pointing out that there is a ton of blogs about these already.  
-On the topic of _interfaces_.  I notice that the community seems to prefer interfaces over type aliases. Code examples in this post did not need interfaces. It is my preference to use type alias if that is all I need.
+TypeScript is a rich language supporting various OO features like interfaces, classes, mixins which I have not discussed. These notes have been written by a Haskeller after all. To be honest, I tried to evangelize OO for the first 10-12 years of my programming career, IMO that was long enough.  I am not trying to discourage their use (maybe just a little bit), rather I am pointing out that there are a ton of blogs about these already.  
+On the topic of _interfaces_.  I notice that the community seems to prefer interfaces over type aliases. Code examples in this post did not need interfaces. It is my preference to use type aliases and structural types if that is all I need.
 
 This post was focused on types, not so much on FP. 
 If places like reddit do not level me with the ground, I may be tempted to write separate posts focusing on _React.js_ and few other mainstream front-endish topics from the FP point of view.  
