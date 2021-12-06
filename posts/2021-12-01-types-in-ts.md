@@ -38,7 +38,7 @@ _Please make sure to correct me if I get anything wrong or if I am missing somet
 
 I think all of this gives me a different perspective than most typescripters have and a reason to write this post for others to see.  
 For some readers, parts of this post will feel strange. Established practices like overloading will be considered a bad thing, writing experimental code that won't even run will be a good thing.  Strange is a corollary of different.  
-We will work with TS to solve type puzzles, figure out how to effectively beg TS to accept our code, encounter code examples that compile but really, really should not, and code that should compile but it doesn't. 
+We will work with TS to solve type puzzles, figure out how to effectively beg TS to accept our code, encounter code examples that compile but really, really should not, and code that should compile but surprisingly doesn't. 
 If these are all vanilla to you, then well you still may find something interesting, otherwise
 you will find something that is, at least, new to you.
 These notes present practical examples, coding strategies, and some theoretical topics.  The end of the post includes a few tiny bits of Programming Language Theory.  A few high level comparisons with languages that use a lot of types (e.g. Haskell, PureScript, Elm) are also included if there is a strong conceptual relevance to TS.  
@@ -419,7 +419,7 @@ We are not done with _office.js_.  I will use it for more examples and more codi
 
 ## Type checking bloopers 
 
-This note shows examples of code that compiles but clearly should not.  We already seen some "correct" programs that should compile but do not (e.g. `curry(_())`) and we will see one more in the [Recursive Types](#recursive-types) note.
+This note shows examples of code that compiles but clearly should not.  We already seen some "correct" programs that should compile but do not (e.g. `curry(_())`) and we will see one more later in this post.
 
 All of these type check:
 
@@ -839,7 +839,7 @@ Relying on inferred return types is unstable.  Another developer comes in and ma
 
 Just for grins, think about 'T' in _TDD_ as 'Type'. To do that _TDD_ overload, you define not only inputs but also the return type upfront and keep fixing your code (no casting in the final product) until it compiles. OK, that would require some fancy types to fully replace _T(est)DD_ but, still, is the right way to program if you believe that types are important. 
 
-Check out this TS issue [_add_blank_target add config option to force return types](https://github.com/Microsoft/TypeScript/issues/18529), reading it made me a little sad.
+Note, there is a linter rule to enforce this [_add_blank_target typedef](https://palantir.github.io/tslint/rules/typedef/).
 
 ### On comparative complexity of TS types rant
 
