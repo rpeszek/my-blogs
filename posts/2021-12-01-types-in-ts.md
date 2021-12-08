@@ -1,36 +1,36 @@
 ---
-title: Types Enthusiast's Notes on Using TypeScript in Anger and with Curiosity
+title: Type Enthusiast's Notes about TypeScript
 author: Robert Peszek
 lastmodified: Jul 04, 2021
 featured: true
-summary:  A short post that turned into a short book about TypeScript types.
+summary:  Post that turned into a short book about TypeScript types.
 toc: true
 tags: TypeScript
 codestyle: ts
 ---
-**_A short post that turned into a short book about TypeScript types_**
 
 _Please Leave Feedback in: [git discussions](https://github.com/rpeszek/rpeszek.github.io/discussions/1)_
 
 **DRAFT version** _(I am sorry about any misprints.
 It seems I have goblins in my laptop that toy with me, remove or change words. 
 Proofreading this beast of a post appears to be a Sisyphean task. When this note
-disappears, you will know I gave up.)_   
+disappears, you will know that I gave up.)_   
 
 ## Introduction
 
-I love types and I use them a lot. Types allow me to code much faster and with much more confidence. 
-These notes are about types in TypeScript.
-I hope these notes will be interesting to like-minded JavaScript and TypeScript developers who enjoy exploring types and try using the type checker to its full advantage. Practitioners of other statically typed languages may find TypeScript interesting and exciting, as did I.  These notes may help you to decide if TS is something you want to add to your quiver.
+This started as a short post and ended up with the size of a short book. 
+In these notes, I explore TypeScript types and discuss what it is like to use them in anger.
 
-I am spearheading a rewrite of a legacy front-end component at work, the goal is to rewrite it using the new React.js and TypeScript.  One of my goals in these notes is to share my experience with TypeScript and my approach to using it.  
+I love types. I use types a lot. Types allow me to code faster, safer, and with much more confidence. 
+I hope these notes will be interesting to like-minded JavaScript and TypeScript developers who are serious about types and try using the type checker to its full advantage. Practitioners of other statically typed languages may find TypeScript interesting and exciting, as did I.  These notes may help those readers decide if TS is something they will add to their quiver.
 
 You can take a quick look at the TOC to get a handle on what these notes are about.   
-There is only one prerequisite to reading these notes: interest in types.   
 We will stay close to idiomatic TypeScript but with little twists to demonstrate some interesting uses of types. 
 Some familiarity with TypeScript is assumed, but readers not familiar with the language should be able to guess/infer what is going on. I will use some basic functional programming concepts, like currying, without explaining them.   
-The end of this post gets a little more theoretical and may be harder to follow for some readers.
-    
+The end of this post gets a little more theoretical and may be harder to follow for some readers, but really
+there is only one prerequisite to reading these notes: interest in types.   
+
+I am spearheading a rewrite of a legacy front-end component at work, the goal is to rewrite it using the new React.js and TypeScript.  One of my goals in these notes is to share my experience with TypeScript and my approach to using it.  
 This is my first non-Haskell project in 3 years.  I have my FP hat on when writing TS.  These notes are all about types, but a tiny bit of FP may sneak in, e.g. currying. 
 Also, I have not done any major JS development in the last 9 years which makes this experience even more interesting.  
 
@@ -38,10 +38,10 @@ _Please make sure to correct me if I get anything wrong or if I am missing somet
 
 I think all of this gives me a different perspective than most typescripters have and a reason to write this post for others to see.  
 For some readers, parts of this post will feel strange. Established practices like overloading will be considered a bad thing, writing experimental code that won't even run will be a good thing.  Strange is a corollary of different.  
-We will work with TS to solve type puzzles, figure out how to effectively beg TS to accept our code, encounter code examples that compile but really, really should not, and code that should compile but surprisingly doesn't. 
-If these are all vanilla to you, then well you still may find something interesting, otherwise
+We will work with TS to solve type puzzles, figure out how to effectively beg TS to accept our code, encounter code examples that compile but really, really should not, and code examples that should compile but surprisingly don't. 
+If these things look like vanilla to you, then well you still may find something interesting, otherwise
 you will find something that is, at least, new to you.
-These notes present practical examples, coding strategies, and some theoretical topics.  The end of the post includes a few tiny bits of Programming Language Theory.  A few high level comparisons with languages that use a lot of types (e.g. Haskell, PureScript, Elm) are also included if there is a strong conceptual relevance to TS.  
+These notes present practical examples, coding strategies and tricks, and some theoretical topics.  The end of the post includes a few tiny bits of Programming Language Theory.  A few high level comparisons with languages that use a lot of types (e.g. Haskell, PureScript, Elm) are also included if there is a strong conceptual relevance to TS.  
 
 What is TypeScript for?  Is it just a JavaScript add-on used to prevent typos and trivial code errors?  
 Or, will TypeScript more fundamentally change the way the code is written?
@@ -50,7 +50,7 @@ Please have these questions in mind when reading these notes.
 This is a long post, probably the longest I have ever written.  It will cover a lot of topics.   
 You should make yourself a large coffee
 ... or better yet pick up a water bottle to stay hydrated.  
-... actually you are likely to get overwhelmed if you try reading all notes in one sitting (this happens to me when I try to just proofread them) so if these topics look interesting, then bookmark and come back later. 
+... seriously, the best idea is to read just a few notes at a time (that is how I proofread them) 
 
 > “And we never say anything unless it is worth taking a long time to say.”   
 
@@ -210,6 +210,7 @@ export const curry = <T1, T2, R> (fn: (ax: T1, bx: T2) => R): (a: T1) => (b: T2)
  }
 
 const addtst = (a:number, b: number) => a + b
+const curriedAdd = curry(addtst) //const curriedAdd: (a: number) => (b: number) => number
 const tst = curry(addtst)(1) //const tst: (b: number) => number
 const tst2 = curry(addtst)(1)(2) //tst2 = 3
 ```
@@ -391,6 +392,9 @@ const test = curry({} as any)
 
 (This looks like growing pains, it should work, and probably will in future versions of TS.)
 
+Note about [`never` type](#never-type-vs-tt) will examine ` _<T>(): T` in more details. 
+
+
 Using types requires some experience, knowledge, and patience. 
 More advanced types come with more misleading error messages, it takes experience to find the underlying cause of a misleading compilation error, and that is true in any language.   
 
@@ -524,7 +528,7 @@ _Morpheus about not believing types in a gradually typed language_
 _... nightmares of JavaScript running on my walls and ceilings make me wake up screaming_
 
 
-### Side Note about the `any` type
+### Note about the `any` type
 
 `any` type is a little crazy.  It behaves like the _top_ (you can assign any other type to it). It also behaves like the _bottom_ (it can be assigned to any other type, maybe except of _never_). 
 The bottom type is supposed to be empty, this one clearly is not.  
@@ -645,39 +649,6 @@ Use casting with care, or better yet use `t is T` types instead.
 And I have successfully avoided any puns on choosing wrong actors for a movie!
 
 
-## Short note about the `never` type
-
-The TS's `never` type is an interesting one.    
-`never` is the proper _bottom_ (can be assigned to anything, it is empty, nothing else can be assigned to it).  
-So, since we can't assign it, let's do it anyway (this code compiles):
-
-```JavaScript
-// never assigned to fully polymorphic <T>T type
-const nevr : never = _()
-```
-
-It may look contradictory, but this is correct behavior. 
-Recall how I implemented `_: () => T` (in [Leveling Bumps](#leveling-the-bumps) note).  I used `throw new Error` which has the `never` type.
-The definitions of `_: () => T` and the above `const nevr` tell me that 
-
-_`never` and `<T>T` are equivalent_  
-
-`never` definition is almost redundant.  There appears to be no way allowed by TS
-to define a fully polymorphic variable of type `<T>T`, I can only define it using a generic function, otherwise `never` is just `<T>T`.  
-(for readers not familiar with the generics notation `<T>` but are familiar with the concept of _universal quantification_, `<T>T` is exactly it, think of `<T>` as `forall T.`)
-
-Similar type exists in other languages as well and has similar semantics.  
-`never` could be used to remove
-information, e.g. recall my `Either<A,B>` definition and adjust it
-
-```JavaScript
-type SameAs<A> = Either<never,A>
-
-const onlyA: SameAs<number> = {type: "right", content:_()} //_ is number
-const impossible: SameAs<number> = {type: "left", content:_()} //_ is never
-```
-
-checking the (`_`) tells us that we cannot construct `impossible`.  I have not seen that approach used in TS yet.
 
 
 ## Interesting safety
@@ -841,6 +812,19 @@ Just for grins, think about 'T' in _TDD_ as 'Type'. To do that _TDD_ overload, y
 
 Note, there is a linter rule to enforce this [_add_blank_target typedef](https://palantir.github.io/tslint/rules/typedef/).
 
+**Side Note about `ReturnType` and `typeof`:**     
+The built-in `ReturnType` and `typeof` could encourage the use of inferred return types.  
+E.g. repeating typescriptlang [handbook](https://www.typescriptlang.org/docs/handbook/2/typeof-types.html):
+
+```JavaScript
+function f() {
+  return { x: 10, y: 3 };
+}
+type P = ReturnType<typeof f>
+```
+
+I prefer explicitly, statically defined types and limiting the use of the `typeof` type operator in general. 
+
 ### On comparative complexity of TS types rant
 
 Adding types to a language that was not designed with types in mind must be insanely complex.  Such retrofitting has to come with glitches, corner cases and a never ending effort to resolve them.  
@@ -921,13 +905,14 @@ intervention when types get just a little more involved.
 For a comparison, I could write a whole application in Haskell (assuming Haskell with no language extensions) without specifying 
 a type even once, all types fully inferred by the type checker.  (Not that I would really want to do that, I like defining types. It is about the type checker's ability to help me more and needing less of my help.)
 
-I view it as a trade-off:  suffer a little because of type complexity but see your code when debugging using developer tools _vs_ introduce a language that has nicer types, compiles down to JS, and assume that you will not be using the debugger.
+I view it as a trade-off:  suffer a little because of type complexity but see your code when debugging JavaScript _vs_ introduce a language that has nicer types, compiles down to JS, and assume that you will not be debugging the generated JS.
 
 ## Interesting types and a bit of theory
 
 [_add_blank_target TAPL](https://www.goodreads.com/book/show/112252.Types_and_Programming_Languages) is 
-the book about types I recommend to everyone, ... so far unsuccessfully.   
-Apparently, software developers want to have some life outside of programming. Who knew?  
+the book about types I recommend to everyone, ... so far unsuccessfully. 
+TAPL would be a big eye opener for many developers.    
+Apparently, software developers want to have some life outside of programming. Who knew?   
 The good news is that types dramatically increase programming efficiency so learning them is a good investment.   
 This section of the post will be a little more TAPL-ish with some more advanced CS. 
 
@@ -941,7 +926,7 @@ Structural types can be more intuitive to use (if you are not thinking about the
 
 ### Subtyping
 
-Structural types are great but each JS object structure ends up being its own type.  That's a lot of types.  
+Structural types are great but each unique JS object structure ends up being its own type.  That's a lot of types.  
 Sometimes you want to define functions that work across types.  This is where subtyping comes in. 
 
 Structural type is a subtype (i.e. extends) another type if it is more specific. 
@@ -1083,7 +1068,75 @@ IMO, it is still impressive that TS is able to pull these off.  The damage is th
 help the type checker out.  I consider this feature very useful. 
 
 
-### Type level programming
+### `never` type vs `<T>T`
+
+The TS's `never` type is an interesting one. 
+`never` is the proper _bottom_ (can be assigned to anything, it is empty, nothing else can be assigned to it).  
+So, since we can't assign it, let's do it anyway (this code compiles):
+
+```JavaScript
+// never assigned to fully polymorphic <T>T type
+const nevr : never = _()
+```
+
+It may look contradictory, but this is correct behavior. 
+Recall how I implemented `_: <T>() => T` (in [Leveling Bumps](#leveling-the-bumps) note).  I used `throw new Error` which has the `never` type.
+The definitions of `_: <T>() => T` and the above `const nevr` tell me that 
+
+_`never` and `<T>() => T` are equivalent_  
+
+(for readers familiar with _universal quantification_, it may be helpful to think of `<T>` as `forall T.`)    
+
+However, `never` is not redundant. 
+TS allows me to define a variable of type `never`, but (as far as I know) not of the polymorphic type `<T>T`.  
+
+`never` can be used as a parameter to a function.  Can I use `<T>() => T` as a parameter? 
+Amazingly, I can (see the next note).
+ 
+`never` could be used to remove information, e.g. recall my `Either<A,B>` definition and adjust it
+
+```JavaScript
+type SameAs<A> = Either<never,A>
+
+const onlyA: SameAs<number> = {type: "right", content:_()} //_ is number
+const impossible: SameAs<number> = {type: "left", content:_()} //_ is never
+```
+
+checking the (`_`) tells us that we cannot construct `impossible` in a meaningful way.  I have not seen this approach used in TS programs yet.
+
+Similar types to TS's `never` exist in other programming languages, e.g. Elm, PureScript, Haskell all have an equivalent.
+
+### Higher rank - like polymorphism
+
+This really surprised me!  I do not remember seeing it any other mainstream programming language.  In layman terms, 
+higher rank polymorphism means that you can define a higher order function that expects a generic function as an argument.   
+Higher rank types are hard on the compiler.  The examples I checked use, what is called rank 2, which has decidable compilation algorithms.  I have not experimented with this TS feature a lot.
+
+```JavaScript
+const expectsPolymorphicHole = <R> (hole: <T>() => T): R => hole()
+
+declare function secretive<R> (fn: <Password> (p: Password) => R): R
+```
+
+Notice how the type variables `<T>` and `<Password>` are scoped.  You can check for yourself that these higher order functions will accept only a generic function as an argument. 
+I have included some code examples in _ts-notes/src/Examples.ts_ in this repo: [_add_blank_target ts-experiments](https://github.com/rpeszek/ts-experiments). 
+
+Look again at the scoping of `<Password>` in the example above.  This scoping should provide type safety preventing `<Password>` from escaping the `secretive` function, programs that return it as `R` should not compile.  However TS allows the escape
+
+```TypeScript
+const stealPassword = <Password>(p: Password): Password => p
+const invalid = secretive(stealPassword) //const invalid: unknown
+```
+
+and returns the `unknown` type.  I expect higher rank types to be less useful in TS compared to some other languages.  
+
+Less useful does not mean not useful.
+The back-end code at my work often uses higher rank types with EDSLs.  EDSL interpreters are generic functions (we call them polymorphic) and it is often convenient to pass these around as arguments instead of hard-coding which interpreter to use.
+TS would probably be not my language of choice for implementing EDSLs but I would not be surprised to see similar use cases
+in some advanced TS project.
+
+
+### Type level programming bumps
 
 TS literal types are singletons (i.e. type `"boo"` has exactly one value `"boo":"boo"`).   
 Singletons magically connect types with values. That way, the values can be type checked!   
@@ -1118,7 +1171,7 @@ const head = <T> (t: T[]) : Flatten<T[]> => {
 
 const generalizedHead = <T> (t: T) : Flatten<T> => {
     if(Array.isArray(t)) 
-        return t[0]
+        return t[0]  //still compiles!
     else 
         // return t //compiler error: Type 'T' is not assignable to type 'Flatten<T>'
         return t as any //ghrrr!
@@ -1135,10 +1188,12 @@ const getContent = <C, T extends HasContent<C>> (t: T): GetContent<T> => {
 ```
 
 It feels clunky.  It feels like type level and value level have a broken marriage. 
-It also feels very confusing.
+This lack of synergy also feels very confusing.
 
-I have no idea how popular the TS type level features are.  I would guess not very.  
-But, I also think that they will keep improving and may end up with a decent amount of use.
+These issues look to me like growing pains, or maybe I am doing something wrong.   
+I think, TS type level programming will keep improving and we may see some very interesting use cases in the future.
+
+
 
 ## Final Thoughts 
 
