@@ -827,6 +827,14 @@ I prefer explicitly, statically defined types and limiting the use of the `typeo
 
 ### On comparative complexity of TS types rant
 
+Throughout the series, we encountered several examples where TS type checker did not work as expected.
+This note suggests a reason for this: type complexity. 
+
+> "TypeScript began its life as an attempt to bring traditional object-oriented types to JavaScript so that the programmers at Microsoft could bring traditional object-oriented programs to the web. As it has developed, TypeScript’s type system has evolved to model code written by native JavaScripters. The resulting system is **powerful, interesting and messy.**"
+
+_From typescriptlang [TypeScript for Functional Programmers](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes-func.html)_
+
+
 Adding types to a language that was not designed with types in mind must be insanely complex.  Such retrofitting has to come with glitches, corner cases and a never ending effort to resolve them.  
 
 **Side Notes:**
@@ -895,15 +903,17 @@ You will have more luck with overloaded `"string" + _()`.
 
 All these operators (ternary, `===`, `==`, arithmetic) are built in language constructs, not generic functions.
 TS must handle them one by one.  That is a lot of work and complexity.   
-Compare this to our "placebo" group of languages where equivalent operators are just functions, no special case treatment is needed. Also these functions have very clear, 
-you guessed it, types.
+Compare this to our "placebo" group of languages where equivalent operators are just functions, no special case treatment is needed. Also these functions have very clear, you guessed it, types.
 
-Gradual typing over JS is, clearly, not a very easy thing to do, so the types have to be complex and type checking has to be somewhat buggy.  This explains the various compilation glitches in previous notes.
+Subtyping (we will discuss it in next post) adds another layer of complexity that is not present 
+in our "placebo" group.   
+
+Gradual typing over JS is, clearly, not a very easy thing to do, the types have to be complex and type checking has to be a little messy.  
 
 To us, TS users, type complexity translates to a sometimes confused type checker requiring developer
-intervention when types get just a little more involved.   
-For a comparison, I could write a whole application in Haskell (assuming Haskell with no language extensions) without specifying 
-a type even once, all types fully inferred by the type checker.  (Not that I would really want to do that, I like defining types. It is about the type checker's ability to help me more and needing less of my help.)
+intervention when types get a little more involved.   
+For a comparison, I could write a whole application in Haskell (no language extensions) without specifying 
+a single type. I can relying on the type checker to infer all the types used in my program.  (Not that I would really want to do that, I like defining types. It is about the type checker's ability to help me more and needing less of my help.)
 
 I view it as a trade-off:  suffer a little because of type complexity but see your code when debugging JavaScript _vs_ introduce a language that has nicer types, compiles down to JS, and assume that you will not be debugging the generated JS.
 
