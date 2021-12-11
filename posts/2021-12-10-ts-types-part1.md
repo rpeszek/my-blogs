@@ -27,10 +27,10 @@ Most code examples are published in _ts-notes_ folder in this repo: [_add_blank_
 
 > "TypeScript began its life as an attempt to bring traditional object-oriented types to JavaScript so that the programmers at Microsoft could bring traditional object-oriented programs to the web. As it has developed, TypeScript’s type system has evolved to model code written by native JavaScripters. The resulting system is _powerful, interesting and messy._"
 
-_From typescriptlang [TypeScript for Functional Programmers](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes-func.html)_
+_From typescriptlang [_add_blank_target TypeScript for Functional Programmers](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes-func.html)_
 
 
-I intended to write a short post about my experience with TS types, I ended up with a draft the size of a short book. 
+I wanted to write a short post about my experience with TS types, I ended up with a draft the size of a short book. 
 I decided to split it into digestible installments and publish it as a series of posts. The series will be about the _powerful, interesting and messy_ types in TS.  This post is the first in that series. 
 
 Here is my plan:
@@ -49,16 +49,15 @@ Here is my plan:
 To be honest, it is because I am really impressed and excited about some of the 
 type safety features in TS.   
 
-IMO, _true seniority means understanding the limitations_.   
-If you agree with this statement and narrow (a type pun) it to the subject of my notes, you may conclude:  
-It is not about knowing a particular language, it is about knowing the types ...and the language limitations in supporting them.  
-(: _imagine it's a footnote:_ Continuing this line of thought could lead to the conclusion that hiring managers have it all wrong. :)    
-You may disagree with me about the crucial importance of types, but you may still agree that understanding TS compiler limitations is useful.      
-So, to be brutally honest, the goal of these notes is to explore some of the limitations of TS type checker.
-
 Despite being a superset of JavaScript, TS stands out among mainstream languages as one that supports some interesting types.  
-There is a tiny but important feedback loop, the more we play with types the more they will end up being used.  
+There is a tiny but important feedback loop: the more we play with types the more they will end up being used.  
 So, to be perfectly honest, the goal of these notes is to simply play with interesting types in TS.
+
+IMO, _the highest level of expertise is understanding the limitations_. 
+By narrowing (a type pun) this statement to types, one may conclude:  
+_To master a programming language is to learn the limitations of that language typing._  
+You may disagree with me about the crucial importance of types, but you may still agree that understanding TS compiler limitations is useful.      
+So, to be brutally honest, these notes are about to exploring and handling the limitations of TS type checker.
 
 
 **Target audience and prerequisites.** 
