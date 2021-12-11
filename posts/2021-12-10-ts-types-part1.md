@@ -51,19 +51,21 @@ type safety features in TS.
 
 Despite being a superset of JavaScript, TS stands out among mainstream languages as one that supports some interesting types.  
 There is a tiny but important feedback loop: the more we play with types the more they will end up being used.  
-So, to be perfectly honest, the goal of these notes is to simply play with interesting types in TS.
+So, to be perfectly honest, the goal of these notes is to simply play with some interesting types and see how the compiler reacts.
 
-IMO, _the highest level of expertise is understanding the limitations_. 
-By narrowing (a type pun) this statement to types, one may conclude:  
-_To master a programming language is to learn the limitations of that language typing._  
-You may disagree with me about the crucial importance of types, but you may still agree that understanding TS compiler limitations is useful.      
-So, to be brutally honest, these notes are about to exploring and handling the limitations of TS type checker.
+IMO, to master something is to understand its limitations.   
+So, to be brutally honest, the goal of these notes is to explore and handle the TS compiler limitations.
 
+These notes will focus on the experience of using types. Not so much on explaining the types
+themselves.
 
 **Target audience and prerequisites.** 
-I expect that the reader is interested in types and either uses or considers using TypeScript.  
+I assume that the reader is interested in types and either uses or considers using TypeScript.  
 Types tend to be related to FP.  There will not be much FP in these notes.
 However, I will use some basic functional programming concepts, like currying, without explaining them.  
+TypeScript is a superset of JavaScript with type syntax very similar to any other C-like language. 
+These notes will probably be hard to read without some experience with JavaScript or ability to read C-like types.
+
 
 
 **About the author.** 
@@ -71,7 +73,9 @@ I am spearheading a rewrite of a legacy front-end component at work, the goal is
 In recent years, I have been spending all of my time in the back-end designing, writing, and maintaining Haskell code. 
 Haskell code has a lot of types. Thus, I use types a lot. Types allow me to code faster, safer, and with much more confidence.  
 I wear a hat with types on it when writing TS.  
-I think this gives me a different (compared to most typescripters) perspective and a reason to write these posts.
+I love Programming Language Theory and have done some compiler and interpreter related work.  
+I wear a very thin headband with PLT symbols on it under my hat (should be mostly invisible in this series).   
+All of this gives me a different (compared to most typescripters) perspective and a reason to write these posts.
 For some readers, parts of these posts will feel strange. Established practices like overloading will be considered a bad thing, writing experimental code (that won’t even run) to solve _type puzzles_ (type what?) will be a good thing. Strange is a corollary of different.
 
 
@@ -263,6 +267,9 @@ which accepts additional `Office.AsyncContextOptions`.  Using it is much harder.
 (I will not delve into what the extra argument is for, I just want to see if my code will compile with 3 parameters)
 
 ```JavaScript
+//boilerplate 'curry3' implementation is not shown (available in the linked ts-experiments github repo), 
+//it is almost identical to `curry` but accepts a 3 parameter function  
+
 //trying to pass extra parameter to body.getAsync
 const emptyConfig: Office.AsyncContextOptions = {}
 //body3 does not compile: "Type ... is not assignable to type ..." 
@@ -277,6 +284,10 @@ const emptyConfig: any = {}
 const body4  = await officePromise (curry3(item.body.getAsync)(Office.CoercionType.Html)(emptyConfig)) 
 ```
 
+I do not know what causes the widening of `body4` type to `unknown`. There is enough of information in the overloaded `item.body.getAsync` method for the type checker to infer the `string`. My guesswork is too hypothetical to discuss it here. 
+
+Let's focus our attention on the previous (the not compiling `body3`) example.
+
 To understand what is happening, I sometimes need to spend time annotating things, or picking up the exact overload I want. E.g.
 
 ```JavaScript
@@ -287,13 +298,15 @@ const useThisAsync = (coercionType: Office.CoercionType
     }
 ```
 
-I think of such annotating work as a poor man's REPL.  It can be tedious, but it typically gets the job done. 
-In this particular case, using `curry3(useThisAsync)` in the non-compiling `body3` fixes the problem. 
-The issue appears to be related to overloading.
+This can be tedious, but it typically gets the job done. 
+In this particular case, using `curry3(useThisAsync)` in the above `body3` example fixes the problem. 
+So,  the issue with `body3` code appears to be related to overloading.
 
 Looking closer at the types, I notice that not only `item.body.getAsync` has two overloads, but the one I want is accepting a union type argument and the callback is optional:
 
 ```JavaScript
+//from office.js documentation
+
 //2 parameter overload used in happy path
 (method) Office.Body.getAsync(coercionType: Office.CoercionType | string
   , callback?: (asyncResult: Office.AsyncResult<string>) => void): void;
@@ -304,13 +317,11 @@ Looking closer at the types, I notice that not only `item.body.getAsync` has two
   , callback?: ((asyncResult: Office.AsyncResult<string>) => void) | undefined): void 
 ```
 
-So there are really _overloads within overloads_ and the type checker probably gets confused.  
-
-Here is my guess on what is happening.  (We will learn a way to confirm such hypotheses in the next section.)  
-I imagine the type checker examines the overloaded method type and tries to widen the types of variables passed to the method to get a match, it backtracks and tries the next overload if that fails.   
-TS type checker appears to sometimes have a problem with backtracking when processing overloads. 
+So there are sort of _overloads on top of overloads_ and the type checker probably gets confused.   
+I believe the compiler gets stuck on a wrong (the 2 parameter) version of `getAsync` despite of the 3 parameter `curry3` being used. I will show a _type hole_ (we will learn what that is) verification for this hypothesis in the next section.  
+I expect the type checker to backtrack and try the next overload, but for some reason it does not want to do that on its own.   
 (I do not blame TS, overloading gives me a headache too.)   
-Overloading is known to be not type inference friendly (incidentally, that is the reason why Haskell does not overload names).  
+Overloading is known for being not type inference friendly (incidentally, that is the reason why Haskell does not overload names).  
 
 _If you are an API owner, my advice is to not overload. IntelliSense works better, type inference works better, developer head hurts less without overloads._
 
@@ -344,7 +355,7 @@ const partiallyAppliedBodyFn1 = (fn: ((res: Office.AsyncResult<string>) => void)
 const partiallyAppliedBodyFn2 = (fn: OfficeCallack<string>) => item.body.getAsync(Office.CoercionType.Html, fn)
 ```
 
-Notice **no more redundant argument definitions** in the type signature and a much easier to read syntax.  
+Notice **no more redundant parameter definitions** in the type signature and a much easier to read syntax.  
 The next version is **my personal preference** (it nicely separates the type and the implementation):
 
 ```JavaScript
@@ -353,7 +364,7 @@ const partiallyAppliedBodyFn3: (_: OfficeCallack<string>) => void =
 ```
 
 #### Type Application  
-Returning to my failed `body3` example, instead of trying to specify a full type signature, it is sometimes more convenient to apply the types.  Here, I have the generic (some call it polymorphic) `curry3` function that I can apply the types 
+Returning to my failed `body3` example, instead of trying to type annotate with full type signatures, it is sometimes more convenient to apply the types.  Here, I have the "generic" (or polymorphic) `curry3` function that I can apply the types 
 `CoercionType`, `AsyncContextOptions`, `OfficeCallack<string>`, and `void` to:
 
 ```JavaScript
@@ -419,8 +430,8 @@ if I hover over the `_` function, the IntelliSense suggests this completely wron
 (alias) _<((asyncResult: Office.AsyncResult<string>) => void) | undefined>(): ((asyncResult: Office.AsyncResult<string>) => void) | undefined
 ```
 
-If you think about this for a bit, the hole discovered the last parameter from the two argument overload!
-This tells us that the type checker is looking at the wrong overloaded version.  I have used the type hole to verify my hypothesis. That is very useful, is it not?
+The hole has discovered the last parameter from the two argument overload!
+This tells me that the type checker is looking at a wrong overloaded version of `item.body.getAsync`.  I have used the type hole to verify my hypothesis from the last section!  That is very useful indeed.
 
 If, as above, I add the type application (`<Office.CoercionType, Office.AsyncContextOptions, OfficeCallack<string>, void>`) to `curry3`
 it will show the type correctly:
@@ -429,11 +440,14 @@ it will show the type correctly:
 (alias) _<Office.AsyncContextOptions>(): Office.AsyncContextOptions
 ```
 
-**Sad compiler limitation**   
-Sadly, the ` _<T>(): T` is also not universally useful, e.g. this will not compile:
+**A sad compiler limitation**   
+Sadly, the ` _<T>(): T` is not universally useful, e.g. this will not compile:
 
 ```JavaScript
-//const test = curry(_()) //compilation error 
+//compilation error: 
+//       Argument of type '(ax: never, bx: never) => never' is not assignable 
+//       to parameter of type '(ax: unknown, bx: unknown) => unknown'.
+//const test = curry(_()) 
 
 //interestingly the following unifies as curry<unknown, unknown, unknown>
 const testfn = curry({} as any)
@@ -456,12 +470,12 @@ Hopefully the future will bring us mainstream grade interactive tools that allow
 help solving type puzzles. For now it is mostly the programmer who connects the dots.  
 The good news is that this gets easier and easier with practice. I have been working in TS for only about 2 months now and I already see a difference.   
 
-_A good code needs two type checkers: TypeScript and You_
+_Good code needs two type checkers: TypeScript and You_
 
 
 ### Type checking bloopers 
 
-We already saw a "correct" program that should compile but does not (`curry(_())`) and we will see more like this in the future notes.
+We already saw a "correct" program that should compile but does not (`curry(_())`) and we will see more in the future notes.
 This note shows examples of code that compiles but clearly should not.  
 
 All of these type check:
@@ -481,17 +495,20 @@ const nonsense1: (a: Office.CoercionType)
 
 //compiles but it should not
 const nonsense2 = curry(curry)
+
+//more example in the linked github project
 ```
 
 and all, except the first one, should not.  
 
-I expect the type checker to be effective at rejecting nonsensical code.  If a blooper happens, it should be rare, contrived code, unlikely for developers to write.  My examples are somewhat surprising since higher order functions are not uncommon in JavaScript.  The second example is a piece of code I accidentally wrote in my project. 
+I expect the type checker to be effective at rejecting nonsensical code.  If a blooper happens, it should be rare, contrived code, unlikely for developers to write.  My examples are somewhat surprising since higher order functions are not uncommon in JavaScript.  The second example is a piece of code I accidentally wrote in my project.  
+This is very concerning since errors like these are likely to remain uncaught and become escaped bugs. 
 
-No compiler is perfect, but you probably noticed by now that
-TS compiler seems to get in trouble a lot.  I have no idea what the underlying issues are but I can see one general reason for this:
-gradual typing on top of JS is not easy.  I plan to write a note about the complexity of TS types.  
-I am sure TS will slowly fix these in the future. 
-Today, I have to be prepared for a little fight with TS and I also have to accept that sometimes TS type checker accepts a completely wrong code from me. 
+No compiler is perfect, but you probably noticed by now that TS compiler seems to get in trouble a lot. 
+Compared to other programming languages I use, TS's rate of compilation issues is much higher, the issues are more dangerous, and these bloopers are happening on more commonly used vanilla code (well... at least commonly used by me).  
+I have no idea what the underlying issues are but I can see one general reason for this:
+gradual typing on top of JS is not easy.  I plan to write a note about the complexity of TS types in a future post.  
+I am sure that TS is fixing such issues but I expect the progress to be slow. 
 
 
 ### It's all worth it
@@ -507,14 +524,18 @@ That effort resulted in significant size reduction and an overall big improvemen
 to the code I was replacing or to code in the _office.js_ documentation.  
 A lot of the improvement comes from using `await` `async` syntax sugar but converting functions to their curried form and figuring out more terse ways to type annotate also results in added clarity and significant syntactic simplification. 
 
-We are not done with _office.js_.  I will use it in future notes.
+In my book (or in this series:) ), there is no comparing TS to JS, TS is the clear winner.  
+How does TS compare to statically type checked front-end languages that compile to JS and have capable type checkers and solid types (e.g. ReasonML, Elm, PureScript, even Haskell)?  I am not in a good position to discuss this yet.   
+Lots of projects need to stay close to JS, my project at work falls into this group.  For such projects TS is the right choice IMO.
 
 
 ## Next Chapter
 
+We are not done with _office.js_.  I will use it in future notes.
+
 Do statically defined types reflect the actual runtime values? 
 How to assure that they do?   
-We will discuss all of this in the next installment.
+We will discuss these questions in the next installment.
 I have the draft ready and I hope to publish it in a few weeks.
 
 
