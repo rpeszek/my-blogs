@@ -31,7 +31,7 @@ _From typescriptlang [TypeScript for Functional Programmers](https://www.typescr
 
 
 I intended to write a short post about my experience with TS types, I ended up with a draft the size of a short book. 
-I decided to split it into digestible installments and publish it as a series of posts. The series will be about the _powerful, interesting and messy_ types in TS.  This post the first in that series. 
+I decided to split it into digestible installments and publish it as a series of posts. The series will be about the _powerful, interesting and messy_ types in TS.  This post is the first in that series. 
 
 Here is my plan:
 
@@ -41,7 +41,7 @@ Here is my plan:
   This series needed a JS library with TS bindings to draw examples from, I decided to use _office.js_ and Part 1 will introduce it.
 * Part 2. Will be about keeping types honest. Are runtime values consistent with the types? We hope they always are but, especially in a gradually typed language like TS, types will sometimes lie. We will see concrete examples of type dishonesty from _office.js_.  Part 2 will cover the `any` and `unknown` types, type coercion (casting), and TS's type guards.
 * Part 3. Will cover some of the TS type safety features that I absolutely love and will include a bunch of rants (e.g. on importance of specifying the return types).  Throughout the series, we will encounter several examples where TS type checker does not work as expected.
- One of my notes will try argue that what TS is and does it quite complex.
+ One of my notes will argue that what TS is and does it quite complex.
 * Part 4. Will be more theoretical. Notes in Part 4 will discuss topics such as TS's structural recursive types, subtyping, higher-rank polymorphism (TS supports a version of it!), and type level programming. 
 * Part 5. Will be a wrap-up with some final thoughts. 
 
@@ -52,7 +52,7 @@ type safety features in TS.
 IMO, _true seniority means understanding the limitations_.   
 If you agree with this statement and narrow (a type pun) it to the subject of my notes, you may conclude:  
 It is not about knowing a particular language, it is about knowing the types ...and the language limitations in supporting them.  
-(: _imagine it's a footnote:_ Continuing this line of thought could lead to the conclusion that hiring manager have it all wrong. :)    
+(: _imagine it's a footnote:_ Continuing this line of thought could lead to the conclusion that hiring managers have it all wrong. :)    
 You may disagree with me about the crucial importance of types, but you may still agree that understanding TS compiler limitations is useful.      
 So, to be brutally honest, the goal of these notes is to explore some of the limitations of TS type checker.
 
@@ -155,7 +155,7 @@ This could have been expressed with OO classes, but it would not be very easy, w
 I wrote the `JsonVal` definition without thinking, I have committed `Data.Aeson.Value` (Haskell's commonly used type for JSON values) definition to memory and I just mimicked it.  Then I looked at it again ... holly ... TS supports complex recursive definitions!
 We will discuss recursive types later in this series.  
 
-TypeScript has an ability to do type level programming that goes beyond the demonstrated uses of literal types.  All of this is oriented toward creating type safety over various kinds of idiomatic JS code and is limited in scope.  It is none the less interesting.  We will return to this topic in the future as well.
+TypeScript has an ability to do type level programming that goes beyond the demonstrated uses of literal types.  All of this is oriented toward creating type safety over various kinds of idiomatic JS code and is limited in scope.  It is nonetheless interesting.  We will return to this topic in the future as well.
 
 As far as mainstream languages go (I consider _Scala_ or _Reason ML_ a border line just outside the mainstream), TypeScript could be the most interesting choice today IMO.  
 
@@ -206,7 +206,7 @@ I am adding a big fat **IMO** to this side note, readability is in the eye of ..
 **(Side Note End)**
 
 Properly initialized office add-in will have access to `Office.context.mailbox.item: Office.MessageRead`.   
-This `item` object allows to access the email data.  (The situation is just slightly more complicated since the `item` property is overloaded but that is not important for now.) 
+This `item` object allows access to the email data.  (The situation is just slightly more complicated since the `item` property is overloaded but that is not important for now.) 
 To retrieve the email body I need to use `item.body.getAsync`.  But wait, the type for that version of `getAsync` accepts not only a callback function but also a "body type" parameter.
 
 I am going to resist the temptation to overload `officePromise`.
@@ -273,7 +273,7 @@ const emptyConfig: Office.AsyncContextOptions = {}
 Interestingly the following does compile but with `body3:unknown`, why why why!
 
 ```JavaScript
-//this snipet compiles but uses 'any' and returns 'unknown'
+//this snippet compiles but uses 'any' and returns 'unknown'
 const emptyConfig: any = {}
 const body4  = await officePromise (curry3(item.body.getAsync)(Office.CoercionType.Html)(emptyConfig)) 
 ```
@@ -289,7 +289,7 @@ const useThisAsync = (coercionType: Office.CoercionType
 ```
 
 I think of such annotating work as a poor man's REPL.  It can be tedious, but it typically gets the job done. 
-I this particular case, using `curry3(useThisAsync)` in the non-compiling `body3` fixes the problem. 
+In this particular case, using `curry3(useThisAsync)` in the non-compiling `body3` fixes the problem. 
 The issue appears to be related to overloading.
 
 Looking closer at the types, I notice that not only `item.body.getAsync` has two overloads, but the one I want is accepting a union type argument and the callback is optional:
@@ -315,7 +315,7 @@ Overloading is known to be not type inference friendly (incidentally, that is th
 
 _If you are an API owner, my advice is to not overload. IntelliSense works better, type inference works better, developer head hurts less without overloads._
 
-One type that is notorious for needing annotations is TypeScript's _tuple_.
+One type that is notorious for needing annotations is the TypeScript's _tuple_.
 Typescript overloads array syntax `[]` to define tuples (some readers may prefer the term heterogeneous lists). This is an example of a tuple: `[2,"two"]: [number, string]`. 
 The syntax overloading probably does not help TS in inferring the type and the type checker often gives up or infers the array type. 
 
@@ -368,7 +368,7 @@ const body3  = await officePromise<string> (
   ) 
 ```
 
-That is so much easier that specifying the exact `useThisAsync` overload!
+That is so much easier than specifying the exact `useThisAsync` overload!
 
 #### Type Holes
 
@@ -381,7 +381,7 @@ export const _ = <T>(): T => {
 }
 ```
 
-You can learn a lot about how the type checker when works using it.  E.g. using my `Either` type as an example:
+You can learn a lot about how the type checker works using it.  E.g. using my `Either` type as an example:
 
 ```JavaScript
 const tstnum: Either<number, string> = {type: "left", content: _()}
@@ -421,7 +421,7 @@ if I hover over the `_` function, the IntelliSense suggests this completely wron
 ```
 
 If you think about this for a bit, the hole discovered the last parameter from the two argument overload!
-This tells us that the type checker is looking at the wrong overload.  I have used the type hole to verify my hypothesis.
+This tells us that the type checker is looking at the wrong overloaded version.  I have used the type hole to verify my hypothesis. That is very useful, is it not?
 
 If, as above, I add the type application (`<Office.CoercionType, Office.AsyncContextOptions, OfficeCallack<string>, void>`) to `curry3`
 it will show the type correctly:
@@ -448,7 +448,8 @@ The type hole `_` function is a useful tool and we will keep using it in future 
 
 
 Using types requires some experience, knowledge, and patience. 
-More advanced types come with more misleading error messages, it takes experience to find the underlying cause of a misleading compilation error, and that is true in any language. Over time I (and you) will look at TS compilation error
+More advanced types come with more misleading error messages, it takes experience to find the underlying cause of a misleading compilation error, and that is true in any language. 
+Eventually I (and you) will look at a TS compilation error
 and will say "ah, you really mean this: ...".
 
 I am mostly left to my own devices when working with more involved types in TS. 
@@ -461,7 +462,7 @@ _A good code needs two type checkers: TypeScript and You_
 
 ### Type checking bloopers 
 
-We already seen a "correct" program that should compile but does not (`curry(_())`) and we will see more like this in the future notes.
+We already saw a "correct" program that should compile but does not (`curry(_())`) and we will see more like this in the future notes.
 This note shows examples of code that compiles but clearly should not.  
 
 All of these type check:
@@ -473,7 +474,7 @@ const good: (a: Office.CoercionType)
           => void
     = curry (item.body.getAsync)
 
-//compiles but it should not, compiles even with type anotation
+//compiles but it should not, compiles even with type annotation
 const nonsense1: (a: Office.CoercionType) 
           => (b: ((asyncResult: Office.AsyncResult<string>) => void)) 
           => void
@@ -491,7 +492,7 @@ No compiler is perfect, but you probably noticed by now that
 TS compiler seems to get in trouble a lot.  I have no idea what the underlying issues are but I can see one general reason for this:
 gradual typing on top of JS is not easy.  I plan to write a note about the complexity of TS types.  
 I am sure TS will slowly fix these in the future. 
-Today, I have to be prepared for a little fight with TS and I also have to accept that sometimes TS type checker is accepting a completely wrong code from me. 
+Today, I have to be prepared for a little fight with TS and I also have to accept that sometimes TS type checker accepts a completely wrong code from me. 
 
 
 ### It's all worth it
