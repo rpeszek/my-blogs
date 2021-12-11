@@ -1,5 +1,5 @@
 ---
-title: Type Enthusiast's Notes about TypeScript. Part1. Using Types in Anger
+title: Type Enthusiast's Notes about TypeScript. Part1. Typing in Anger
 author: Robert Peszek
 lastmodified: Jul 04, 2021
 featured: true
@@ -70,13 +70,13 @@ These notes will probably be hard to read without some experience with JavaScrip
 
 **About the author.** 
 I am spearheading a rewrite of a legacy front-end component at work, the goal is to rewrite it using the new React.js and TypeScript. 
-In recent years, I have been spending all of my time in the back-end designing, writing, and maintaining Haskell code. 
+In recent years, I have been spending all of my time in the back-end designing, writing, and maintaining Haskell programs. 
 Haskell code has a lot of types. Thus, I use types a lot. Types allow me to code faster, safer, and with much more confidence.  
 I wear a hat with types on it when writing TS.  
-I love Programming Language Theory and have done some compiler and interpreter related work.  
+I love Programming Language Theory and have some experience and lots of interest in all things compiler related.  
 I wear a very thin headband with PLT symbols on it under my hat (should be mostly invisible in this series).   
 All of this gives me a different (compared to most typescripters) perspective and a reason to write these posts.
-For some readers, parts of these posts will feel strange. Established practices like overloading will be considered a bad thing, writing experimental code (that won’t even run) to solve _type puzzles_ (type what?) will be a good thing. Strange is a corollary of different.
+For some readers, parts of these posts will feel strange. Established practices like overloading will be considered a bad thing, writing experimental code (that won’t even run) to answer _type questions_ (type what?) will be a good thing. Strange is a corollary of different.
 
 
 **What is TypeScript for?**  Is it just a JavaScript add-on used to prevent typos and trivial code errors?  
@@ -119,7 +119,8 @@ type Either<A,B> =
 | {type: "left", content: A}
 | {type: "right", content: B}
 
-let x: Either<number, string> = {type: "left", content: 1}
+let x1: Either<number, string> = {type: "left", content: 1}
+let xone: Either<number, string> = {type: "right", content: "one"}
 //let wrong: Either<number, string> = {type: "left", content: "one"} // will not compile
 ```
 
@@ -149,7 +150,7 @@ type JsonVal =
 | {type: "null"}
 
 const tstj: JsonVal = {type:"array", val:[{type: "null"}, {type: "number", val: 5}]} //compiles
-//const wrong: JsonVal = {type:"array", val:[{type: "number", val: {type: "string", val: "5"}}]} //does not compile, number cannot a nested string
+//const wrong: JsonVal = {type: "number", val: {type: "string", val: "5"}} //does not compile, number cannot a nested string
 //const wrong2: {type: "object",  val:[{type: "null"}, {type: "number", val: 5}]} //does not compile, object is not an array
 
 ```
