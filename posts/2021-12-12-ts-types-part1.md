@@ -75,7 +75,7 @@ I wear a hat with types on it when writing TS.
 I love Programming Language Theory and have some experience and lots of interest in all things compiler related.  
 I wear a very thin headband with PLT symbols on it under my hat (should be mostly invisible in this series).   
 All of this gives me a different (compared to most typescripters) perspective and a reason to write these posts.
-For some readers, parts of these posts will feel strange. Established practices like overloading will be considered a bad thing, writing experimental code (that won’t even run) to answer _type questions_ (type what?) will be a good thing. Strange is a corollary of different.
+For some readers, parts of these posts will feel strange. Established practices like overloading will be considered a bad thing, writing experimental code (that won’t even run) to answer _type questions_ will be a good thing. Strange is a corollary of different.
 
 
 **What is TypeScript for?**  Is it just a JavaScript add-on used to prevent typos and trivial code errors?  
@@ -99,9 +99,9 @@ type Person = {firstNm: string, lastNm: string}
 type NullablePerson = Person | null
 
 const getName = (p:NullablePerson): string => {
-    //const tst1 = p.firstNm //will not compile
+    //const tst1 = p.firstNm //does not compile
     if(p===null){
-        //const tst2 = p.firstNm //will not compile
+        //const tst2 = p.firstNm //does not compile
         return "John Smith"
     } else {
         return p.firstNm + " " + p.lastNm //compiles
@@ -118,9 +118,11 @@ type Either<A,B> =
 | {type: "left", content: A}
 | {type: "right", content: B}
 
-let x1: Either<number, string> = {type: "left", content: 1}
-let xone: Either<number, string> = {type: "right", content: "one"}
-//let wrong: Either<number, string> = {type: "left", content: "one"} // will not compile
+const x1: Either<number, string> = {type: "left", content: 1}
+const xone: Either<number, string> = {type: "right", content: "one"}
+```
+```Java
+const wrong: Either<number, string> = {type: "left", content: "one"} // does not compile
 ```
 
 it almost looks like dependent types! TS calls these literal types. (In this example, `"left"` is a type with a 
@@ -130,8 +132,10 @@ TypeScript calls this programming pattern _Discriminated Unions_.
 And, TS is serious about string property names too:
 
 ```JavaScript
-let y: Either<number, string> = {"type": "left", "content": 1}
-//let wrong: Either<number, string> = {"type": "left", "content": "one"} // will not compile
+const y: Either<number, string> = {"type": "left", "content": 1}
+```
+```Java
+const wrong: Either<number, string> = {"type": "left", "content": "one"} // does not compile
 ```
   
 TypeScript [_add_blank_target _ts-pattern_](https://www.npmjs.com/package/ts-pattern) library uses discriminated unions to implement _pattern matching_. Exhaustive check is part of it.   
