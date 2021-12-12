@@ -21,7 +21,7 @@ I assume strict compiler flags are on, something you get by default with scaffol
 `create-react-app my-project --template typescript` is close enough.  
 The code examples have been tested with TypeScript v4.4.4 and v4.5.2.  
 This post is a pandoc output of a markdown document and code examples are not interactive.  
-Most code examples are published in _ts-notes_ folder in this repo: [_add_blank_target ts-experiments](https://github.com/rpeszek/ts-experiments)._
+Most code examples are published in [_add_blank_target ts-notes](https://github.com/rpeszek/ts-experiments/tree/master/ts-notes) folder in this github repo: [_add_blank_target ts-experiments](https://github.com/rpeszek/ts-experiments)._
 
 ## Introduction to the series 
 
@@ -31,7 +31,7 @@ _From typescriptlang [_add_blank_target TypeScript for Functional Programmers](h
 
 
 I wanted to write a short post about my experience with TS types, I ended up with a draft the size of a short book. 
-I decided to split it into digestible installments and publish it as a series of posts. The series will be about the _powerful, interesting and messy_ types in TS.  This post is the first in that series. 
+I decided to split it into digestible installments and publish it as a series of shorter posts. The series will be about the _powerful, interesting and messy_ types in TS.  This post is the first in that series. 
 
 Here is my plan:
 
@@ -39,8 +39,8 @@ Here is my plan:
   I will show code examples that are hard to compile.  I will discuss strategies and methods for resolving compilation issues.
   Part 1 will present code examples that compile but really, really should not, and code examples that should compile but surprisingly don’t.  I will also summarize my overall experience of working with TS.   
   This series needed a JS library with TS bindings to draw examples from, I decided to use _office.js_ and Part 1 will introduce it.
-* Part 2. Will be about keeping types honest. Are runtime values consistent with the types? We hope they always are but, especially in a gradually typed language like TS, types will sometimes lie. We will see concrete examples of type dishonesty from _office.js_.  Part 2 will cover the `any` and `unknown` types, type coercion (casting), and TS's type guards.
-* Part 3. Will cover some of the TS type safety features that I absolutely love and will include a bunch of rants (e.g. on importance of specifying the return types).  Throughout the series, we will encounter several examples where TS type checker does not work as expected.
+* Part 2. Will be about keeping types honest. Are runtime values consistent with the types? We hope they always are but, especially in a gradually typed language like TS, types will sometimes lie. We will see concrete examples of type dishonesty from _office.js_.  Part 2 will cover the notorious `any` and its safer cousin `unknown`, the type coercion (casting), and TS's type guards.
+* Part 3. Will cover some of the TS type safety features that I absolutely love. It will also include a bunch of rants (e.g. on importance of specifying the return types).  Throughout the series, we will encounter several examples where TS compiler does not work as expected.
  One of my notes will argue that what TS is and does it quite complex.
 * Part 4. Will be more theoretical. Notes in Part 4 will discuss topics such as TS's structural recursive types, subtyping, higher-rank polymorphism (TS supports a version of it!), and type level programming. 
 * Part 5. Will be a wrap-up with some final thoughts. 
@@ -150,9 +150,10 @@ type JsonVal =
 | {type: "null"}
 
 const tstj: JsonVal = {type:"array", val:[{type: "null"}, {type: "number", val: 5}]} //compiles
-//const wrong: JsonVal = {type: "number", val: {type: "string", val: "5"}} //does not compile, number cannot a nested string
-//const wrong2: {type: "object",  val:[{type: "null"}, {type: "number", val: 5}]} //does not compile, object is not an array
-
+```
+```Java
+const wrong: JsonVal = {type: "number", val: {type: "string", val: "5"}} //does not compile, number cannot a nested string
+const wrong2: {type: "object",  val:[{type: "null"}, {type: "number", val: 5}]} //does not compile, object is not an array
 ```
 
 This could have been expressed with OO classes, but it would not be very easy, would it?  
@@ -214,7 +215,7 @@ This `item` object allows access to the email data.  (The situation is just slig
 To retrieve the email body I need to use `item.body.getAsync`.  But wait, the type for that version of `getAsync` accepts not only a callback function but also a "body type" parameter.
 
 I am going to resist the temptation to overload `officePromise`.
-Instead I will move in a direction that is more fundamental, and one that turns out to be more type checker friendly.
+Instead I will move in a direction that is more fundamental.
 
 Assume that we want 'html' body format, the code can look something like this:
 
@@ -229,7 +230,7 @@ const body  = await officePromise<string> (partiallyAppliedBodyFn) // body: stri
 ```
 
 I had to fully specify the `partiallyAppliedBodyFn` type for this to work. 
-That looks like a lot of typing to just partially apply `item.body.getAsync`!
+That looks like a lot of code to just partially apply `item.body.getAsync`!
 
 ### Happy path
 
@@ -251,7 +252,8 @@ And I have a much simpler code that compiles right off the bat:
 
 ```JavaScript
 //Happy path one liner to get email body
-const body = await officePromise (curry(item.body.getAsync)(Office.CoercionType.Html)) 
+//body2: string
+const body2 = await officePromise (curry(item.body.getAsync)(Office.CoercionType.Html)) 
 ```
 
 This worked out quite well and the type checker was able to infer the types!  
@@ -268,26 +270,16 @@ which accepts additional `Office.AsyncContextOptions`.  Using it is much harder.
 (I will not delve into what the extra argument is for, I just want to see if my code will compile with 3 parameters)
 
 ```JavaScript
-//boilerplate 'curry3' implementation is not shown (available in the linked ts-experiments github repo), 
+//boilerplate 'curry3' implementation is not shown (available in the linked github project), 
 //it is almost identical to `curry` but accepts a 3 parameter function  
 
 //trying to pass extra parameter to body.getAsync
 const emptyConfig: Office.AsyncContextOptions = {}
-//body3 does not compile: "Type ... is not assignable to type ..." 
-//const body3  = await officePromise (curry3(item.body.getAsync)(Office.CoercionType.Html)(emptyConfig)) 
 ```
-
-Interestingly the following does compile but with `body3:unknown`, why why why!
-
-```JavaScript
-//this snippet compiles but uses 'any' and returns 'unknown'
-const emptyConfig: any = {}
-const body4  = await officePromise (curry3(item.body.getAsync)(Office.CoercionType.Html)(emptyConfig)) 
+```Java
+//body3 does not compile: "Argument of type 'AsyncContextOptions' is not assignable to parameter of type '(asyncResult: AsyncResult<string>) => void'." 
+const body3  = await officePromise (curry3(item.body.getAsync)(Office.CoercionType.Html)(emptyConfig)) 
 ```
-
-I do not know what causes the widening of `body4` type to `unknown`. There is enough of information in the overloaded `item.body.getAsync` method for the type checker to infer the `string`. My guesswork is too hypothetical to discuss it here. 
-
-Let's focus our attention on the previous (the not compiling `body3`) example.
 
 To understand what is happening, I sometimes need to spend time annotating things, or picking up the exact overload I want. E.g.
 
@@ -300,8 +292,8 @@ const useThisAsync = (coercionType: Office.CoercionType
 ```
 
 This can be tedious, but it typically gets the job done. 
-In this particular case, using `curry3(useThisAsync)` in the above `body3` example fixes the problem. 
-So,  the issue with `body3` code appears to be related to overloading.
+In this particular case, using `curry3(useThisAsync)` fixes the `body3` (or the "3 body", I just had to pun this) problem. 
+So, the issue with `body3` code appears to be related to overloading.
 
 Looking closer at the types, I notice that not only `item.body.getAsync` has two overloads, but the one I want is accepting a union type argument and the callback is optional:
 
@@ -309,22 +301,41 @@ Looking closer at the types, I notice that not only `item.body.getAsync` has two
 //from office.js documentation
 
 //2 parameter overload used in happy path
-(method) Office.Body.getAsync(coercionType: Office.CoercionType | string
+getAsync(coercionType: Office.CoercionType | string
   , callback?: (asyncResult: Office.AsyncResult<string>) => void): void;
 
 //3 parameter overload we are trying to use now
-(method) Office.Body.getAsync(coercionType: string | Office.CoercionType
-  , options: Office.AsyncContextOptions
-  , callback?: ((asyncResult: Office.AsyncResult<string>) => void) | undefined): void 
+getAsync(coercionType: Office.CoercionType | string, 
+        options: Office.AsyncContextOptions, 
+        callback?: (asyncResult: Office.AsyncResult<string>) => void): void;
 ```
 
 So there are sort of _overloads on top of overloads_ and the type checker probably gets confused.   
-I believe the compiler gets stuck on a wrong (the 2 parameter) version of `getAsync` despite of the 3 parameter `curry3` being used. I will show a _type hole_ (we will learn what that is) verification for this hypothesis in the next section.  
+The compilation error suggests that the compiler gets stuck on a wrong (the 2 parameter) version of `getAsync` despite the use of the 3 parameter `curry3`. I will also confirm this hypothesis using a _type hole_ (we will learn what that is) in the next section.  
 I expect the type checker to backtrack and try the next overload, but for some reason it does not want to do that on its own.   
-(I do not blame TS, overloading gives me a headache too.)   
+I do not blame TS, overloading gives me a headache too.   
 Overloading is known for being not type inference friendly (incidentally, that is the reason why Haskell does not overload names).  
 
+**Side note:** 
+Acting on my hypothesis of what is wrong with `body3`, I can push this code to a ridiculous limit:
+
+```JavaScript
+//this compiles by using a wrong input parameter type and returns 'unknown'
+const crazyConfig : (_: Office.AsyncResult<string>) => void = x => ""
+const body4 = await officePromise (curry3(item.body.getAsync)(Office.CoercionType.Html)(crazyConfig)) 
+```
+
+Besides this being completely wrong, 
+I do not understand what causes the widening of `body4` type to `unknown`. There is enough information in the overloaded `item.body.getAsync` method for the type checker to infer the `string`. My guesswork is too hypothetical to discuss it here.   
+Especially for the return types, any widening to `unknown` would IMO be better served as a compilation error.  We want these to be narrow, not wide.  I will show more examples of such widening and
+I will discuss safety concerns related to the `unknown` type in future notes.  
+(**Side note end**)
+
+
+There is something worryingly asymmetric about a 2 parameter overload compiling without additional help and a 3 parameter overload needing a developer intervention. Should I worry that a future version of TS will flip this preference and all of my code that uses the 2 parameter overload will stop compiling?  How stable is this arbitrary complexity?  
+
 _If you are an API owner, my advice is to not overload. IntelliSense works better, type inference works better, developer head hurts less without overloads._
+
 
 One type that is notorious for needing annotations is the TypeScript's _tuple_.
 Typescript overloads array syntax `[]` to define tuples (some readers may prefer the term heterogeneous lists). This is an example of a tuple: `[2,"two"]: [number, string]`. 
@@ -336,7 +347,7 @@ There will be a lot of `myvar as IWantIt`, or a lot of the `any` type.
 
 Was this enough gore for you?  You say it was not?  I say you did not see the content of that email!
 
-### Leveling the bumps
+### Bump leveling tools
 
 
 #### Readable Type Definitions  
@@ -392,6 +403,7 @@ export const _ = <T>(): T => {
 }
 ```
 
+A type hole allows me to ask the compiler _type questions_.   
 You can learn a lot about how the type checker works using it.  E.g. using my `Either` type as an example:
 
 ```JavaScript
@@ -416,12 +428,13 @@ you will see
 (alias) _<unknown>(): unknown
 ```
 
-This can give you a lot of insight into types and how TS uses them!  
+This can provide a lot of insight into types and how TS uses them!  
 
-I also use it to learn what is happening when the type checker gets confused. 
+I have not been very lucky in using type holes to figure out why TS is confused. 
 Returning to my failed `body3` example:
 
 ```JavaScript
+//body3 inferred type is 'unknown'
 const body3  = await officePromise (curry3 (item.body.getAsync)(Office.CoercionType.Html)(_())) 
 ```
 
@@ -431,26 +444,32 @@ if I hover over the `_` function, the IntelliSense suggests this completely wron
 (alias) _<((asyncResult: Office.AsyncResult<string>) => void) | undefined>(): ((asyncResult: Office.AsyncResult<string>) => void) | undefined
 ```
 
-The hole has discovered the last parameter from the two argument overload!
-This tells me that the type checker is looking at a wrong overloaded version of `item.body.getAsync`.  I have used the type hole to verify my hypothesis from the last section!  That is very useful indeed.
+The type hole confirms that the compiler is trying to match against the two parameter overload of `item.body.getAsync`.
+This verifies my hypothesis from the last section.  There are a few things to note here: 
 
-If, as above, I add the type application (`<Office.CoercionType, Office.AsyncContextOptions, OfficeCallack<string>, void>`) to `curry3`
-it will show the type correctly:
+* We are asking TS "why are you confused?" and that is a funny question. 
+* This type hole did not tell us more than the compilation error message itself. 
+  However, the type hole is more targeted so it could reveal more specific information in some cases. 
+* Type holes may tell us something useful in situations where the code compiles but we do not understand why.
+
+If, as before, I add the type application (`<Office.CoercionType, Office.AsyncContextOptions, OfficeCallack<string>, void>`) to `curry3`
+the `_()` will show the type correctly:
 
 ```JavaScript
 (alias) _<Office.AsyncContextOptions>(): Office.AsyncContextOptions
 ```
 
-**A sad compiler limitation**   
+**Unfortunate limitation**   
 Sadly, the ` _<T>(): T` is not universally useful, e.g. this will not compile:
 
-```JavaScript
+```Java
 //compilation error: 
 //       Argument of type '(ax: never, bx: never) => never' is not assignable 
 //       to parameter of type '(ax: unknown, bx: unknown) => unknown'.
-//const test = curry(_()) 
-
-//interestingly the following unifies as curry<unknown, unknown, unknown>
+const testfn = curry(_()) 
+```
+```JavaScript
+//interestingly the following compiles as curry<unknown, unknown, unknown>
 const testfn = curry({} as any)
 ```
 
@@ -463,21 +482,22 @@ The type hole `_` function is a useful tool and we will keep using it in future 
 
 Using types requires some experience, knowledge, and patience. 
 More advanced types come with more misleading error messages, it takes experience to find the underlying cause of a misleading compilation error, and that is true in any language. 
-Eventually I (and you) will look at a TS compilation error
-and will say "ah, you really mean this: ...".
+Eventually, I (and you) will look at a TS compilation error
+and will say "ah, you really meant this: ...".
 
 I am mostly left to my own devices when working with more involved types in TS. 
 Hopefully the future will bring us mainstream grade interactive tools that allow asking type questions, browsing types,
 help solving type puzzles. For now it is mostly the programmer who connects the dots.  
 The good news is that this gets easier and easier with practice. I have been working in TS for only about 2 months now and I already see a difference.   
 
-_Good code needs two type checkers: TypeScript and You_
+_Good code requires two type checkers: TypeScript and You_
 
 
-### Type checking bloopers 
+### Compilation bloopers 
 
-We already saw a "correct" program that should compile but does not (`curry(_())`) and we will see more in the future notes.
-This note shows examples of code that compiles but clearly should not.  
+We already saw "correct" programs that should have compiled but did not (E.g. `curry(_())`, `body3` example) and we will see more in the future notes.
+Our `body4` example compiled but was clearly wrong.  
+This note shows other, less contrived, examples that compile but clearly should not.  
 
 All of these type check:
 
@@ -497,7 +517,7 @@ const nonsense1: (a: Office.CoercionType)
 //compiles but it should not
 const nonsense2 = curry(curry)
 
-//more example in the linked github project
+//more examples in the linked github project
 ```
 
 and all, except the first one, should not.  
@@ -509,7 +529,7 @@ No compiler is perfect, but you probably noticed by now that TS compiler seems t
 Compared to other programming languages I use, TS's rate of compilation issues is much higher, the issues are more dangerous, and these bloopers are happening on more commonly used vanilla code (well... at least commonly used by me).  
 I have no idea what the underlying issues are but I can see one general reason for this:
 gradual typing on top of JS is not easy.  I plan to write a note about the complexity of TS types in a future post.  
-I am sure that TS is fixing such issues but I expect the progress to be slow. 
+I am sure that TS keeps improving and fixing such issues but I expect the progress to be slow. 
 
 
 ### It's all worth it
@@ -517,7 +537,7 @@ I am sure that TS is fixing such issues but I expect the progress to be slow.
 One common concern related to using types (especially more advanced types) is a slowdown in the development speed.  
 There is some truth to this in general because of things like compilation times in some language environments. 
 I cannot comment on TS compilation times for large projects, so far it is not a problem for me.  In my experience, having a type checker is a huge 
-productivity bust.  In my experience, the more types the faster the development speed. 
+productivity bust.  In my experience, the more types the faster the development speed. That is true even with compilation bloopers.  
 Efficiency considerations are somewhat personal so your experience may vary.  
 
 I rewrote some legacy code using the techniques in this section.
@@ -525,7 +545,7 @@ That effort resulted in significant size reduction and an overall big improvemen
 to the code I was replacing or to code in the _office.js_ documentation.  
 A lot of the improvement comes from using `await` `async` syntax sugar but converting functions to their curried form and figuring out more terse ways to type annotate also results in added clarity and significant syntactic simplification. 
 
-In my book (or in this series:) ), there is no comparing TS to JS, TS is the clear winner.  
+In my book, there is just no comparing TS to JS, TS is the clear winner.  
 How does TS compare to statically type checked front-end languages that compile to JS and have capable type checkers and solid types (e.g. ReasonML, Elm, PureScript, even Haskell)?  I am not in a good position to discuss this yet.   
 Lots of projects need to stay close to JS, my project at work falls into this group.  For such projects TS is the right choice IMO.
 
