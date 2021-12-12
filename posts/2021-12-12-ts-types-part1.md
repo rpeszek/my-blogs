@@ -1,7 +1,6 @@
 ---
 title: Type Enthusiast's Notes about TypeScript. Part1. Typing in Anger
 author: Robert Peszek
-lastmodified: Jul 04, 2021
 featured: true
 summary:  TypeScript Types series, Introduction, office.js, working with and fighting type checker
 toc: true
