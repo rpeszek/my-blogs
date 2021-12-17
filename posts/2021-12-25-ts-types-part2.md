@@ -204,7 +204,7 @@ TS offers a neat alternative to casting.  I will explain it by _not_ following t
 As I indicated already, I can interact with outlook email using `Office.context.mailbox.item`. 
 However, `item` property is overloaded into several types discussed in a previous note (I called them _facets_): 
 
-The legacy code I am currently re-implementing at work is retrieving the email subject using `item.subject` and checking what kind of `email.subject` it is (a string, has asyc methods, etc) and using it accordingly.  It does a similar _"check before you get"_ game to retrieve `to`, `from`, `cc` and other email information.  
+The legacy code I am currently re-implementing at work is retrieving the email subject using `item.subject` and checking what kind of `email.subject` it is (a string, has asyc methods, etc) and using it accordingly.  It does a similar _"check before you use"_ game to retrieve `to`, `from`, `cc` and other email information.  
 Such an approach is typical, almost idiomatic to JS.  It is also hard to maintain as making changes directed at one _facet_ can easily break the other _facets_. 
 And you can test your heart out on all emails you can think about (we still have not figured out how to do e2e testing for office apps) and your app will still crash and burn if used with an office calendar appointment.
 
@@ -228,7 +228,10 @@ const doSomethingWithComposedEmail = (item: Office.MessageCompose): void => {...
 
 (OK, checking `getAttachmentsAsync` is ugly, office.js could provide some nicer and more stable way to identify the exact `item` type.  This is still not bad. Let's move on.)
 
-I can use these almost without any casting (except for correcting the type _office.js_ gave me): 
+`doSomethingWithViewedEmail` and `doSomethingWithComposedEmail` can now be coded with confidence following corresponding `MessageRead` or `MessageCompose` types.  IntelliSense makes writing these a breeze and the code is very clean.
+E.g., `subject` is just a `string` in `MessageRead`.
+
+I can use these without any casting (except for correcting the type _office.js_ gave me): 
 
 ```JavaScript
 //Fixes office.js typing, replaces `&`-s with `|`-s because that is what the runtime value is
@@ -251,12 +254,12 @@ if(isMessageRead(item)) {
 }
 ```
 
-This is a really nice work TypeScript!  Simple to use, yet very useful.   
+This is a really nice work, bravo TypeScript!  Simple to use, yet very useful.   
 
 It is also IMO a very interesting case of TS making a bigger impact of how we actually code. 
-_"Check before you get"_  game becomes type assisted and happens on a larger scale of `item` types instead of
+_"Check before you use"_  game becomes type assisted and happens on a larger scale of `item` types instead of
 single (e.g. _email subject_, _email cc_, etc.) properties. This adds a lot of clarity to the code.
-Types are not there to just check my code, types change how I code.
+Types are not there to just check my code, types change how I code!
 
 
 `t is T` type is one of the TypeScript [_add_blank_target narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) tools. The documentation refers to it as _type guards_ and _type predicates_.  
@@ -406,17 +409,54 @@ and a few that come very close.
 Can you write a whole single page app in TS and give it that signature?  I bet you can.  
 We would probably not call it a type-lie. 
 Calling it not descriptive would probably be more accurate. Or, maybe just not the best design?   
-So, if some type definitions are better than others, which are better? 
+So, if some type definitions are better than others, which are better?  Based on what would you decide that one type
+definition is better than other?
 
-I will give you an IMO. I would say this would be not a good type for 
-a single page app. When I program in TS I try to strive for very descriptive types. 
-I use specific type aliases and think what to do so the IntelliSense provides more descriptive type information.  
-For example, when typing a React component I like to see explicit model and parameter types if possible. 
-Something like `Props` is not good enough for me.  It is not about renaming `Props`, it is about using
-the actual types.  
-Parametricity was just one example.  Types have a life of their own outside of TS (or any other programming language).  
-Good design and good code, IMO needs to be based on understanding of types.  Not types in a particular programming language, but types in general.
-I strive to apply this understanding to balance my typing between descriptive, approachable, and principled.  
+I will give you an IMO, a very type centric view of programming:
+
+1. For a program, well written means well typed
+2. Types live outside of TS (or any programming language).  When I write code I map what I know about types
+to what the programming language can express.  Conventions or "gentlemen's agreements" can fill in the gaps.  
+3. TS (or any programming language) programming needs a balancing act.  My approach 
+is to balance principled and safe with approachable and informative. That balance is subjective and my balance point may differ from yours.  
+
+Expanding on 1 and 2.  
+We have seen how applying the today's concepts offered by TS types to code that uses _office.js_ `item` uncovered a refactoring strategy that made the code much more clean and robust.  This type of benefit does not need to draw only from the concepts available in TS.  These concepts have language agnostic foundations.  
+IMO a balanced decision needs to be made how far a project can go outside of TS's boundaries.  This balance is team and project specific.  A good example is a use of FP libraries like _fp-ts_.  Decision of my current project was to limit the use to a few isolated places.
+
+Expanding on 3: the best communication tools for developers and the best documenting tools for the code, **IMO** and in that order, are:  **types, tests**.  In TS I want my types to be very informative.  For example, this how a vanilla React component 
+I could have written would look like in IntelliSense (I like vanilla React):
+
+```JavaScript
+const PersonCard: ({ model, onChange }: {
+    model: Person;
+    onChange: (_: Person) => void;
+}) => JSX.Element
+
+//or 
+const PersonCard: React.FC<{
+    model: Person;
+    onChange: (_: Person) => void;
+}>
+```
+
+instead of the more common:
+
+```JavaScript
+const PersonCard: React.FC<Props>
+```
+
+Also, I am not suggesting the names for optical _setters_ and _getters_ here. I would be equally happy with this:
+
+```JavaScript
+const PersonCard: React.FC<{
+    get: Person;
+    set: (_: Person) => void;
+}>
+```
+
+my focus is on types not values. There is no safety benefit of doing this.  Communication and documentation are the only goals.
+
 
 
 ## Next Chapter
