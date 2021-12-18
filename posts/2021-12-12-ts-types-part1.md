@@ -1,10 +1,13 @@
 ---
-title: Type Enthusiast's Notes about TypeScript. Part1. Typing in Anger
+title: Type Enthusiast's Notes about TypeScript. Part 1. Typing in Anger
 author: Robert Peszek
 featured: true
 summary:  TypeScript Types series, Introduction, office.js, working with and fighting type checker
+changelog: <ul> 
+    <li> (2021.12.23) modified historical note about office.js. Linked Part 2.
+     </ul>
 toc: true
-tags: TypeScript
+tags: TypeScript-Notes
 codestyle: ts
 ---
 
@@ -18,9 +21,11 @@ When this note disappears, you will know that I gave up.)_
 _The code in this post may require something like `strictNullChecks` compiler flag. 
 I assume strict compiler flags are on, something you get by default with scaffolding, e.g. using
 `create-react-app my-project --template typescript` is close enough.  
-The code examples have been tested with TypeScript v4.4.4 and v4.5.2.  
+The code examples have been tested with TypeScript v4.4.4 and v4.5.2.   
+office.js examples are based on https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js and @types/office-js@1.0.221 
+(these match the current scaffold for office.js/React).  
 This post is a pandoc output of a markdown document and code examples are not interactive.  
-Most code examples are published in [_add_blank_target ts-notes](https://github.com/rpeszek/ts-experiments/tree/master/ts-notes) folder in this github repo: [_add_blank_target ts-experiments](https://github.com/rpeszek/ts-experiments)._
+Most of the code examples are published in [_add_blank_target ts-notes](https://github.com/rpeszek/ts-experiments/tree/master/ts-notes) folder in this github repo: [_add_blank_target ts-experiments](https://github.com/rpeszek/ts-experiments)._
 
 ## Introduction to the series 
 
@@ -38,7 +43,7 @@ Here is my plan:
   I will show code examples that are hard to compile.  I will discuss strategies and methods for resolving compilation issues.
   Part 1 will present code examples that compile but really, really should not, and code examples that should compile but surprisingly don’t.  I will also summarize my overall experience of working with TS.   
   This series needed a JS library with TS bindings to draw examples from, I decided to use _office.js_ and Part 1 will introduce it.
-* Part 2. Will be about keeping types honest. Are runtime values consistent with the types? We hope they always are but, especially in a gradually typed language like TS, types will sometimes lie. We will see concrete examples of type dishonesty from _office.js_.  Part 2 will cover the notorious `any` and its safer cousin `unknown`, the type coercion (casting), and TS's type guards.
+* [_add_blank_target Part 2](2021-12-25-ts-types-part2.html). Will be about keeping types honest. Are runtime values consistent with the types? We hope they always are but, especially in a gradually typed language like TS, types will sometimes lie. We will see concrete examples of type dishonesty from _office.js_.  Part 2 will cover the notorious `any` and its safer cousin `unknown`, the type coercion (casting), and TS's type guards. We will also discuss coding conventions for transparent, self documenting types. 
 * Part 3. Will cover some of the TS type safety features that I absolutely love. It will also include a bunch of rants (e.g. on importance of specifying the return types).  Throughout the series, we will encounter several examples where TS compiler does not work as expected.
  One of my notes will argue that what TS is and does it quite complex.
 * Part 4. Will be more theoretical. Notes in Part 4 will discuss topics such as TS's structural recursive types, subtyping, higher-rank polymorphism (TS supports a version of it!), and type level programming. 
@@ -176,9 +181,9 @@ Since you are still reading, I assume you are in camp 1.
 ## _office.js_.  Using TS in anger
 
 I will use _office.js_ library as a source of examples for this series.  It is a Microsoft product (like TypeScript). 
-_office.js_ comes with TypeScript type definitions (code examples in this series use @types/office-js@1.0.221). 
-It is also relatively old and has been retrofitted for TS. Many other JS ecosystem libraries have traveled a similar JS to TS path. 
-It seems like a good 'comprehensive' example for examining the benefits (and frustrations) of using TS in anger.   
+It comes with TypeScript type definitions (this series uses @types/office-js@1.0.221).   
+Looking into the _office.js_ revision history suggests that the bond between _office.js_ and TypeScript developed very early.  It almost looks like these projects grew up together. 
+_office.js_ seems like a good 'comprehensive' example for examining the benefits (and frustrations) of using TS in anger.   
 Despite some hardships, TS makes working with office.js much, much easier!
 
 As the name suggests, _office.js_ provides an API for working with _Microsoft Office_. 
@@ -560,7 +565,8 @@ We are not done with _office.js_.  I will use it in future notes.
 Do statically defined types reflect the actual runtime values? 
 How to assure that they do?   
 We will discuss these questions in the next installment.
-I have the draft ready and I hope to publish it in a few weeks.
+~~I have the draft ready and I hope to publish it in a few weeks.~~  
+Here is the link: [_add_blank_target Part 2. Typing Honestly](2021-12-25-ts-types-part2.html)
 
 
 

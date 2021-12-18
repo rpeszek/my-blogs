@@ -4,7 +4,7 @@ author: Robert Peszek
 featured: true
 summary:  TypeScript Types series, types and values that do not match, type guards, `any`,`unknown`, honest types
 toc: true
-tags: TypeScript
+tags: TypeScript-Notes
 codestyle: ts
 ---
 
@@ -20,12 +20,12 @@ I assume strict compiler flags are on, something you get by default with scaffol
 `create-react-app my-project --template typescript` is close enough.  
 The code examples have been tested with TypeScript v4.4.4 and v4.5.2.   
 office.js examples are based on https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js and @types/office-js@1.0.221 
-(something you get with current office scaffold for React).   
+(these match the current scaffold for office.js/React).   
 This post is a pandoc output of a markdown document and code examples are not interactive.  
 Most of the code examples are published in [_add_blank_target ts-notes](https://github.com/rpeszek/ts-experiments/tree/master/ts-notes) folder in this github repo: [_add_blank_target ts-experiments](https://github.com/rpeszek/ts-experiments)._
 
 
-Previous post: [_add_blank_target Part 1. Typing in Anger](https://rpeszek.github.io/posts/2021-12-12-ts-types-part1.html).
+Previous post: [_add_blank_target Part 1. Typing in Anger](2021-12-12-ts-types-part1.html).
 
 ## Nutshell
 
@@ -326,7 +326,7 @@ const emailBody4 = await officePromise (curry3(item.body.getAsync)(Office.Coerci
 const test = curry({} as any)
 ```
 
-Several compilation bloopers (see [_add_blank_target previous post](https://rpeszek.github.io/posts/2021-12-12-ts-types-part1.html#compilation-bloopers)) are in the same boat:
+Notice `unknown` in these [_add_blank_target blooper](https://rpeszek.github.io/posts/2021-12-12-ts-types-part1.html#compilation-bloopers) examples from the previous post:
 
 ```JavaScript
 //these should not compile but they do. Names are consitent with previous post and the linked github repo
@@ -447,14 +447,14 @@ I will give you an IMO, a very type centric view of programming:
 
 1. Well written program means well typed. Well typed means the types express what is happening.   
    This does not mean advanced or complex TS types, quite often it means the opposite.
-2. Types are more fundamental than a language.  When TS falls short, the developer needs to step in.
-3. Try to bring the types in, decide if coding conventions can fill in the language gaps.  
+2. Types are more fundamental than a programming language. 
+3. Try to bring the types in, decide if coding conventions can fill in the limitations in the language.  
 4. TS (or any programming language) programming needs a balancing act.  My approach for writing TS
 is to balance principled and safe with approachable and informative. That balance is subjective and my balance point may differ from yours.  
 
 **Expanding on 2:**   
-TS type checks my code, I type check TS (last post).  A library (e.g. _office.js_) comes with types, I type check these types and fix some of them (this post). Developer interventions are needed. Understanding of types does not
-change with a programming language environment.  The cumbersomeness of their use does.  TS is, comparatively speaking not that bad.  
+TS type checks my code, I type check TS (last post).  A library (e.g. _office.js_) provides types, I type check these types and fix some of them (this post). Developer interventions are needed. Understanding of types does not
+change with a programming language environment.  The cumbersomeness of their use does.  TS is, comparatively speaking, not that bad.  
 
 **Expanding on 3:**  
 In TS, almost any program can have almost any type. I can implement 
