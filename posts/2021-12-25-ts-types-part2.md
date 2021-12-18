@@ -22,7 +22,7 @@ The code examples have been tested with TypeScript v4.4.4 and v4.5.2.
 office.js examples are based on https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js and @types/office-js@1.0.221 
 (something you get with current office scaffold for React).   
 This post is a pandoc output of a markdown document and code examples are not interactive.  
-Most code examples are published in [_add_blank_target ts-notes](https://github.com/rpeszek/ts-experiments/tree/master/ts-notes) folder in this github repo: [_add_blank_target ts-experiments](https://github.com/rpeszek/ts-experiments)._
+Most of the code examples are published in [_add_blank_target ts-notes](https://github.com/rpeszek/ts-experiments/tree/master/ts-notes) folder in this github repo: [_add_blank_target ts-experiments](https://github.com/rpeszek/ts-experiments)._
 
 
 ## Nutshell
@@ -436,7 +436,7 @@ is to balance principled and safe with approachable and informative. That balanc
 
 **Expanding on 2:**   
 TS type checks my code, I type check TS (last post).  A library (e.g. _office.js_) gives me types, I type check these types (this post).   
-When the infrastructure falls short developer needs to step in.   
+When the infrastructure falls short the developer needs to step in.   
 In TS, almost any program can have almost any type. I can implement `program:() => void` and do almost anything 
 I want in that code.  
 It would not be very clear if most of my types looked like this. There needs to be some coding convention
