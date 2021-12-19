@@ -2,7 +2,7 @@
 title: Type Enthusiast's Notes about TypeScript. Part 2. Typing Honestly
 author: Robert Peszek
 featured: true
-summary:  TypeScript Types series, types and values that do not match, type guards, `any`,`unknown`, honest types
+summary:  TypeScript Types series, types and values that do not match, type guards, `any`,`unknown`, honest transparent types
 toc: true
 tags: TypeScript-Notes
 codestyle: ts
@@ -15,8 +15,7 @@ It seems I have goblins in my laptop that toy with me, remove or change words.
 When this note disappears, you will know that I gave up.)_   
 
 **Disclaimers:** (imagine this is a very small font, read it very fast in a half whisper)   
-_The code in this post may require something like `strictNullChecks` compiler flag. 
-I assume strict compiler flags are on, something you get by default with scaffolding, e.g. using
+_I assume strict compiler flags are on, something you get by default with scaffolding, e.g. using
 `create-react-app my-project --template typescript` is close enough.  
 The code examples have been tested with TypeScript v4.4.4 and v4.5.2.   
 office.js examples are based on https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js and @types/office-js@1.0.221 
@@ -161,13 +160,13 @@ You can have your own favorite `null` that is not `null` value, you can _define_
 Sky and your creativity are the limits.  I will spoil this party and say that I do not recommend doing it.  Oh, maybe just a little.  Well OK, one more:
 
 ```JavaScript
-const sassy: any = {worth: "billion dollars", popularity: "celebrity"}
+const sassy: any = {netWorth: "billion dollars", popularityLevel: "celebrity"}
 const sassyNull: null = sassy
 
 const p: Person | null = sassyNull
 ```
 
-Bottom type that is not empty will cause language to be unsound. Allowing all values in a bottom type, I would call it insane.   
+A bottom that is not empty will cause language to be unsound. Allowing all values in a bottom type, I would call it insane.   
 However, using an _any_ type similar to TS's seems to be a common practice in gradually typed languages (e.g. Python does it too).  
 Using `any` is like saying "hey, TS, please suspend type checking, I know what I am doing". 
 This is the antithesis of type safety, but what else can TS do and maintain JS compatibility?  
@@ -278,10 +277,9 @@ I hope the TS community develops a healthy aversion to casting.  Why would you u
 
 **Use of `any` in type guards**  
 Arguably, a safer approach was for me to define `isMessageRead` and `isMessageCompose` using a parameter type that is more restrictive than `any`.   
-My goal was to keep this example simple and avoid introducing a complex `CorrectedItem` type fixing _office.js_ typing before using the type guards. In real code I would opt for introducing the corrected type.   
+My goal was to keep this example simple and avoid introducing a complex `CorrectedItem` type fixing _office.js_ typing before using the type guards. In real code, I would opt in for introducing the corrected type.   
 Using `any` in type guards appears to be a common practice. Implementing a type guard typically requires checking existence of object properties and `any` provides access to these.   
 My suggestion is to avoid type guards in certain places, e.g. in generics. We want generics to be generic. 
-More on this later in this post.
 
 
 ## Note about the `unknown` type
@@ -312,7 +310,7 @@ Compared to `any` it is more cumbersome to use but significantly safer.
 A rough view (IMO) of what the type safety is: an ability to _separate apples from oranges_. 
 If you can assign both an apple to `unknown` and an orange to `unknown` then they are no longer separated.   
 What makes this worse in TS, is its occasional tendency to widen return types to `unknown`. TS tends to do that 
-if it cannot find a more precise return type and sometimes when it is confused. 
+if it cannot find a more precise return type or when it gets confused. 
 We saw two examples of this in the last post:
 
 ```JavaScript
@@ -339,10 +337,9 @@ const nonsense3 = curry(curry3)
 const nonsense4 = curry(curry(curry))
 ```
 
-and we will encounter a few more in future notes.  Seems like TS's tendency to widen types to `unkown` is a source
-of lots of problems. 
+and we will encounter more examples of _unsafe widening_ in future notes.  It seems like TS tends to widen types to `unkown` instead of reporting a compilation error.  This, in turn, makes things less safe.
 
-I really love the fact that this code does not compile:
+I really love the fact that this code (a contrived example but generalizes easily to real situations) does not compile:
 
 ```Java
 //Compilation error:
@@ -350,7 +347,7 @@ I really love the fact that this code does not compile:
 "some email body" === 1 
 ```
 
-However, this does:
+However, this does compile:
 
 ```JavaScript
 ("some email body" as unknown) === 1
@@ -385,29 +382,28 @@ eqeqeq("some text", 1) //compiles
 "some text" === 1 //does not compile
 ```
 
-In fact, `===` _does not have a type_.  It is a built-in JS operator.  TS applies semantic narrowing rules to the code that uses it. This complex approach is needed to provide type safety and achieve compatibility with JS at the same time.   
-TS's semantic rules prevent something like `someText === someNumber` from compiling,
-except, this safety is fragile and assumes that `someText` or `someNumber` are not accidentally widened to `unknown` by the type inference.   And TS uses a similar approach for other built-in JS operators.   
+In fact, `===` _does not have a type_.  It is a built-in JS operator.  TS applies semantic narrowing rules to the code that uses it.   
+This complex approach is needed to provide type safety while maintaining compatibility with JS.   
+TS's semantic rules prevent non unifying types like `someText === someNumber` from compiling,
+except, this safety is fragile and breaks when `someText` or `someNumber` are accidentally widened to `unknown` by the type inference.   TS uses a similar approach for other built-in JS operators.   
 
 The impacts of accidental widening to `unknown` on static verification are hard to predict. I attribute this quote to Paul Phillips (former Scala's compiler engineer). These are not his exact words, the quote is from memory:
 
 > "There is nothing obviously wrong.  What is wrong is not obvious."
 
-I look at it this way: in TS, type safety is designed to work most of the time. 
-If more is needed TS may be not the right choice, but what TS gives us is still much better than plain JS.  
+I look at it this way: The TS type checker behaves predictably most of the time. 
+If more solid type checking is needed, Reason ML, Elm, or PureScript are better choices. TS is much better than plain JS.  
+
 
 **General safety concerns about `unknown`:** 
 Developers, like me, who had spent decades working in languages like Java and then switch to a typed FP language see immediate 
 safety benefits just because there isn't any top type.
 The concern about `unknown` is that it can be used with many JS functions and operators. 
-These operations effectively bypass the type checking.  
-Generic functions lose safety, generics are not generic if a type variable uses a JS function in a very specific way.
-
-_A statement about everything is either trivial or incorrect_.  
-
-Since I just made it, I wonder which one is it?  Ignoring this paradox, 
-consider for example `JSON.stringify` which accepts `unknown`.  
+Such use is not type safe, similarly to how Java's `Object` methods are not type safe.   
+These JS functions and operators are not implemented very well from the type safety point of view.
+Consider for example `JSON.stringify` which accepts `unknown`. 
 Does this expression (it returns `undefined`) make much sense to you: `JSON.stringify(() => {})`?   
+Generic functions lose safety too, generics are not _generic_ if a generically typed function parameter can use a _specific_ JS function.  
 
 Something like `unknown` is probably the only way for TS to achieve JS compatibility, nonetheless it is not ideal.   
 
@@ -417,8 +413,7 @@ I will also return to the `unknown` type itself in the future in a more theoreti
 
 ## Honest typing conventions
 
-I will finish this installment with a philosophical rant. 
-My next post will be a bunch of rants, so I thought I start a bit early. (You probably will say: "hey you have started already!".)
+These notes will be a little ranty (you'll probably ask: "Did you read your other notes?"). Any coding convention is effectively a hand waving rant.  That is why we use types!  
 
 One of my former colleagues liked to use the phrase "gentlemen's agreement". 
 It means an agreement between developers to self impose certain limitations on the code they write. 
@@ -443,17 +438,17 @@ Calling it not descriptive would probably be more accurate. Or, maybe just not t
 If some type definitions are better than others, which of them are better?  Apps are written so the decisions 
 are being made, but based on what?
 
-I will give you an IMO, a very type centric view of programming:
+I will give you my very type centric view of programming:
 
 1. Well written program means well typed. Well typed means the types express what is happening.   
-   This does not mean advanced or complex TS types, quite often it means the opposite.
 2. Types are more fundamental than a programming language. 
-3. Try to bring the types in, decide if coding conventions can fill in the limitations in the language.  
+3. Coding conventions supplement the language in implementing typing concepts. 
 4. TS (or any programming language) programming needs a balancing act.  My approach for writing TS
-is to balance principled and safe with approachable and informative. That balance is subjective and my balance point may differ from yours.  
+is to balance principled and safe with approachable and informative. That balance is subjective and
+project specific, my balance point may differ from yours.  
 
 **Expanding on 2:**   
-TS type checks my code, I type check TS (last post).  A library (e.g. _office.js_) provides types, I type check these types and fix some of them (this post). Developer interventions are needed. Understanding of types does not
+TS type checks my code, I type check TS (last post).  A library (e.g. _office.js_) provides types, I type check these types and fix some of them (this post). Developer interventions are needed.  Understanding of types does not
 change with a programming language environment.  The cumbersomeness of their use does.  TS is, comparatively speaking, not that bad.  
 
 **Expanding on 3:**  
@@ -493,14 +488,14 @@ const PersonCard: ({ model, onChange }: {
 }) => JSX.Element
 ```
 
-hopefully, the implementation does not use any hooks, it only used passed parameters (I call them lensy setters and getters) to create UI with event handlers.  This would be an example of a referentially transparent React type.
+hopefully, the implementation does not use any hooks, it only used the parameters (I call them lensy setters and getters) to create bits of HTML with event handlers.  This would be an example of a referentially transparent React type.
 It also would be an example of a very explicit type that is very "honest". 
 
 Many developers will very much disagree with me on this.  E.g. many will prefer to encapsulate state handling inside
 components. I do not intend to argue 
 which approach is better.  I will just point out that encapsulation is secretive in the type definition and I am looking
 for transparency.  Many parts of React will require some use of hooks, 
-my approach is to do that only when I have to not when I want to.  It is an IMO.
+my approach is to do that only when I have to not when I want to and make things very type-explicit.  It is an IMO.
 
 Such type is also self documenting.  
 **Expanding on my point 4:** IMO, the best communication tools for developers and the best documenting tools for the code, in that order, are:  _types and tests_.  I will just focus on the first.
@@ -535,8 +530,38 @@ const PersonCard: React.FC<{
 my focus is on types, not values. There is no safety benefit in doing this.  Communication, documentation and accessibility are the only goals.  
 In a modernized interpretation of the KISS principle I think of "Simple" as a lot of very transparent types.
 
+### The importance of return types
+
+This note was originally planned for Part 3 but this rant fits better here since it relates to the transparency of 
+type signatures.
+
+Doing exclusively FP for a while now, I have now fully transitioned my brain to thinking about inputs and outputs all the time. 
+So it irks me that most of the TypeScript code I am finding on the web does not type the returns.  
+
+Protecting the exact output type at its definition point (declaration of the function returning it) is the simplest way of enforcing some level of design sanity. 
+Relying on inferred return types is unstable.  Another developer comes in and makes an adjustment. Your function now returns some unexpected union type.  Depending on many other factors, this could cause compilation issues elsewhere or not.  How can you reason about input-output if your outputs are being inferred? 
+
+Just for grins, think about 'T' in _TDD_ as 'Type'. To do that _TDD_ overload, you define not only inputs but also the return type upfront and keep fixing your code (no casting in the final product) until it compiles. OK, that would require some fancy types to fully replace _T(est)DD_ but, still, is the right way to program if you believe that types are important. 
+
+Note, there is a linter [_add_blank_target typedef](https://palantir.github.io/tslint/rules/typedef/) rule to enforce this.
+
+**Side Note about `ReturnType` and `typeof`:**     
+The built-in `ReturnType` and `typeof` could encourage the use of inferred return types.  
+E.g. repeating typescriptlang [_add_blank_target handbook](https://www.typescriptlang.org/docs/handbook/2/typeof-types.html):
+
+```JavaScript
+function f() {
+  return { x: 10, y: 3 };
+}
+type P = ReturnType<typeof f>
+```
+
+I prefer explicitly, statically defined types and limiting the use of the `typeof` type operator in general. 
+
+
 
 ## Next Chapter
 
-It will be more of ranting time!  There are parts of TS that I absolutely love and adore and I will talk about them.
-How we approach programming with types or thinking in types?  The complexity of TS types is another big topic to discuss.
+There are parts of TS that I absolutely love and adore and I will talk about them.
+The complexity of TS types is another big topic to discuss.  I am working on these notes during the 2021 holiday season, this behooves me to add my (will be late) wishes to Santa about TS.  
+_Merry Christmas, Happy New Year!_ Stay happy and healthy!

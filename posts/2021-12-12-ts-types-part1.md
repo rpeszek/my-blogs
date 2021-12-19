@@ -4,7 +4,7 @@ author: Robert Peszek
 featured: true
 summary:  TypeScript Types series, Introduction, office.js, working with and fighting type checker
 changelog: <ul> 
-    <li> (2021.12.23) modified historical note about office.js. Linked Part 2.
+    <li> (2021.12.24) modified historical note about office.js. Linked Part 2.
      </ul>
 toc: true
 tags: TypeScript-Notes
@@ -18,8 +18,7 @@ It seems I have goblins in my laptop that toy with me, remove or change words.
 When this note disappears, you will know that I gave up.)_   
 
 **Disclaimers:** (imagine this is a very small font, read it very fast in a half whisper)   
-_The code in this post may require something like `strictNullChecks` compiler flag. 
-I assume strict compiler flags are on, something you get by default with scaffolding, e.g. using
+_I assume strict compiler flags are on, something you get by default with scaffolding, e.g. using
 `create-react-app my-project --template typescript` is close enough.  
 The code examples have been tested with TypeScript v4.4.4 and v4.5.2.   
 office.js examples are based on https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js and @types/office-js@1.0.221 
@@ -43,8 +42,8 @@ Here is my plan:
   I will show code examples that are hard to compile.  I will discuss strategies and methods for resolving compilation issues.
   Part 1 will present code examples that compile but really, really should not, and code examples that should compile but surprisingly don’t.  I will also summarize my overall experience of working with TS.   
   This series needed a JS library with TS bindings to draw examples from, I decided to use _office.js_ and Part 1 will introduce it.
-* [_add_blank_target Part 2](2021-12-25-ts-types-part2.html). Will be about keeping types honest. Are runtime values consistent with the types? We hope they always are but, especially in a gradually typed language like TS, types will sometimes lie. We will see concrete examples of type dishonesty from _office.js_.  Part 2 will cover the notorious `any` and its safer cousin `unknown`, the type coercion (casting), and TS's type guards. We will also discuss coding conventions for transparent, self documenting types. 
-* Part 3. Will cover some of the TS type safety features that I absolutely love. It will also include a bunch of rants (e.g. on importance of specifying the return types).  Throughout the series, we will encounter several examples where TS compiler does not work as expected.
+* [_add_blank_target Part 2](2021-12-24-ts-types-part2.html). Will be about keeping types honest. Are runtime values consistent with the types? We hope they always are but, especially in a gradually typed language like TS, types will sometimes lie. We will see concrete examples of type dishonesty from _office.js_.  Part 2 will cover the notorious `any` and its safer cousin `unknown`, the type coercion (casting), and TS's type guards. I will also discuss (or rather rant about) coding conventions for transparent, self documenting types. 
+* Part 3. Will cover some of the TS type safety features that I absolutely love.  Throughout the series, we will encounter several examples where TS compiler does not work as expected.
  One of my notes will argue that what TS is and does it quite complex.
 * Part 4. Will be more theoretical. Notes in Part 4 will discuss topics such as TS's structural recursive types, subtyping, higher-rank polymorphism (TS supports a version of it!), and type level programming. 
 * Part 5. Will be a wrap-up with some final thoughts. 
@@ -566,7 +565,7 @@ Do statically defined types reflect the actual runtime values?
 How to assure that they do?   
 We will discuss these questions in the next installment.
 ~~I have the draft ready and I hope to publish it in a few weeks.~~  
-Here is the link: [_add_blank_target Part 2. Typing Honestly](2021-12-25-ts-types-part2.html)
+Here is the link: [_add_blank_target Part 2. Typing Honestly](2021-12-24-ts-types-part2.html)
 
 
 
