@@ -501,7 +501,7 @@ const PersonCard: ({ model, onChange }: {
 Hopefully, the implementation does not use any hooks, it only uses the parameters (I call them setters and getters) to create bits of HTML with event handlers.  This would be an example of a referentially transparent React type.
 It also would be an example of a very explicit type that is very "honest". 
 
-**Type enthusiast's side notes:**
+**FP side notes:**
 Such approach is not novel at all (e.g. Elm uses a similar approach, only not as a coding style but as its architecture).   
 Lenses can be used as just a coding convention too.
 **(end side notes)**
@@ -552,7 +552,7 @@ In a modernized interpretation of the KISS principle I think of "Simple" as a lo
 There are parts of TS that I absolutely adore and I will talk about them.
 The complexity of TS types is another big topic to discuss. 
 Complexity causes compilation issues (we will encounter some new bloopers) and makes the language hard to use. 
-This will take me a couple of weeks to finish. 
+This will take me a few weeks to finish. 
 
 I am working on these notes during the 2021 holiday season. 
 _Merry Christmas, Happy New Year!_ Stay happy and healthy!

@@ -4,7 +4,7 @@ author: Robert Peszek
 featured: true
 summary:  TypeScript Types series, Introduction, office.js, working with and fighting type checker
 changelog: <ul> 
-    <li> (2021.12.24) modified historical note about office.js. Linked Part 2.
+    <li> (2021.12.24) modified historical note about office.js. Linked Part 2. Planned future content adjustment.
      </ul>
 toc: true
 tags: TypeScript-Notes
@@ -45,7 +45,7 @@ Here is my plan:
 * [_add_blank_target Part 2](2021-12-24-ts-types-part2.html). Will be about keeping types honest. Are runtime values consistent with the types? We hope they always are but, especially in a gradually typed language like TS, types will sometimes lie. We will see concrete examples of type dishonesty from _office.js_.  Part 2 will cover the notorious `any` and its safer cousin `unknown`, the type coercion (casting), and TS's type guards. I will also discuss (or rather rant about) coding conventions for transparent, self documenting types. 
 * Part 3. Will cover some of the TS type safety features that I absolutely love.  Throughout the series, we will encounter several examples where TS compiler does not work as expected.
  One of my notes will argue that what TS is and does it quite complex.
-* Part 4. Will be more theoretical. Notes in Part 4 will discuss topics such as TS's structural recursive types, subtyping, higher-rank polymorphism (TS supports a version of it!), and type level programming. 
+* Part 4. Will be more theoretical. Notes in Part 4 will discuss topics such as TS's structural, recursive types, subtyping, phantom types, type variable scoping, higher-rank polymorphism (TS supports a version of it!), and type level programming. 
 * Part 5. Will be a wrap-up with some final thoughts. 
 
 **Why am I writing these notes?**   
