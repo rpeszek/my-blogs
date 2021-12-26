@@ -4,7 +4,8 @@ author: Robert Peszek
 featured: true
 summary:  TypeScript Types series, Introduction, office.js, working with and fighting type checker
 changelog: <ul> 
-    <li> (2021.12.24) modified historical note about office.js. Linked Part 2. Planned future content adjustment.
+    <li> (2021.12.24) modified historical note about office.js. Linked Part 2. Planned future content adjustment.</li>
+    <li> (2021.12.26) <a href="#fn1">footnote [1]</a> 
      </ul>
 toc: true
 tags: TypeScript-Notes
@@ -195,7 +196,7 @@ To access data, _office.js_ often uses an old style `getAsync` methods that I wi
 
 ```JavaScript
 /* Utility to convert office functions to promises */
-export const officePromise = <T> (getasync: ((fx: ((r: Office.AsyncResult<T>) => void)) => void)): Promise<T> => {
+export const officePromise = <T> (getasync: (fx: (r: Office.AsyncResult<T>) => void) => void): Promise<T> => {
     return new Promise((resolve, reject) => {
       getasync((res: Office.AsyncResult<T>) => {
         if(res.status===Office.AsyncResultStatus.Succeeded){
@@ -208,14 +209,15 @@ export const officePromise = <T> (getasync: ((fx: ((r: Office.AsyncResult<T>) =>
 
 ```
 
-**Side Note:** Here is my first criticism of TS.  The ergonomics of function type definitions is IMO really poor.
+**Side Note**[^1]: Here is my first criticism of TS.  The ergonomics of function type definitions is IMO really poor.
 These definitions are hard to read and cumbersome to write. This syntax does not scale well to more involved types and makes reasoning about types harder.  
 E.g. in the above example parameters `fx:` and `r:` cannot be used anywhere (are outside of the lexical scope) and serve only a documentation purpose.
-This simple example needs 10 parentheses! The declaration syntax overloads the meaning of both `:` and `=>`.  Function form `A` to `B` is (depending where in the declaration) either `(a: A) => B` or `(a: A): B`. I admit it took me a long time to figure out how to write these and it still takes me forever to read some of these types.  
-
+This simple example needs 6 parentheses. The use of `:` and `=>` is confusing.  Function form `A` to `B` is (depending where in the declaration) either `(a: A) => B` or `(a: A): B`. I admit it took me a long time to figure out how to write these and it still takes me forever to read some of these types.   
 Later in this post, I will show some work-arounds that simplify type definitions like this one.   
 I am adding a big fat **IMO** to this side note, readability is in the eye of ... well the reader.  But seriously...   
 **(Side Note End)**
+
+[^1]: I rewrote the side note and improved `officePromise` type definition based on a [_add_blank_target comment](https://www.reddit.com/r/typescript/comments/rnougu/comment/hptsnvg/?utm_source=share&utm_medium=web2x&context=3) from _u/Tubthumper8_ on reddit. (Thanks!) 
 
 Properly initialized office add-in will have access to `Office.context.mailbox.item: Office.MessageRead`.   
 This `item` object allows access to the email data.  (The situation is just slightly more complicated since the `item` property is overloaded but that is not important for now.) 
