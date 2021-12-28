@@ -35,17 +35,18 @@ _From typescriptlang [_add_blank_target TypeScript for Functional Programmers](h
 
 This is the third post in the series devoted to types in TypeScript. In this series, I explore type-centric approaches to writing code and  push TS to its limits in doing so. I am writing these posts for like minded developers who are interested in types and either use or consider using TypeScript.
 
-In this post we will see TS struggle.  The section about complexity of TS types will expose compilation inconsistencies and surprising type checker behavior.  I will introduce additional tools for asking type questions to examine the complexities.   
+In this post we will see TS struggle.  We will see compilation inconsistencies and surprising type checker behavior.  
 My main goal in this note is to point out the complexity of what TS is trying to accomplish and share my understanding of it.  
-As such this note will have a negative feel to it, similar to any gotchas discussion.  
-I promise to compensate for this in the next installment.  It will be about techniques for programming with type variables.
+As such, this note will have a negative feel to it, similar to any gotcha discussion.  
+On a positive note, I will introduce additional tools for asking TS type questions.   
+Also, I promise to compensate for this negativity in the next installment.  It will be about programming with type variables.
 
-Before we discuss complexity, let's briefly talk about cool aspects of TS's type safety.
+Before we discuss the TS's complexity, let's briefly talk about cool aspects of TS's type safety.
 
 
 ## Interesting safety
 
-TypeScript implements special [_add_blank_target narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) semantics when processing parts of JS code. These semantic rules provide very interesting and useful type safety features. 
+TypeScript implements special [_add_blank_target narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) semantics when processing parts of JS code. These semantic rules provide very surprising and useful type safety features. 
 TS can effectively narrow types used in a number of JS operators such as `typeof`, `===`, `==`
 and apply this information to `if-else`, `switch` statements.  This post has already shown a few examples where this, almost magically, prevents placing code in a wrong branch of conditional if-else blocks.
 
@@ -75,35 +76,17 @@ function blah(lhs: string, rhs: Person) {
 }
 ```
 
-TypeScript prevents from using `===` if it can figure out, by looking at the types that `===` will always be `false`. This is true in general, not just inside `if-else`, but the `if-else` use is the killer app IMO.   
+TypeScript prevents from using `===` if it can guess, by looking at the types that `===` will always be `false`. This is true in general, not just inside `if-else`, but the `if-else` use is the killer app IMO.   
 One cool example of `===` type safety combines type narrowing with literal types: `1 === 2` will not compile!
 
 This is a big deal. `===` is typically used to compare things like `string` or `number` _id_-s or _hashes_ and it is not that uncommon to accidentally try to compare something like an _id_ to something completely different.   
 I have seen analogous errors in many programming languages including even _Scala_. 
 
-Last set of notes in this post is about complexity of TS types. The `===` type narrowing will be my main example in these notes.
-
-
 
 ### `switch` exhaustive check
 
 There is something still lacking in the type safety department. 
-`if-else` does not provide any mechanism for the type checker to verify that the program checked all possible conditions. E.g.
-
-```JavaScript
-const contrived = (n: 1 | 2): number => {
-    if(n === 1) 
-       return 1
-    else if (n === 2)
-      return 2
-    else 
-      return 100  // contrived will not compile if I comment the final else
-
-}
-```
-
-Think of `1` and `2` as `Office.MessageCompose`-like "facets" (example borrowed from the previous post) currently offered by some API your code is using.  
-You want to know what code needs to change when the API offers a `3`-rd facet.  Do you remember "Just one more thing" from the Lieutenant Columbo?   I may just be much older than you...
+`if-else` does not provide any mechanism for the type checker to verify that the program checked all possible conditions.
 
 Interestingly, TS uses the `switch` statement to solve this problem:
 
@@ -115,6 +98,19 @@ const contrived_better = (n: 1 | 2): number => {
         return 1
        case 2:
         return 2 
+    } 
+}
+```
+
+```Java
+//Compilation error
+//Function lacks ending return statement and return type does not include 'undefined'.ts(
+export const contrived_better_ = (n: 1 | 2 | 3): number => {
+    switch(n) {
+       case 1:
+        return n
+       case 2:
+        return n 
     } 
 }
 ```
@@ -171,16 +167,16 @@ The type of `person.middleNm` is `string | undefined`.  My preference is to decl
 middleNm? : string | Undefined
 ```
 
+The extra safety features are what excited me about TS when I first saw them.   
+The remainder of this post drills deeper into this safety.   
 
 
 ## Complexity of TS Types
 
-Throughout the series, we encountered a few examples where TS type checker did not work as expected, we will encounter more of TS quirkiness is this note.  This note suggests a reason for this: type complexity. 
+Throughout the series, we encountered a few examples where TS type checker did not work as expected, we will encounter more of TS quirkiness is this section.  This note suggests a reason for this: type complexity. 
 
-I had set out to write this note planning to explore TS in a broader scope and show a set of very simple code examples explaining what TS does and why is that hard.  TS failed to work with me on about half of my examples creating chaos in my presentation. 
-For example, an attempt to understand the arithmetic operators: `+`, `*`, `/` using [type holes]() resulted
-in a complete failure.  TS did not allow me to use `_()` in any of these
-exploratory expressions:  
+My original plan was to explore TS in a broader scope and show a set of very simple code examples explaining what TS does and why is that hard.  TS failed to work with me on about half of my examples creating chaos in my presentation. 
+For example, I was not able to use [type holes]() in the arithmetic operators: `+`, `*`, `/`:  
 
 ```Java
 //Compiliation errors: Object is of type 'unknown'
@@ -189,18 +185,8 @@ _() * _()
 _() / _()
 ```
 
-I decided to narrow the focus of this note.  I will focus only on semantic narrowing rules around the `===` operator.  
+I decided to narrow the focus of this note.  We only will look at the semantic narrowing rules around the `===` operator.  
 As we will see, this one alone will expose a lot of the underlying complexity.   
-
-In this note, the narrative will try to ran away from me.  Talking about compiler complexity and uncovering compilation issues will get tangled together.  TypeScript comes with:
-
-* type support for OO features
-* structural subtyping 
-* additional semantic rules for a selected set of JS operators 
-
-All 3 are complex and intertwined. This note will try to focus on the last two bullets and how they relate to the `===` operator.  
-I will try to demonstrate the complexity behind subtyping and the complexity of supporting ad-hoc semantics for the operators.
-I would have been much simpler if `===` was just a function with two parameters, returning a boolean.  In TS, it is not. 
 
 ### `===` semantics, rejected overlap
 
@@ -252,7 +238,7 @@ would have returned `true`!  This seems like a major blooper.
 
 **_We have falsified the error message from TS._**
 
-OO is complex and OO related type design issues are not uncommon among OO languages, this could be one of them.   
+OO is complex and type design issues are not uncommon among OO languages, this could be one of them.   
 On the other hand, preventing `{bye: "world!"} === {hello: "world!"}` from compiling seems useful from a pragmatic point of view.   
 
 I see 2 possible conclusions
@@ -263,15 +249,15 @@ I see 2 possible conclusions
 
 ### `===` semantics, what's an overlap?
 
-Let's focus on this part of the error message "types ... and ... have no overlap".
+Let's focus on this part of the error message: "types ... and ... have no overlap".
 
 **(EQ-SAFETY attempt 2):**  _`x === y` compiles if `x: X` and `y: Y` and the compiler successfully computes some special non-`never` `Overlap` type that widens to both `X` and `Y`_
 
 `X` is the computed type for `x`, `Y` is the computed type for `y`,  how do we compute `Overlap` type for both?  
-I think we can assume that widens simply means `extends` (more about `extends` in the future subsection). 
+I think we can assume that widens simply means `extends` (more about `extends` in a subsection below). 
 
-The 64,000 dollar question is how is the `Overlap` computed?  
-It is clearly not the same as intersection (the type operator `&`).  We have falsified that hypothesis in the 
+The 64K dollar question is how is the `Overlap` computed?  
+It is clearly not the same as intersection (the type operator `&`),  we have falsified that hypothesis in the 
 previous section.  
 
 Let's try to look at some patterns:
@@ -310,15 +296,12 @@ function testEqSemantics2(a: {hello: string} | 1, b: "boo" | {hello: string, sin
 }
 ```
 
-A possible rule for calculating `Overlap` could be:
+A possible rule for calculating `Overlap` could be (this is just my guess):
 
-* for intersection types `X` and `Y`, if `X extends Y` take `X` or `Y extends X` take `Y` otherwise use `never`
-* for union types `X = X1 | X2 | ...` and `Y = Y1 | Y2 | ...` recursively check if any `Xi` and `Yj` overlaps (this would be slow, quadratic cost!) 
+* for intersection types `X` and `Y`, if `X extends Y` take `X` else if `Y extends X` take `Y` otherwise use `never`
+* for union types `X = X1 | X2 | ...` and `Y = Y1 | Y2 | ...` recursively check if any `Xi` and `Yj` overlaps (this would be slow, quadratic cost per recursive step!) 
 * for complex combinations of union and intersection types? I DUNNO, I have not tested it enough.
-
-The second bullet looks like a simplified, shallow intersection (`X & Y`).   
-As the previous sub-section shows, the semantics of `===` and `&` are only partially consistent.  
-As we will see shortly, computing `X & Y` is complex on its own.  
+ 
 I have not played with this assumption for a very long time, but so far these rules seem to hold with these exceptions:
 
 ```JavaScript
@@ -334,12 +317,8 @@ function tst2 (x: 1, y: null) {
 
 Does `1` have an overlap with `null` and `undefined`? 
 What does that even mean? 
-With the _strictNullChecks_ compiler flag, `null` should be well separated from other types.  
-
+With the _strictNullChecks_ compiler flag, `null` should be well separated from other types.   
 This particular quirkiness is actually useful, it allows for a program to do conservative null checks even if the type indicates that is not needed. I was happy to use this quirkiness in the above [todo]() section.    
-
-If you are still reading this and your head is not spinning yet, try to recall the accidental widening issues 
-we have examined in [``]() and how they impact `===`.  
 
 I hope you agree.  This is complicated.  
 I will hopefully bring this point even closer to home by the end of this post.
@@ -404,9 +383,9 @@ eq(1 as 1, 2 as 2)    //NOTE we lost the type safety of ===
 eq({bye: "world"}, {hello: "world"})  //NOTE we lost the (possibly erronious) type safety preventing {bye: "world"} === {hello: "world"}
 ```
 
-These are all different types but TS can unify them into a supertype (next section will discuss it). 
+How come these compile? These are all different types but TS can unify them into a supertype (next section will discuss it). 
 These are all legitimate statements.  Unfortunately, the type safety has been lost.  This explains why the semantic narrowing 
-around the `===` operator is needed.  It is needed because structual subtyping can unify types even if types are very different.
+around the `===` operator is needed.  It is needed because structural subtyping can unify types even if types are very different.
 
 However, quirkiness alert, these do not compile:
 
@@ -425,7 +404,7 @@ _This is very unfortunate_, you want generic functions to work _consistently_ ac
 The quirkiness seems to be related to type inference working inconsistently and failing 
 to widen the types if a string literal type is involved (next section discussed it).  
 
-The narrative ran away from me again, but the point should be somewhat clear:  Generics provide only limited type safety in TS.  
+The narrative ran away from me, but the point should be somewhat clear:  Generics provide only limited type safety in TS.  
 E.g. enhanced safety semantics around `===` does not transfer to a DIY safety 
 that a library solution could expose. 
 
@@ -485,11 +464,10 @@ eq(booone, oneboo)
 eq<(1 | "boo")>(booone, oneboo)
 ```
 
-In our discussion of `===` semantics I have stated that the intersection semantics (around the `&` operator) is most likely very complex.
-I have also stated that the semantics around `===` is partially consistent with `&`.    
-The example above allows `x === y` for `x: number | Person` and `y: string | Person`.
+In our above examples we have seen that `===` is partially consistent with the intersection (`&` operator).  
+Let's look at `&` semantics a little closer. 
 
-We can check the consistency with the `&` intersection by doing this:
+We can try to double check how the `&` intersection works by doing this:
 
 ```JavaScript 
 //both compile suggesting that Person is equivalent to the intersection  (number | Person) & (string | Person)
@@ -505,30 +483,12 @@ However this does not compile, and it does look like a bug (see second line of t
 verifyExtends<(1 | "boo") & ("boo" | Person), "boo">()
 ```
 
-Complexity is a super food for bugs.
+_Complexity is a super food for bugs._
 
-We will discuss subtyping in more detail in the next installment.  
+We will discuss subtyping in more detail in a future installment.  
 
-Hopefully you were able to find a linear path in this note that leads to this conclusion:
-subtyping weakens the type safety. 
+Here is my quick summary: subtyping is complex and it weakens the type safety. 
 TS tries to recover the safety by building complex narrowing semantics around a selected set of JS operators.  
-
-
-### Another narrowing issue?
-
-Armed with knowledge of literal strings causing subtyping quirkiness this is simply a good guess:
-
-```Java
-//suffix numbers follow examples in the linked repo
-function testEqSemantics5(a: {hello: 1 | "boo"} , b: "boo" | Person): boolean {
-    //This condition will always return 'false' since the types '{ hello: 1 | "boo"; }' and 'string | Person' have no overlap.ts(2367)
-    return a === b
-}
-```
-
-I believe this is caused by a bug in handling literal strings, it is not a narrowing `===` implementation bug per se.
-
-
 
 ### Comparative Complexity
 
@@ -560,6 +520,108 @@ predictable compiler, but lose JS debugging and suffer when integrating JS libra
 Ecosystem compatibility issue is a little harder to ignore and the main reason I am writing code in TS.
 
 
+### Variance Problems
+
+I will finish with an example of a confusing complexity that should really feel surprising.   
+
+To get subtyping right, the language needs to support variance.  TS does not really do that.  
+Let's try to rethink my DIY `eq` with this code:
+
+```JavaScript
+interface Payload<T> {payload: T}
+
+declare function eqPayloads<T>(t1: Payload<T>, t2: Payload<T>): boolean
+```
+
+and try using it in two ways:
+
+```C
+//Are these the same?  They better be!
+eqPayloads({payload: {bye: "world"}}, {payload: {hello: "world"}}) 
+
+const bye = {bye: "world"}
+const hello = {hello: "world"}
+
+eqPayloads({payload: bye}, {payload: hello}) 
+```
+
+These got to be equivalent, right?  
+
+It turns out that the first compiles, the second does not!  I hope you will agree with me that this 
+is very confusing.   
+
+```JavaScript
+eqPayloads({payload: {bye: "world"}}, {payload: {hello: "world"}})
+```
+```Java
+// Compiliation error:
+// Property 'bye' is missing in type '{ hello: string; }' but required in type '{ bye: string; }'.ts(2741)
+eqPayloads({payload: bye}, {payload: hello})
+```
+
+If I hover over the inputs in the first example I see types like these:
+
+```JavaScript
+//IntelliSense view of the first input parameter in 
+//eqPayloads({payload: {bye: "world"}}, {payload: {hello: "world"}})
+(property) payload: {
+    bye: string;
+    hello?: undefined;
+} | {
+    hello: string;
+    bye?: undefined;
+}
+```
+
+Note that the dreaded subtyping judgment is correct.  This is a valid unifying supertype.   
+What has happened here is interesting.  I had refactored nested objects out, TS created types for them.
+
+```JavaScript
+//IntelliSense view of the 'bye' and 'hello' const-s
+const bye: {
+    bye: string;
+}
+const hello: {
+    hello: string;
+}
+```
+
+These types do unify like above, however TS has not way of knowing if `Payload<T>` is covariant in `T`
+(i.e. `P extends T` implies `Payload<P> extends Payload<T>`).  
+In fact, it is just an interface and it does not have to be covariant, e.g. here is contravariant use of `Payload`:
+
+```JavaScript
+class MyFun<T,R> implements Payload<T> {
+    fn: (_:T) => R
+    payload: T
+    constructor(fn: (_:T) => R, defPayload: T){
+       this.fn = fn
+       this.payload = defPayload
+    }
+    apply() {
+        return this.fn(this.payload)
+    }
+}
+```
+
+TS, instead, hard-codes invariance, this creates surprising behavior like the one we just have seen. 
+To do it right, TS would need to allow the program specify variance the way Scala does and have much more 
+sophisticated type inference. 
+
+I should note that I could have used this definition instead: 
+
+```JavaScript
+//alternative to using interfaces
+type Payload<T> = {payload: T}
+```
+
+and we would have seen the same problem.  TS type inference is not capable to figure it out, despite the fact that this definition is for sure covariant. 
+I do not blame it,  I am not smart enough to figure out subtyping either. 
+When I have a choice, I prefer to use languages that do not have subtyping features.
+
+TypeScript is a _wild wrapped in fragile_.  JS is the wild, subtyping is the fragile. 
+
+
 ### Summary
 
 This was a very hard note to write.  I rewrote it several times.  How do I write about complexity and make it simple to read?  
@@ -580,6 +642,7 @@ We have observed some new compilation issues and irregularities.  To summarize t
 
 * subtyping with literal strings appears to cause unsafe widening issues
 * unexpected widening of literal object property types
+* surprising 
 * `===` rejects the `&` overlap of intersection types
 
 Introduced tools 
@@ -591,7 +654,6 @@ function verifyExtends<T2 extends T1, T1>() {}
 
 allow to ask subtyping questions. 
 
-
-
 ## Next Chapter
 
+Oh gosh, I have been beating on TS for too long. Articles like these are not very 
