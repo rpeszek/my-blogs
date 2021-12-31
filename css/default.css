@@ -11,6 +11,16 @@ header {
   border-bottom: 0.2rem solid #000;
 }
 
+div.side-note {
+  border:  0.1rem solid #555;
+  border-radius: 0.5rem;
+  background-color: rgb(224, 222, 222);
+  padding: 1rem;
+  margin: 0.2rem;
+  opacity: 0.8;
+  
+}
+
 .featured li {
   padding-bottom: 1rem;
 }
