@@ -135,10 +135,8 @@ My coding preference would be to rewrite my first example like this:
 //Reusable utility type
 export type Undefined = null | undefined
 
-//Convenience function
 export const isUndefined = (d: unknown): d is Undefined =>
-   (d === null) || (d === undefined) //probably equivalent to (d == null), I prefer not to use '=='
-
+   (d === null) || (d === undefined) //I prefer not to use '=='
 
 const getName2 = (p:Person | Undefined): string => {
     //const tst1 = p.firstNm //will not compile
@@ -158,15 +156,15 @@ type Person2 = {firstNm: string; middleNm?: string | Undefined; lastNm: string}
 ```
 
 The extra safety features are what surprised and excited me about TS. 
-They reminded me of niche functional programming languages.  
+They reminded me of a functional programming language.  
 
 
 ## Complexity of TS types
 
 Throughout the series, we had encountered a few examples where TS type checker did not work as expected, we will encounter more of TS quirkiness is this section.  This note suggests a reason for this: type complexity. 
 
-My original plan was to explore TS in a broader scope and show a set of very simple code examples explaining what TS does and why is that hard.  TS failed to work with me on about half of my examples creating chaos in my presentation. 
-For example, I was not able to use the [_add_blank_target type holes](2021-12-12-ts-types-part1.html#type-holes) in the arithmetic operators: `+`, `*`, `/`:  
+My original plan was to write about TS needing to implement a separate ad-hoc semantics for various JS operators. 
+I was not able to present anything very insightful and I have abandoned that idea, e.g. these [_add_blank_target type hole](2021-12-12-ts-types-part1.html#type-holes) expressions do not even compile:  
 
 ```Java
 //Compiliation errors: Object is of type 'unknown'
@@ -175,8 +173,8 @@ _() * _()
 _() / _()
 ```
 
-I decided to narrow the focus of this note.  I will discuss the semantic narrowing rules around the `===` operator and will make
-some attempts at defining equality on my own.  
+Taking the quote from the top of this post to heart, I concluded that TS is about providing support for OO and other idiomatic uses of JS.  I decided to narrow the focus of this note to subtyping and the `===` operator semantics.
+
 
 ### `===` semantics, rejected overlap
 
@@ -193,7 +191,6 @@ Here is an example of safety around the `===` operator:
 Let's try to figure out the semantic rules around `===`.  What does "not having an overlap" mean?  
 I have not seen a formal (or even a somewhat precise) definition of the semantic rules for the `===`.  
 (Please comment in git discussions if you know about any place that defines these.)   
-
 The informal definition (from typescriptlang documentation) points to a "common type that both `x` and `y` could take on" but this statement clearly has some loose ends.   
 
 The first part of the error message "This condition will always return 'false'" suggests a way to start:
@@ -212,14 +209,14 @@ function testEqSemantics(a: {bye: string}, b: {hello: string): boolean {
 Let me temporarily comment the not compiling code:
 
 ```JavaScript
-function testEqSemantics(a: {bye: string}, b: {hello: string): boolean {
+function testEqSemantics(a: {bye: string}, b: {hello: string}): boolean {
    //This condition will always return 'false' since the types '{ bye: string; }' and '{ hello: string; }' have no overlap.
    //return a === b
    return true
 }
 
-const helloBy = {bye:"world!", hello:"world!"}
-testEqSemantics(helloBy, helloBy)  //compiles, here is the overlap!
+const helloBye = {bye:"world!", hello:"world!"}
+testEqSemantics(helloBye, helloBye)  //compiles, here is the overlap!
 ```
 
 TS has effectively prevented me from using `===` even though there are legitimate cases where the `===` 
@@ -286,9 +283,9 @@ function testEqSemantics2(a: {hello: string} | 1, b: "boo" | {hello: string, sin
 }
 ```
 
-A possible rule for calculating `Overlap` could be (this is just a rough, high level heuristics):
+A possible rule for calculating `Overlap` could be (this is just a rough, high level heuristics, _please comment if you know a better definition_):
 
-* for intersection types `X` and `Y`, if `X extends Y` take `X` else if `Y extends X` take `Y` otherwise use `never`
+* for intersection types `X` and `Y`, if `X extends Y` take `X` else if `Y extends X` take `Y` otherwise reject
 * for union types `X = X1 | X2 | ...` and `Y = Y1 | Y2 | ...` recursively check if any `Xi` and `Yj` overlaps (heuristics ignores performance cost) 
 * for complex combinations of union and intersection types? I DUNNO, I have not tested it enough.
  
@@ -483,9 +480,9 @@ There are many inconsistencies in both the implementation of subtyping and the i
 
 ### Comparative complexity
 
-A "type enthusiast" will associate types with correctness, even formal verification.  IMO, words "messy" and "type" are self contradictory. 
+A "type enthusiast" will associate types with correctness, even formal verification.  To me, words "messy" and "type" are self contradictory.  TS "types" support some interesting features but are a mess. 
 
-I want to contrast the above `===` and `eq` examples against a programming language that has been designed around types from the beginning. An example could be Elm, PureScript, or Haskell (I am not that familiar with ReasonML or OCaml).    
+I want to contrast the above `===` and `eq` examples against a programming language that has been designed around types from the beginning. An example could be an FP language like Elm, PureScript, or Haskell (I am not that familiar with ReasonML or OCaml).    
 These language have much simpler types.  The safety around equality does not require any special narrowing semantics.  You get it for free in any DIY function that has 2 arguments sharing the same generic type (only they call it polymorphic not generic).   
 
 One underlying reason for this is the lack of complex subtyping and OO features. `eq(x,y)` will not compile if `x` and `y` have different types. There is no way to unify `x` and `y` to some supertype because there are no subtypes or supertypes.   
@@ -495,7 +492,7 @@ The types in these languages are much simpler (not necessarily easier but simple
 
 
 [^2]: Haskell is still improving on this aspect. IMO, the need for polymorphic access to 
-record fields is overrated.  
+record fields is overrated.  I would trade it for a capable compiler any time.
 
 Type complexity translates to a confused type checker and to a confused developer.   
 _Programming in a language in which I do not fully understand the types equates to me writing programs I do not fully understand._
@@ -505,17 +502,17 @@ What makes for a fewer bugs, lots of dollars or clean types?
 I do not think there is a clear answer to this question.  However, resources can't solve all the problems. 
 Programming languages are almost paranoid about backward compatibility and backward compatibility 
 does not like changing things, even if the change is fixing bugs.   
-So I am afraid, a language like Elm will always be cleaner and more robust.
+So I am afraid, a simple language like Elm will always be cleaner and more robust.
 
 Forgetting about the popularity context, I view it as a trade-off:  suffer because of the type complexity and reduced type safety but see a readable JavaScript and trivially integrate with the rest of JS ecosystem _vs_ introduce a language that has nicer types, greater type safety, 
 predictable compiler, but lose generated JS code clarity and suffer when integrating JS libraries.   
 This trade-off is IMO not trivial and very project dependent. 
 Clean types vs clean JS, I typically select the clean types. 
 The ecosystem compatibility issue is a little harder to ignore and the main reason I am writing code in TS. 
-Projects with high correctness requirement should select an FP language, the optimal choice for other projects is less clear.    
+Projects with a high correctness requirement, IMO, should select an FP language, the optimal choice for other projects is less clear.    
 
 
-### Variance Problems
+### Variance problems
 
 I will finish with some examples that may feel even more surprising.   
 
@@ -567,7 +564,7 @@ list.push("not a number") //compiles
 verifyExtends<typeof datedHello[], typeof helloDolly[]>() //datedHello extends helloDolly type
 ```
 
-I see the same incorrect subtyping on the Payload interface:
+I see the same incorrect subtyping on the `Payload` interface:
 
 ```JavaScript
 //interface Payload is incorrectly covariant
@@ -581,14 +578,22 @@ An example in the linked github repo exploits `interface Payload<T>` covariance 
 
 Invariance would have been a better (a more conservative) choice for both `interface Payload<T>` and the array.  
 A careful reader may notice that the structurally typed `type Payload1<T> = {payload: T}` should also be invariant
-since the `payload` property is mutable (getters are covariant, setters are contravariant).  TS incorrectly makes it covariant. 
+since the `payload` property is mutable (getters are covariant, setters are contravariant).  TS incorrectly makes it covariant.  
 
-I do not blame TS,  I get in trouble with OO and subtyping too. 
-The difference between me and TS is that I try to avoid subtyping.   
-This is also disappointing, ideally a programming language will get things like these right.  
+I will sound like a broken record now, subtyping is clearly very complex.
 
-TypeScript is a _wild wrapped in fragile_.  JS is the wild, subtyping is the fragile. 
+I done more digging into it after writing this note.  It appears that the intention was to keep TS conceptually easy
+([_add_blank_target issue 1394](https://github.com/microsoft/TypeScript/issues/1394)).  
+The result may be easy but is definitely not simple.
 
+_Incorrect is never simple._
+ 
+_side_note_start **Observation (Rant Alert)**: 
+There is a tendency to focus on the common case and ignore the corner case. 
+This tendency has a broad scope, broader than TS. 
+What has (typically) a lower cost:  resolving a problem that every users observes when opening the app or resolving a problem that affects 1% of users once a month?  Are less frequently observed defects assigned a lower priority?  Not really.  
+The common approach to software and language design and the economics of software maintenance are an ill matched couple. 
+_side_note_end
 
 ### Summary
 
@@ -604,15 +609,18 @@ Again, my main claims are:
 * subtyping adds significant complexity and lowers type safety
 * ad-hoc semantic narrowing around JS operators partially recovers safety, but is complex by itself and scope limited
 
-Languages with simpler and more reliable type systems are not a superset of JS syntax.  
+Languages with simpler and more reliable type systems are not a superset of JS syntax and are idiomatically far from JS[^flow].   
 
-We have observed some new compilation issues and irregularities.  To summarize these:
+[^flow]: I have not used _flow_ recently, and I cannot compare TS to it.  However _flow_ has subtyping which I do not consider simple. Indeed, some level of subtyping support is needed to support commonly used JS idioms.
 
-* literal strings cause unsafe widening issues
-* unexpected widening of literal object property types
-* inconsistent widening of function arguments
-* incorrect handling of variance 
-* `===` rejects the `&` overlap of intersection types, while claiming the opposite in the error message
+We have observed some compilation issues and irregularities.  To summarize these:
+
+* issues inferring literal types widened to a union ([`eq(1, "boo")`](#subtyping))
+* issues preventing intersecting unions involving literal types ([`(1 | "boo") & ("boo" | Person)`](#subtyping))
+* unexpected widening of literal object property types ([hidden blooper](#hidden-blooper-side-note))
+* inconsistent widening of function arguments (top of [variance problems](#variance-problems))
+* incorrect handling of variance ([variance problems](#variance-problems))
+* `===` rejects the `&` overlap of intersection types, while claiming the opposite in the error message ([rejected overlap](#semantics-rejected-overlap))
 
 Introduced tools 
 
@@ -625,6 +633,7 @@ can ask TS subtyping questions.
 
 ## Next Chapter
 
-I have been complaining about TS a little too much.  The next installment will focus on programming with 
+This post has been about the "messy" in TS.  The next installment will focus on programming with 
 type variables and will present TS in a better light. I decided to split advanced topics into 2 smaller posts. 
-I plan to discuss phantom types, type variable scoping, a pattern emulating existential types, and rank 2 types next. 
+I plan to discuss phantom types, type variable scoping, a pattern emulating existential types, and rank 2 types. 
+I consider these to be quite useful typing approaches.
