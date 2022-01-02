@@ -243,12 +243,10 @@ Let's focus on this part of the error message: "types ... and ... have no overla
 **(EQ-SAFETY attempt 2):**  _`x === y` compiles if `x: X` and `y: Y` and the compiler successfully computes some special non-`never` `Overlap` type that widens to both `X` and `Y`_
 
 `X` is the computed type for `x`, `Y` is the computed type for `y`,  how do we compute `Overlap` type for both? 
-I think we can assume that _widens_ simply means `extends`. 
-
+I think we can assume that _widens_ simply means `extends`.   
 The 64K dollar question is how is the `Overlap` computed? 
 It is clearly not the same as intersection (the type operator `&`),  we have falsified that hypothesis in the 
-previous section.  
-
+previous section. 
 Let's try to look at some patterns:
 
 ```JavaScript 
@@ -288,7 +286,7 @@ function testEqSemantics2(a: {hello: string} | 1, b: "boo" | {hello: string, sin
 A possible rule for calculating `Overlap` could be (this is just a rough, high level heuristics, _please comment if you know a better definition_):
 
 * for intersection types `X` and `Y`, if `X extends Y` take `X` else if `Y extends X` take `Y` otherwise reject
-* for union types `X = X1 | X2 | ...` and `Y = Y1 | Y2 | ...` recursively check if any `Xi` and `Yj` overlaps (heuristics ignores performance cost) 
+* for union types `X = X1 | X2 | ...` and `Y = Y1 | Y2 | ...` recursively check if any `Xi` and `Yj` overlaps (this heuristics ignores performance cost) 
 * for complex combinations of union and intersection types? I DUNNO, I have not tested it enough.
  
 I have not played with this assumption for a very long time, but so far these rules seem to hold with these exceptions:
@@ -481,7 +479,7 @@ TS tries to recover the safety by building complex narrowing semantics around a 
 There are many inconsistencies in both the implementation of subtyping and the implementation of narrowing semantics.
 
 
-### Comparative complexity
+### Comparative complexity rant
 
 A "type enthusiast" will associate types with correctness, even formal verification.  To me, the words "messy" and "type" are self contradictory.  TS "types" support some interesting features but are a mess. 
 
@@ -641,3 +639,5 @@ This post has been about the "messy" in TS.  The next installment will focus on 
 type variables and will present TS in a better light. I decided to split advanced topics into 2 smaller posts. 
 I plan to discuss phantom types, type variable scoping, a pattern emulating existential types, and rank 2 types. 
 I consider these to be quite useful typing approaches.
+
+Happy New Year to all of my readers.  Thank you for reading.
