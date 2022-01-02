@@ -33,7 +33,9 @@ _From typescriptlang [_add_blank_target TypeScript for Functional Programmers](h
 
 ## Nutshell
 
-This is the third post in the series devoted to types in TypeScript. In this series, I explore type-centric approaches to writing code and  push TS to its limits in doing so. I am writing these posts for like minded developers who are interested in types and either use or consider using TypeScript.
+Happy New Year!  Let's hope 2022 it will be way better than 2021.  It has to be.  
+
+This is the third post in the series devoted to types in TypeScript. In this series, I explore type-centric approaches to writing code and push TS to its limits in doing so. I am writing these posts for like minded developers who are interested in types and either use or consider using TypeScript.  
 
 In this post we will see TS struggle.  We will see compilation inconsistencies and surprising type checker behavior.  
 My main goal is to point out the complexity of what TS is trying to accomplish and share my understanding of it.  
@@ -61,7 +63,7 @@ function blah(lhs: string, rhs: Person) {
   if (lhs === rhs) {
     //Do something
   } else {
-    //Do somethign else
+    //Do something else
   }
 }
 ```
@@ -71,7 +73,7 @@ is a programming bug and will not type-check in TypeScript.  You can just replac
 ```JavaScript
 //Actual equivalent
 function blah(lhs: string, rhs: Person) {
-  //Do somethign else
+  //Do something else
 }
 ```
 
@@ -161,7 +163,7 @@ They reminded me of a functional programming language.
 
 ## Complexity of TS types
 
-Throughout the series, we had encountered a few examples where TS type checker did not work as expected, we will encounter more of TS quirkiness is this section.  This note suggests a reason for this: type complexity. 
+Throughout the series, we encountered a few examples where the TS type checker did not work as expected, we will encounter more of TS quirkiness in this section.  This note suggests a reason for this: type complexity. 
 
 My original plan was to write about TS needing to implement a separate ad-hoc semantics for various JS operators. 
 I was not able to present anything very insightful and I have abandoned that idea, e.g. these [_add_blank_target type hole](2021-12-12-ts-types-part1.html#type-holes) expressions do not even compile:  
@@ -195,9 +197,9 @@ The informal definition (from typescriptlang documentation) points to a "common 
 
 The first part of the error message "This condition will always return 'false'" suggests a way to start:
 
-**(EQ-SAFETY attempt 1):**  _TypeScript prevents from using `===` if it can prove, by looking at the types, that the result of `===` would always be `false`._
+**(EQ-SAFETY attempt 1):**  _TypeScript prevents using `===` if it can prove, by looking at the types, that the result of `===` would always be `false`._
 
-This is very high level and does not explain how TS does it. But is this even true?  
+This is a very high level and does not explain how TS does it. But is this even true?  
 
 ```Java
 function testEqSemantics(a: {bye: string}, b: {hello: string): boolean {
@@ -305,7 +307,7 @@ function tst2 (x: 1, y: null) {
 Does `1` have an overlap with `null` and `undefined`? 
 What does that even mean? 
 With the _strictNullChecks_ compiler flag, `null` should be well separated from other types.   
-This particular quirkiness is actually useful, it allows for a program to do conservative null checks even if the type indicates that is not needed. I was happy to use this quirkiness in the above [null safety](#null-undefined-safety) section.    
+This particular quirkiness is actually useful, it allows for a program to do conservative null checks even if the type indicates that it is not needed. 
 
 I hope you agree.  This is complicated.  
 I will hopefully bring this point even closer to home by the end of this post.
@@ -368,7 +370,7 @@ Let's ignore the second type hole disappointing quirkiness and move on.
 eq(1 as 1, null)
 eq(1, 2)              //NOTE we lost the type safety of ===
 eq(1 as 1, 2 as 2)    //NOTE we lost the type safety of ===
-eq({bye: "world"}, {hello: "world"})  //NOTE we lost the (possibly erronious) type safety preventing {bye: "world"} === {hello: "world"}
+eq({bye: "world"}, {hello: "world"})  //NOTE we lost the (possibly erroneous) type safety preventing {bye: "world"} === {hello: "world"}
 ```
 
 How come these compile? These are all different types but TS can unify them into a supertype (next section will discuss it). 
@@ -474,16 +476,19 @@ verifyExtends<(1 | "boo") & ("boo" | Person), "boo">()
 
 _Complexity is a super food for bugs._
 
-Here is my quick summary: subtyping is complex and it weakens the type safety. 
+Here is my quick summary: subtyping is complex and it weakens type safety. 
 TS tries to recover the safety by building complex narrowing semantics around a selected set of JS operators. 
 There are many inconsistencies in both the implementation of subtyping and the implementation of narrowing semantics.
 
+
 ### Comparative complexity
 
-A "type enthusiast" will associate types with correctness, even formal verification.  To me, words "messy" and "type" are self contradictory.  TS "types" support some interesting features but are a mess. 
+A "type enthusiast" will associate types with correctness, even formal verification.  To me, the words "messy" and "type" are self contradictory.  TS "types" support some interesting features but are a mess. 
 
-I want to contrast the above `===` and `eq` examples against a programming language that has been designed around types from the beginning. An example could be an FP language like Elm, PureScript, or Haskell (I am not that familiar with ReasonML or OCaml).    
-These language have much simpler types.  The safety around equality does not require any special narrowing semantics.  You get it for free in any DIY function that has 2 arguments sharing the same generic type (only they call it polymorphic not generic).   
+I want to contrast the above `===` and `eq` examples against a programming language that has been designed around types from the beginning. An example could be an FP language like Elm, PureScript, or Haskell (I am not that familiar with ReasonML or OCaml)[^langs].    
+These languages have much simpler types.  The safety around equality does not require any special narrowing semantics.  You get it for free in any DIY function that has 2 arguments sharing the same generic type (only they call it polymorphic not generic).   
+
+[^langs]:  All can be used for frontend development and can be compiled to JS.  
 
 One underlying reason for this is the lack of complex subtyping and OO features. `eq(x,y)` will not compile if `x` and `y` have different types. There is no way to unify `x` and `y` to some supertype because there are no subtypes or supertypes.   
 But, you may say, JS object polymorphism is very useful.  All the 3 languages listed above provide support for polymorphic record types[^2], only they use much simpler techniques than subtyping to achieve it.   
@@ -497,8 +502,8 @@ record fields is overrated.  I would trade it for a capable compiler any time.
 Type complexity translates to a confused type checker and to a confused developer.   
 _Programming in a language in which I do not fully understand the types equates to me writing programs I do not fully understand._
 
-It is worth noting that TypeScript has over a million of users. FP languages have tens of thousands of users (if combined).  TypeScript has more resources to improve. 
-What makes for a fewer bugs, lots of dollars or clean types?   
+It is worth noting that TypeScript has over a million users. FP languages have tens of thousands of users (if combined).  TypeScript has more resources to improve. 
+What makes for fewer bugs, lots of dollars or clean types?   
 I do not think there is a clear answer to this question.  However, resources can't solve all the problems. 
 Programming languages are almost paranoid about backward compatibility and backward compatibility 
 does not like changing things, even if the change is fixing bugs.   
@@ -543,7 +548,7 @@ declare function eqPayloads<T>(t1: Payload<T>, t2: Payload<T>): boolean
 eqPayloads({payload: {bye: "world"}}, {payload: {hello: "world"}})  //compilies
 ```
 ```Java
-// Compiliation error:
+// Compilation error:
 // Property 'bye' is missing in type '{ hello: string; }' but required in type '{ bye: string; }'.ts(2741)
 eqPayloads({payload: bye}, {payload: hello})
 ```
@@ -572,9 +577,8 @@ verifyExtends<Payload<typeof datedHello>, Payload<typeof helloDolly>>()
 verifyExtends<Payload<typeof datedHello>, Payload<object>>()
 ```
  
-This is approach is incorrect, `interface Payload<T>` could have. e.g., a contravariant implementation
-(one where `P extends T` implies `Payload<T> extends Payload<P>`).  
-An example in the linked github repo exploits `interface Payload<T>` covariance to pass a `number` to a function that accepts `string` input.  
+Implementations of  `interface Payload<T>` do not need to behave in a covariant way.  
+An example in the linked github repo exploits `interface Payload<T>` covariance and ends up passing a `number` to a function that accepts `string` input.  
 
 Invariance would have been a better (a more conservative) choice for both `interface Payload<T>` and the array.  
 A careful reader may notice that the structurally typed `type Payload1<T> = {payload: T}` should also be invariant
@@ -582,7 +586,7 @@ since the `payload` property is mutable (getters are covariant, setters are cont
 
 I will sound like a broken record now, subtyping is clearly very complex.
 
-I done more digging into it after writing this note.  It appears that the intention was to keep TS conceptually easy
+I did more digging into it after writing this note.  It appears that the intention was to keep TS conceptually easy
 ([_add_blank_target issue 1394](https://github.com/microsoft/TypeScript/issues/1394)).  
 The result may be easy but is definitely not simple.
 
@@ -591,7 +595,7 @@ _Incorrect is never simple._
 _side_note_start **Observation (Rant Alert)**: 
 There is a tendency to focus on the common case and ignore the corner case. 
 This tendency has a broad scope, broader than TS. 
-What has (typically) a lower cost:  resolving a problem that every users observes when opening the app or resolving a problem that affects 1% of users once a month?  Are less frequently observed defects assigned a lower priority?  Not really.  
+What has (typically) a lower cost:  resolving a problem that every user observes when opening the app or resolving a problem that affects 1% of users once a month?  Are less frequently observed defects assigned a lower priority?  Not really.  
 The common approach to software and language design and the economics of software maintenance are an ill matched couple. 
 _side_note_end
 
