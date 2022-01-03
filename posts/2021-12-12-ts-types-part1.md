@@ -6,6 +6,7 @@ summary:  TypeScript Types series, Introduction, office.js, working with and fig
 changelog: <ul> 
     <li> (2021.12.24) modified historical note about office.js. Linked Part 2. Planned future content adjustment.</li>
     <li> (2021.12.26) <a href="#fn1">footnote [1]</a> 
+    <li> (2022.01.03) Linked Part 3.
      </ul>
 toc: true
 tags: TypeScript-Notes
@@ -44,10 +45,10 @@ Here is my plan:
   Part 1 will present code examples that compile but really, really should not, and code examples that should compile but surprisingly don’t.  I will also summarize my overall experience of working with TS.   
   This series needed a JS library with TS bindings to draw examples from, I decided to use _office.js_ and Part 1 will introduce it.
 * [_add_blank_target Part 2](2021-12-24-ts-types-part2.html). Will be about keeping types honest. Are runtime values consistent with the types? We hope they always are but, especially in a gradually typed language like TS, types will sometimes lie. We will see concrete examples of type dishonesty from _office.js_.  Part 2 will cover the notorious `any` and its safer cousin `unknown`, the type coercion (casting), and TS's type guards. I will also discuss (or rather rant about) coding conventions for transparent, self documenting types. 
-* Part 3. Will cover some of the TS type safety features that I absolutely love.  Throughout the series, we will encounter several examples where TS compiler does not work as expected.
+* [_add_blank_target Part 3](2022-01-03-ts-types-part3.html). Will cover some of the TS type safety features that I absolutely love.  Throughout the series, we will encounter several examples where TS compiler does not work as expected.
  One of my notes will argue that what TS is and does it quite complex.
-* Part 4. Will be more theoretical. Notes in Part 4 will discuss topics such as TS's structural, recursive types, subtyping, phantom types, type variable scoping, higher-rank polymorphism (TS supports a version of it!), and type level programming. 
-* Part 5. Will be a wrap-up with some final thoughts. 
+* Part 4, Part 5. Will be more theoretical. Notes in Parts 4-5 will discuss topics such as TS's structural, recursive types, subtyping, phantom types, type variable scoping, higher-rank polymorphism (TS supports a version of it!), and type level programming. 
+* Part 6. Will be a wrap-up with some final thoughts. 
 
 **Why am I writing these notes?**   
 To be honest, it is because I am really impressed and excited about some of the 
@@ -209,13 +210,13 @@ export const officePromise = <T> (getasync: (fx: (r: Office.AsyncResult<T>) => v
 
 ```
 
-**Side Note**[^1]: Here is my first criticism of TS.  The ergonomics of function type definitions is IMO really poor.
+_side_note_start **Side Note**[^1]: Here is my first criticism of TS.  The ergonomics of function type definitions is IMO really poor.
 These definitions are hard to read and cumbersome to write. This syntax does not scale well to more involved types and makes reasoning about types harder.  
 E.g. in the above example parameters `fx:` and `r:` cannot be used anywhere (are outside of the lexical scope) and serve only a documentation purpose.
 This simple example needs 6 parentheses. The use of `:` and `=>` is confusing.  Function form `A` to `B` is (depending where in the declaration) either `(a: A) => B` or `(a: A): B`. I admit it took me a long time to figure out how to write these and it still takes me forever to read some of these types.   
 Later in this post, I will show some work-arounds that simplify type definitions like this one.   
 I am adding a big fat **IMO** to this side note, readability is in the eye of ... well the reader.  But seriously...   
-**(Side Note End)**
+_side_note_end
 
 [^1]: I rewrote the side note and improved `officePromise` type definition based on a [_add_blank_target comment](https://www.reddit.com/r/typescript/comments/rnougu/comment/hptsnvg/?utm_source=share&utm_medium=web2x&context=3) from _u/Tubthumper8_ on reddit. (Thanks!) 
 
@@ -325,7 +326,7 @@ I expect the type checker to backtrack and try the next overload, but for some r
 I do not blame TS, overloading gives me a headache too.   
 Overloading is known for being not type inference friendly (incidentally, that is the reason why Haskell does not overload names).  
 
-**Side note:** 
+_side_note_start **Side note:** 
 Acting on my hypothesis of what is wrong with `body3`, I can push this code to a ridiculous limit:
 
 ```JavaScript
@@ -338,7 +339,7 @@ Besides this being completely wrong,
 I do not understand what causes the widening of `body4` type to `unknown`. There is enough information in the overloaded `item.body.getAsync` method for the type checker to infer the `string`. My guesswork is too hypothetical to discuss it here.   
 Especially for the return types, any widening to `unknown` would IMO be better served as a compilation error.  We want these to be narrow, not wide.  I will show more examples of such widening and
 I will discuss safety concerns related to the `unknown` type in future notes.  
-(**Side note end**)
+_side_note_end
 
 
 There is something worryingly asymmetric about a 2 parameter overload compiling without additional help and a 3 parameter overload needing a developer intervention. Should I worry that a future version of TS will flip this preference and all of my code that uses the 2 parameter overload will stop compiling?  How stable is this arbitrary complexity?  

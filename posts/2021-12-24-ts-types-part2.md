@@ -200,7 +200,7 @@ TS uses the `t as T` or `<T> t` syntax to cast expression `t` into type `T`, e.g
 (IMO, the second notation, `<T> t`, is somewhat unfortunate as it is very similar to type application and generic function declaration e.g. `const f = <T>():T` declares,  `<T>f()` casts, `f<T>()` applies. 
 I recommend the `v as T` syntax to make casting more explicit and searchable in your code.)
  
-**Type enthusiast's note on casting at large:**  
+_side_note_start **Type enthusiast's note on casting at large:**  
 Typically (and rightly) casting is considered to be a last resort, _only cast if you must_.
 
 With more involved types it is often harder to write code that type checks.  That increases the appeal of casting or finding some other alternatives for nudging the type checker into agreeing.    
@@ -212,8 +212,8 @@ There is an alternative to type coercion that allows programs to type check but 
 This can be useful for interacting with the type checker when writing code. 
 We have seen a TS version of this already, function [_add_blank_target `_<T>(): T`](2021-12-12-ts-types-part1.html#type-holes), defined in my previous post and stolen from 
 [_add_blank_target Type holes in TS](https://dev.to/gcanti/type-holes-in-typescript-2lck). 
-Such programming practice is foreign to most languages but becomes very convenient when working with more involved types.  We are using it in this series.   
-**(Side Note End)**
+Such programming practice is foreign to most languages but becomes very convenient when working with more involved types.  We are using it in this series. 
+_side_note_end
 
 Let's beat on _office.js_ some more. 
 [_add_blank_target Here](https://docs.microsoft.com/en-us/javascript/api/outlook/office.item) is a piece _office.js_ documentation about (you guessed it, this post is so very predictable) the
@@ -501,10 +501,10 @@ const PersonCard: ({ model, onChange }: {
 Hopefully, the implementation does not use any hooks, it only uses the parameters (I call them setters and getters) to create bits of HTML with event handlers.  This would be an example of a referentially transparent React type.
 It also would be an example of a very explicit type that is very "honest". 
 
-**FP side notes:**
+_side_note_start **FP side notes:**
 Such approach is not novel at all (e.g. Elm uses a similar approach, only not as a coding style but as its architecture).   
 Lenses can be used as just a coding convention too.
-**(end side notes)**
+_side_note_end
 
 Many developers will very much disagree with me on this.  E.g. many will prefer to encapsulate state handling inside
 components. I do not intend to argue 
@@ -552,7 +552,8 @@ In a modernized interpretation of the KISS principle I think of "Simple" as a lo
 There are parts of TS that I absolutely adore and I will talk about them.
 The complexity of TS types is another big topic to discuss. 
 Complexity causes compilation issues (we will encounter some new bloopers) and makes the language hard to use. 
-This will take me a few weeks to finish. 
+~~This will take me a few weeks to finish.~~   
+Here is the link: [_add_blank_target Part 3](2022-01-03-ts-types-part3.html).
 
-I am working on these notes during the 2021 holiday season. 
+I am working on these notes during the 2021 holiday season.
 _Merry Christmas, Happy New Year!_ Stay happy and healthy!

@@ -127,12 +127,15 @@ sanitizeUrls item = do
     route <- getRoute $ itemIdentifier item
     return $ case route of
         Nothing -> item
-        Just r  -> fmap (addTargetHack . relativizeUrlsWith (toSiteRoot r)) item
+        Just r  -> fmap (T.unpack . addSideNoteDivHack . addTargetHack . T.pack . relativizeUrlsWith (toSiteRoot r)) item
 
-addTargetHack :: String  -- ^ HTML to relativize
-           -> String  -- ^ Resulting HTML
-addTargetHack  = T.unpack . T.replace ">_add_blank_target " " target=\"_blank\">" . T.pack     
+addTargetHack :: T.Text 
+           -> T.Text  
+addTargetHack  = T.replace ">_add_blank_target " " target=\"_blank\">"    
 
+addSideNoteDivHack :: T.Text -> T.Text
+addSideNoteDivHack = T.replace "_side_note_start " " <div class=\"side-note\">" 
+                    . T.replace "_side_note_end" " </div>" 
 
 -- * TOC
 
