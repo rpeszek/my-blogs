@@ -2,7 +2,7 @@
 title: Type Enthusiast's Notes about TypeScript. Part 3. TS Complexity
 author: Robert Peszek
 featured: true
-summary:  TypeScript Types series, types and values that do not match, type predicates, `any`,`unknown`, honest transparent types
+summary:  TypeScript Types series, complex and messy types in TS
 toc: true
 tags: TypeScript-Notes
 codestyle: ts
