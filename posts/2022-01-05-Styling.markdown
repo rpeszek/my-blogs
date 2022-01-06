@@ -1,0 +1,18 @@
+---
+title: Blog styling update
+featured: true
+summary: Changes to this site CSS
+tags: announcement
+---
+
+_[_add_blank_target git discussions](https://github.com/rpeszek/rpeszek.github.io/discussions/1)_
+
+
+This blog has used a vanilla Hakyll styling with slightly modified standard pandoc CSS for code blocks.  
+Some of the readers have experienced very weird font size irregularities, making it hard to read my blog.  
+
+I did a full CSS reset using [_add_blank_target meyerweb reset.css](https://meyerweb.com/eric/tools/css/reset/reset.css) and have restyled all posts.  _Sans-Serif_ fonts are now a hard-coded default (before the _font-family_ was not specified leaving it to the browser defaults to do whatever mischief they fancied).
+
+Please let me know in git discussions if you still experience styling issues. 
+
+Thank you to everyone who alerted me about the styling problems. 
