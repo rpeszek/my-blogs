@@ -42,7 +42,7 @@ the book about types I recommend to everyone, ... so far unsuccessfully[^1].
 Reading TAPL will be a big eye opener for many developers. 
 The good news is that types dramatically increase programming efficiency so learning them is a good investment.   
 This section of the post will be a little more TAPL-ish with some more advanced CS.
-The topics I am about to present are IMO very practically useful and I will try my best to present them in a digestible way. 
+The topics I am about to present are IMO very useful and I will try my best to present them in a digestible way. 
 
 
 [^1]: Apparently, software developers want to have some life outside of programming. Who would expect that? ;)
@@ -54,7 +54,7 @@ Before we start I need to build up some tooling.  I will start with a tiny bit o
 ## Safety preventing `unknown`
 
 In previous posts, we have seen examples where TS, instead of reporting a compilation error, decided to widen types to `unknown`.   
-Interestingly, TS allows enough of type level programming so we can try to fix such issues ourselves.  
+Interestingly, TS allows enough type level programming so we can try to fix such issues ourselves.  
 
 ```JavaScript
 type IsUnknown<T> = unknown extends T? true: false
@@ -80,8 +80,8 @@ I agree. However, having a more generic solution at our disposal is also useful.
 
 Here is a short TAPL-ish explanation of what just happened. TS allows me to use type level ternaries. 
 `IsUnknown<T>` is a type level function (TAPL'sh term for this is _Type Family_) that maps types `T` to literal boolean types `true` or `false`.  These types have only a single (a _singleton_) value: `true: true` and `false: false`. 
-I can just write `verifyUnknown(false, someExpression)`.
-TS will figure out that `false` means the second part of the type level ternary and, thus, that `unknown extends T` is not true. 
+If I write `verifyUnknown(false, someExpression)`,
+TS will figure out that it has to use `false` as the type. `false` matches the second part of the type level ternary and, thus, implies that the ternary predicate `unknown extends T` is not true. 
 Hence `T` is not `unknown`.  
 
 I will use `verifyUnknown` to do some type level trickery. 
@@ -152,7 +152,7 @@ I can play the same games with generic arguments that return `T`
 declare function fn4(f: <T>() => T): void
 ```
 
-but will not do that here as these tend to be less practicallly useful. 
+but will not do that here as these tend to be less practically useful. 
 
 Here is how I think about it:
 
@@ -202,8 +202,7 @@ function existencialFactory(f: <T extends Foo>(_:T) => void): void {
 }
 ```
 
-This simulates what is called an existential type.  A function that accepts a callback owns the definition of the exact type
-that is passed to the callback.  The callback itself needs to be generic and accept any possible implementation.  
+This simulates what is called an existential type.  The function that accepts a callback owns the definition of the exact type that is passed to the callback.  The callback itself needs to be generic and accept any possible implementation.  
 Note the scoping of `T` inside the type defining the function parameter. 
 
 This _inverts the control_ from the implementation of the callback to the caller.
@@ -223,7 +222,7 @@ declare function fn2(f: <T>(t:T)=> void): void
 
 `fn2` function parameter `f` needs to be defined for all possible types `T`. 
 However, `fn2` can pick whatever type it wants for `T` and use `f` with it.  
-Another words, there exists some type `T` that will be used but `f` has no way of knowing which. 
+In other words, there exists some type `T` that will be used but `f` has no way of knowing which. 
 The name for it is _existential quantification_.  Some languages
 even use the `exists` keyword to describe it.  
 
@@ -242,10 +241,10 @@ This example will accomplish more than the above 'factory' pattern and will not 
 // Imaginary world without debuggers, JSON.stringify, etc
 type Api = {getGoodies: string[]}
 
-//some login function provides access to API, password needs to be protected
+//provides access to API, password needs to be protected
 declare function login<Password>(p: Password): Api 
 
-//provide password to a computation, that compuatation should be able to use the password but shoudn't return it
+//provide password to a computation, that computation should be able to use the password but shouldn't return it
 const secretive = <R> (fn: <Password> (p: Password) => R): R  => {
    const s : any = "topsecret"
    return fn (s)
@@ -253,7 +252,7 @@ const secretive = <R> (fn: <Password> (p: Password) => R): R  => {
 ```
 
 The example is somewhat contrived with the main goal of illustrating the point.   
-This code exposes building blocks that work together without using interfaces, classes, or mixins.   
+This code exposes building blocks that work together. 
 To get the access to the `Api` type, you have to use `login` and you have to use it inside the provided
 `secretive` function. 
 Working with an API like this is like assembling a jigsaw puzzle. Types prevent from jamming a square peg into a round hole.  
@@ -273,7 +272,7 @@ secretive(goodProgram)
 secretive(stealPassword)
 ```
 
-Unfortunately, `secretive(stealPassword)` compiles.  Typical of TS, if things make not sense, the compiler returns `unknown`. Hovering over `secretive` shows me this:
+Unfortunately, `secretive(stealPassword)` compiles.  Typical of TS, if things make no sense, the compiler returns `unknown`. Hovering over `secretive` shows me this:
 
 ```JavaScript
 //const secretive: <string[]>(fn: <Password>(p: Password) => string[]) => string[]
@@ -283,7 +282,7 @@ secretive(goodProgram)
 secretive(stealPassword)
 ```
 
-That is why I have created the `verifyUnknown` safety in the above section:
+That is why I have created the `verifyUnknown` safety in the previous section:
 
 ```JavaScript
 const valid = verifyUnknown(false, secretive(goodProgram)) //valid: string[]
@@ -293,12 +292,28 @@ const valid = verifyUnknown(false, secretive(goodProgram)) //valid: string[]
 const invalid = verifyUnknown(false, secretive(stealPassword)) //does not compile!
 ```
 
-This creates some interesting safety.   Obviously you could still do a lot of mischief if you wanted to. 
-There is a need for some 'gentlemen's agreements' to not use casting, `JSON.stringify` etc. 
-However, if you think about creating clear contract APIs, this approach can be very powerful. 
+To make it a bit nicer we can package `verifyUnknown` and `secretive` into one function:
 
-Existentials are not exactly equivalent to OO.  However, using existential types can often accomplish a lot of the same things and often in a cleaner way.  I have not played enough with these in TS to give you a list of gotchas.  I do not know how robust this type of coding will be.  
-In my very limited experience, this seems similar to the rest of TS, TS stops working if I start pushing.
+```JavaScript
+const verySecretive = <R> (_: IsUnknown<R>, fn: <Password> (p: Password) => R): R  => {
+    const s : any = "topsecret"
+    return fn (s)
+ }
+
+const valid = verySecretive(false, goodProgram) //valid: string[]
+```
+```Java
+const invalid = verySecretive(false, stealPassword) 
+```
+
+This creates some interesting safety.   Obviously you could still do a lot of mischief if you wanted to. 
+There is a need for some 'gentlemen's agreements' to not use casting, `JSON.stringify`, to not use `true` in `verySecretive` etc. 
+However, if you think about creating clear contract APIs, this approach could be very powerful. 
+
+Existentials are not exactly equivalent to OO.  However, using existential types can often accomplish a lot of the same things and often in a cleaner way.  Using existentials and disabling OO features like `unknown` 
+feels a bit contrived, but IMO is still useful.  It would be nice if TS provided a cleaner way to disable the use of `unknown`.   
+I do not know how robust this type of coding is.  I have not played enough with this approach in TS to give you a list of gotchas.
+In my very limited experience, this seems similar to the rest of TS, TS stops working if I start pushing harder.
 
 _side_note_start **Existentials and higher rank at large:** 
 These concepts have lead to some amazing programming.   
@@ -316,28 +331,50 @@ _side_note_end
 
 ## Safety preventing subtyping 
 
-Here is a code that combines the above `unknown` verification idea with existentials:
+Many TS users have observed the need for this.  The term _exact type_ is used, I believe _flow_
+introduced this name.  I have seen solutions like this one being used:
+
+```JavaScript
+function exact<T>(item:T): T {
+    return item
+}
+
+type Hello = {hello: string}
+```
+```Java
+//Argument of type '{ hello: string; since: number; }' is not assignable to parameter of type 'Hello'.
+//  Object literal may only specify known properties, and 'since' does not exist in type 'Hello'.ts(2345)
+exact<Hello>({hello: "world", since:2002})
+```
+
+This safety is fragile (and a TS design inconsistency IMO) as the following example shows:
+
+```JavaScript
+const helloSince = {hello: "world", since:2002}
+
+exact<Hello>(helloSince) //complies
+```
+
+To make something more robust, here is a code that combines the above `unknown` verification idea with existentials:
 
 ```JavaScript
 type Same<P,T> = P extends T? (T extends P? true: false): false
 
 const verifySame = <P> () => <T> (_: Same<P,T>, t:T): T => t
 
-
-type Hello = {hello: string}
-
-verifySame<Hello>()(true, {hello: "world"})
-verifySame<Hello>()(false, {hello: "world", since : 2020})
+verifySame<Hello>()(true, {hello: "world"}) //'true' indicates that type matches
+verifySame<Hello>()(false, {hello: "world", since : 2020}) //'false' is needed to acknowledge types are different 
 ```
 ```Java
 //Argument of type 'true' is not assignable to parameter of type 'false'.ts(2345)
 verifySame<Hello>()(true, {hello: "world", since : 2020})
+verifySame<Hello>()(true, helloSince)
 ```
 
 You may have noticed a case of typing euphoria here.  I used rank-2 construction because it allows me
 to type annotate with only one type variable.  This is nice but often not essential. 
 
-Here is an implementation of `safePush` that fixes variance on the array's `push` method, it does not use any 
+Here is an implementation of `safePush` that acts invariant, it does not use any 
 existential tricks:
 
 ```JavaScript
@@ -347,24 +384,57 @@ existential tricks:
 const safePush = <P, T> (_: Same<P,T>, ps: P[], t: T): number => ps.push(t as any)
 
 const intlist: number[] = [1,2,3]
-const list: unknown[] = intlist
-list.push("not a number") //unsafe 'push' adds a 'string' to 'intlist'
+const unklist: unknown[] = intlist  //exploits array covariance
+unklist.push("not a number") //unsafe 'push' adds a 'string' to 'intlist'
 
 safePush(true, intlist, 1) //this is safe
 ```
 ```Java
-safePush(true, list, 1)    //this is risky and will not compile 
-safePush(true, list, "not a number") //this is risky (here wrong) and will not compile 
+safePush(true, unklist, 1)    //this is risky and will not compile 
+safePush(true, unklist, "not a number") //this is risky (here wrong) and will not compile 
 ```
 
-We have discussed problems with TS approach to variance in the [_add_blank_target previous installment](2022-01-03-ts-types-part3.html#variance-problems). 
-Now we know a way to work-around these problems. 
+Note, to be even safer I would need to prevent `unknown` as well:
+
+```JavaScript
+const unkstr: unknown = "not a number"
+safePush(true, unklist, unkstr)  //unfortunately compiles
+
+//An even safer version of 'Same'
+type SameAndKnown<P,T> = P extends T? (T extends P? (unknown extends T? false: true): false): false
+
+const verySafePush = <P, T> (_: SameAndKnown<P,T>, ps: P[], t: T): number => ps.push(t as any)
+
+verySafePush(true, intlist, 1)  //this is safe
+```
+```Java
+verySafePush(true, unklist, unkstr) //this is risky and will not compile!
+```
+
+We have discussed problems with the TS approach to variance in the [_add_blank_target previous installment](2022-01-03-ts-types-part3.html#variance-problems). We have a DIY approach to fight back.
 
 The linked github repo has an existentially typed version of `safePush` that has just one top level type variable.
-That version is more cumbersome to use. TS ends up not working well with it. 
+That version is more cumbersome to use. TS ends up not working well with it.  
 
-This section is related to this old feature request:
-[_add_blank_target TypeScript issue 7481](https://github.com/microsoft/TypeScript/issues/7481)
+Another fun exercise:
+
+```JavaScript
+const safeEq = <P, T> (_: Same<P,T>, a: P, b: T): boolean => a === (b as unknown)
+
+safeEq(true, {hello: "word"}, {hello:"dolly"})
+```
+```Java
+safeEq(true, {hello: "word"}, {hello:"word", since:2022}))
+safeEq(true, 1, "str")
+```
+
+We have discussed problems with TS approach to `===` narrowing in the [_add_blank_target previous installment](2022-01-03-ts-types-part3.html#complexity-of-ts-types). We have a DIY approach to fight back.
+
+
+This section is related to a number of feature requests: 
+[_add_blank_target TypeScript issue 12936](https://github.com/microsoft/TypeScript/issues/12936) and
+[_add_blank_target TypeScript issue 7481](https://github.com/microsoft/TypeScript/issues/7481). 
+Hopefully a future version of TS will provide a simpler way to achive invariance and disable subtyping. 
 
 
 ## Phantom types
@@ -373,7 +443,7 @@ TypeScript is somewhat unique in supporting _Structural Types_.
 Types like `type Person = {firstNm: string, lastNm: string}` are structural. That means the name `Person` is only an alias, what defines the type is the RHS of the definition, not the LHS.  Contrast this with an OO class definition in a language like Java. Two structurally identical classes are still considered different types (this is called _nominal typing_).    
 
 It is sometimes convenient to be able to define different types that share the same structure. 
-_Phantom types_ is one of the ways to do that. We say _phantom_ because these types have no impact on runtime values. 
+_Phantom types_ are a way to do that. We say _phantom_ because these types have no impact on runtime values. 
 
 Somewhere around 2006, haskell wiki published a write-up about [_add_blank_target phantom types](https://wiki.haskell.org/Phantom_type).  The write-up was expanded in 2010 to include a form validation example. Since then all blogs (in any programming language) about phantoms show a validation example.  I decided to be as unoriginal as everyone else.  This will allow me to focus on how this is done in TS.
 
@@ -400,7 +470,7 @@ declare function doSomethingValidated(p: Person<Validated>): void
 Again, these types are trying to create a puzzle. One I can assemble in a specific way only.  
 If the puzzle machinery works, I will have to call `validate` to use `Person<Validated>` in `doSomethingValidated`.
 
-Only, this machinery does not work. The following code complies:
+Only, this machinery does not work. The following code compiles:
 
 ```JavaScript
 function validatedOrNot<T>(p: Person<T>): void {
@@ -455,7 +525,7 @@ function notValidated (p: Person<ClearlyNotValidated>): void {
 }
 ```
 
-I believe phantom types are used by some FP libraries in TS, e.g. _fp-ts_, these libraries use somewhat different techniques to get phantoms.  There may be advantages of doing phantom types differently than what I have presented. 
+I believe phantom types are used by some FP libraries in TS, e.g. _fp-ts_, these libraries use somewhat different techniques to get phantoms.  There may be advantages to doing phantom types differently than what I have presented. 
 The above approach is the simplest I can think of.  
 
 _side_note_start **Phantom types at large:**  Phantom types can be used to do a lot of crazy type level stuff.  The most wild use I have seen is 
@@ -480,14 +550,13 @@ declare function doSomethingWithSortedList <T extends Comparator<T>> (list: List
 
 Again, notice the types form pieces of a puzzle and can be fitted only in a specific way.  
 You can think about a `sort` as something that not only does what it says, but also provides a _token_
-to use later to prove that the sort was done.  This _token_ is a phantom type. You can think about creating a library that helps orchestrate a similar approach to programming and this is what the above link talks about.   
+to use later to prove that the sort was done.  This _token_ is a phantom type. You can think about creating a library that helps orchestrate a similar approach to programming and this is what the linked article talks about.   
 Many FP programming languages support GADTs, these are very powerful types and limit the popularity of phantom typing.  
 _side_note_end
 
 
 Phantom types could be a very powerful API building tool.   
 I am sure you can think about many other interesting use cases, like state machines.  
-
 
 ## Next Chapter
 
