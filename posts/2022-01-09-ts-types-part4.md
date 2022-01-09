@@ -38,14 +38,11 @@ This is the fourth post in the series devoted to types in TypeScript. In this se
 This post will be a little more advanced and will focus on programming with type variables. 
 
 [_add_blank_target Types and Programming Languages](https://www.goodreads.com/book/show/112252.Types_and_Programming_Languages) is 
-the book about types I recommend to everyone, ... so far unsuccessfully[^1]. 
+the book about types I recommend to everyone, ... so far unsuccessfully. 
 Reading TAPL will be a big eye opener for many developers. 
 The good news is that types dramatically increase programming efficiency so learning them is a good investment.   
 This section of the post will be a little more TAPL-ish with some more advanced CS.
 The topics I am about to present are IMO very useful and I will try my best to present them in a digestible way. 
-
-
-[^1]: Apparently, software developers want to have some life outside of programming. Who would expect that? ;)
 
 I will discuss type variable scoping, rank-2 types, and existential types. Some examples show a level of safety that I did not expect to be able to pull off!  As it turns out, we can even prevent subtyping in TS.
 
@@ -162,7 +159,7 @@ _Higher rank means generics are first class_
 
 ## Existential types
 
-In TAPL-ish it is called _existential quantification_  and it has to do with the ownership of definitions. In OO you would say "code to interfaces, not implementation", it is also related to the OO concept of _inversion of control_.  Here is how the story goes:
+In TAPL-ish it is called _existential quantification_  and it has to do with the ownership of definitions. In OO you would say "code to interfaces, not implementation", it is also related to the OO concepts of _inversion of control_ and _dependency injection_.  Here is how the story goes:
 
 
 
@@ -272,7 +269,7 @@ secretive(goodProgram)
 secretive(stealPassword)
 ```
 
-Unfortunately, `secretive(stealPassword)` compiles.  Typical of TS, if things make no sense, the compiler returns `unknown`. Hovering over `secretive` shows me this:
+Unfortunately, `secretive(stealPassword)` compiles.  Somewhat typical of TS, if things make no sense, the compiler infers `unknown`. Hovering over `secretive` shows me this:
 
 ```JavaScript
 //const secretive: <string[]>(fn: <Password>(p: Password) => string[]) => string[]
@@ -331,7 +328,7 @@ _side_note_end
 
 ## Safety preventing subtyping 
 
-Many TS users have observed the need for this.  The term _exact type_ is used, I believe _flow_
+Many TS users have observed the need for this.  The term _exact type_ is floating around, I believe _flow_
 introduced this name.  I have seen solutions like this one being used:
 
 ```JavaScript
@@ -411,7 +408,7 @@ verySafePush(true, intlist, 1)  //this is safe
 verySafePush(true, unklist, unkstr) //this is risky and will not compile!
 ```
 
-We have discussed problems with the TS approach to variance in the [_add_blank_target previous installment](2022-01-03-ts-types-part3.html#variance-problems). We have a DIY approach to fight back.
+We have discussed problems with the TS approach to variance in the [_add_blank_target previous installment](2022-01-03-ts-types-part3.html#variance-problems). We have a DIY approach to fight back!
 
 The linked github repo has an existentially typed version of `safePush` that has just one top level type variable.
 That version is more cumbersome to use. TS ends up not working well with it.  
@@ -428,7 +425,7 @@ safeEq(true, {hello: "word"}, {hello:"word", since:2022}))
 safeEq(true, 1, "str")
 ```
 
-We have discussed problems with TS approach to `===` narrowing in the [_add_blank_target previous installment](2022-01-03-ts-types-part3.html#complexity-of-ts-types). We have a DIY approach to fight back.
+We have discussed problems with TS approach to `===` narrowing in the [_add_blank_target previous installment](2022-01-03-ts-types-part3.html#complexity-of-ts-types). Again, we have a DIY approach to fight back.
 
 
 This section is related to a number of feature requests: 
@@ -565,7 +562,7 @@ I am having second thoughts about including a subtyping note
 (we talked about subtyping in the previous installment already).  
 
 I need to take a break from writing posts. 
-The next installment will take me longer, maybe a month, to finish.  
+The next installment will take me longer, maybe a month or a little more, to finish.  
 Thank you for reading.  Happy New Year! 
 
 
