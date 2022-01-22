@@ -639,5 +639,8 @@ This post has been about the "messy" in TS.  The next installment will focus on 
 type variables and will present TS in a better light. I decided to split advanced topics into 2 smaller posts. 
 I plan to discuss phantom types, type variable scoping, a pattern emulating existential types, and rank 2 types. 
 I consider these to be quite useful typing approaches.
+I will also show a trick that prevents `unknown` and supertype widening.  
+
+Here is the link: [_add_blank_target Part 4](2022-01-09-ts-types-part4.html).
 
 Happy New Year to all of my readers.  Thank you for reading.
