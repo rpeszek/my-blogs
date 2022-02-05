@@ -47,7 +47,7 @@ Here is my plan:
 * [_add_blank_target Part 2](2021-12-24-ts-types-part2.html). Will be about keeping types honest. Are runtime values consistent with the types? We hope they always are but, especially in a gradually typed language like TS, types will sometimes lie. We will see concrete examples of type dishonesty from _office.js_.  Part 2 will cover the notorious `any` and its safer cousin `unknown`, the type coercion (casting), and TS's type guards. I will also discuss (or rather rant about) coding conventions for transparent, self documenting types. 
 * [_add_blank_target Part 3](2022-01-03-ts-types-part3.html). Will cover some of the TS type safety features that I absolutely love.  Throughout the series, we will encounter several examples where TS compiler does not work as expected.
  One of my notes will argue that what TS is and does it quite complex.
-* [_add_blank_target Part 4](2022-01-09-ts-types-part4.html), Part 5. Will be more theoretical. Notes in Parts 4-5 will discuss topics such as TS's structural, recursive types, subtyping, phantom types, type variable scoping, higher-rank polymorphism (TS supports a version of it!), and type level programming.  I will show a trick to increase type safety 
+* [_add_blank_target Part 4](2022-01-09-ts-types-part4.html), [_add_blank_target Part 5](2022-02-13-ts-types-part5.html). Will be more theoretical. Notes in Parts 4-5 will discuss topics such as TS's structural, recursive types, subtyping, phantom types, type variable scoping, higher-rank polymorphism (TS supports a version of it!), and type level programming.  I will show a trick to increase type safety 
 that prevents widening to `unknown` or other supertype.  
 * Part 6. Will be a wrap-up with some final thoughts. 
 

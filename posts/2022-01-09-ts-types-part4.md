@@ -558,12 +558,14 @@ I am sure you can think about many other interesting use cases, like state machi
 ## Next Chapter
 
 I want to talk about recursive types and type level programming.  It will be more of a review of TS capabilities in these areas.
-I am having second thoughts about including a subtyping note
-(we talked about subtyping in the previous installment already).  
+~~I am having second thoughts about including a subtyping note (we talked about subtyping in the previous installment already).~~  
 
 I need to take a break from writing posts. 
 The next installment will take me longer, maybe a month or a little more, to finish.  
 Thank you for reading.  Happy New Year! 
+
+Here is the link: [_add_blank_target Part 5](2022-02-13-ts-types-part5.html).
+
 
 
 

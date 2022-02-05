@@ -498,8 +498,11 @@ const PersonCard: ({ model, onChange }: {
 }) => JSX.Element
 ```
 
-Hopefully, the implementation does not use any hooks, it only uses the parameters (I call them setters and getters) to create bits of HTML with event handlers.  This would be an example of a referentially transparent React type.
+Hopefully, the implementation does not use any hooks, it only uses the parameters (I call them setters[^1] and getters) to create bits of HTML with event handlers.  This would be an example of a referentially transparent React type.
 It also would be an example of a very explicit type that is very "honest". 
+
+[^1] What I am achieving here is not the full referential transparency. Setters are not referentially transparent, referentially transparent function that returns `void` cannot do anything.  However, This construction is still very 
+explicit. 
 
 _side_note_start **FP side notes:**
 Such approach is not novel at all (e.g. Elm uses a similar approach, only not as a coding style but as its architecture).   
