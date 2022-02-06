@@ -38,7 +38,7 @@ This is the fifth post in the series devoted to types in TypeScript. In this ser
 In the last post I raved about the [_add_blank_target Types and Programming Languages](https://www.goodreads.com/book/show/112252.Types_and_Programming_Languages) book. 
 Similarly to the previous post, this installment will be a little more advanced and a little TAPL-ish. 
 I will also introduce a tiny bit of Category Theory.  A great blog series (really a book) that about CT 
-written for programmers is [_add_blank_target Category Theory for Programmers](https://bartoszmilewski.com/2014/10/28/category-theory-for-programmers-the-preface/), [_add_blank_target on goodreads](https://www.goodreads.com/en/book/show/33618151-category-theory-for-programmers).
+written for programmers is [_add_blank_target Category Theory for Programmers](https://bartoszmilewski.com/2014/10/28/category-theory-for-programmers-the-preface/), here it is [_add_blank_target on goodreads](https://www.goodreads.com/en/book/show/33618151-category-theory-for-programmers).
 
 
 
@@ -109,27 +109,31 @@ help the type checker.  I consider this feature very useful and underutilized by
 
 _side_note_start
 **Side Note about Recursion Schemes**:
-The linked repo contains [_add_blank_target RecSchemes.ts](https://github.com/rpeszek/ts-experiments/blob/master/ts-notes/src/RecSchemes.ts). It shows code that allows for _folding_ and _unfolding_ (some call it reduce and, I guess 'unreduce'?) of arbitrary JSON values defined
+The linked repo contains [_add_blank_target RecSchemes.ts](https://github.com/rpeszek/ts-experiments/blob/master/ts-notes/src/RecSchemes.ts). It shows code that allows for _folding_ and _unfolding_ (some call it reduce and, I guess 'expand'?) of arbitrary JSON values defined
 as the above `JsonVal`.
 
 This approach is called _Recursion Schemes_. 
 If you are not familiar with this concept, you are likely to have two reactions: "the code looks surprisingly terse"
-and "WTF is going on".  Such reactions are IMO are normal (I have these reactions when I try to understand a principled[^principled] code and I do not understand the principles).
-One high level intuition about recursion schemes is that they abstract out recursion.   
+and "WTF is going on".  IMO any code that solicits these 2 reactions means (1) good and (2) worth learning. 
+The first suggests a principled code, the second suggests an opportunity to internalize some fundamental principles. 
+One high level intuition about recursion schemes is that they abstract out/hide recursion.   
+Readers not familiar with this concept should try implementing analogous `fold` for the above `List` type and 
+compare the resulting type with TS's array `reduce` as an exercise.
 
-Recursion Schemes are firmly based on theory. For example, the `fold` and `unfold` 
-definitions in my example code are related to [_add_blank_target _Lambek's Theorem_](https://bartoszmilewski.com/2017/02/28/f-algebras/) in Category Theory. 
-This technique is also very useful. A lot of code at my work is using recursion schemes (we are not doing it in TS though). 
-Examples are: manipulating XML documents, rewriting AST (syntax trees) of interpreted programs. 
+Recursion Schemes are firmly based on theory. For example, the theory behind the `fold` and `unfold` 
+definitions in my example is explained [_add_blank_target here](https://bartoszmilewski.com/2017/02/28/f-algebras/) using Category Theory[^ct]. 
+This technique is also very useful. A lot of code at my work is using recursion schemes (we are not doing it in TS though).  Examples are: manipulating XML documents, rewriting AST (syntax trees) of interpreted programs. 
+In TS/JS world, you can think about presenting a very nested data by folding it into a nested React component. 
 Working with any recursive type is likely to benefit from using recursion schemes.  
 
 Even though TS is not capable of implementing recursion schemes the way they are done in Haskell or Scala, there is some
 simplifying benefit of TS's structural typing.  The linked TS code explains this in code comments. 
-It is very impressive that code like this is possible in TS.
+It is really nice that code like this is possible in TS.
 _side_note_end
 
-[^principled]: "Principled" is a colloquial term often used by FP programmers. It typically refers to code obeying some set of more fundamental principles. 
-
+[^ct]:  Categories are abstract things made of objects and arrows between objects. The most common approach (and one I use here) is to define category by using types as objects and functions as arrows.  Using TS, is this even a valid category?  This is a bag of worms I am not going to concern myself about (e.g. applying identity function can change type checking 
+[_add_blank_target here](2022-01-09-ts-types-part4.html#safety-preventing-subtyping)).  With some gentlemen's agreements in place TS types and functions are close enough.  The code examples in the linked CTFP chapter require a `Fix` type that allows for rolling (applying `Fix`) and
+unrolling (deconstructing `Fix`), this complexity is due to nominal typing and iso-recursion,  TS makes things actually simpler. 
 
 ## Type level programming
 
@@ -391,7 +395,7 @@ TS instead of C++.  Kudos to TS!
 
 
 
-## Next and the last Chapter
+## Next and the final Chapter
 
 I will finish the series with some final thoughts and rants. 
 I will take a month or a little longer to write these. 
