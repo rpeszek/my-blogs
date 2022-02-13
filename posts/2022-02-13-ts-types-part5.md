@@ -405,7 +405,7 @@ The last 2 installments got a little on an advanced side of things.
 One question that I have been asking myself is:  When should more advanced types be
 used in a TS project?  
 
-The last installment will take me a month or a little longer to write. 
+The last installment will take me a month or so to finish. 
 
 
 

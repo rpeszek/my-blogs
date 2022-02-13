@@ -6,7 +6,9 @@ summary:  TypeScript Types series, Introduction, office.js, working with and fig
 changelog: <ul> 
     <li> (2021.12.24) modified historical note about office.js. Linked Part 2. Planned future content adjustment.</li>
     <li> (2021.12.26) <a href="#fn1">footnote [1]</a> 
-    <li> (2022.01.03) Linked Part 3.
+    <li> (2022.01.03) Linked Part 3
+    <li> (2022.01.09) Linked Part 4
+    <li> (2022.02.13) Linked Part 5
      </ul>
 toc: true
 tags: TypeScript-Notes
