@@ -2,6 +2,9 @@
 title: Type Enthusiast's Notes about TypeScript. Part 5. Advanced Types
 author: Robert Peszek
 featured: true
+changelog: <ul> 
+    <li> (2022.02.14) Fixed list example <a href="#fn2">footnote [2]</a>
+     </ul>
 summary:  TypeScript Types series, type level programming, recursive types, a bit of category theory
 toc: true
 tags: TypeScript-Notes
@@ -79,31 +82,22 @@ are structural.  That means the name `Person` in `type Person = {firstNm: String
 
 compiler errors (e.g. code in [_add_blank_target https://github.com/rpeszek/ts-typecheck-peano](https://github.com/rpeszek/ts-typecheck-peano)).  However, I did not succeed in creating a simple example to demonstrate this.
 
-I will demonstrate something slightly different:
+Here is another example of a recursive type:
 
 ```JavaScript
 type List<T> = 
 | {type: "nil"} 
 | {type: "cons", head: T, tail: List<T>}
-
-//Two seemingly identical definitions of a 1,2,3 list, both lines compile:
-const ul_123  = {type: "cons", head: 1, tail: {type: "cons", head: 2, tail: {type: "cons", head: 3, tail: {type: "nil"}}}}
-
-const l_123: List<number> = {type: "cons", head: 1, tail: {type: "cons", head: 2, tail: {type: "cons", head: 3, tail: {type: "nil"}}}}
-
-```
-```Java
-//Only, I cannot define l_123 like this:
-const l_123: List<number> = ul_123 //compiler error: Argument of type ... is not assignable to type ...
-
 ```
 
-That is a recursive definition of a functional _cons_ list. 
-TS will not let me assign a correctly structurally typed `ul_123` to the list type!  Similarly, I would not be able to use ` ul_123` as a parameter to a function that expects `(list: List<number>)`.  
-This is quite different from how other types behave in TS.
+That is a recursive definition of a functional _cons_ list[^fixed]. 
 
-IMO, it is still impressive that TS is able to pull these off.  The damage is that the developer will sometimes need to 
-help the type checker.  I consider this feature very useful and underutilized by the ecosystem.  Here is some more advanced
+[^fixed]:  I originally posted an issue related to the list and I misinterpreted the problem behind it.
+Thanks to [_add_blank_target u/joelahoover](https://www.reddit.com/user/joelahoover) for pointing it out. 
+TS tends to widen literal strings to `string`.  So a value defined as `const v = {type: "cons", 1, tail: {type: 'nil'}}`
+or even `const empty = {type: 'nil'}` are not valid lists unless you use something like `as const`, e.g. `const empty = {type: "nil"} as const`. TS does not try to infer the best possible type (it does not care about what is called principal typing).
+
+IMO, it is impressive that TS is able to pull these off.  I consider this feature very useful and underutilized by the ecosystem.  Here is some more advanced
 use of recursive types:
 
 _side_note_start
