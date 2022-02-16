@@ -3,7 +3,8 @@ title: Type Enthusiast's Notes about TypeScript. Part 5. Advanced Types
 author: Robert Peszek
 featured: true
 changelog: <ul> 
-    <li> (2022.02.14) Fixed list example <a href="#fn2">footnote [2]</a>
+    <li> (2022.02.14) Fixed list example <a href="#fn2">footnote [2]</a> </li>
+    <li> (2022.02.15) Clarifying comments in <a href="#type-level-programming"</a>type level programming</a> code examples</li>
      </ul>
 summary:  TypeScript Types series, type level programming, recursive types, a bit of category theory
 toc: true
@@ -162,15 +163,15 @@ very complicated. E.g.:
 type Flatten<Type> = Type extends Array<infer Item> ? Item : Type; 
 
 const head = <T> (t: T[]) : Flatten<T[]> => {
-    return t[0] //compiles
+    return t[0] //compiles (as expected)
 }
 ```
 ```Java
 const generalizedHead = <T> (t: T) : Flatten<T> => {
     if(Array.isArray(t)) 
-        return t[0]  //still compiles!
+        return t[0]  //still compiles (as expected)
     else 
-        return t //compiler error: Type 'T' is not assignable to type 'Flatten<T>'
+        return t //compiler error: Type 'T' is not assignable to type 'Flatten<T>' (not as expected)
 }
 ```
 
@@ -183,7 +184,7 @@ type GetContent<T> = T extends HasContent <infer C> ? C : T
 ```
 ```Java
 const getContent = <C, T extends HasContent<C>> (t: T): GetContent<T> => {
-   //return t.content //compiler error:  Type 'C' is not assignable to type 'GetContent<T>'
+   //return t.content //compiler error:  Type 'C' is not assignable to type 'GetContent<T>' (not as expected)
 }
 ```
 
