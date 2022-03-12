@@ -18,7 +18,6 @@ It seems I have goblins in my laptop that toy with me, remove or change words.
 When this note disappears, you will know that I gave up.)_   
 
 
-
 ## Nutshell
 
 This post wraps up my series about types in TS.
@@ -41,13 +40,12 @@ This post will discuss these aspects of types: types are
 * Universal
 * Unpopular
 
-I will finish my series with a short rant about each of the bullet points.  This will allow me to revisit and summarize some of the things we have discussed in previous parts and mention a few things this 
-series did not cover.  
-This post will be very high level.  I want to talk a bit about what is possible.  Some of the discussion will not
-be very relevant to TS as the language lacks the capabilities.  I think these topics are still relevant to TS developers as the idea
-behind the concept can still be usefull.
+I will finish my series with a short rant about each of the bullet points.  This will allow me to revisit and summarize some of the things we have discussed in previous parts and mention a few things this series did not cover.  
+This post will be mostly a high level rant.  I want to talk a bit about what is possible.  Some of the discussion will not
+be very relevant to TS as the language lacks the capabilities.  I think these topics are still relevant to TS developers as the ideas
+behind these concepts can still be useful.  
 
-As all of my other posts, this one is a big longish and make take some effort to read.  I hope it is worth the effort. 
+As all of my other posts in the series, this one is a big longish and make take some effort to read.  I hope you will find it worth the effort. 
 
 Some readers may disagree when reading this post.  You may have valid reasons for disagreeing with me.  Please let me know what they are. 
 
@@ -55,8 +53,8 @@ Some readers may disagree when reading this post.  You may have valid reasons fo
 ## About Clarity
 
 What are coding conventions and standards?  When I hear these terms being used, I know I will soon hear about code formatting and linting, importance of code comments, even things like readme files and git hygiene. 
-However, I am unlikely to hear about types.  This phenomena has a name, it is called [_add_blank_target Wadler's Law](https://wiki.haskell.org/Wadler%27s_Law) or [_add_blank_target bikeshed](https://bikeshed.com/).  
-It is not that types are not important, they are.  They are also harder to discuss.  
+However, I am unlikely to hear about types.  It is not that types are not important, they are.  They are also harder to discuss. 
+This phenomena has a name, it is called [_add_blank_target Wadler's Law](https://wiki.haskell.org/Wadler%27s_Law) or [_add_blank_target bikeshed](https://bikeshed.com/).  
 
 I have discussed using types to achieve code clarity in [_add_blank_target referential transparency](2021-12-24-ts-types-part2.html#referential-transparency) and [_add_blank_target types as documentation](2021-12-24-ts-types-part2.html#types-as-documentation) sections 
 of Part 2. Let's revisit the topic here. 
@@ -64,14 +62,11 @@ of Part 2. Let's revisit the topic here.
 It is much harder to comprehend the whole program than it is to comprehend its types.  Types can provide a high level information 
 about the program the way that theorems provide high level information about proofs in mathematics. 
 Types can give a valid high level representation of the app.  Programs often can't, they often contain tedious details, performance
-optimizations, lots of persisted developer's sweat.  
-When done right, one can use types as _specs_, at least on a small unit level of the code. 
+optimizations, and lots of other persisted developer's sweat.  
+When done right, one can use types as _specs_, at least on a small unit level of the code types should be viewed as specifications. 
 
-Types provide (or at least should) a level of formalism to you code. 
-Computations have a formal structure and properties. Computations can (and should) compose. 
-These aspects of coding are the focus of functional programming. Types have a synergy with FP. 
-Types help express functional concepts clearly.  This series was not about FP but it was hard for me to completely stay 
-away, the synergy is so deep.   
+Types have a synergy with FP. This series was not about FP but it was hard for me to completely stay 
+away, the synergy is so deep. Types help express functional concepts clearly.
 
 Advanced types come with a learning curve. 
 It is important to acknowledge that clarity is subjective and can easily be replaced with confusion 
@@ -87,85 +82,7 @@ The following subsections examine a few concepts related to clarity.
 
 ### Declare function return types
 
-Why would you not do that?  Add return types it at least for the module exports.  
-
-### Clarity vs encapsulation
-
-Encapsulation does not help clarity. 
-I consider encapsulation to be a very useful when designing micro-services, not when designing programs. 
-Encapsulation often means not expressive types.  Encapsulating is hiding things from the types. 
-It often makes types simpler than they should be. 
-To get benefit of types, we need to give them a chance.  Type checker will not type check what is opaque to it.
-
-On the other hand, explicit types have a maintenance cost.  
-I like to compare this to documentation.  If app functionality changes
-you should change the documentation.  You are likely to do that in the most obvious places only. 
-Explicit types are different, they create domino effects and you need to propagate the changes to all relevant places.  
-This overhead is not always desirable and there are patterns and tools to minimize this cost. 
-One such tool is ad-hoc polymorphism (in TS this would be the infamous feature known as subtyping).
-Achieving correct balance between type strictness and flexibility requires good tooling from the language (e.g. 
-Elm comes with a lot of great strictness and not much flexibility). 
-This balance is the art of programming and has some science in it too.   
-OK, I got carried away on this topic, the main 
-point is that extra maintenance associated with more explict types can be viewed as a good thing.
-
-Explicit types document the app ([_add_blank_target Types as Documentation in Part 3](2021-12-24-ts-types-part2.html#types-as-documentation)), encapsulated types not so much.  
-Encapsulated code does not test well and often requires mocking frameworks.  You will know you are doing something
-right when you stop using mocks for unit tests.
-
-
-### Referential Transparency 
-
-I have discussed this concept already in [_add_blank_target Part 2, Referential Transparency](2021-12-24-ts-types-part2.html#referential-transparency).  I want to return to this topic for another rant.  
-In this series, I have been treating this term loosely.  
-
-_Function is referentially transparent if given the same input always returns the same result._   
-
-This gets a bit philosophical, what does "the same" mean?  Can a function creating a 
-web socket connection be ever referentially transparent?  Are WS connections ever the same[^reftrans]? 
-In my loose approach, referential transparency simply means that what the function does is exposed in its type. 
-Thinking in this lines makes referential transparency less of a checkbox and more a progress bar. 
-
-[^reftrans]: Not very relevant to TS, but could be interesting to philosophically inclined readers. 
-Haskell is big on referential transparency, in Haskell the function can be executed only in `main`.  Evaluating it does not establish a WS connection. Instead, it returns a computation which when executed will create a WS connection and return it.  As such such a function is referentially transparent. You could simulate a similar purity in TS by returning [_thunks_](TODO).
-
-Consider these versions of code that suppose to establish a WebSocket using some imaginary API 
-(we are implementing a PetStore):
-
-```JavaScript
-//gets config from global place and globally stores WS connection
-const init: (): void = ...
-
-//gets config from global place
-const connectWs: () => WsConnection = ...
-
-//gets config from passed parameter
-const connectWs: (conf: PetStoreConfig) => WsConnection = ...
-
-//gets config from passed parameter (most likely will involve subtyping at usage point)
-const connectWs: (conf: {loggerConf: LoggerConfig; wsUrl: Url}) => WsConnection = ...
-```
-
-None is truly referentially transparent but there is a clear difference in the amount of information provided by the types.
-First and second are very opaque, 
-third is more referentially transparent but not all `PetStoreConfig` is relevant, so is not very good.
-Last is very explicit, IMO last is the best. 
-Subtyping is likely to be used at some point as `PetStoreConfig` probably will be passed to it. 
-However, the first approach is probably more commonly used at large (possibly with a more explicit name).
-
-Readers working with React can alternatively think about a component that uses an internal state hook (encapsulates state) vs a component that
-accepts a setter callback and getter property as input arguments.
-
-One great thing about referentially transparent functions is that they have clear input and output types. 
-A referentially transparent function that returns `void` can't really do anything. 
-Referentially transparent computations have types that do not lie.
-
-Each computation has an input and an output even if TypeScript / JavaScript code does its darnedest to hide it.
-TS code can pull the inputs out of thin air (configuration, stuff stored on the window object, etc) and
-sink the output by saving it somewhere.  The above `init` is guilty of both of these felonies. Still, there is a referentially transparent computation hiding somewhere.  In the above example the last `connectWs` type describes the inputs and output within the heavily encapsulated `init`.  
-
-Inputs and outputs are essential to the clarity. The developer should try to understand what these inputs and outputs are at the very least.  Ideally, the referentially transparent computation within can be factored out
-and made explicit.  This is not just for clarity, you are likely to find future uses for it (e.g. the last example above could be factored out of the PetStore and used in other apps).  And, it will be easier to test.  
+TS does not require it but why would you not do that?  
 
 ### Variables named `x`
 
@@ -196,17 +113,93 @@ enum FooBar {
 }
 ```
 
-what is the advantage of using this `enum`?  I do not see safety advantage, please let me know if I am missing something.
+what is the advantage of using this `enum`?  I don't see a safety advantage, please let me know if I am missing something.
 This does not add clarity or readability either.  String literals are much more readable.
 
 I think `enum`-s are used because they are a familiar translation of a concept from other programming languages. 
 I this series I am suggesting building up cross language prowess based on types not on habits developed in other languages.  This would suggest preferring the first example.
 
+### Clarity vs encapsulation
+
+Encapsulation does not help clarity. 
+I consider encapsulation to be very useful when designing micro-services, not so much when designing programs. 
+Encapsulation often means not expressive types.  Encapsulating is hiding things from the types. 
+It often makes types simpler than they should be. 
+To get benefit of types, we need to give them a chance.  Type checker will not type check what is opaque to it.
+
+On the other hand, explicit types have a higher maintenance cost.  
+I like to compare this to documentation.  If app functionality changes
+you should change the documentation.  You are likely to do that only in the most obvious places. 
+Explicit types are different, they create domino effects forcing you to propagate the changes to all the relevant places.  
+This overhead is not always desirable and there are patterns and tools to minimize such cost 
+(e.g. TS subtyping, existential types, FP concept called _smart constructors_).
+Changing functionality should create compilation errors but ideally these errors should not be hard to fix.
+
+Encapsulated code does not test well and often requires mocking frameworks.  You will know you are doing something
+right when you stop using mocks for unit tests.
+
+
+### Referential Transparency 
+
+I have discussed this concept already in [_add_blank_target Part 2, Referential Transparency](2021-12-24-ts-types-part2.html#referential-transparency).  I want to return to this topic for another rant. 
+I am treating this term loosely.  
+
+_Function is referentially transparent if given the same input always returns the same result._   
+
+This gets a bit philosophical, what does _"the same"_ mean?  Can a function creating a 
+web socket connection be ever referentially transparent?  Are WS connections ever the same[^reftrans]? 
+In my loose approach, referential transparency simply means that what the function does is exposed in its type
+(it is effectively the same as me saying that the type is explicit). 
+Thinking in this lines makes referential transparency less of a checkbox and more a progress bar.  
+
+[^reftrans]: Not very relevant to TS, but could be interesting to philosophically inclined readers. 
+Some languages (like Idris or Haskell) are big on referential transparency. In such languages functions can be executed only inside `main`.  Evaluating a function would not establish a WS connection. Instead, it would return a computation that creates and returns WS when executed inside `main`.  This allows some purists to
+claim that the function is referentially transparent. You could simulate a similar purity in TS by returning [_thunks_](TODO).
+
+Consider the following versions of code that are supposed to establish a WebSocket using some imaginary API 
+(we are implementing a PetStore):
+
+```JavaScript
+//gets config from global place and globally stores WS connection
+const init: (): void = ...
+
+//gets config from global place
+const connectWs: () => WsConnection = ...
+
+//gets config from passed parameter
+const connectWs: (conf: PetStoreConfig) => WsConnection = ...
+
+//gets config from passed parameter (most likely will involve subtyping at usage point)
+const connectWs: (conf: {loggerConf: LoggerConfig; wsUrl: Url}) => WsConnection = ...
+```
+
+There is a clear difference in the amount of information provided by the types.
+First and second are very opaque, 
+third is more referentially transparent but not all `PetStoreConfig` is relevant, so still is not very good.
+Last is very explicit, IMO last is the best. 
+Subtyping is likely to be used at some point as `PetStoreConfig` probably will be passed to it. 
+However, the first approach is probably more commonly used at large (possibly with a more explicit name).
+
+Readers working with React can alternatively think about a component that uses an internal state hook (encapsulates state) vs a component that
+accepts a setter callback and a getter property as input arguments.
+
+One great thing about referentially transparent functions is that they have clear input and output types. 
+A referentially transparent function that returns `void` can't really do anything. 
+Referentially transparent computations have types that do not lie.
+
+Each computation has an input and an output even if TypeScript / JavaScript code does its darnedest to hide it.
+TS code can pull the inputs out of thin air (configuration, stuff stored on the window object, etc) and
+sink the output by saving it somewhere.  The above `init` is guilty of both of these felonies. Still, there is a referentially transparent computation hiding somewhere.  In the above example the last `connectWs` type describes the inputs and output within the heavily encapsulated `init`.  
+
+Inputs and outputs are essential to the clarity. The developer should try to understand what these inputs and outputs are at the very least.  Ideally, the referentially transparent computation within can be factored out
+and made explicit.  This is not just for clarity, you are likely to find future uses for it (e.g. the last example above could be factored out of the PetStore and used in other apps).  And, it will be easier to test.  
+
+
 
 
 ## About Productivity 
 
-We are not leaving clarity behind.  Clarity and productivity are obviously related.  We are just changing the angle.  
+We are not leaving clarity behind.  Clarity and productivity are obviously related.  I am only changing the angle.  
 
 When I write code in an untyped language, I still think about types, 
 the only difference is that I do not have any verification from the type checker. 
@@ -220,7 +213,7 @@ The following subsections examine some concepts related to productivity.
 ### A walk in the park 
 
 Types can guide the process of writing code.  I can write code by 'following the types' if the API gives
-me well designed types to follow. The analogy is following a path on a walk in the park.  
+me well designed types to follow. The analogy is following a path in the park.  
 
 We have seen examples of this in [_add_blank_target Part 2](2021-12-24-ts-types-part2.html) where I twisted _office.js_ arm to get the types right and was able to 
 type predicate myself to a much faster to write and safer code. 
@@ -228,10 +221,10 @@ type predicate myself to a much faster to write and safer code.
 We have also seen this is [_add_blank_target Part 4](2022-01-09-ts-types-part4.html) where types formed jigsaw puzzles allowing the computations to fit together in only certain ways. 
 
 _side_note_start
-There is a technique often called a _Hole Driven Development_ in which the developer interacts with the type checker
+There is a technique often called _Hole Driven Development_ in which the developer interacts with the type checker
 to write code.  You can try to use this [_add_blank_target type hole](2021-12-12-ts-types-part1.html#type-holes) with a mixed success to accomplish some of it in TS.  
-The idea is that by examining the type of a still missing code (the hole) you should be able to figure out the right piece of the puzzle to fit in (replace that hole with a piece of code that has the needed type). The language that provides the best experience (and a lot of fun) doing this is Idris. 
-You can implement certain functions by just using keyboard shortcuts to deconstruct, pattern match, search solution space for the right function in scope and insert it to you program[^idris-youtube].   
+The idea is that by examining the type of a still missing code (the hole) you should be able to figure out the right piece of the puzzle to fit in (replace that hole with a piece of code that has the needed type). The new piece can have some type holes too and the process is iterative. The language that provides the best experience (and a lot of fun) doing this is Idris. 
+You can implement certain functions by just using keyboard shortcuts to deconstruct, pattern match, search solution space for the right function in scope and insert it to the program[^idris-youtube].   
 OK, TS does not do that, but you do not need such tooling to benefit from the jigsaw approach to designing your code.
 _side_note_end
 
@@ -240,7 +233,7 @@ _side_note_end
 
 ### Inference reversed and T(ype)DD
 
-This section is not very relevant to TS, but I think interesting to note.
+This section is not very relevant to TS, but I think it interesting to note.
 
 Type inference allows a programming language to compute the types without needing the developer to specify them.  
 Ideally, the future will bring tooling where the developer defines the types and the compiler computes the program.   
@@ -249,12 +242,11 @@ _side_note_start
 A lot of this unicornish utopia is available today in some FP languages like Haskell.  Certain code is consider boilerplate and the tooling can derive it automatically.  Examples are: equality, ordering, JSON parsing/formatting, `map` functions for non-list types, folding/unfolding for non-list types, traversing non-list types, recursion scheme folds and unfolds, optics...  All of this boilerplate would be available for free for something like the `Json` grammar example from Part 1 and Part 5. 
 Programming in Haskell often involves creating some involved custom type and automatically deriving a lot of boilerplate for it. 
 The stronger the types, the more code generation is be possible (I have already mentioned interactive code development in the dependently typed Idris). 
-  
-The unfortunate reality is that powerful types are needed to be able to eliminate certain boilerplate.  Powerful could mean lots of things, e.g. honest to God _algebra of types_, _higher kinded types_, all of these things are offered by niche programming languages only.  
 _side_note_end
 
-TS will not implement types for us, however,
-starting with types and following on with (a manually written for now) programs is often quite productive.  This is the TDD approach to programming, only T means _Type_.   The simplest way to go about it is to start on the unit level (define types for small building blocks first).
+TS will not automatically implement code for us, however,
+starting with types and following with (a manually written for now) programs is often quite productive.  This is the TDD approach to programming, only T means _Type_.   The simplest way to go about it is to start on a small unit level (define types for small building blocks first).  It helps to know some solid building blocks (e.g. FP types)
+and to use a lot of type variables. 
 
 
 ## About Simplicity
@@ -263,9 +255,12 @@ I consider the terms _simple_ and _easy_ to have different semantics.  Easy: The
 Simple: Low effort to reason about (e.g. code written in that language). 
 There is no free lunch, to get simplicity you need to accept that things will not be easy.   
 Simplicity is about ability to reason about things and as such is closely related to all other bullet points in this post.   
-IMO, the popularity of easy and the unpopularity of simple are a systemic problem in programming and elsewhere.  
+IMO, the popularity of easy and the unpopularity of simple are a systemic problem in today's programming and elsewhere.  
 
-I consider TS to be complex (the opposite of simple). I devoted [_add_blank_target Part 3](2022-01-03-ts-types-part3.html) to explaining why.
+I consider TS to be complex (the opposite of simple). I devoted [_add_blank_target Part 3](2022-01-03-ts-types-part3.html) to explaining why.  
+
+On some basic level, simplicity is associated with strictness.  Flexibility seems to cause complexity.  _Flow's exact_ objects are strict and much simpler than objects with subtyping.  There are many modern concepts that we are still trying to figure out, e.g. dependent types
+(Idris, Agda, Coq), linear types (Rust, Haskell v.9, Idris 2).  At this moment these concepts should probably be filed under very strict and very complex.  I have a feeling than 5 years I will consider them less complex than subtyping (see current [_add_blank_target subtyping](https://doc.rust-lang.org/nomicon/subtyping.html) doc from Rust).  
 
 One aspect critical to simplicity that is _easy_ to explain and one that we have not discussed yet is _totality_. 
 
@@ -279,21 +274,35 @@ return unexpected `null` or `undefined`[^nullsafe].  Functions that return resul
 In some languages (e.g. JS) you also get partial function by writing code that in certain cases simply does not return.
 TS is relatively good in preventing this situation, compiler will say "Not all code paths return a value".
 
-Total is simple.  Reasoning about partial functions is much harder. Any non-termination bypasses type checker. 
-_Using partial functions means types are misleading._  
+Total is simple.  Reasoning about partial functions is much harder. Any non-termination bypasses the type checker. 
+_Using partial functions means that the types are misleading._  
 
-
-
-Exceptions seem to be the most frequent reason for non-termination. Developers who like types avoid throwing exceptions, they will favor TS union types instead.
+Exceptions seem to be the most frequent reason for the non-termination. Developers who like types avoid throwing exceptions, they will favor TS union types instead.
 
 Let's think again about computations from the input-output prospective and consider conditional control flow of the program.   
 TS's ternary can be viewed as a function.  _if-else_ not so much. _if_else_ does not have a type. 
 It was designed for mutating things and in today's more immutable approach to programming it should feel antiquated. 
-However, it is idiomatic to JS and TS and impossible to avoid.   
+However, it is idiomatic to both JS and TS and is impossible to avoid.   
 I use _if_else_ blocks only with return statements (with exception of `void` functions).  I do not use _if_ without the matching _else_ even if the code looks repetitive (again, with exception of `void` functions).  
 If you think about the "referentially transparent computation within",  you will notice that _if_ without _else_ is partial.  Several programming languages offer _if_else_ syntax without the _if_ only option.
 
-I fully expect some pushback on this.  This view is opposite to what you can frequently find on the internet (_else_ is sometimes considered evil).  Developers consider a sequence of _if_-s better than _if_else_ chains.  
+One could go (IMO too) far with this approach and use `if-else` as a lambda:
+
+```JavaScript
+// if-else as a lambda, this seems overkill
+const x = (() => {
+    if (condition) {
+        ...
+        return "yes"
+    } 
+    else {
+        ...
+        return "no"
+    }
+    }) ()
+```
+
+I fully expect some pushback on this.  My view is opposite to what you can frequently find on the internet (_else_ is sometimes considered evil).  Developers consider a sequence of _if_-s better than _if_else_ chains.  
 For simple control flows it should not matter.  For more complex code using partial _if_-s is concerning.   
 
 _side_note_start 
@@ -310,14 +319,18 @@ This equivalence has a name: Curry-Howard correspondence. "Propositions are type
 
 ## About Safety
 
-Here are some interesting examples of safety that could be provided by types: safe routing in a single page app (no broken routes), safe use of environment configuration,  safe backend communication (imagine the same types in frontend and backend with safety prevening broken urls and payload parsing errors).    
+Developers often go to great lengths to avoid compilation errors. 
+Sure, committing code that does not compile is not very professional but this attitude sometimes goes beyond that.
+IMO, designing types to be resilient to changes in functionality may equate to not taking advantage of type safety. 
+Compilation errors is why we use types, compilation errors are a good thing.  What you want are errors that are easy to fix.  
+
+Here are some interesting examples of safety that could be provided by types: safe routing in a single page app (no broken routes), safe use of environment configuration (e.g. types prevent accessing arbitrary environment variables), safe backend communication (imagine the same types in frontend and backend with safety prevening broken urls and payload parsing errors).    
 Safety can be very interesting, we have seen some examples e.g. [no information escape](2022-01-09-ts-types-part4.html#preventing-information-escape), [no `unknown`](2022-01-09-ts-types-part4.html#safety-preventing-unknown), 
 [no subtyping](2022-01-09-ts-types-part4.html#safety-preventing-subtyping).  
 
 _side_note_start
 Here are some very sophisticated examples of safety (outside of TS scope): safe linear algebra (e.g. consistent sizes of matrices in matrix multiplication), safety preventing deadlocks, safe resource management (e.g. no memory leaks, type safety over which resources are used, etc.). 
 One of the wildest type guarantees I have encountered was a guarantee for a linear computation cost. 
-
 
 Safety is really needed and often missing.  Here are some examples outside of TS scope: 
 [_add_blank_target Microsoft eyes Rust](https://visualstudiomagazine.com/articles/2019/07/18/microsoft-eyes-rust.aspx), 
@@ -326,11 +339,11 @@ Safety is really needed and often missing.  Here are some examples outside of TS
 To summarize what has been said:
 
 *  Best programming practices are not good enough to avoid these problems
-*  Partial solutions (like smart pointers in newer versions of C++) are not good enough either
+*  Approaches like smart pointers in newer versions of C++ are not good enough either
 *  Type safety: works
 _side_note_end 
 
-We are seeing a slow industry shift towards more sophisticated use of types,  IMO, TS plays a role in that shift.
+We are seeing a slow industry shift towards a more sophisticated use of types,  IMO, TS could play a role in that shift.
 
 ### Monads
 
@@ -358,17 +371,20 @@ I will only point out that, gradual typing or not, in TS correctness and soundne
 Making things conceptually easy at the cost of correctness (e.g. incorrect variance, unclear narrowing semantics in TS) should not be on the table.  
 
 Subtle falsehoods can sometimes be more concerning than the obvious once.  
-Here is a coding challenge for a dedicated reader.  There is a common belief that compilation flags like `strictNullChecks` prevent escaped `null` and `undefined`.  Exploit incorrect variance in TS to create a partial function that has a 
-return type `number` but returns `undefined` for some input parameters.  
+Here is a coding challenge:  There is a common belief that compilation flags like `strictNullChecks` prevent escaped `null` and `undefined`.  Exploit the incorrectness of variance in TS to create a partial function that has `number` return type but returns `undefined` for some of its input parameter values.  
+
+This series discouraged the use of TS's `any` type.  Undeniably, combining `any` with stricter types can lead 
+to some very interesting and useful code if one is careful.  In a way, I view `any` as more straightforward and less damaging 
+than other violations of logical soundness in the TypeScript language.
 
 ## About Maintainability
 
-Considering who is still reading this, I am now preaching only to the quire so I will keep this short. 
+Considering who is still reading this, I am now only preaching to the quire so I will keep this short. 
 
-Clearly all the points we made so far are related to maintainability.  My favorite definition of high code quality is low maintenance cost.  Everything else subjective. 
+Clearly all the points we made so far are related to maintainability.  My favorite definition of high code quality is a low maintenance cost.  Everything else is subjective.  Types have a big beneficial impact on that cost.
 
-It is well known that types can prevent trivial errors (like using a string instead of object). It is hard to catch all such cases in tests and they do show up in production. This is the reasons, I believe, TS is used in most of its projects.  
-Let me point out a less trivial bit. 
+It is well known that types can prevent trivial errors (like using a `string` instead of `object`). It is hard to catch all such cases in tests and they do show up in production. This is the reasons, I believe, TS is used in most of its projects.  
+Let me point out a less trivial high level bit. 
 Types can simplify adding new functionality.  If you think about the app as a big union type of various requirements (this is oversimplification but let me keep going), then adding handling of a new piece of functionality to that union could give you compilation errors unless you fix all the relevant places. Think about TS-s [_add_blank_target `switch`](2022-01-03-ts-types-part3.html#switch-exhaustive-check) or
 [_add_blank_target _ts-pattern_](https://dev.to/gvergnaud/bringing-pattern-matching-to-typescript-introducing-ts-pattern-v3-0-o1k) library exhaustive checks[^product].
 
@@ -380,15 +396,15 @@ languages just now.
 ## Universal
 
 Types are more fundamental than a programming language. 
-For example, most FP languages are effectively a syntax sugar over some version of lambda calculus. Lambda calculi come with very well understood formalized type semantics.  
-I am reminded about a great presentation [_add_blank_target Propositions as Types presentation](https://www.youtube.com/watch?v=IOiZatlZtGU&t=1816s) by Phil Wadler himself.  It makes a compelling and funny argument that the movie _Independence Day_ got it all wrong.  Aliens would not have used C.  C is being created by an engineering effort, types and LC are being discovered[^discovered].  Aliens would have discovered typed lambda calculi or have engineered something much different than C or Java.  
+For example, most FP languages are effectively a syntax sugar over some version of lambda calculus. Lambda calculi come with very well understood formal type semantics.  
+I am reminded about the [_add_blank_target Propositions as Types](https://www.youtube.com/watch?v=IOiZatlZtGU&t=1816s) presentation by Phil Wadler himself.  It makes a compelling and funny argument that the movie _Independence Day_ got it all wrong.  Aliens would not have used C.  C is being created by an engineering effort, types and LC are being discovered[^discovered].  Aliens would have discovered typed lambda calculi or have engineered something much different than C or Java.  
 This is very philosophical, but it has a very pragmatic implication.  Discovered programs are, by definition, timeless.  If Wadler is right (and if we will keep programming in the future) that would be kinda amazing.  
-In Part 4, I have referenced the [_add_blank_target TAPL](https://www.goodreads.com/book/show/112252.Types_and_Programming_Languages) book, IMO, the best textbook to learn about types. This book is 20 years old. 
+In Part 4, I have referenced the [_add_blank_target TAPL](https://www.goodreads.com/book/show/112252.Types_and_Programming_Languages) book, IMO, the best textbook to learn types. This book is 20 years old. 
 Recursion schemes (Part 5) are 20+ years old.  Rank-2 disguised in Part 4 was studied in 1980-ties and 90-ties.
 Many language features we consider new and modern are really old ideas, some date back to 1970ties.
 
 
-[^discovered]: A similar and relevant philosophical discussion has been happening in mathematics for centuries (see [_add_blank_target wikipedia](https://en.wikipedia.org/wiki/Philosophy_of_mathematics#Mathematical_realism)). My opinion on this is that creative process tends to be iterative leaving historical evidence of iterations. Mathematics, for most part, has been additive.  There was rarely a need to rewire an old theory. As far as I know not in last 100 years. 
+[^discovered]: A similar and relevant philosophical discussion has been happening in mathematics for centuries (see [_add_blank_target wikipedia](https://en.wikipedia.org/wiki/Philosophy_of_mathematics#Mathematical_realism)). My opinion on this is that creative process tends to be iterative leaving a historical evidence of iterations. Mathematics, for most part, has been additive.  There was rarely a need to rewire an old theory. As far as I know not in last 100 years. 
 
 
 Robert Harper has coined a term [_add_blank_target The Holly Trinity of CS](https://existentialtype.wordpress.com/2011/03/27/the-holy-trinity/) and types are one of the three.  
@@ -400,10 +416,10 @@ We have covered a lot of ground that probably is not well known to many seasoned
 I think the existence of this series provides a good verification for my claim: 
 it is more about knowing the types than it is about knowing the programming language.
 
-Types could unify how we think and talk about programs. Effective development teams are small, somewhere around 4-5 is the threshold.
-Why is that? I had worked once inside a team of 8 (two teams with different core competencies were merged to work on a new project).  Design meetings, OMG, we had hard time agreeing on anything.  There seems to be lack of agreement on what is important.   
-Nobody disputes that natural numbers satisfy `2 + 2 = 4`, and well that is a type. 
-One of my goals in this series was to sell the idea that types are fundamental to programming and are mostly not something open to endless debates.  Types could help facilitate agreement.
+Types could unify how we think and talk about programs. Effective development teams are small, the threshold seems to be somewhere around 4-5.
+Why is that? I had worked once inside a team of 8 (two teams with different core competencies were merged to work on a new project).  Design meetings, OMG, we had hard time agreeing on anything.  
+Nobody disputes that natural numbers satisfy `2 + 2 = 4`, and that has to do with types. 
+One of my goals in this series was to sell the idea that types are fundamental to programming and are mostly not something open to endless debates.  Types could help facilitate an agreement.
 
 ### Advanced Types as Patterns
 
@@ -413,8 +429,7 @@ often possible to use the principled approach as a pattern.  An example is the [
 I see `map` being added to all kinds of types as a pattern.  
 Monads are used as pattern too. Language level _async_, _await_ adopts more general monadic computing, it is special cased to async computations. [_add_blank_target _fast_check_](https://www.npmjs.com/package/fast-check) library uses some monadic computing as a pattern to accomplish randomized property testing. 
 
-The burden of knowledge of the principles lies on library and API authors.  For example, developers using _async_ / _await_ do not need
-to understand the concept of a monad.  The only issue on the consumption side of things is encouraging the pattern use.  
+The burden to understand the principles lies on the authors of librarys and APIs.  For example, developers using _async_ / _await_ do not need to understand the concept of a monad.  You need to understand it to create the _async / await_ concept.   
 It is also much easier to learn the underlying concept after experiencing examples of its use. 
 
 ## Unpopular
@@ -426,54 +441,52 @@ Both approaches complement each other.
 2. Increase effort / cost outside of project scope (e.g. learning types)
 
 In the industry focused on short term goals 2 will be unpopular even if benefits of 2 are significant.  
-The ramp up time for any new project needs to be short. 
+The ramp up time for the new project needs to be short. 
 This explains why all mainstream languages look and feel alike. As far as programming languages go, software industry is not innovation friendly. Any progress needs to be very gradual. Developers need to be able to "hit the ground running" when
 using a new language.  
 
-Phil Wadler made an interesting observation in the context of language design called [_add_blank_target Wadler's Law](https://wiki.haskell.org/Wadler%27s_Law).  This observation is also known in a more general form as [_add_blank_target bikeshead](https://bikeshed.com/) and I have mentioned these terms already.  Types are about semantics.  That puts them at the far end of the popularity ranking scale.  
-I have mentioned the easy vs simple dilemma.  Simple is less popular.  
+I have already mentioned [_add_blank_target Wadler's Law](https://wiki.haskell.org/Wadler%27s_Law) and [_add_blank_target bikeshead](https://bikeshed.com/).  Types are about semantics.  That puts them at the far end of the popularity ranking scale.  I have mentioned the easy vs simple dilemma.  Simple is less popular. 
 Types are theoretical,  that makes them less popular as well.
 
 Let's look at what the type friendly job market looks like. 
 The job market for typed functional programming jobs is, frankly, dismal.  At the same time, languages like Haskell and Rust top the list for the weekend use based on stackoverflow surveys[^weekend]. 
 
-How are can we explain both of these phenomena? 
+How can we explain both of these phenomena? 
 One issue is that only a small minority of programmers are interested in the more
 principled methods of writing code.  Weekend learners playing with Rust appear to outnumber devs doing weekend 
-project work in, say, PHP.  That is good, but the numbers are just not there. 
-There needs to be a critical mass of enthusiasts and there isn't one.  Managers will consider use of an FP language risky. 
-You do not get fired or criticized for selecting Java.   
-The other issue is the correlation between interest in things like types with interest in mathematics. 
-Current rush towards machine learning sways the precious few mathematically inclined CS students towards well paying datascience.   
+project work in, say, PHP.  That is good, but the numbers are still not there. 
+There needs to be a critical mass of enthusiasts and there isn't one.  At the very minimum, managers expect to have a solid supply of headcounts. Managers will consider use of an FP language risky. You do not get fired or criticized for selecting Java.   
+The other issue is the correlation between interest in types with interest in mathematics. 
+Current rush towards machine learning sways the precious few mathematically inclined CS students towards well paying datascience careers.   
 Yet another issue is education and how mathematics and CS are being taught. 
   
-[^weekend]: I remember, Haskell was firmly in the first position for the stackoverflow weekend use statistics for several years. I found this link: [_add_blank_target 2017](https://stackoverflow.blog/2017/02/07/what-programming-languages-weekends/).  These stats are hard to find but I also found [_add_blank_target 2019](https://stackoverflow.blog/2019/10/28/research-update-coding-on-the-weekends/). In 2019 Rust moved ahead of Haskell.  
+[^weekend]: I remember Haskell firmly in the first position for the stackoverflow weekend use statistics for several years. I found this link: [_add_blank_target 2017](https://stackoverflow.blog/2017/02/07/what-programming-languages-weekends/).  These stats are hard to find but I also found this one: [_add_blank_target 2019](https://stackoverflow.blog/2019/10/28/research-update-coding-on-the-weekends/). In 2019 Rust moved ahead of Haskell.  
 At the same time job ranking (based on UK's [_add_blank_target IT Jobs Watch](https://www.itjobswatch.co.uk/jobs/uk/haskell.do),  I have
 not found similar ranking for US.)  puts Haskell at 932 as of 2022/02/06.  Haskell moved ahead of COBOL in that ranking in 2017.  
-This ranking is possibly exaggerated too,  lots of job list Haskell and good to have but will have you code in PHP.  This bias exist
-in any language but is stronger of something like Haskell. 
+This ranking is possibly exaggerated too,  lots of jobs list Haskell and good to have but will have you code in PHP.  This bias exist
+in any language but is stronger for something like Haskell than say COBOL. 
 
 
 Let's take a bit more controversial take on this.
 A stronger version of "Someone is wrong on the internet" is _Lack of popularity is a necessary but not sufficient condition of doing something right._  "Popular => wrong" is a law (or hypothesis) of life that dates back to at least Socrates.  
 If you assume this to be true, you can view the progress as a process of being less and less wrong.   
 People look at the history of software industry and see a never ending aggressive progress. 
-A more insightful hindsight exposes history of embracing bad ideas (e.g. `null`) and resting good ideas
+A more insightful hindsight exposes history of embracing bad ideas (e.g. `null`) and resisting good ideas
 (e.g. type parameters[^history]).   
-You probably think of all of this as too hyperbolic. The benefit of taking such stance is a chance of noticing things that others don't.  
+You probably think of all of this as too hyperbolic. The benefit of taking my stance is a chance of noticing things that others don't.  
 
 [^history]:  As an example, Java has resisted type variables for a long time. 
 "Although our generics extensions were put on hold for six years, Sun developed a much keener interest in the compiler I had written for GJ. It proved to be more stable and maintainable than their first Java compiler. So they decided to make the GJ compiler the standard javac compiler from their 1.3 release on, which came out in 2000." ([_add_blank_target quote from Martin Odersky](https://www.artima.com/articles/the-origins-of-scala)).  Generics remained disabled until Java version 1.5 (2004). Oderky is always very dyplomatic in his statements.
 
 
 
-Lack of popularity can translate to some __frustration__ when using types. The frustration comes in the form of rejected designs, rejected pool requests, failed job interviews. I heard stories and experienced some of it first hand. 
+Lack of popularity can translate to some __frustration__ for type enthusiast. The frustration comes in the form of rejected designs, rejected pool requests, failed job interviews. I heard stories and experienced some of it first hand. 
 That is just part of life, the criticism can have validity as more advanced programming techniques could make the project
 confusing and not accessible to its contributors.  
-It also should be expected. One comment i received about this series said "this code is quite different than what we do". 
+It also should be expected. One comment I received about Part 1 of series said "this code is quite different than what we do". 
 Different could imply worth pursuing but unavoidably will at some point lead to a confrontation. 
-Types lack the critical mass of acceptance to become disruptive, they work well when the team is ready and/or when applied in a very gradual way.  
 
+Types lack the critical mass of acceptance to become disruptive, they work well when the team is ready and/or when applied in a very gradual way. 
 Thumbs up to projects and developer teams who learn types and select the unpopular!
 
 
@@ -481,7 +494,7 @@ Thumbs up to projects and developer teams who learn types and select the unpopul
 
 There is a steady slow progress. Mainstream languages are introducing a bit of types and FP.  
 `async`-`await` is now supported by many languages. 
-_Sum/variant types_ are supported in some way by many languages (TS's union types stand out for their readability).
+_Sum/variant types_ are supported by many languages (TS's union types stand out for their readability).
 Record types are being introduced as well (e.g. Java 14 _records_, C# 10 record struts, ...). 
 C# has type safe `equals`.  Advanced types in TS we have discussed in
 [_add_blank_target Part 4](2022-01-09-ts-types-part4.html) and [_add_blank_target Part 5](2022-02-13-ts-types-part5.html).  The list slowly grows.   
@@ -498,15 +511,14 @@ This will feed some gradual change.
 The hope for existence of such a feedback loop is what prompted me to write this series.  
 My hope is that mainstream programming will eventually transition itself to more principled programming approaches.  
 
-__Should more advanced types be used in a project?__  Ideally (and IMO) that decision should made by the developers.  I have presented plenty of _pros_.  The biggest obstacle is the learning curve.  I am afraid this learning needs to happen outside of the project work.  In reality, this means that the 
+__Should more advanced types be used in a project?__  Ideally (and IMO) that decision should be made by the developers.  I have presented plenty of _pros_.  The biggest obstacle is the learning curve.  I am afraid this learning needs to happen outside of the project work.  In reality, this means that the 
 decision has to be made based on what the team knows already.  So the answer for some teams could _yes_ today, for some could be _no_ today but a _yes_ in a future.  
 My personal approach is to make sure that TS code is approachable and my goal is to make it principled within this constraint.  
 This is not very easy to do, it is much easier to use principled types than principled patterns. 
 It is also easier to do that in an environment were principled is not considered odd. 
-It is also good to be able to scratch the itch somewhere and keep practicing the real thing, I have my backend work to do that, lots of people can't do that.
+It is also good to be able to scratch the itch and keep practicing the real thing, I have my backend work to do that, lots of people do not have that luxury.
 
-**Next steps**: I will slowly proofread everything and make final corrections.  I will remove the draft warning and
-post a note on reddit when this is all done. 
+**Next steps**: Over next few months I plan to slowly proofread everything and make final corrections.  I will remove the draft warnings and post a note on reddit when this is all done.  I do not expect any significant content changes. 
 
 This series was a long journey, I am happy I took it.  Big thanks to all of you who stayed with me all the way to this end.  
 Thank you to everyone who messaged me corrections.  Please let me know your thoughts on the this installment.  
