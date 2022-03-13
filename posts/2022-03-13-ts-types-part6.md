@@ -550,8 +550,8 @@ _[_add_blank_target Nanny Ogg](https://en.wikipedia.org/wiki/Nanny_Ogg)'s behavi
 
 **Next steps**: Over the next few months I plan to slowly proofread everything and make final corrections.  I will remove the draft warnings and post a note on reddit r/typescript when this is all done.  I do not expect any significant content changes. 
 
-This series was a long journey, I am happy I took it, and I am happy it is mostly behind me.  Big thanks to all of you who stayed with me all the way to this end.  
-Thank you to everyone who messaged me corrections.  Please let me know your thoughts on this installment.  
+This series was a long journey, I am happy I took it, but I am also happy the effort is now mostly behind me.  Big thanks to all of you who stayed with me all the way to this end.  
+Thank you to everyone who messaged me corrections and comments.  Please let me know your thoughts on this installment.  
 Good luck with your projects, I hope you will use types!
 
 
