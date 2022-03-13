@@ -51,7 +51,7 @@ Here is my plan:
  One of my notes will argue that what TS is and does it quite complex.
 * [_add_blank_target Part 4](2022-01-09-ts-types-part4.html), [_add_blank_target Part 5](2022-02-13-ts-types-part5.html). Will be more theoretical. Notes in Parts 4-5 will discuss topics such as TS's structural, recursive types, subtyping, phantom types, type variable scoping, higher-rank polymorphism (TS supports a version of it!), and type level programming.  I will show a trick to increase type safety 
 that prevents widening to `unknown` or other supertype.  
-* Part 6. Will be a wrap-up with some final thoughts. 
+* [_add_blank_target Part 6](2022-03-13-ts-types-part6.html). Will be a wrap-up with some final thoughts. 
 
 **Why am I writing these notes?**   
 To be honest, it is because I am really impressed and excited about some of the 
