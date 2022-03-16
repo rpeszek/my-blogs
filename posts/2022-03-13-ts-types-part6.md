@@ -4,6 +4,9 @@ author: Robert Peszek
 featured: true
 summary:  TypeScript Types series, final thoughts and rants 
 toc: true
+changelog: <ul> 
+     <li> (2021.03.15) Edited <a href="#enums">Enums</a> section</li> 
+     </ul>
 tags: TypeScript-Notes
 codestyle: ts
 ---
@@ -99,7 +102,11 @@ If it is not, the code probably can benefit from refactoring.
 
 ### Enums
 
-Another bit of a telltale.  Are enums clearer than literal types?  This code has 3 types ("foo", "bar" and the union):
+_This section is now somewhat misplaced.  I am keeping this edited version for 
+consistency with my original post.  It reflects, IMO, valid points made by the reddit community. 
+My original position was that _enums_ are obsoleted by union types._
+
+Are enums clearer than literal types?  This code has 3 types ("foo", "bar" and the union):
 
 ```JavaScript
 type FooBar = "foo" | "bar"
@@ -109,16 +116,24 @@ This code defines one type (`FooBar`) and is more verbose:
 
 ```JavaScript
 enum FooBar {
-  Foo: "foo",
-  Bar: "bar",
+  Foo = "foo",
+  Bar = "bar",
 }
 ```
 
-What is the advantage of using this `enum`?  I don't see a safety advantage, please let me know if I am missing something.
-This does not add clarity or readability either.  String literals are much more readable.
+What is the advantage of using this `enum`?  
 
-I think `enum`-s are used because they are a familiar translation of a concept from other programming languages. 
-In this series I am suggesting building up cross language prowess based on types and not on habits developed in other languages.  This would suggest preferring the first example.
+**EDIT:**  _I got a pushback to my criticism of `enum` ([_add_blank_target reddit](https://www.reddit.com/r/typescript/comments/tdymsp/comment/i0p5q8c/?utm_source=share&utm_medium=web2x&context=3)).  Here is a list of valid reasons to use `enum` 
+in TS:_
+
+* _Intellisense is likely to work better (go to definition, search for usage - these niceties may not even make sense with union types)_
+* _Type inference is likely to be much better as the name of the `enum` is specified at the usage point_
+* _Enums can be more descriptive than some literals (e.g. `OK` is nicer than `200`)_
+* _Enums are nominally typed which can be often useful. Two enums have different types even if they have the same content. (note that in TS even classes are structurally typed, class content matters, class name not so much)_
+
+_However, most type safety appears to be identical. For example, switch statement exhaustive checks are equivalent.
+IMO literal string types are often more readable.  Readers familiar with languages that have a nice implementation 
+of Algebraic Data Types are likely to gravitate towards unions._
 
 ### Clarity vs encapsulation
 
