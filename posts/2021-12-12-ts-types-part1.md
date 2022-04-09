@@ -502,7 +502,7 @@ const testfn = curry({} as any)
 
 TS type checker does not work with type variables at the top level. 
 That makes testing expressions like `curry(_())` rather pointless.
-The logically most general type for the first `curry` parameter is rather useless:
+The following compiles just fine, and would be a good (not very useful but good) choice for the inferred type of `_()`:
 
 ```JavaScript
 type GenFn2Type = (ax: never, bx: never) => unknown
@@ -510,7 +510,7 @@ type GenFn2Type = (ax: never, bx: never) => unknown
 const compiles = curry(_<GenFn2Type>()) 
 ```
 
-but TS does not infer that type (as IMO it should).
+but TS fails instead of inferring that type.  
 
 
 There is an interesting relationship between the `never` type and ` _<T>(): T`. There will be a future note about it.   
