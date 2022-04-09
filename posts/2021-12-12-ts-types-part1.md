@@ -588,6 +588,14 @@ In my book, there is just no comparing TS to JS, TS is the clear winner.
 How does TS compare to statically type checked frontend languages that compile to JS and have capable type checkers and solid types (e.g. Reason, Elm, PureScript, even Haskell)?  I am not in a good position to discuss this yet.   
 Lots of projects need to stay close to JS, my project at work falls into this group.  For such projects TS is the right choice IMO.
 
+## Relevant TypeScript Language tickets
+
+* [_add_blank_target 43187](https://github.com/microsoft/TypeScript/issues/43187) the overloading issue
+* [_add_blank_target 48624](https://github.com/microsoft/TypeScript/issues/48624) widening to `unknown` issue (I entered it)
+* [_add_blank_target 48625](https://github.com/microsoft/TypeScript/issues/48625) 
+ `curry(_())` not compiling issue (I entered it)
+
+I am sure the ones I entered could be duplicates, I will post updated information if I learn more.
 
 ## Next Chapter
 

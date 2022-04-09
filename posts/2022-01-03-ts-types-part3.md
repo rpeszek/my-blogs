@@ -4,6 +4,9 @@ author: Robert Peszek
 featured: true
 summary:  TypeScript Types series, complex and messy types in TS
 toc: true
+changelog: <ul> 
+    <li> (2022.01.03 - Present) Changes are documented in <a href="#summary-of-final-edits">Summary of final edits</a>.
+     </ul>
 tags: TypeScript-Notes
 codestyle: ts
 ---
@@ -340,6 +343,9 @@ const datedHello: {
 }
 ```
 
+TS allows to define the above object types using `as const`, e.g.  `const helloDolly = {hello: "Dolly!"} as const` and
+`const datedHello = {hello: "world!", since:2022} as const`.
+It this is done `helloDolly === datedHello` will no longer compile but 
 IMO, widening object property types is an arbitrary complexity. 
 
 ### DIY equality 
@@ -644,3 +650,7 @@ I will also show a trick that prevents `unknown` and supertype widening.
 Here is the link: [_add_blank_target Part 4](2022-01-09-ts-types-part4.html).
 
 Happy New Year to all of my readers.  Thank you for reading.
+
+### Summary of final edits
+
+* Added information about `as const` in [Hidden blooper note](#hidden-blooper-side-note)
