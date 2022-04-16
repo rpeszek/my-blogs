@@ -351,8 +351,7 @@ There will be a lot of `myvar as IWantIt`, or a lot of the `any` type.
 
 
 _side_note_start **Side note:** 
-I can push this code to a ridiculous limit and **demonstrate the first example of code that 
-should not compile but it does**:
+I can push this code to a ridiculous limit and **demonstrate the first example of code compiles but I would not expect it to**:
 
 ```JavaScript
 //this compiles by using a wrong input parameter type and returns 'body4: unknown'
@@ -360,13 +359,9 @@ const crazyConfig : (_: Office.AsyncResult<string>) => void = x => ""
 const body4 = await officePromise (curry3(item.body.getAsync)(Office.CoercionType.Html)(crazyConfig)) 
 ```
 
-Besides this being completely wrong, 
-I do not understand what causes the widening of `body4` type to `unknown`. There is enough information in the overloaded `item.body.getAsync` method for the type checker to infer the `string`. My guesswork is too hypothetical to discuss it here.   Accepting invalid `unknown` appears to be a common pattern 
-to how TS sometimes works.  We will come back to it later in this post and we will discuss the `unknown` problem more
-in future notes. 
+Accepting invalid `unknown` appears to be a common pattern 
+to how TS sometimes works.  We will come back to this example later in this post and we will discuss the `unknown` problem more in future notes.  
 _side_note_end
-
-
 
 
 Was this enough gore for you?  You say it was not?  I say you did not see the content of that email!
@@ -532,8 +527,8 @@ _Good code requires two type checkers: TypeScript and You_
 ### Compilation bloopers 
 
 We already saw "correct" programs that should have compiled but did not (e.g. `curry(_())`, `body3` example) and we will see more in the future notes.
-Our `body4` example compiled but was clearly wrong.  
-This note shows other, less contrived, examples that compile but clearly should not.  
+Our `body4` example compiled but it was a bug.  
+This note shows other, less contrived, examples that compile and are clearly bugs.  
 
 All of these type check:
 
@@ -556,20 +551,41 @@ const nonsense2 = curry(curry)
 //... more examples in the linked github project
 ```
 
-and all, except the first one, should not.  
+and all, except the first one, are bugs.  
+One pattern is clearly visible: `unknown` somewhere
+in the type[^unknown].  
+The underlying reason seems to be much simpler: TS does not exactly match the types
+of parameters that are functions.  The underlying reason is that [_add_blank_target functions with fewer parameters are assignable to functions that take more parameters](https://github.com/Microsoft/TypeScript/wiki/FAQ#why-are-functions-with-fewer-parameters-assignable-to-functions-that-take-more-parameters)[^edit]:
 
-I expect the type checker to be effective at rejecting nonsensical code.  If a blooper happens, it should be rare, contrived code, unlikely for developers to write.  My examples are somewhat surprising since higher order functions are not uncommon in JavaScript.  The second example is a piece of code I accidentally wrote in my project.  
-This is very concerning since errors like these are likely to remain uncaught and become escaped bugs. 
-
-No compiler is perfect, but you probably noticed by now that TS compiler seems to get in trouble a lot. 
-Compared to other programming languages I use, TS's rate of compilation issues is much higher, the issues are more dangerous, and these bloopers are happening on more commonly used vanilla code (well... at least commonly used by me).  
-I have no idea what the underlying issues are but I can see two general reasons for this:
-gradual typing on top of JS is not easy, subtyping is not easy.  I plan to write a note about the complexity of TS types in a future post.  One pattern, however is clearly visible: `unknown` somewhere
-in the type[^unknown].  I curated a longer list of examples where TS accepts invalid code 
-in the linked repo and [_add_blank_target here](https://github.com/rpeszek/typescript-issues/blob/master/src/AcceptingWrongCode/IncorrectlyAcceptingUnknown.ts). 
-I am sure that TS keeps improving and fixing such issues but I expect the progress to be slow. 
+[^edit]: This took me a long time to figure out and was added late.
 
 [^unknown]: `nonsense1` will will show `unknown` if you remove the type annotation. 
+
+
+```JavaScript
+declare function testfn(fn: (str:string) => number):number
+
+//compiles, calculated type is: const num: number
+const num = testfn(() => 1)
+```
+
+IMO this language design decision can lead to very confusing escaped bugs and it smells like subtyping. 
+Higher order functions are not uncommon in JavaScript.  The `nonsense1` example is a piece of code I accidentally wrote in my project.  
+This is very concerning since errors like these are likely to remain uncaught and become escaped bugs.  
+Careful reader will notice that my `body4` example is a
+perfect storm. Here it is again:
+
+```JavaScript
+//this compiles by using a wrong input parameter type and returns 'body4: unknown'
+const crazyConfig : (_: Office.AsyncResult<string>) => void = x => ""
+const body4 = await officePromise (curry3(item.body.getAsync)(Office.CoercionType.Html)(crazyConfig)) 
+```
+
+TS picks a (wrong) 2 parameter overload of `item.body.getAsync` because it was defined last by _office.js_. It assigns it to `curry3` because `curry3` expects a 3 parameter function and 2 < 3 is OK. Sigh.
+
+Compared to other programming languages I use, TS's rate of compiler issues I encounter is much higher, the issues are more dangerous, and are likely to happen on more commonly used vanilla code (well... at least commonly used by me).  
+I can see two general reasons for this:
+gradual typing on top of JS is not easy, subtyping is not easy.  I plan to write a note about the complexity of TS types in a future post.  
 
 ### It's all worth it
 
@@ -590,12 +606,11 @@ Lots of projects need to stay close to JS, my project at work falls into this gr
 
 ## Relevant TypeScript Language tickets
 
-* [_add_blank_target 43187](https://github.com/microsoft/TypeScript/issues/43187) the overloading issue
-* [_add_blank_target 48624](https://github.com/microsoft/TypeScript/issues/48624) widening to `unknown` issue (I entered it)
+* [_add_blank_target 43187](https://github.com/microsoft/TypeScript/issues/43187) the overloading issue (type inference considers the last overload only) has been known and has been marked as "Docs".
+* [_add_blank_target 48624](https://github.com/microsoft/TypeScript/issues/48624) (I entered it) about my blooper examples has been marked as "Working as Intended" 
 * [_add_blank_target 48625](https://github.com/microsoft/TypeScript/issues/48625) 
- `curry(_())` not compiling issue (I entered it)
+ `curry(_())` not compiling issue (I entered it) has been marked as "Working as Intended"
 
-I am sure the ones I entered could be duplicates, I will post updated information if I learn more.
 
 ## Next Chapter
 
@@ -606,12 +621,16 @@ How to assure that they do?
 We will discuss these questions in the next installment.
 Here is the link: [_add_blank_target Part 2. Typing Honestly](2021-12-24-ts-types-part2.html)
 
-### Summary of final edits
+## Summary of final edits
 
-Linked [_add_blank_target overloading examples](https://github.com/rpeszek/typescript-issues/blob/master/src/RejectingCorrectCode/RejectingOverloads.ts) to demonstrate the issue of TS type inference
-not working well with overloaded methods, creating compilation issues unless the last overload is used.
+Added context to [bumps on the path](#bumps-on-the-path) section about type inference
+not working well with overloaded methods.
 
-Linked a curated [_add_blank_target examples list](https://github.com/rpeszek/typescript-issues/blob/master/src/AcceptingWrongCode/IncorrectlyAcceptingUnknown.ts) where compiler accepts invalid code by 
-computing `unknown` in the type.
+Added context to why `curry(_())` is not compiling. 
 
-Added context to `curry(_())` not compiling. 
+Added context to [compilation bloopers](#compilation-bloopers) section explaining the 
+underlying reason for TS accepting my blooper examples:  TS allows to assign a function with fewer parameters to a function
+type with more parameters. The arity does not need to match.
+
+
+

@@ -238,6 +238,7 @@ I see 2 possible conclusions
 1. This is a bug caused by a complexity of TS's semantic rules
 2. This is a feature indicating that the rules are indeed complex
 
+This appears to be one of the "Working as Intended" or known issues (see [footnote 4](#fn4)).
 
 ### `===` semantics, what's an overlap?
 
@@ -499,12 +500,23 @@ But, you may say, JS object polymorphism is very useful.  All the 3 languages li
 These languages also come with well thought out semantic rules that are often formalized and come with soundness proofs.   
 The types in these languages are much simpler (not necessarily easier but simpler). 
 
-
 [^2]: Haskell is still improving on this aspect. IMO, the need for polymorphic access to 
 record fields is overrated.  I would trade it for a capable compiler any time.
 
 Type complexity translates to a confused type checker and to a confused developer.   
 _Programming in a language in which I do not fully understand the types equates to me writing programs I do not fully understand._
+
+I expect that to become a seasoned TS developer, one needs to remember a big dictionary of idiosyncratic compiler behaviors. 
+[_add_blank_target Common Bugs that aren't bugs](https://github.com/Microsoft/TypeScript/wiki/FAQ#common-bugs-that-arent-bugs) 
+is, I think, just a warm up page.  
+Were you surprised about the gotchas we have uncovered in 
+[_add_blank_target Part 1](2021-12-12-ts-types-part1.html)?
+Is the above [overlap issue](#semantics-rejected-overlap) a well known problem[^ticket]? 
+Call me weird, but I would rather be learning PLT or Type Theory than these idiosyncrasies.
+
+[^ticket]: See [_add_blank_target #27910](https://github.com/microsoft/TypeScript/issues/27910)
+I created [_add_blank_target #48628](https://github.com/microsoft/TypeScript/issues/48628) which 
+was originally marked as "Working as Intended" and then moved to "Duplicate" status.
 
 It is worth noting that TypeScript has over a million users. FP languages have tens of thousands of users (if combined).  TypeScript has more resources to improve. 
 What makes for fewer bugs, lots of dollars or clean types?   
@@ -637,7 +649,7 @@ declare function unify<T>(t1: T, t2: T) : T
 function verifyExtends<T2 extends T1, T1>() {}
 ```
 
-can ask TS subtyping questions. 
+can ask TS subtyping questions.   
 
 ## Next Chapter
 
@@ -651,6 +663,7 @@ Here is the link: [_add_blank_target Part 4](2022-01-09-ts-types-part4.html).
 
 Happy New Year to all of my readers.  Thank you for reading.
 
-### Summary of final edits
+## Summary of final edits
 
 * Added information about `as const` in [Hidden blooper note](#hidden-blooper-side-note)
+* Added note about tickets relevant to the [overlap issue](#semantics-rejected-overlap) (see footnote [4](#fn4))
