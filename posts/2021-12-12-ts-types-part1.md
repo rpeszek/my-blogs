@@ -327,7 +327,7 @@ getAsync(coercionType: Office.CoercionType | string,
 
 So there are sort of _overloads on top of overloads_ and the type checker could get confused.
 In fact the case here is much simpler, TS inference tends to pick the last defined overload 
-(see [_add_blank_target this code example](https://github.com/rpeszek/typescript-issues/blob/master/src/RejectingCorrectCode/RejectingOverloads.ts)).
+(see [_add_blank_target this code example](https://github.com/rpeszek/typescript-issues/blob/master/src/RejectingCorrectCode/RejectingOverloads.ts) and ([_add_blank_target #43187](https://github.com/microsoft/TypeScript/issues/43187)).
 The compilation error also suggests that the compiler gets stuck on a wrong (the 2 parameter) version of `getAsync` despite the use of the 3 parameter `curry3`. I will also confirm this hypothesis using a _type hole_ (we will learn what that is) in the next section.  
 I expect the type checker to backtrack and try the next overload, but for some reason it does not want to do that on its own.   
 I do not blame TS, overloading gives me a headache too.   
@@ -581,7 +581,8 @@ const crazyConfig : (_: Office.AsyncResult<string>) => void = x => ""
 const body4 = await officePromise (curry3(item.body.getAsync)(Office.CoercionType.Html)(crazyConfig)) 
 ```
 
-TS picks a (wrong) 2 parameter overload of `item.body.getAsync` because it was defined last by _office.js_. It assigns it to `curry3` because `curry3` expects a 3 parameter function and 2 < 3 is OK. Sigh.
+TS picks a (wrong) 2 parameter overload of `item.body.getAsync` because it was defined last by _office.js_. It assigns it to `curry3` because `curry3` expects a 3 parameter function and 2 < 3 is OK.  
+Sadly, accepting `body4` code is TypeScript "Working as Intended" ([_add_blank_target #43187](https://github.com/microsoft/TypeScript/issues/43187), [_add_blank_target #48624](https://github.com/microsoft/TypeScript/issues/48624)).
 
 Compared to other programming languages I use, TS's rate of compiler issues I encounter is much higher, the issues are more dangerous, and are likely to happen on more commonly used vanilla code (well... at least commonly used by me).  
 I can see two general reasons for this:
@@ -606,9 +607,9 @@ Lots of projects need to stay close to JS, my project at work falls into this gr
 
 ## Relevant TypeScript Language tickets
 
-* [_add_blank_target 43187](https://github.com/microsoft/TypeScript/issues/43187) the overloading issue (type inference considers the last overload only) has been known and has been marked as "Docs".
-* [_add_blank_target 48624](https://github.com/microsoft/TypeScript/issues/48624) (I entered it) about my blooper examples has been marked as "Working as Intended" 
-* [_add_blank_target 48625](https://github.com/microsoft/TypeScript/issues/48625) 
+* [_add_blank_target #43187](https://github.com/microsoft/TypeScript/issues/43187) the overloading issue (type inference considers the last overload only) has been known and has been marked as "Docs".
+* [_add_blank_target #48624](https://github.com/microsoft/TypeScript/issues/48624) (I entered it) about my blooper examples has been marked as "Working as Intended" 
+* [_add_blank_target #48625](https://github.com/microsoft/TypeScript/issues/48625) 
  `curry(_())` not compiling issue (I entered it) has been marked as "Working as Intended"
 
 
