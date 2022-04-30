@@ -6,6 +6,7 @@ summary:  TypeScript Types series, final thoughts and rants
 toc: true
 changelog: <ul> 
      <li> (2021.03.15) Edited <a href="#enums">Enums</a> section</li> 
+     <li> (2022.04.30 - Present) Minor edits </li>
      </ul>
 tags: TypeScript-Notes
 codestyle: ts
@@ -370,6 +371,8 @@ To summarize what has been said:
 *  Approaches like smart pointers in newer versions of C++ are not good enough either
 *  Type safety: works
 _side_note_end 
+
+It should be noted that `subtyping` reduces safety. We have discussed it extensively in [_add_blank_target Part 3](2022-01-03-ts-types-part3.html#subtyping)
 
 We are seeing a slow industry shift towards a more sophisticated use of types,  IMO, TS could play a role in that shift.
 

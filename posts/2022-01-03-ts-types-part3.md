@@ -495,7 +495,9 @@ verifyExtends<(_:string) => number, (_1:string,_2:boolean) => number>()>
 ```
 
 see also [_add_blank_target functions with fewer parameters are assignable to functions that take more parameters](https://github.com/Microsoft/TypeScript/wiki/FAQ#why-are-functions-with-fewer-parameters-assignable-to-functions-that-take-more-parameters).
-We have seen this leading to surprising behavior in [_add_blank_target Part 1, Compilation bloopers](2021-12-12-ts-types-part1.html#compilation-bloopers) section.
+This is convenient, it can safe a few characters when writing programs.  
+It is also, IMO, dangerous and complex. 
+We have seen this leading to surprising behavior in [_add_blank_target Part 1, Compilation bloopers](2021-12-12-ts-types-part1.html#compilation-bloopers) section. 
 _side_note_end 
 
 

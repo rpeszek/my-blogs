@@ -569,7 +569,7 @@ declare function testfn(fn: (str:string) => number):number
 const num = testfn(() => 1)
 ```
 
-IMO this language design decision can lead to very confusing escaped bugs and it smells like subtyping. 
+IMO this language design decision can lead to very confusing escaped bugs and it smells like subtyping[^subtyping]. 
 Higher order functions are not uncommon in JavaScript.  The `nonsense1` example is a piece of code I accidentally wrote in my project.  
 This is very concerning since errors like these are likely to remain uncaught and become escaped bugs.  
 Careful reader will notice that my `body4` example is a
@@ -583,6 +583,8 @@ const body4 = await officePromise (curry3(item.body.getAsync)(Office.CoercionTyp
 
 TS picks a (wrong) 2 parameter overload of `item.body.getAsync` because it was defined last by _office.js_. It assigns it to `curry3` because `curry3` expects a 3 parameter function and 2 < 3 is OK.  
 Sadly, accepting `body4` code is TypeScript "Working as Intended" ([_add_blank_target #43187](https://github.com/microsoft/TypeScript/issues/43187), [_add_blank_target #48624](https://github.com/microsoft/TypeScript/issues/48624)).
+
+[^subtyping]:  In fact it is subtyping.  In TS `() => number` extends `(_:string) => number`.
 
 Compared to other programming languages I use, TS's rate of compiler issues I encounter is much higher, the issues are more dangerous, and are likely to happen on more commonly used vanilla code (well... at least commonly used by me).  
 I can see two general reasons for this:
