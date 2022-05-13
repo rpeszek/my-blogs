@@ -102,30 +102,31 @@ IMO, it is impressive that TS is able to pull these off.  I consider this featur
 use of recursive types:
 
 _side_note_start
-The github repo with code examples for this series contains [_add_blank_target RecSchemes.ts](https://github.com/rpeszek/ts-experiments/blob/master/ts-notes/src/RecSchemes.ts). This module contains code that allows for _folding_ (TS/JS ecosystem tends to use the term _reduce_) and _unfolding_  of arbitrary JSON values expressed as `JsonVal`. 
+The github repo with code examples for this series includes [_add_blank_target RecSchemes.ts](https://github.com/rpeszek/ts-experiments/blob/master/ts-notes/src/RecSchemes.ts). This module contains code that allows for _folding_ (TS/JS ecosystem tends to use the term _reduce_) and _unfolding_  of arbitrary JSON values (expressed as the above `JsonVal`). 
 
-This approach is called _Recursion Schemes_. 
+Such approach is called _Recursion Schemes_. 
 If you are not familiar with this concept, you are likely to have two reactions: "the code looks surprisingly terse"
 and "WTF is going on".  IMO any code that solicits these 2 reactions is worth exploring. 
 The first suggests a principled code, the second suggests an opportunity to internalize some fundamental principles. 
+
 One high level intuition about recursion schemes is that they abstract out/hide recursion.   
-Readers not familiar with this concept should try implementing an analogous `fold` for the above `List` type and 
-compare the resulting type with TS's array `reduce`.  Recursion schemes are not easy, at least they
-were not easy for me to learn.  
-Since an identical technique can be applied to many other recursive types, recursion schemes could be used as a pattern
+Readers not familiar with Recursion Schemes should try implementing an analogous `fold` for the above `List` type and 
+compare its type with TS's array `reduce`.  Recursion schemes are not easy, at least they
+were not easy to learn for me.  
+Since this technique can be applied to many other recursive types, recursion schemes could be used as a pattern
 in TS.
 
 Recursion Schemes are firmly rooted in theory. For example, the `fold` and `unfold` definitions in my example 
 follow from categorical concepts explained [_add_blank_target here](https://bartoszmilewski.com/2017/02/28/f-algebras/)[^ct].   
 This technique is also very useful. 
 Examples are: manipulating XML documents, rewriting AST (syntax trees) of interpreted programs. 
-A lot of code at my work is using recursion schemes (we are not doing it in TS though). 
+A lot of code at my current work is using recursion schemes (we are not doing it in TS though). 
 In the TS/JS world, you could think about presenting very nested data by folding it into a nested React component. 
 Working with any recursive type is likely to benefit from using recursion schemes.  
 
 Even though TS is not capable of implementing recursion schemes the way they are done in Haskell or Scala, there is some
-simplifying benefit of TS's structural typing.  The linked TS code explains this in code comments. 
-It is really nice that code like this is possible.
+simplifying benefit of TS's structural typing.  The linked code examples explain this in code comments. 
+It is really nice that code like this is possible in TS.
 _side_note_end
 
 [^ct]:  The code examples in the linked CTFP chapter require a `Fix` type that allows for rolling (applying `Fix`) and
@@ -134,11 +135,11 @@ unrolling (deconstructing `Fix`), this complexity is due to nominal typing and i
 ## Type level programming
 
 TS literal types are singletons (i.e. type `"boo"` has exactly one value `"boo":"boo"`). 
-This allows singletons to magically connect types with values. That way, the values can be type checked! 
+This allows singletons to magically connect types with values and values with types. That provides a lot of power to create very precise types.   
 Literal types should not be that hard to implement in a programming language and it is interesting why they are so uncommon.  Kudos to TS for introducing these!  They are, clearly, a great fit for JS.   
 However, TS literal types are very limited in scope (I remember reading somewhere that it was a design decision).
 For example, you can do some very basic type level string manipulation but you cannot
-concatenate strings or do any arithmetic on numbers and you have no way of defining any additional features on your own (e.g. DIY number addition).  
+concatenate strings or do any arithmetic on type level numbers and you have no way of defining any additional features on your own (e.g. DIY number addition).  
 
 TypeScript allows for type-level ternary (_Conditional Types_) as well as various type-level built-in functions (e.g. `keyof`).   
 Apparently, the type level programming in TypeScript is _Turing Complete_
@@ -148,7 +149,7 @@ JS code idioms rather than creating a foundation for DIY type level programming.
 IMO this makes it harder to learn.  The _Turing completeness_ appears to be a completely accidental language feature.   
 
 Type level programming can be very useful, we have seen some of it in action in the [_add_blank_target previous post](2022-01-09-ts-types-part4.html) where
-we have used it to prevent subtyping and to prevent type checker from using the `unknown` type. 
+we were able to prevent subtyping and prevent compiler from using the `unknown` type. 
 
 IMO the best language design direction is for the type level 
 and the value level code to look the same (e.g. dependently typed language like Idris).
@@ -171,7 +172,7 @@ const generalizedHead = <T> (t: T) : Flatten<T> => {
     if(Array.isArray(t)) 
         return t[0]  //still compiles (as expected)
     else 
-        return t //compiler error: Type 'T' is not assignable to type 'Flatten<T>' (not as expected)
+        return t //compiler error: Type 'T' is not assignable to type 'Flatten<T>' (not as I would expect)
 }
 ```
 
@@ -259,7 +260,9 @@ verifyExtends<FooAndBarAndBaz, FooAndBar>() //compiles, FooAndBarAndBaz extends 
 ```
 
 Subtyping gets more involved if you combine adding properties to objects and variants to union types.
-But I think this covers the basic idea.
+In TS subtyping extends to functions which makes things even more complex (leading to what I called
+[_add_blank_target compilation bloopers](2021-12-12-ts-types-part1.html#compilation-bloopers) in Part 1).
+But I think the above examples cover the basic idea.
 
 Now let's revisit the above challenge.  What will your function return in this call:
 
@@ -307,7 +310,7 @@ export const __neverFn: () => never =  _
 In other words `<T> () => T` and `() => never` can be assigned to each other, thus, I consider them equivalent. 
 
 If you replay the same argument with arrows reversed, you will establish equivalence between the generic callback
-`<T> (_: T) => ()` and the `unknown` callback types. 
+`<T> (_: T) => ()` and the `unknown` callback types: 
 
 ```JavaScript
 declare function someUnknownCallback(t: unknown): void 
@@ -381,7 +384,7 @@ Except, for some reason, JS decided to endure _callback hell_ for about 2 decade
 Today's `async` / `await` code finally brings an end to that mystery.   
 Understanding that programming with callbacks (often called _Continuation Passing Style_[^cps]) and vanilla synchronous programming 
 can offer very similar interface dates back to very early 1990-ties. 
-This has to do with the programming abstraction that comes from Category Theory called _Monad_. 
+This has to do with the programming abstraction that also comes from Category Theory called _Monad_. 
 _side_note_end
 
 [^cps]: I believe the term Continuation Passing Style goes back as far as 1950ties.
@@ -397,10 +400,10 @@ TS instead of C++.  Kudos to TS!
 
 I will finish the series with some final thoughts and rants.  
 The last 2 installments got a little on an advanced side of things. 
-One question that I have been asking myself is:  When should more advanced types be
+One question I have been asking myself is:  When should more advanced types be
 used in a TS project?  
 
-The last installment will take me a month or so to finish. 
+Here is the link: [_add_blank_target Part 6](2022-03-13-ts-types-part6.html)
 
 
 
