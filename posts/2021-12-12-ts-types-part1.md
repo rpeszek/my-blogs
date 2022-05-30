@@ -6,7 +6,8 @@ summary:  TypeScript Types series, Introduction, office.js, working with and fig
 changelog: <ul> 
     <li> (2021.12.24) modified historical note about office.js. Linked Part 2. Planned future content adjustment.</li>
     <li> (2021.12.26) <a href="#fn1">footnote [1]</a> 
-    <li> (2022.01.03 - Present) Changes are documented in <a href="#summary-of-final-edits">Summary of final edits</a>.
+    <li> (2022.01.03 - 2022.05.29) Changes are documented in <a href="#summary-of-final-edits">Summary of final edits</a>.
+    <li> (2022.05.29) Draft warning removed </li>
      </ul>
 toc: true
 tags: TypeScript-Notes
@@ -15,9 +16,6 @@ codestyle: ts
 
 _Please Leave Feedback in: [_add_blank_target git discussions](https://github.com/rpeszek/rpeszek.github.io/discussions/1)_
 
-**DRAFT version** _(I am sorry about any misprints.
-It seems I have goblins in my laptop that toy with me, remove or change words. 
-When this note disappears, you will know that I gave up.)_   
 
 **Disclaimers:** (imagine this is a very small font, read it very fast in a half-whisper)   
 _I assume strict compiler flags are on, something you get by default with scaffolding, e.g. using
@@ -584,7 +582,8 @@ const body4 = await officePromise (curry3(item.body.getAsync)(Office.CoercionTyp
 TS picks a (wrong) 2 parameter overload of `item.body.getAsync` because it was defined last by _office.js_. It assigns it to `curry3` because `curry3` expects a 3 parameter function and 2 < 3 is OK.  
 Sadly, accepting `body4` code is TypeScript "Working as Intended" ([_add_blank_target #43187](https://github.com/microsoft/TypeScript/issues/43187), [_add_blank_target #48624](https://github.com/microsoft/TypeScript/issues/48624)).
 
-[^subtyping]:  In fact it is subtyping.  In TS `() => number` extends `(_:string) => number`.
+[^subtyping]:  In fact it is subtyping.  In TS `() => number` extends `(_:string) => number`. 
+One can argue that this TS design decision follows from how JS works and is often used.
 
 Compared to other programming languages I use, TS's rate of compiler issues I encounter is much higher, the issues are more dangerous, and are likely to happen on more commonly used vanilla code (well... at least commonly used by me).  
 I can see two general reasons for this:

@@ -2,10 +2,11 @@
 title: Type Enthusiast's Notes about TypeScript. Part 4. Programming with Type Variables
 author: Robert Peszek
 featured: true
-summary:  TypeScript Types series, higher rank types, existentials, phatom types, preventing type widening
+summary:  TypeScript Types series, higher rank types, existentials, phantom types, preventing type widening
 toc: true
 changelog: <ul> 
-    <li> (2022.05.10 - Present) Minor edits </li>
+    <li> (2022.05.10 - 2022.05.29) Minor edits </li>
+    <li> (2022.05.29) Draft warning removed </li>
      </ul>
 tags: TypeScript-Notes
 codestyle: ts
@@ -14,10 +15,6 @@ codestyle: ts
 _Please Leave Feedback in: [_add_blank_target git discussions](https://github.com/rpeszek/rpeszek.github.io/discussions/1)_
 
 Previous post: [_add_blank_target Part 3. TS Complexity](2022-01-03-ts-types-part3.html).
-
-**DRAFT version** _(I am sorry about any misprints.
-It seems I have goblins in my laptop that toy with me, remove or change words. 
-When this note disappears, you will know that I gave up.)_   
 
 **Disclaimers:** (imagine this is a very small font, read it very fast in a half whisper)   
 _I assume strict compiler flags are on, something you get by default with scaffolding, e.g. using
@@ -556,7 +553,11 @@ _side_note_end
 
 
 Phantom types could be a very powerful API building tool.   
-I am sure you can think about many other interesting use cases, ... like state machines.  
+I am sure you can think about many other interesting use cases, ... like state machines[^state].
+
+[^state]:  As an example, office.js is very stateful. It has _uninitialized_ state known to cause
+problems, there is the application state (e.g. user is writing new email), and much more. My experience with 
+office.js is that the code I write is very sensitive to where is placed and can be very brittle.  API like this could be made both safe and self-documenting by using phantom types.
 
 ## Next Chapter
 

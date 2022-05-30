@@ -5,7 +5,8 @@ featured: true
 summary:  TypeScript Types series, types and values that do not match, type predicates, `any`,`unknown`, honest transparent types
 toc: true
 changelog: <ul> 
-    <li> (2022.04.29 - Present) Minor edits </li>
+    <li> (2022.04.29 - 2022.05.29) Minor edits </li>
+    <li> (2022.05.29) Draft warning removed </li>
      </ul>
 tags: TypeScript-Notes
 codestyle: ts
@@ -14,10 +15,6 @@ codestyle: ts
 _Please Leave Feedback in: [_add_blank_target git discussions](https://github.com/rpeszek/rpeszek.github.io/discussions/1)_
 
 Previous post: [_add_blank_target Part 1. Typing in Anger](2021-12-12-ts-types-part1.html).
-
-**DRAFT version** _(I am sorry about any misprints.
-It seems I have goblins in my laptop that toy with me, remove or change words. 
-When this note disappears, you will know that I gave up.)_   
 
 **Disclaimers:** (imagine this is a very small font, read it very fast in a half whisper)   
 _I assume strict compiler flags are on, something you get by default with scaffolding, e.g. using

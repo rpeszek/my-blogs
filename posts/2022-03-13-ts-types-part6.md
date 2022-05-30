@@ -6,7 +6,8 @@ summary:  TypeScript Types series, final thoughts and rants
 toc: true
 changelog: <ul> 
      <li> (2021.03.15) Edited <a href="#enums">Enums</a> section</li> 
-     <li> (2022.04.30 - Present) Minor edits </li>
+     <li> (2022.04.30 - 2022.05.29) Added Types vs TDD side-note in <a href="#about-maintainability">About Maintainability</a> + Minor edits </li>
+     <li> (2022.05.29) Draft warning removed </li>
      </ul>
 tags: TypeScript-Notes
 codestyle: ts
@@ -16,10 +17,6 @@ _Please Leave Feedback in: [_add_blank_target git discussions](https://github.co
 
 Previous post: [_add_blank_target Part 5. Advanced Types](2022-02-13-ts-types-part5.html).   
 Back to the beginning post: [_add_blank_target Part 1. Typing in Anger](2021-12-12-ts-types-part1.html)
-
-**DRAFT version** _(I am sorry about any misprints.
-It seems I have goblins in my laptop that toy with me, remove or change words. 
-When this note disappears, you will know that I gave up.)_   
 
 
 ## Nutshell
@@ -280,7 +277,7 @@ _side_note_end
 
 TS will not automatically implement code for us, however,
 starting with types and following with (a manually written for now) programs is often quite productive.  This is the TDD approach to programming, only T means _Type_.   The simplest way to go about it is to start on a small unit level (define types for small building blocks first).  It helps to know some solid building blocks (e.g. FP types)
-and to use a lot of type variables. 
+and to use a lot of type variables. [About Maintainability](#about-maintainability) section will say a bit more about TDD and Types.
 
 
 ## About Simplicity
@@ -428,6 +425,14 @@ Types can simplify adding new functionality!  If you think about the app as a bi
 [^product]: It is good to note that this safety is unique to union types, you will not get the same safety when 
 adding a property to an object.  It is interesting and telling that the industry is adding co-product types to programming
 languages just now.
+
+_side_note_start  **Types and T(est)DD:** 
+If you can just follow the types to add a new functionality, how does this relate to the TDD approach of writing the tests first?  To implement new functionality we modify / expand some union types. 
+Hmm, you need to implement the new functionality for the app to compile.  You could implement it (at least in TS) by
+throwing some "Not Implemented" error or maybe changing compilation flags, but that means not taking advantage of the type safety.  
+IMO types go before TDD.  I prefer to write tests after the implementation when types guide my implementation process. 
+_side_note_end
+
 
 
 ## Universal

@@ -5,6 +5,7 @@ featured: true
 changelog: <ul> 
     <li> (2022.02.14) Fixed list example <a href="#fn2">footnote [2]</a> </li>
     <li> (2022.02.15) Clarifying comments in <a href="#type-level-programming"</a>type level programming</a> code examples</li>
+     <li> (2022.05.29) Draft warning removed </li>
      </ul>
 summary:  TypeScript Types series, type level programming, recursive types, a bit of category theory
 toc: true
@@ -16,9 +17,6 @@ _Please Leave Feedback in: [_add_blank_target git discussions](https://github.co
 
 Previous post: [_add_blank_target Part 4. Programming with Type Variables](2022-01-09-ts-types-part4.html).
 
-**DRAFT version** _(I am sorry about any misprints.
-It seems I have goblins in my laptop that toy with me, remove or change words. 
-When this note disappears, you will know that I gave up.)_   
 
 **Disclaimers:** (imagine this is a very small font, read it very fast in a half whisper)   
 _I assume strict compiler flags are on, something you get by default with scaffolding, e.g. using
@@ -204,7 +202,11 @@ Personally, I try to avoid using subtyping features.
 Subtyping is related to Object Orientation.  OO programming has an appeal of simplicity and I was seduced by it for
 many years.  It took me a long time to realize that OO is not that simple. 
 Today, I think about OO as very complex. Even language designers often get it wrong (this series has provided a lot of evidence for this statement in the context of TypeScript). 
-This comment should be filed under IMO as many developers disagree.  
+The first 3 parts of this series could have been alternatively titles "Dangers of OO with examples in TS"[^OO]. 
+This negative view of OO should be filed under IMO as many developers disagree.  
+
+[^OO]: This was not intentional.  In fact, I have not realized until finishing the series that many compilation gotchas I have presented in Part 1 are rooted in OO.
+
 
 Before continuing reading pass this code, please try to implement (at least in your head) the `amIFooOrBar` function:
 

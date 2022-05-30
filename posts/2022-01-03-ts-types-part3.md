@@ -5,7 +5,8 @@ featured: true
 summary:  TypeScript Types series, complex and messy types in TS
 toc: true
 changelog: <ul> 
-    <li> (2022.01.03 - Present) Changes are documented in <a href="#summary-of-final-edits">Summary of final edits</a>.
+    <li> (2022.01.03 - Present) Changes are documented in <a href="#summary-of-final-edits">Summary of final edits</a>. </li>
+    <li> (2022.05.29) Draft warning removed </li>
      </ul>
 tags: TypeScript-Notes
 codestyle: ts
@@ -15,9 +16,6 @@ _Please Leave Feedback in: [_add_blank_target git discussions](https://github.co
 
 Previous post: [_add_blank_target Part 2. Typing Honestly](2021-12-24-ts-types-part2.html).
 
-**DRAFT version** _(I am sorry about any misprints.
-It seems I have goblins in my laptop that toy with me, remove or change words. 
-When this note disappears, you will know that I gave up.)_   
 
 **Disclaimers:** (imagine this is a very small font, read it very fast in a half whisper)   
 _I assume strict compiler flags are on, something you get by default with scaffolding, e.g. using
