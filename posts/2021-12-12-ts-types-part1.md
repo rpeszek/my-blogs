@@ -6,9 +6,8 @@ summary:  TypeScript Types series, Introduction, office.js, working with and fig
 changelog: <ul> 
     <li> (2021.12.24) modified historical note about office.js. Linked Part 2. Planned future content adjustment.</li>
     <li> (2021.12.26) <a href="#fn1">footnote [1]</a> 
-    <li> (2022.01.03) Linked Part 3
-    <li> (2022.01.09) Linked Part 4
-    <li> (2022.02.13) Linked Part 5
+    <li> (2022.01.03 - 2022.05.29) Changes are documented in <a href="#summary-of-final-edits">Summary of final edits</a>.
+    <li> (2022.05.29) Draft warning removed </li>
      </ul>
 toc: true
 tags: TypeScript-Notes
@@ -17,17 +16,14 @@ codestyle: ts
 
 _Please Leave Feedback in: [_add_blank_target git discussions](https://github.com/rpeszek/rpeszek.github.io/discussions/1)_
 
-**DRAFT version** _(I am sorry about any misprints.
-It seems I have goblins in my laptop that toy with me, remove or change words. 
-When this note disappears, you will know that I gave up.)_   
 
-**Disclaimers:** (imagine this is a very small font, read it very fast in a half whisper)   
+**Disclaimers:** (imagine this is a very small font, read it very fast in a half-whisper)   
 _I assume strict compiler flags are on, something you get by default with scaffolding, e.g. using
 `create-react-app my-project --template typescript` is close enough.  
-The code examples have been tested with TypeScript v4.4.4 and v4.5.2.   
-office.js examples are based on https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js and @types/office-js@1.0.221 
+The code examples have been tested with TypeScript v4.4.4, v4.5.2, and v4.6.3.   
+office.js examples are based on [_add_blank_target https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js](https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js) and @types/office-js@1.0.221 
 (these match the current scaffold for office.js/React).  
-This post is a pandoc output of a markdown document and code examples are not interactive.  
+This post is a pandoc conversion of markdown document and code examples are not interactive.  
 Most of the code examples are published in [_add_blank_target ts-notes](https://github.com/rpeszek/ts-experiments/tree/master/ts-notes) folder in this github repo: [_add_blank_target ts-experiments](https://github.com/rpeszek/ts-experiments)._
 
 ## Introduction to the series 
@@ -42,15 +38,17 @@ I decided to split it into digestible installments and publish it as a series of
 
 Here is my plan:
 
-* Part 1 (this post). Is a warm-up. Part 1 has been motivated by a current project at my work that uses TS. 
+* Part 1 (this post). Is a warm-up. Part 1 has been motivated by a project at my work that uses TS. 
   I will show code examples that are hard to compile.  I will discuss strategies and methods for resolving compilation issues.
-  Part 1 will present code examples that compile but really, really should not, and code examples that should compile but surprisingly don’t.  I will also summarize my overall experience of working with TS.   
-  This series needed a JS library with TS bindings to draw examples from, I decided to use _office.js_ and Part 1 will introduce it.
+  I will present code examples that compile but really, really should not, and code examples that should compile but surprisingly don’t.  I will also summarize my overall experience of working with TS.   
+  This series needed a JS library with TS bindings to draw examples from, I decided to use _office.js_ and Part 1 introduces it.
 * [_add_blank_target Part 2](2021-12-24-ts-types-part2.html). Will be about keeping types honest. Are runtime values consistent with the types? We hope they always are but, especially in a gradually typed language like TS, types will sometimes lie. We will see concrete examples of type dishonesty from _office.js_.  Part 2 will cover the notorious `any` and its safer cousin `unknown`, the type coercion (casting), and TS's type guards. I will also discuss (or rather rant about) coding conventions for transparent, self documenting types. 
-* [_add_blank_target Part 3](2022-01-03-ts-types-part3.html). Will cover some of the TS type safety features that I absolutely love.  Throughout the series, we will encounter several examples where TS compiler does not work as expected.
- One of my notes will argue that what TS is and does it quite complex.
+* [_add_blank_target Part 3](2022-01-03-ts-types-part3.html). Will cover some of the TS type safety features that I absolutely love.  Throughout the series, we will encounter several examples where TS compiler does not work as expected. 
+ This part will discuss questionable (and arguably incorrect) semantics of subtyping variance and of narrowing.
+ It will argue that what TS is and does it quite complex.  Complexity is the likely cause of errors in TS programs and in 
+ the language itself. 
 * [_add_blank_target Part 4](2022-01-09-ts-types-part4.html), [_add_blank_target Part 5](2022-02-13-ts-types-part5.html). Will be more theoretical. Notes in Parts 4-5 will discuss topics such as TS's structural, recursive types, subtyping, phantom types, type variable scoping, higher-rank polymorphism (TS supports a version of it!), and type level programming.  I will show a trick to increase type safety 
-that prevents widening to `unknown` or other supertype.  
+that prevents widening to `unknown` or other supertypes.  
 * [_add_blank_target Part 6](2022-03-13-ts-types-part6.html). Will be a wrap-up with some final thoughts. 
 
 **Why am I writing these notes?**   
@@ -58,14 +56,11 @@ To be honest, it is because I am really impressed and excited about some of the
 type safety features in TS.   
 
 Despite being a superset of JavaScript, TS stands out among mainstream languages as one that supports some interesting types.  
-There is a tiny but important feedback loop: the more we play with types the more they will end up being used.  
+There exist a tiny but important feedback loop: the more developers play with types the more they will end up being used.  
 So, to be perfectly honest, the goal of these notes is to simply play with some interesting types and see how the compiler reacts.
 
 IMO, to master something is to understand its limitations.   
-So, to be brutally honest, the goal of these notes is to explore and handle the TS compiler limitations.
-
-These notes will focus on the experience of using types. Not so much on explaining the types
-themselves.
+So, to be brutally honest, the goal of these notes is to explore the TS compiler limitations.
 
 **Target audience and prerequisites.** 
 I assume that the reader is interested in types and either uses or considers using TypeScript.  
@@ -77,12 +72,12 @@ These notes will probably be hard to read without some experience with JavaScrip
 
 
 **About the author.** 
-I am spearheading a rewrite of a legacy front-end component at work, the goal is to rewrite it using the new React.js and TypeScript. 
-In recent years, I have been spending all of my time in the back-end designing, writing, and maintaining Haskell programs. 
+I am spearheading a rewrite of a legacy frontend component at work, the goal is to rewrite it using the new React.js and TypeScript. 
+In recent years I have been spending all of my time in the backend designing, writing, and maintaining Haskell programs. 
 Haskell code has a lot of types. Thus, I use types a lot. Types allow me to code faster, safer, and with much more confidence.  
 I wear a hat with types on it when writing TS.  
-I love Programming Language Theory and have some experience and lots of interest in all things compiler related.  
-I wear a very thin headband with PLT symbols on it under my hat (should be mostly invisible in this series).   
+I love Programming Language Theory and have some experience and lots of interest in compiler and language design.  
+I wear a very thin headband embroidered with PLT symbols under my hat (should be mostly invisible in this series).   
 All of this gives me a different (compared to most typescripters) perspective and a reason to write these posts.
 For some readers, parts of these posts will feel strange. Established practices like overloading will be considered a bad thing, writing experimental code (that won’t even run) to answer _type questions_ will be a good thing. Strange is a corollary of different.
 
@@ -164,7 +159,7 @@ type JsonVal =
 const tstj: JsonVal = {type:"array", val:[{type: "null"}, {type: "number", val: 5}]} //compiles
 ```
 ```Java
-const wrong: JsonVal = {type: "number", val: {type: "string", val: "5"}} //does not compile, number cannot a nested string
+const wrong: JsonVal = {type: "number", val: {type: "string", val: "5"}} //does not compile, number is not JSON object
 const wrong2: {type: "object",  val:[{type: "null"}, {type: "number", val: 5}]} //does not compile, object is not an array
 ```
 
@@ -174,7 +169,7 @@ We will discuss recursive types later in this series.
 
 TypeScript has an ability to do type level programming that goes beyond the demonstrated uses of literal types.  All of this is oriented toward creating type safety over various kinds of idiomatic JS code and is limited in scope.  It is nonetheless interesting.  We will return to this topic in the future as well.
 
-As far as mainstream languages go (I consider _Scala_ or _Reason ML_ a border line just outside the mainstream), TypeScript could be the most interesting choice today IMO.  
+As far as mainstream languages go (I consider _Scala_, _Rust_, or _Reason_ a border line just outside the mainstream), TypeScript could be the most interesting choice today IMO.  
 
 This was my trailer/preview section. If the code that excited me feels interesting to you, you may enjoy reading these notes.
 There will be some gory details (not a lot violence).  You have to decide if type safety is your genre.   
@@ -192,7 +187,7 @@ Despite some hardships, TS makes working with office.js much, much easier!
 
 As the name suggests, _office.js_ provides an API for working with _Microsoft Office_. 
 It allows implementing custom apps that work inside the office suite of products (Microsoft calls these apps add-ins).  
-This is not an office.js tutorial but, I hope, the code should be clear to follow.  
+This is not an office.js tutorial but, I hope, the code should be clear to follow even if you never used _office.js_.  
 
 As a working example, we will play with code that extracts data from an email opened in Outlook. 
 To start, I want to extract the email body.  
@@ -221,11 +216,13 @@ Later in this post, I will show some work-arounds that simplify type definitions
 I am adding a big fat **IMO** to this side note, readability is in the eye of ... well the reader.  But seriously...   
 _side_note_end
 
-[^1]: I rewrote the side note and improved `officePromise` type definition based on a [_add_blank_target comment](https://www.reddit.com/r/typescript/comments/rnougu/comment/hptsnvg/?utm_source=share&utm_medium=web2x&context=3) from _u/Tubthumper8_ on reddit. (Thanks!) 
+[^1]: I rewrote the side note and improved `officePromise` type definition based on a [_add_blank_target comment](https://www.reddit.com/r/typescript/comments/rnougu/comment/hptsnvg/?utm_source=share&utm_medium=web2x&context=3) from _u/Tubthumper8_ on reddit. Thanks! 
 
 Properly initialized office add-in will have access to `Office.context.mailbox.item: Office.MessageRead`.   
-This `item` object allows access to the email data.  (The situation is just slightly more complicated since the `item` property is overloaded but that is not important for now.) 
+This `item` object allows access to the email data.[^item] 
 To retrieve the email body I need to use `item.body.getAsync`.  But wait, the type for that version of `getAsync` accepts not only a callback function but also a "body type" parameter.
+
+[^item]: The situation is just slightly more complicated since the `item` property is overloaded but that is not important for now.
 
 I am going to resist the temptation to overload `officePromise`.
 Instead I will move in a direction that is more fundamental.
@@ -257,8 +254,8 @@ export const curry = <T1, T2, R> (fn: (ax: T1, bx: T2) => R): (a: T1) => (b: T2)
 
 const addtst = (a:number, b: number) => a + b
 const curriedAdd = curry(addtst) //const curriedAdd: (a: number) => (b: number) => number
-const tst = curry(addtst)(1) //const tst: (b: number) => number
-const tst2 = curry(addtst)(1)(2) //tst2 = 3
+const tst1 = curry(addtst)(1) //const tst1: (b: number) => number
+const tst12 = curry(addtst)(1)(2) //tst12 = 3
 ```
 
 And I have a much simpler code that compiles right off the bat: 
@@ -278,7 +275,9 @@ This ended up being a happy path.
 In practice, the type checker will often need some help. 
 Even more often, the programmer (me) will need help figuring why the code is not compiling.
 
-For example, `item.body.getAsync` offers a 3 parameter overload
+I will start by presenting code that should compile but it does not.
+
+`item.body.getAsync` offers a 3 parameter overload
 which accepts additional `Office.AsyncContextOptions`.  Using it is much harder.
 (I will not delve into what the extra argument is for, I just want to see if my code will compile with 3 parameters)
 
@@ -290,7 +289,8 @@ which accepts additional `Office.AsyncContextOptions`.  Using it is much harder.
 const emptyConfig: Office.AsyncContextOptions = {}
 ```
 ```Java
-//body3 does not compile: "Argument of type 'AsyncContextOptions' is not assignable to parameter of type '(asyncResult: AsyncResult<string>) => void'." 
+//Compilation Error: 
+//"Argument of type 'AsyncContextOptions' is not assignable to parameter of type '(asyncResult: AsyncResult<string>) => void'." 
 const body3  = await officePromise (curry3(item.body.getAsync)(Office.CoercionType.Html)(emptyConfig)) 
 ```
 
@@ -323,29 +323,18 @@ getAsync(coercionType: Office.CoercionType | string,
         callback?: (asyncResult: Office.AsyncResult<string>) => void): void;
 ```
 
-So there are sort of _overloads on top of overloads_ and the type checker probably gets confused.   
-The compilation error suggests that the compiler gets stuck on a wrong (the 2 parameter) version of `getAsync` despite the use of the 3 parameter `curry3`. I will also confirm this hypothesis using a _type hole_ (we will learn what that is) in the next section.  
+So there are sort of _overloads on top of overloads_ and the type checker could get confused.
+In fact the case here is much simpler, TS inference tends to pick the last defined overload 
+(see [_add_blank_target this code example](https://github.com/rpeszek/typescript-issues/blob/master/src/RejectingCorrectCode/RejectingOverloads.ts) and ([_add_blank_target #43187](https://github.com/microsoft/TypeScript/issues/43187)).
+The compilation error also suggests that the compiler gets stuck on a wrong (the 2 parameter) version of `getAsync` despite the use of the 3 parameter `curry3`. I will also confirm this hypothesis using a _type hole_ (we will learn what that is) in the next section.  
 I expect the type checker to backtrack and try the next overload, but for some reason it does not want to do that on its own.   
 I do not blame TS, overloading gives me a headache too.   
-Overloading is known for being not type inference friendly (incidentally, that is the reason why Haskell does not overload names).  
+Overloading is known for being not type inference friendly (incidentally, that is the reason why Haskell does not overload names). 
 
-_side_note_start **Side note:** 
-Acting on my hypothesis of what is wrong with `body3`, I can push this code to a ridiculous limit:
+There is something worryingly asymmetric about a 2 parameter overload compiling without additional help and a 3 parameter overload needing a developer intervention. Should I worry[^worry] that the 2 parameter overload will stop compiling in the future?  How stable is this arbitrary complexity?  
 
-```JavaScript
-//this compiles by using a wrong input parameter type and returns 'unknown'
-const crazyConfig : (_: Office.AsyncResult<string>) => void = x => ""
-const body4 = await officePromise (curry3(item.body.getAsync)(Office.CoercionType.Html)(crazyConfig)) 
-```
-
-Besides this being completely wrong, 
-I do not understand what causes the widening of `body4` type to `unknown`. There is enough information in the overloaded `item.body.getAsync` method for the type checker to infer the `string`. My guesswork is too hypothetical to discuss it here.   
-Especially for the return types, any widening to `unknown` would IMO be better served as a compilation error.  We want these to be narrow, not wide.  I will show more examples of such widening and
-I will discuss safety concerns related to the `unknown` type in future notes.  
-_side_note_end
-
-
-There is something worryingly asymmetric about a 2 parameter overload compiling without additional help and a 3 parameter overload needing a developer intervention. Should I worry that a future version of TS will flip this preference and all of my code that uses the 2 parameter overload will stop compiling?  How stable is this arbitrary complexity?  
+[^worry]: As the previously linked [_add_blank_target example](https://github.com/rpeszek/typescript-issues/blob/master/src/RejectingCorrectCode/RejectingOverloads.ts) shows, I indeed should 
+worry. 
 
 _If you are an API owner, my advice is to not overload. IntelliSense works better, type inference works better, developer head hurts less without overloads._
 
@@ -357,6 +346,21 @@ The syntax overloading probably does not help TS in inferring the type and the t
 I am concerned that **many developers will give up** trying to write this type of code. 
 My concern is also that developers will resort to unsafe type coercion / type casting. 
 There will be a lot of `myvar as IWantIt`, or a lot of the `any` type.
+
+
+_side_note_start **Side note:** 
+I can push this code to a ridiculous limit and **demonstrate the first example of code compiles but I would not expect it to**:
+
+```JavaScript
+//this compiles by using a wrong input parameter type and returns 'body4: unknown'
+const crazyConfig : (_: Office.AsyncResult<string>) => void = x => ""
+const body4 = await officePromise (curry3(item.body.getAsync)(Office.CoercionType.Html)(crazyConfig)) 
+```
+
+Accepting invalid `unknown` appears to be a common pattern 
+to how TS sometimes works.  We will come back to this example later in this post and we will discuss the `unknown` problem more in future notes.  
+_side_note_end
+
 
 Was this enough gore for you?  You say it was not?  I say you did not see the content of that email!
 
@@ -381,12 +385,15 @@ const partiallyAppliedBodyFn2 = (fn: OfficeCallack<string>) => item.body.getAsyn
 ```
 
 Notice **no more redundant parameter definitions** in the type signature and a much easier to read syntax.  
-The next version is **my personal preference** (it nicely separates the type and the implementation):
+The next version is **my personal preference** (it nicely separates the type and the implementation)[^ann]:
 
 ```JavaScript
 const partiallyAppliedBodyFn3: (_: OfficeCallack<string>) => void = 
   fn => item.body.getAsync(Office.CoercionType.Html, fn)
 ```
+
+[^ann]: It should be noted that with this syntax type variables will be defined in the _lhs_ of the definition and will be outside of the lexical scope in the _rhs_.  You would have to re-declare them
+which makes this approach much less usable in the presence of type variables.
 
 #### Type Application  
 Returning to my failed `body3` example, instead of trying to type annotate with full type signatures, it is sometimes more convenient to apply the types.  Here, I have the "generic" (or polymorphic) `curry3` function that I can apply the types 
@@ -458,7 +465,7 @@ if I hover over the `_` function, the IntelliSense suggests this completely wron
 ```
 
 The type hole confirms that the compiler is trying to match against the two parameter overload of `item.body.getAsync`.
-This verifies my hypothesis from the last section.  There are a few things to note here: 
+This confirms my hypothesis from the last section that what made TS confused here was the overloading.  There are a few things to note here: 
 
 * We are asking TS "why are you confused?" and that is a funny question. 
 * This type hole did not tell us more than the compilation error message itself. 
@@ -472,7 +479,7 @@ the `_()` will show the type correctly:
 (alias) _<Office.AsyncContextOptions>(): Office.AsyncContextOptions
 ```
 
-**Unfortunate limitation**   
+**About some limitations**   
 Sadly, the ` _<T>(): T` is not universally useful, e.g. this will not compile:
 
 ```Java
@@ -486,8 +493,18 @@ const testfn = curry(_())
 const testfn = curry({} as any)
 ```
 
-This looks to me like growing pains, it should work, and probably will in future versions of TS.
-It is an example of code that really should compile but it does not.
+TS type checker does not work with type variables at the top level. 
+That makes testing expressions like `curry(_())` rather pointless.
+The following compiles just fine, and would be a good (not very useful but good) choice for the inferred type of `_()`:
+
+```JavaScript
+type GenFn2Type = (ax: never, bx: never) => unknown
+
+const compiles = curry(_<GenFn2Type>()) 
+```
+
+but TS fails instead of inferring that type.  
+
 
 There is an interesting relationship between the `never` type and ` _<T>(): T`. There will be a future note about it.   
 The type hole `_` function is a useful tool and we will keep using it in future type explorations. 
@@ -500,17 +517,16 @@ and will say "ah, you really meant this: ...".
 
 I am mostly left to my own devices when working with more involved types in TS. 
 Hopefully the future will bring us mainstream grade interactive tools that allow asking type questions, browsing types,
-help solving type puzzles. For now it is mostly the programmer who connects the dots.  
+and help solving type puzzles. For now it is mostly the programmer who connects the dots.  
 The good news is that this gets easier and easier with practice. I have been working in TS for only about 2 months now and I already see a difference.   
 
 _Good code requires two type checkers: TypeScript and You_
 
-
 ### Compilation bloopers 
 
-We already saw "correct" programs that should have compiled but did not (E.g. `curry(_())`, `body3` example) and we will see more in the future notes.
-Our `body4` example compiled but was clearly wrong.  
-This note shows other, less contrived, examples that compile but clearly should not.  
+We already saw "correct" programs that should have compiled but did not (e.g. `curry(_())`, `body3` example) and we will see more in the future notes.
+Our `body4` example compiled but it was a bug.  
+This note shows other, less contrived, examples that compile and are clearly bugs.  
 
 All of these type check:
 
@@ -530,20 +546,48 @@ const nonsense1: (a: Office.CoercionType)
 //compiles but it should not
 const nonsense2 = curry(curry)
 
-//more examples in the linked github project
+//... more examples in the linked github project
 ```
 
-and all, except the first one, should not.  
+and all, except the first one, are bugs.  
+One pattern is clearly visible: `unknown` somewhere
+in the type[^unknown].  
+The underlying reason seems to be much simpler: TS does not exactly match the types
+of parameters that are functions.  The underlying reason is that [_add_blank_target functions with fewer parameters are assignable to functions that take more parameters](https://github.com/Microsoft/TypeScript/wiki/FAQ#why-are-functions-with-fewer-parameters-assignable-to-functions-that-take-more-parameters)[^edit]:
 
-I expect the type checker to be effective at rejecting nonsensical code.  If a blooper happens, it should be rare, contrived code, unlikely for developers to write.  My examples are somewhat surprising since higher order functions are not uncommon in JavaScript.  The second example is a piece of code I accidentally wrote in my project.  
-This is very concerning since errors like these are likely to remain uncaught and become escaped bugs. 
+[^edit]: This took me a long time to figure out and was added late.
 
-No compiler is perfect, but you probably noticed by now that TS compiler seems to get in trouble a lot. 
-Compared to other programming languages I use, TS's rate of compilation issues is much higher, the issues are more dangerous, and these bloopers are happening on more commonly used vanilla code (well... at least commonly used by me).  
-I have no idea what the underlying issues are but I can see one general reason for this:
-gradual typing on top of JS is not easy.  I plan to write a note about the complexity of TS types in a future post.  
-I am sure that TS keeps improving and fixing such issues but I expect the progress to be slow. 
+[^unknown]: `nonsense1` will will show `unknown` if you remove the type annotation. 
 
+
+```JavaScript
+declare function testfn(fn: (str:string) => number):number
+
+//compiles, calculated type is: const num: number
+const num = testfn(() => 1)
+```
+
+IMO this language design decision can lead to very confusing escaped bugs and it smells like subtyping[^subtyping]. 
+Higher order functions are not uncommon in JavaScript.  The `nonsense1` example is a piece of code I accidentally wrote in my project.  
+This is very concerning since errors like these are likely to remain uncaught and become escaped bugs.  
+Careful reader will notice that my `body4` example is a
+perfect storm. Here it is again:
+
+```JavaScript
+//this compiles by using a wrong input parameter type and returns 'body4: unknown'
+const crazyConfig : (_: Office.AsyncResult<string>) => void = x => ""
+const body4 = await officePromise (curry3(item.body.getAsync)(Office.CoercionType.Html)(crazyConfig)) 
+```
+
+TS picks a (wrong) 2 parameter overload of `item.body.getAsync` because it was defined last by _office.js_. It assigns it to `curry3` because `curry3` expects a 3 parameter function and 2 < 3 is OK.  
+Sadly, accepting `body4` code is TypeScript "Working as Intended" ([_add_blank_target #43187](https://github.com/microsoft/TypeScript/issues/43187), [_add_blank_target #48624](https://github.com/microsoft/TypeScript/issues/48624)).
+
+[^subtyping]:  In fact it is subtyping.  In TS `() => number` extends `(_:string) => number`. 
+One can argue that this TS design decision follows from how JS works and is often used.
+
+Compared to other programming languages I use, TS's rate of compiler issues I encounter is much higher, the issues are more dangerous, and are likely to happen on more commonly used vanilla code (well... at least commonly used by me).  
+I can see two general reasons for this:
+gradual typing on top of JS is not easy, subtyping is not easy.  I plan to write a note about the complexity of TS types in a future post.  
 
 ### It's all worth it
 
@@ -559,8 +603,15 @@ to the code I was replacing or to code in the _office.js_ documentation.
 A lot of the improvement comes from using `await` `async` syntax sugar but converting functions to their curried form and figuring out more terse ways to type annotate also results in added clarity and significant syntactic simplification. 
 
 In my book, there is just no comparing TS to JS, TS is the clear winner.  
-How does TS compare to statically type checked front-end languages that compile to JS and have capable type checkers and solid types (e.g. ReasonML, Elm, PureScript, even Haskell)?  I am not in a good position to discuss this yet.   
+How does TS compare to statically type checked frontend languages that compile to JS and have capable type checkers and solid types (e.g. Reason, Elm, PureScript, even Haskell)?  I am not in a good position to discuss this yet.   
 Lots of projects need to stay close to JS, my project at work falls into this group.  For such projects TS is the right choice IMO.
+
+## Relevant TypeScript Language tickets
+
+* [_add_blank_target #43187](https://github.com/microsoft/TypeScript/issues/43187) the overloading issue (type inference considers the last overload only) has been known and has been marked as "Docs".
+* [_add_blank_target #48624](https://github.com/microsoft/TypeScript/issues/48624) (I entered it) about my blooper examples has been marked as "Working as Intended" 
+* [_add_blank_target #48625](https://github.com/microsoft/TypeScript/issues/48625) 
+ `curry(_())` not compiling issue (I entered it) has been marked as "Working as Intended"
 
 
 ## Next Chapter
@@ -570,8 +621,18 @@ We are not done with _office.js_.  I will use it in future notes.
 Do statically defined types reflect the actual runtime values? 
 How to assure that they do?   
 We will discuss these questions in the next installment.
-~~I have the draft ready and I hope to publish it in a few weeks.~~  
 Here is the link: [_add_blank_target Part 2. Typing Honestly](2021-12-24-ts-types-part2.html)
+
+## Summary of final edits
+
+Added context to [bumps on the path](#bumps-on-the-path) section about type inference
+not working well with overloaded methods.
+
+Added context to why `curry(_())` is not compiling. 
+
+Added context to [compilation bloopers](#compilation-bloopers) section explaining the 
+underlying reason for TS accepting my blooper examples:  TS allows to assign a function with fewer parameters to a function
+type with more parameters. The arity does not need to match.
 
 
 

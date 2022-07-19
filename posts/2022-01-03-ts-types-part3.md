@@ -4,6 +4,10 @@ author: Robert Peszek
 featured: true
 summary:  TypeScript Types series, complex and messy types in TS
 toc: true
+changelog: <ul> 
+    <li> (2022.01.03 - Present) Changes are documented in <a href="#summary-of-final-edits">Summary of final edits</a>. </li>
+    <li> (2022.05.29) Draft warning removed </li>
+     </ul>
 tags: TypeScript-Notes
 codestyle: ts
 ---
@@ -12,9 +16,6 @@ _Please Leave Feedback in: [_add_blank_target git discussions](https://github.co
 
 Previous post: [_add_blank_target Part 2. Typing Honestly](2021-12-24-ts-types-part2.html).
 
-**DRAFT version** _(I am sorry about any misprints.
-It seems I have goblins in my laptop that toy with me, remove or change words. 
-When this note disappears, you will know that I gave up.)_   
 
 **Disclaimers:** (imagine this is a very small font, read it very fast in a half whisper)   
 _I assume strict compiler flags are on, something you get by default with scaffolding, e.g. using
@@ -89,7 +90,7 @@ I have seen analogous issues in many programming languages including even _Scala
 ### `switch` exhaustive check
 
 `if-else` does not provide any mechanism for the type checker to verify that the program checked all possible conditions.  
-Interestingly, TS uses the `switch` statement to solve this problem:
+Interestingly, we can use the `switch` statement in TS to solve this problem:
 
 ```JavaScript
 //This compiles!
@@ -129,7 +130,7 @@ See this blog post:
 We have seen `null` safety already.  There is a semantic difference between `null` and `undefined` but most code does not care.  My personal preference is to unify these two. 
 
 In my very first example in the series, [_add_blank_target `getName(p: NullablePerson)`](2021-12-12-ts-types-part1.html#typescript-is-great), was not `undefined` safe, only `null` safe. 
-Using it with `undefined` (e.g. typed as `any`) will cause an error.  
+Using it with `undefined` (e.g. on expressions typed as `any`) will cause an error.  
 
 My coding preference would be to rewrite my first example like this:
 
@@ -235,6 +236,7 @@ I see 2 possible conclusions
 1. This is a bug caused by a complexity of TS's semantic rules
 2. This is a feature indicating that the rules are indeed complex
 
+This appears to be one of the "Working as Intended" or at least known issues (see [footnote 4](#fn4)).
 
 ### `===` semantics, what's an overlap?
 
@@ -340,6 +342,9 @@ const datedHello: {
 }
 ```
 
+TS allows to define the above object types using `as const`, e.g.  `const helloDolly = {hello: "Dolly!"} as const` and
+`const datedHello = {hello: "world!", since:2022} as const`.
+It this is done `helloDolly === datedHello` will no longer compile but 
 IMO, widening object property types is an arbitrary complexity. 
 
 ### DIY equality 
@@ -391,7 +396,7 @@ eq("boo", {hello: "world"})
 _This is very unfortunate_, you want generic functions to work _consistently_ across types. 
 IMO this is a bug or an arbitrary complexity.   
 The quirkiness seems to be related to the type inference working inconsistently and failing 
-to widen the types if a string literal type is involved (next section discussed it).  
+to widen the types if a string literal type is involved (next section will discussed it).  
 
 The narrative has run away from me, but the point should be somewhat clear:  Generics provide only limited type safety in TS.  
 E.g. enhanced safety semantics around `===` does not transfer to a DIY safety 
@@ -453,7 +458,7 @@ eq(booone, oneboo)
 eq<(1 | "boo")>(booone, oneboo)
 ```
 
-In our above examples we have seen that `===` narrowing is partially consistent with the intersection (`&` operator).  
+We have seen that `===` narrowing is partially consistent with the intersection (`&` operator).  
 Let's look at `&` semantics a little closer. 
 
 We can try to double check how the `&` intersection works by doing this:
@@ -479,6 +484,21 @@ TS tries to recover the safety by building complex narrowing semantics around a 
 There are many inconsistencies in both the implementation of subtyping and the implementation of narrowing semantics.
 
 
+_side_note_start **Side Note about Arity**:
+In TypeScript, functions are also subject to subtyping rules.
+
+```JavaScript 
+verifyExtends<() => number, (_:string) => number>()
+verifyExtends<(_:string) => number, (_1:string,_2:boolean) => number>()>
+```
+
+see also [_add_blank_target functions with fewer parameters are assignable to functions that take more parameters](https://github.com/Microsoft/TypeScript/wiki/FAQ#why-are-functions-with-fewer-parameters-assignable-to-functions-that-take-more-parameters).
+This is convenient, it can safe a few characters when writing programs.  
+It is also, IMO, dangerous and complex. 
+We have seen this leading to surprising behavior in [_add_blank_target Part 1, Compilation bloopers](2021-12-12-ts-types-part1.html#compilation-bloopers) section. 
+_side_note_end 
+
+
 ### Comparative complexity rant
 
 A "type enthusiast" will associate types with correctness, even formal verification.  To me, the words "messy" and "type" are self contradictory.  TS "types" support some interesting features but are a mess. 
@@ -493,12 +513,23 @@ But, you may say, JS object polymorphism is very useful.  All the 3 languages li
 These languages also come with well thought out semantic rules that are often formalized and come with soundness proofs.   
 The types in these languages are much simpler (not necessarily easier but simpler). 
 
-
 [^2]: Haskell is still improving on this aspect. IMO, the need for polymorphic access to 
 record fields is overrated.  I would trade it for a capable compiler any time.
 
 Type complexity translates to a confused type checker and to a confused developer.   
 _Programming in a language in which I do not fully understand the types equates to me writing programs I do not fully understand._
+
+I expect that to become a seasoned TS developer, one needs to remember a big dictionary of idiosyncratic compiler behaviors. 
+[_add_blank_target Common Bugs that aren't bugs](https://github.com/Microsoft/TypeScript/wiki/FAQ#common-bugs-that-arent-bugs) 
+is, I think, just a warm up reading to achieve such mastery.  
+Were you surprised about the gotchas we have uncovered in 
+[_add_blank_target Part 1](2021-12-12-ts-types-part1.html)?
+Is the above [overlap issue](#semantics-rejected-overlap) a well known problem[^ticket]? 
+Call me weird, but I would rather be learning PLT or Type Theory than these gotchas.
+
+[^ticket]: See [_add_blank_target #27910](https://github.com/microsoft/TypeScript/issues/27910)
+I created [_add_blank_target #48628](https://github.com/microsoft/TypeScript/issues/48628) which 
+was originally marked as "Working as Intended" and then moved to "Duplicate" status.
 
 It is worth noting that TypeScript has over a million users. FP languages have tens of thousands of users (if combined).  TypeScript has more resources to improve. 
 What makes for fewer bugs, lots of dollars or clean types?   
@@ -585,16 +616,16 @@ since the `payload` property is mutable (getters are covariant, setters are cont
 I will sound like a broken record now, subtyping is clearly very complex.
 
 I did more digging into it after writing this note.  It appears that the intention was to keep TS conceptually easy
-([_add_blank_target issue 1394](https://github.com/microsoft/TypeScript/issues/1394)).  
+([_add_blank_target issue #1394](https://github.com/microsoft/TypeScript/issues/1394)).  
 The result may be easy but is definitely not simple.
 
 _Incorrect is never simple._
  
 _side_note_start **Observation (Rant Alert)**: 
-There is a tendency to focus on the common case and ignore the corner case. 
+There is a tendency to focus on common cases and ignore corner cases. 
 This tendency has a broad scope, broader than TS. 
 What has (typically) a lower cost:  resolving a problem that every user observes when opening the app or resolving a problem that affects 1% of users once a month?  Are less frequently observed defects assigned a lower priority?  Not really.  
-The common approach to software and language design and the economics of software maintenance are an ill matched couple. 
+Common approach to software and language design and the economics of software maintenance are an ill matched couple. 
 _side_note_end
 
 ### Summary
@@ -624,6 +655,10 @@ We have observed some compilation issues and irregularities.  To summarize these
 * incorrect handling of variance ([variance problems](#variance-problems))
 * `===` rejects the `&` overlap of intersection types, while claiming the opposite in the error message ([rejected overlap](#semantics-rejected-overlap))
 
+I cannot identify TypeScript documentation or tickets relevant to these bullets. The subset I have
+checked against [_add_blank_target TS issue board](https://github.com/microsoft/TypeScript/issues) is either in the known issues and / or "Working as Intended" category.  My question about known issues is:
+known by whom?
+
 Introduced tools 
 
 ```JavaScript
@@ -631,7 +666,7 @@ declare function unify<T>(t1: T, t2: T) : T
 function verifyExtends<T2 extends T1, T1>() {}
 ```
 
-can ask TS subtyping questions. 
+can be used to ask TS subtyping questions.   
 
 ## Next Chapter
 
@@ -644,3 +679,9 @@ I will also show a trick that prevents `unknown` and supertype widening.
 Here is the link: [_add_blank_target Part 4](2022-01-09-ts-types-part4.html).
 
 Happy New Year to all of my readers.  Thank you for reading.
+
+## Summary of final edits
+
+* Added information about `as const` in [Hidden blooper note](#hidden-blooper-side-note)
+* Added note about tickets relevant to the [overlap issue](#semantics-rejected-overlap) (see footnote [4](#fn4))
+* Added side note about arity in [Subtyping](#subtyping).

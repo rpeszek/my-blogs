@@ -6,6 +6,8 @@ summary:  TypeScript Types series, final thoughts and rants
 toc: true
 changelog: <ul> 
      <li> (2021.03.15) Edited <a href="#enums">Enums</a> section</li> 
+     <li> (2022.04.30 - 2022.05.29) Added Types vs TDD side-note in <a href="#about-maintainability">About Maintainability</a> + Minor edits </li>
+     <li> (2022.05.29) Draft warning removed </li>
      </ul>
 tags: TypeScript-Notes
 codestyle: ts
@@ -15,10 +17,6 @@ _Please Leave Feedback in: [_add_blank_target git discussions](https://github.co
 
 Previous post: [_add_blank_target Part 5. Advanced Types](2022-02-13-ts-types-part5.html).   
 Back to the beginning post: [_add_blank_target Part 1. Typing in Anger](2021-12-12-ts-types-part1.html)
-
-**DRAFT version** _(I am sorry about any misprints.
-It seems I have goblins in my laptop that toy with me, remove or change words. 
-When this note disappears, you will know that I gave up.)_   
 
 
 ## Nutshell
@@ -67,7 +65,7 @@ It is much harder to comprehend the whole program than it is to comprehend its t
 about the program the way that theorems provide high level information about proofs in mathematics. 
 Types can give a valid high level representation of the app.  Programs often can't, they often contain tedious details, performance
 optimizations, and lots of other persisted developer's sweat.  
-When done right, one can use types as _specs_, at least on a small unit level of the code types should be viewed as specifications. 
+When done right, one can use types as _specs_, at least on a unit level types could be viewed as specifications. 
 
 Types have a synergy with FP. This series was not about FP but it was hard for me to completely stay 
 away, the synergy is so deep. Types help express functional concepts clearly.
@@ -273,13 +271,13 @@ Ideally, the future will bring tooling where the developer defines the types and
 _side_note_start
 A lot of this unicornish utopia is available today in some FP languages like Haskell.  Certain code is considered boilerplate and the tooling can derive it automatically.  Examples are: equality, ordering, JSON parsing/formatting, `map` functions for non-list types, folding/unfolding for non-list types, traversing non-list types, recursion scheme folds and unfolds, optics...  All of this boilerplate would be available for free for something like the `Json` grammar example from Part 1 and Part 5. 
 Programming in Haskell often involves creating some involved custom type and automatically deriving a lot of boilerplate for it.   
-The are also many experimental (typically short lived) projects for auto generating code.  I have curated a short list [_add_blank_target here](https://github.com/rpeszek/IdrisTddNotes/wiki/Part2_Sec3_2_3_gen#program-synthesis-some-relevant-links) (I expect it to be mostly outdated).  
+The are also many experimental (typically short lived) projects for auto generating code.  I have curated a short list [_add_blank_target here](https://github.com/rpeszek/IdrisTddNotes/wiki/Part2_Sec3_2_3_gen#program-synthesis-some-relevant-links) (I expect it to be mostly outdated now).  
 The stronger the types, the more code generation is possible (I have already mentioned interactive code development in the dependently typed Idris). 
 _side_note_end
 
 TS will not automatically implement code for us, however,
 starting with types and following with (a manually written for now) programs is often quite productive.  This is the TDD approach to programming, only T means _Type_.   The simplest way to go about it is to start on a small unit level (define types for small building blocks first).  It helps to know some solid building blocks (e.g. FP types)
-and to use a lot of type variables. 
+and to use a lot of type variables. [About Maintainability](#about-maintainability) section will say a bit more about TDD and Types.
 
 
 ## About Simplicity
@@ -339,7 +337,7 @@ I fully expect some pushback on this.  My view is opposite to what you can frequ
 For simple control flows it should not matter.  For more complex code using partial _if_-s is concerning.   
 
 _side_note_start 
-In general case verifying totality is _undecidable_ (it is impossible for a compiler to do that for an arbitrary program).  This is the famous Turing's counterexample to Hilbert's [_add_blank_target decidability problem](https://en.wikipedia.org/wiki/Entscheidungsproblem). You may also know it as the [_add_blank_target halting problem](https://en.wikipedia.org/wiki/Halting_problem). 
+In general case verifying totality is _undecidable_ (it is impossible to write a static analysis tool (e.g. compiler) that checks if programs are total or not).  This is the famous Turing's counterexample to Hilbert's [_add_blank_target decidability problem](https://en.wikipedia.org/wiki/Entscheidungsproblem). You may also know it as the [_add_blank_target halting problem](https://en.wikipedia.org/wiki/Halting_problem). 
 However, interesting things can be done and languages like Agda, COQ, Idris can guarantee totality for a large subset of programs[^proofs].  
 Outside of this small set of dependently typed languages, the totality is something that developers need to try to enforce on their own (that obviously includes TS). 
 _side_note_end 
@@ -353,14 +351,14 @@ This equivalence has a name: Curry-Howard correspondence. "Propositions are type
 ## About Safety
 
 Here are some interesting examples of safety that could be provided by types: safe routing in a single page app (no broken routes), safe use of environment configuration (e.g. types prevent accessing arbitrary environment variables), safe backend communication (imagine the same types in frontend and backend with safety preventing broken urls and payload parsing errors).    
-Safety can be very interesting, we have seen some examples e.g. [_add_blank_target no information escape](2022-01-09-ts-types-part4.html#preventing-information-escape), [_add_blank_target no `unknown`](2022-01-09-ts-types-part4.html#safety-preventing-unknown), 
+Safety can be very interesting, we have seen some examples specific to TS e.g. [_add_blank_target no information escape](2022-01-09-ts-types-part4.html#preventing-information-escape), [_add_blank_target no `unknown`](2022-01-09-ts-types-part4.html#safety-preventing-unknown), 
 [_add_blank_target no subtyping](2022-01-09-ts-types-part4.html#safety-preventing-subtyping).  
 
 _side_note_start
 Here are some very sophisticated examples of safety (outside of TS scope): safe linear algebra (e.g. consistent sizes of matrices in matrix multiplication), safety preventing deadlocks, safe resource management (e.g. no memory leaks, type safety over which resources are used, etc.). 
 One of the wildest type guarantees I have encountered was a guarantee for a linear computation cost. 
 
-Safety is really needed and often missing.  Here are some examples outside of TS scope: 
+Safety is really needed and often missing.  Here are some examples outside of TS scope (related to memory manangement): 
 [_add_blank_target Microsoft eyes Rust](https://visualstudiomagazine.com/articles/2019/07/18/microsoft-eyes-rust.aspx), 
 [_add_blank_target Security bugs in Chrome](https://www.zdnet.com/article/chrome-70-of-all-security-bugs-are-memory-safety-issues/).
 
@@ -370,6 +368,8 @@ To summarize what has been said:
 *  Approaches like smart pointers in newer versions of C++ are not good enough either
 *  Type safety: works
 _side_note_end 
+
+It should be noted that `subtyping` reduces safety. We have discussed it extensively in [_add_blank_target Part 3](2022-01-03-ts-types-part3.html#subtyping)
 
 We are seeing a slow industry shift towards a more sophisticated use of types,  IMO, TS could play a role in that shift.
 
@@ -402,28 +402,37 @@ Subtle falsehoods can sometimes be more concerning than the obvious once.
 Here is a coding challenge:  There is a common belief that compilation flags like `strictNullChecks` prevent escaped `null` and `undefined`.  Exploit the incorrectness of variance in TS to create a partial function that has `number` return type but returns `undefined` for some of its input parameter values.  
 
 This series discouraged the use of TS's `any` type.  Undeniably, combining `any` with stricter types can lead 
-to some very interesting and useful code if one is careful.  In a way, I view `any` as more straightforward and less damaging 
+to some very interesting and useful code if one is careful.  In a way, I view `any` to be more straightforward and less damaging 
 than other violations of logical soundness in the TypeScript language.
 
 ## About Maintainability
 
 Considering who is still reading this, I am now only preaching to the quire so I will keep this short. 
+Clearly all the points I have made so far are very related to maintainability.
+
+My favorite definition of high code quality is, simply, a code with a low maintenance cost.  IMO, everything else is subjective.  Types have a big beneficial impact on that cost.
 
 Developers often go to great lengths to avoid compilation errors. 
 Sure, committing code that does not compile is not very professional but this attitude sometimes goes beyond that.
-IMO, designing types to be resilient to changes in functionality may equate to not taking advantage of type safety. 
+IMO, designing types to be resilient to changes in functionality is not what you want to do. 
 Compilation errors are why we use types, compilation errors are a good thing.  What you want are errors that are easy to fix.  
-
-Clearly all the points we made so far are related to maintainability.  My favorite definition of high code quality is a low maintenance cost.  Everything else is subjective.  Types have a big beneficial impact on that cost.
 
 It is well known that types can prevent trivial errors (like using a `string` instead of `object`). It is hard to catch all such cases in tests and they do show up in production. This is the reason, I believe, TS is used in most of its projects.  
 Let me point out a less trivial high level bit. 
-Types can simplify adding new functionality!  If you think about the app as a big union type of various requirements (this is oversimplification but let me keep going), then adding handling of a new piece of functionality to that union could give you compilation errors unless you fix all the relevant places. Think about TS-s [_add_blank_target `switch`](2022-01-03-ts-types-part3.html#switch-exhaustive-check) or
+Types can simplify adding new functionality!  If you think about the app as a big union type of various requirements (this is an oversimplification but let me keep going), then adding a new piece of functionality to that union could give you compilation errors unless you fix all the relevant places. Think about TS-s [_add_blank_target `switch`](2022-01-03-ts-types-part3.html#switch-exhaustive-check) or
 [_add_blank_target _ts-pattern_](https://dev.to/gvergnaud/bringing-pattern-matching-to-typescript-introducing-ts-pattern-v3-0-o1k) library exhaustive checks[^product].
 
 [^product]: It is good to note that this safety is unique to union types, you will not get the same safety when 
 adding a property to an object.  It is interesting and telling that the industry is adding co-product types to programming
 languages just now.
+
+_side_note_start  **Types and T(est)DD:** 
+If you can just follow the types to add a new functionality, how does this relate to the TDD approach of writing the tests first?  To implement new functionality we modify / expand some union types. 
+Hmm, you need to implement the new functionality for the app to compile.  You could implement it (at least in TS) by
+throwing some "Not Implemented" error or maybe changing compilation flags, but that means not taking advantage of the type safety.  
+IMO types go before TDD.  I prefer to write tests after the implementation when types guide my implementation process. 
+_side_note_end
+
 
 
 ## Universal
@@ -442,7 +451,7 @@ Many language features we consider new and modern are really old ideas, some dat
 
 Robert Harper has coined a term [_add_blank_target The Holly Trinity of CS](https://existentialtype.wordpress.com/2011/03/27/the-holy-trinity/) and types are one of the three.  
 
-Types are playing an increasing role in foundations of mathematics, the relatively new and "hot" topic is [_add_blank_target HoTT](https://en.wikipedia.org/wiki/Homotopy_type_theory).
+Types are playing an increasing role in foundations of mathematics, the new and "hot" topic is [_add_blank_target HoTT](https://en.wikipedia.org/wiki/Homotopy_type_theory).
 
 This series was written by a TypeScript newb.  I am using TS since November 2021 and only on one project.  
 We have covered a lot of ground that probably is not well known to many seasoned TypeScripters.
@@ -461,7 +470,7 @@ very well behaving principled computations.  TypeScript may not be able to expre
 often possible to use the principled approach as a pattern.   
 An example is the [_add_blank_target Recursion Scheme](https://github.com/rpeszek/ts-experiments/blob/master/ts-notes/src/RecSchemes.ts) code I wrote for Part 5. 
 I see `map` being added to all kinds of types as a pattern. 
-Monads are used as a pattern too. The concept of _async_, _await_ uses monads as a pattern. [_add_blank_target _fast_check_](https://www.npmjs.com/package/fast-check) library uses some monadic computing as a pattern to accomplish randomized property testing. 
+Monads are used as a pattern too. The concept of _async_, _await_ uses monads as a pattern. [_add_blank_target _fast_check_](https://www.npmjs.com/package/fast-check) library uses monadic computing as a pattern to accomplish randomized property testing. 
 
 The burden to understand the principles lies on the authors of libraries and APIs.  For example, developers using _async_ / _await_ do not need to understand the concept of a monad.  You need to understand it to create the _async / await_ concept.   
 It is also much easier to learn the underlying concept after experiencing examples of its use. 
@@ -475,15 +484,15 @@ Both approaches complement each other.
 2. Increase effort / cost outside of project scope (e.g. learning types)
 
 In the industry focused on short term goals 2 will be unpopular even if benefits of 2 are significant.  
-The ramp up time for the new project needs to be short. 
+The ramp up time for the projects needs to be short. 
 This explains why all mainstream languages look and feel alike. As far as programming languages go, the software industry is not innovation friendly. Any progress needs to be very gradual. Developers need to be able to "hit the ground running" when
 using a new language.  
 
 I have already mentioned [_add_blank_target Wadler's Law](https://wiki.haskell.org/Wadler%27s_Law) and [_add_blank_target bikeshed](https://bikeshed.com/).  Types are about semantics.  That puts them at the far end of the popularity ranking scale.  I have mentioned the easy vs simple dilemma.  Simple is less popular. 
 Types are theoretical,  that makes them less popular as well.
 
-Let's look at what the type friendly job market looks like. 
-The job market for typed functional programming jobs is, frankly, dismal.  At the same time, languages like Haskell and Rust top the list for the weekend use based on stackoverflow surveys[^weekend]. 
+Let's look at the job market. 
+The job market for typed functional programming jobs is, frankly, dismal.  At the same time, languages like Haskell and Rust top the weekend use stats based on stackoverflow surveys[^weekend]. 
 
 How can we explain both of these phenomena? 
 One issue is that only a small minority of programmers are interested in the more
@@ -502,12 +511,16 @@ in any language but is stronger for something like Haskell than say COBOL.
 
 
 Let's take a bit more controversial take on this.
-A stronger version of "Someone is wrong on the internet" is _Lack of popularity is a necessary but not sufficient condition of doing something right._  "Popular => wrong" is a law (or hypothesis) of life that dates back to at least Socrates.  
+A stronger version of "Someone is wrong on the internet" is this statement:
+
+_Lack of popularity is a necessary (not sufficient) condition of doing something right._  
+
+"Popular => wrong" is a law (or hypothesis) of life that dates back to at least Socrates.  
 If you assume this to be true, you can view the progress as a process of being less and less wrong.   
 People look at the history of the software industry and see a never ending aggressive progress. 
 A more insightful hindsight exposes a history of embracing bad ideas (e.g. `null`) and resisting good ideas
 (e.g. type parameters[^history]).   
-You probably think of all of this as too hyperbolic. The benefit of taking my stance is a chance of noticing things that others don't.  
+You probably think of all of this as too hyperbolic. The benefit of taking this stance is a chance of noticing things that others don't.  
 
 [^history]:  As an example, Java has resisted type variables for a long time. 
 "Although our generics extensions were put on hold for six years, Sun developed a much keener interest in the compiler I had written for GJ. It proved to be more stable and maintainable than their first Java compiler. So they decided to make the GJ compiler the standard javac compiler from their 1.3 release on, which came out in 2000." ([_add_blank_target quote from Martin Odersky](https://www.artima.com/articles/the-origins-of-scala)).  Generics remained disabled until Java version 1.5 (2004). Oderky is always very diplomatic in his statements.
@@ -520,11 +533,11 @@ confusing and not accessible to its contributors.
 It also should be expected. One comment I received about Part 1 of this series said "this code is quite different from what we do". 
 "Different" could imply worth pursuing but unavoidably will at some point lead to a confrontation. 
 
-Types lack the critical mass of acceptance to become disruptive, they work well when the team is ready and/or when applied in a very gradual way. 
+Types lack the critical mass of acceptance to become disruptive, they work well when the team is ready and/or when applied in a gradual way. 
 Thumbs up to projects and developer teams who learn types and select the unpopular!
 
 > _“Only in our dreams are we free. The rest of the time we need wages.”_
-   _Terry Pratchett and [_add_blank_target Hwel](https://wiki.lspace.org/Hwel). A good metaphor to describe life of a programmer._ 
+   _Terry Pratchett and [_add_blank_target Hwel](https://wiki.lspace.org/Hwel). A good metaphor to describe the life of a programmer._ 
 
 
 ### Gradual Progress
@@ -546,7 +559,6 @@ The last two installments ([_add_blank_target Part 4](2022-01-09-ts-types-part4.
 If developers start using types, the languages will expand support for them.  
 This will feed some gradual change. 
 The hope for existence of such a feedback loop is what prompted me to write this series.  
-My hope is that mainstream programming will eventually transition itself to more principled programming approaches.  
 
 __Should more advanced types be used in a project?__  Ideally (and IMO) that decision should be made by the developers.  I have presented plenty of _pros_.  The biggest obstacle is the learning curve.  I am afraid this learning needs to happen outside of the project work.  In reality, this means that the 
 decision has to be made based on what the team knows already.  So the answer for some teams could _yes_ today, for some could be _no_ today but a _yes_ in the future.  
@@ -554,16 +566,6 @@ My personal approach is to make sure that TS code is approachable and my goal is
 This is not very easy to do, it is much easier to use principled types than principled patterns. 
 It is also easier to write principled code in an environment where principled is not considered odd.   
 It is also good to be able to scratch the itch and keep practicing the real thing, I have my backend work to do that, lots of people do not have that luxury.
-
-> _"She fumbled in her apron pocket for her tobacco pouch.   
-'Has anyone got a light?' she inquired.  
-A couple of actors produced bundles of matches.   
-Nanny nodded, and put the pouch away.  
-'Good,' she said. 'Now, has anyone got any tobacco?'"_
-
-_[_add_blank_target Nanny Ogg](https://en.wikipedia.org/wiki/Nanny_Ogg)'s behavior describes how I sometimes feel trying to use advanced types as patterns._
-
-**Next steps**: Over the next few months I plan to slowly proofread everything and make final corrections.  I will remove the draft warnings and post a note on reddit r/typescript when this is all done.  I do not expect any significant content changes. 
 
 This series was a long journey, I am happy I took it, but I am also happy the effort is now mostly behind me.  Big thanks to all of you who stayed with me all the way to this end.  
 Thank you to everyone who messaged me corrections and comments.  Please let me know your thoughts on this installment.  

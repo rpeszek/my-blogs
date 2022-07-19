@@ -4,6 +4,10 @@ author: Robert Peszek
 featured: true
 summary:  TypeScript Types series, types and values that do not match, type predicates, `any`,`unknown`, honest transparent types
 toc: true
+changelog: <ul> 
+    <li> (2022.04.29 - 2022.05.29) Minor edits </li>
+    <li> (2022.05.29) Draft warning removed </li>
+     </ul>
 tags: TypeScript-Notes
 codestyle: ts
 ---
@@ -11,10 +15,6 @@ codestyle: ts
 _Please Leave Feedback in: [_add_blank_target git discussions](https://github.com/rpeszek/rpeszek.github.io/discussions/1)_
 
 Previous post: [_add_blank_target Part 1. Typing in Anger](2021-12-12-ts-types-part1.html).
-
-**DRAFT version** _(I am sorry about any misprints.
-It seems I have goblins in my laptop that toy with me, remove or change words. 
-When this note disappears, you will know that I gave up.)_   
 
 **Disclaimers:** (imagine this is a very small font, read it very fast in a half whisper)   
 _I assume strict compiler flags are on, something you get by default with scaffolding, e.g. using
@@ -69,7 +69,7 @@ This will be a good conversation starter:
 const p: Person = JSON.parse('"John Smith"')
 ```
 
-Your experience with consistency of JSON data may be different from mine.  I rarely see JSON issues in front-end -- back-end conversation. On the other hand, my experience with using 3rd party REST APIs is not exactly stellar.
+Your experience with consistency of JSON data may be different from mine.  I rarely see JSON issues in a frontend - backend conversation. On the other hand, my experience with using 3rd party REST APIs is not exactly stellar.
 JSON data problems do happen.
 
 The above code illustrates what I used to call 'fail late' and now I call 'a type I cannot trust' case. It is a nasty situation where runtime errors are nowhere near the actual problem.  Looking at the example, `JSON.parse` function is declared to return the TS's notorious `any` type.  Using `any` bypasses type checking and the code assigns the result to `Person`.  The actual run-time value of `p` will be a `string`, while the type checker is now convinced it is `p:Person`.  
@@ -82,13 +82,13 @@ I am not claiming this to be a prevalent problem in TS code, but it is an intere
 
 Now, since I already may have angered a large part of the TS community (did I? I hope not.), let's beat a little on **_office.js_**.   
 
-_office.js_ is a source of code examples for my series. Looking into _office.js_ release history suggests that the bond between _office.js_ and TypeScript developed very early. It looks like these projects grew up together. _office.js_ might have even been one of
+_office.js_ is a source of code examples for my series. Looking into _office.js_ release history suggests that a bond between _office.js_ and TypeScript. That bond developed very early. It looks like these projects grew up together. _office.js_ might have even been one of
 these Microsoft projects that spearheaded the development of TS.  
 
 **Short Recap**
 We are using _office.js_ to interact with Outlook emails. 
 _office.js_ provides us with `item: Office.MessageRead` allowing us to 
-retrieve data from an email opened in read-only mode.
+retrieve data from an email opened for viewing in Outlook.
 **(Recap End)**
 
 I imagine it is not that uncommon for a TS library to have a non-nullable property that is undefined at runtime.  
@@ -110,9 +110,9 @@ This property is overloaded to be one of the following types (let me call them _
 
 
 > `Office.AppointmentCompose` (composing calendar entry)   
-> `Office.AppointmentRead`  (read-only calendar entry)   
+> `Office.AppointmentRead`  (reading calendar entry)   
 > `Office.MessageCompose`  (composing email)   
-> `Office.MessageRead`  (read-only email)  
+> `Office.MessageRead`  (reading email)  
 
 
 These _facet_ types are all different.  For example, to get email subject you use `item.subject:string` if you are working with `Office.MessageRead` or `item.subject:Office.Subject` if you are working with `Office.MessageCompose`.   
@@ -219,9 +219,9 @@ Let's beat on _office.js_ some more.
 [_add_blank_target Here](https://docs.microsoft.com/en-us/javascript/api/outlook/office.item) is a piece _office.js_ documentation about (you guessed it, this post is so very predictable) the
 [_add_blank_target  `Office.context.mailbox.item`](https://docs.microsoft.com/en-us/javascript/api/outlook/office.item):
 
-> If you want to see IntelliSense for only a specific type or mode, **cast** this item to one of the following:  
->      `AppointmentCompose`  
->      `AppointmentRead` ...     
+> _If you want to see IntelliSense for only a specific type or mode, **cast** this item to one of the following:_  
+>      _`AppointmentCompose`_  
+>      _`AppointmentRead` ..._     
 
 TS offers a neat alternative to casting.  I will explain it by _not_ following the _office.js_ documentation ;)
 
@@ -275,7 +275,7 @@ if(isMessageRead(item)) {
 This is a really nice, bravo TypeScript!  Simple to use, yet very useful.   
 
 It is also IMO a very interesting case of TS making a bigger impact on how we actually code. 
-_"Check before you use"_  game becomes type assisted and happens on a larger scale of `item` types instead of
+_"Check before you use"_  game becomes type assisted and happens on a coarser scale of `item` types instead of
 single (e.g. the email _subject_, _from_, _cc_, etc.) properties.  
 This adds a lot of clarity to the code. 
 TS types not just check my code, types change how I code!
@@ -290,17 +290,17 @@ The syntax `t is T` is interesting, it clearly borrows from dependently typed la
 
 I hope the TS community develops a healthy aversion to casting.  Why would you use a type checker if you keep subverting it?  I also hope that exporting functions returning type predicates will become a standard practice for APIs.  
 
-
+_side_note_start
 **Use of `any` in type predicates**  
 Arguably, a safer approach was to define `isMessageRead` and `isMessageCompose` using a parameter type that is more restrictive than `any`.   
 My goal was to keep this example very simple and avoid introducing a `CorrectedOfficeItem` type to fix _office.js_ typing. In real code, I would opt in for introducing the corrected type. Linked github repo defines and uses `CorrectedOfficeItem`.    
 However, using `any` in type predicate implementations appears to be a common practice. Implementing a type predicate typically requires checking for existence of object properties and `any` provides access to these.   
 My suggestion is to avoid type guards in certain places, e.g. in generics. We want generics to be generic. 
-
+_side_note_end
 
 ## Note about the `unknown` type
 
-This post started with unsafe use of `JSON.parse`.  I am quite sure that if TypeScript could travel back in time
+This post started with a use of the unsafe `JSON.parse`.  I am quite sure that if TypeScript could travel back in time
 `JSON.parse` would return `unknown` instead of `any`. 
 
 ```JavaScript
@@ -323,10 +323,11 @@ if (isPerson(possiblyPerson)) {
 `unknown` type is (only) the top type (you can assign anything to it but you cannot assign it to anything else, maybe except for `any`).  This is a much better safety than being both the _top_ and the _bottom_.
 Compared to `any` it is more cumbersome to use but significantly safer.  
 
+Let's criticize the `unknown` a bit. 
 A rough view (IMO) of what type safety is: an ability to _separate apples from oranges_. 
 If you can assign both an apple to `unknown` and an orange to `unknown` then they are no longer separated.   
 What makes this worse in TS, is its occasional tendency to widen return types to `unknown`. TS tends to do that 
-if it cannot find a more precise return type or when it gets confused. 
+if it cannot find a more precise return type, when it tries to apply subtying rules to things like functions, or when it gets confused. 
 We saw two examples of this in the last post:
 
 ```JavaScript
@@ -340,7 +341,7 @@ const emailBody4 = await officePromise (curry3(item.body.getAsync)(Office.Coerci
 const test = curry({} as any)
 ```
 
-Also, notice `unknown` in some [_add_blank_target blooper](2021-12-12-ts-types-part1.html#compilation-bloopers) examples from the previous post:
+Also, notice `unknown` in some of the [_add_blank_target blooper](2021-12-12-ts-types-part1.html#compilation-bloopers) examples from the previous post:
 
 ```JavaScript
 //these should not compile but they do. Names are consitent with previous post and the linked github repo
@@ -353,9 +354,9 @@ const nonsense3 = curry(curry3)
 const nonsense4 = curry(curry(curry))
 ```
 
-and we will encounter more examples of _unsafe widening_ in future notes.  It seems like TS tends to widen types to `unknown` instead of reporting a compilation error.  This, in turn, makes things less safe.
+and we will encounter more examples of _unknown widening_ in future notes.  I would be happier if many of these examples resulted in a compilation error. Current status quo reduces safety of TS code.
 
-I really love the fact that this code (a contrived example but generalizes easily to real situations) does not compile:
+Let's look at how `unknown` makes things like `===` more complex.  I really love the fact that this code (a contrived example but generalizes easily to real situations) does not compile:
 
 ```Java
 //Compilation error:
@@ -385,7 +386,7 @@ const res = _() === _()
 _() === (1 as 1)
 ```
 
-So the type signature of `===` is:
+So the "imaginary" type signature of `===` is:
 
 ```JavaScript
 declare function eqeqeq(a: unknown, b: unknown): boolean
@@ -403,18 +404,18 @@ eqeqeq("some text", 1) //compiles
 In fact, `===` _does not have a type_.  It is a built-in JS operator.  TS applies semantic narrowing rules to the code that uses it.   
 This complex approach is needed to provide type safety while maintaining compatibility with JS.   
 TS's semantic rules prevent certain types like `someText === someNumber` from compiling,
-except, this safety is somewhat fragile and breaks when `someText` or `someNumber` are accidentally widened to `unknown` by the type inference.   TS uses a similar approach for other built-in JS operators.  (We will discuss `===` semantics in a deeper detail in the next post.)
+except, this safety is somewhat fragile and breaks when `someText` or `someNumber` are accidentally widened to `unknown` by the type inference.   TS uses a similar approach for other built-in JS operators.  (We will discuss the crazy `===` semantics in a deeper detail in the next post.)
 
 
 **General safety concerns about the top:** 
 Developers, like me, who had spent decades working in languages like Java and then switched to a typed FP language see immediate 
 safety benefits just because there isn't any top type.
-The concern about `unknown` is that it can be used with many JS functions and operators. 
+The concern about `unknown` is that it is used with many JS functions and operators. 
 Such use is not type safe, similarly to how Java's `Object` methods are not type safe.   
 From the type safety point of view, these JS functions and operators are not implemented well either.
 Consider for example `JSON.stringify` which accepts `any`. 
 Does this expression (it returns `undefined`) make much sense to you: `JSON.stringify(() => {})`?   
-Generic functions lose safety too, generics are not _generic_ if a generically typed function parameter can use a _specific_ JS function.  
+Generic functions lose safety too, generics are not _generic_ if a generically typed function parameter can use a _specific_ JS function (like the `JSON.stringify` function).  
 
 Something like `unknown` is probably the only way for TS to achieve JS compatibility, nonetheless `unknown` is not ideal.   
 
@@ -441,7 +442,7 @@ declare function someName<T>(t:T): T
 ```
 
 could be only implemented as an identity.  Incidentally, there are a few languages that support strict parametricity
-and a few that come very close. 
+and a few that come very close,  for mainstream languages, _parametricity_ is an gentlemen's agreement.
 
 Can you write a whole single page app in TS and give it that signature?  I bet you can.  
 We would probably not call it a type-lie. 
@@ -471,13 +472,14 @@ function program(): void {...}
 and do almost anything I want in that code.  
 It would not be very clear if most of my types looked like this. There needs to be some coding convention
 that discourages such code.   
-Enforcing some level of parametricity when implementing generics would be another
+Enforcing some level of parametricity when implementing generics is another
 example of a coding convention.  
 
 _The goal is to move from designing programs to designing types._   
 _This post suggests that types are used to define coding conventions._
 
-Here are some bootstrapping ideas.
+So, besides guarding parametricity, what else can we do? 
+Here are some bootstrapping ideas:
 
 ### Referential Transparency
 
@@ -485,7 +487,7 @@ Referential Transparency is an FP topic but is also very relevant to types and c
 
 A function is referentially transparent if it does the same thing every time it is called. 
 Referential transparency comes with clear type signatures.  The output needs to be a function of the inputs and of nothing else.  You can do things like curry or partially apply, but you cannot say, retrieve the current time and act on it (that time parameter would need to be provided as input).   
-The above `program:() => void` would be referentially transparent only if it did not do anything, just returned.   
+For `program:() => void` to be referentially transparent would mean that the implementation does not do anything, just returns.   
 IMO well written programs identify and separate the referentially transparent parts.
 
 In TS, referential transparency is a coding convention.  I will use _React.js_ example to demonstrate this.  Readers not familiar with React should think about creating a function from some model (`Person` in this example) to an actual part of the HTML DOM.  Here is my example of a vanilla React component type 
@@ -501,19 +503,19 @@ const PersonCard: ({ model, onChange }: {
 Hopefully, the implementation does not use any hooks, it only uses the parameters (I call them setters[^1] and getters) to create bits of HTML with event handlers.  This would be an example of a referentially transparent React type.
 It also would be an example of a very explicit type that is very "honest". 
 
-[^1] What I am achieving here is not the full referential transparency. Setters are not referentially transparent, referentially transparent function that returns `void` cannot do anything.  However, This construction is still very 
-explicit. 
+[^1]: What I am achieving here is not the full referential transparency. Setters are not referentially transparent, referentially transparent function that returns `void` cannot do anything.  However, This construction is still very explicit. 
 
 _side_note_start **FP side notes:**
 Such approach is not novel at all (e.g. Elm uses a similar approach, only not as a coding style but as its architecture).   
-Lenses can be used as just a coding convention too.
 _side_note_end
 
 Many developers will very much disagree with me on this.  E.g. many will prefer to encapsulate state handling inside
 components. I do not intend to argue 
 which approach is better.  I will just point out that encapsulation is secretive in the type definition and I am looking
-for transparency.  Many parts of React will require some use of hooks, 
-my approach is to do that only when I have to, not when I want to. The goal is to make things very type-explicit.  It is an IMO.
+for transparency here.  Many parts of React code will require some use of hooks, 
+my approach is to do that only when I have to and to keep the hooks outside of my main 
+components.  It is not about not using hooks, it is about not having them all over the code base.
+The goal is to make things very type-explicit.  It is an IMO.
 
 Such type is also self documenting.  
 
@@ -546,8 +548,8 @@ const PersonCard: React.FC<{
 }>
 ```
 
-My focus is on types, not values. There is no safety benefit in doing this.  Communication, documentation and accessibility are the only goals.  
-In a modernized interpretation of the KISS principle I think of "Simple" as a lot of very transparent types.
+There is no safety benefit in doing this.  Communication, documentation and accessibility are the only goals.  
+I like to think about a modernized definition of the KISS principle: "Simple" is a lot of very transparent types.
 
 
 ## Next Chapter
@@ -555,7 +557,7 @@ In a modernized interpretation of the KISS principle I think of "Simple" as a lo
 There are parts of TS that I absolutely adore and I will talk about them.
 The complexity of TS types is another big topic to discuss. 
 Complexity causes compilation issues (we will encounter some new bloopers) and makes the language hard to use. 
-~~This will take me a few weeks to finish.~~   
+  
 Here is the link: [_add_blank_target Part 3](2022-01-03-ts-types-part3.html).
 
 I am working on these notes during the 2021 holiday season.

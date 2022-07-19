@@ -2,8 +2,12 @@
 title: Type Enthusiast's Notes about TypeScript. Part 4. Programming with Type Variables
 author: Robert Peszek
 featured: true
-summary:  TypeScript Types series, higher rank types, existentials, phatom types, preventing type widening
+summary:  TypeScript Types series, higher rank types, existentials, phantom types, preventing type widening
 toc: true
+changelog: <ul> 
+    <li> (2022.05.10 - 2022.05.29) Minor edits </li>
+    <li> (2022.05.29) Draft warning removed </li>
+     </ul>
 tags: TypeScript-Notes
 codestyle: ts
 ---
@@ -11,10 +15,6 @@ codestyle: ts
 _Please Leave Feedback in: [_add_blank_target git discussions](https://github.com/rpeszek/rpeszek.github.io/discussions/1)_
 
 Previous post: [_add_blank_target Part 3. TS Complexity](2022-01-03-ts-types-part3.html).
-
-**DRAFT version** _(I am sorry about any misprints.
-It seems I have goblins in my laptop that toy with me, remove or change words. 
-When this note disappears, you will know that I gave up.)_   
 
 **Disclaimers:** (imagine this is a very small font, read it very fast in a half whisper)   
 _I assume strict compiler flags are on, something you get by default with scaffolding, e.g. using
@@ -38,7 +38,7 @@ This is the fourth post in the series devoted to types in TypeScript. In this se
 This post will be a little more advanced and will focus on programming with type variables. 
 
 [_add_blank_target Types and Programming Languages](https://www.goodreads.com/book/show/112252.Types_and_Programming_Languages) is 
-the book about types I recommend to everyone, ... so far unsuccessfully. 
+the book about types I recommend to everyone (... even if not very successfully). 
 Reading TAPL will be a big eye opener for many developers. 
 The good news is that types dramatically increase programming efficiency so learning them is a good investment.   
 This section of the post will be a little more TAPL-ish with some more advanced CS.
@@ -50,7 +50,7 @@ Before we start I need to build up some tooling.  I will start with a tiny bit o
 
 ## Safety preventing `unknown`
 
-In previous posts, we have seen examples where TS, instead of reporting a compilation error, decided to widen types to `unknown`.   
+In previous posts, we have seen examples where TS decided to widen types to `unknown` rather than report a compilation error.   
 Interestingly, TS allows enough type level programming so we can try to fix such issues ourselves.  
 
 ```JavaScript
@@ -70,7 +70,7 @@ verifyUnknown(true, unk)
 verifyUnknown(false, unk)
 ```
 
-In my first post, I had an example of an email body ([_add_blank_target `body4`](2021-12-12-ts-types-part1.html#bumps-on-the-path)) inferred as `unknown` instead of a `string`.  Wrapping such code
+In my first post, I had an example of incorrect code [_add_blank_target `body4`](2021-12-12-ts-types-part1.html#bumps-on-the-path) inferred as `unknown` instead of a `string`.  Wrapping such code
 in `verifyUnknown(false, body4)` would have alerted me with a compilation error.   
 You may point out that a much simpler solution is to just type annotate: `const body4: string`.   
 I agree. However, having a more generic solution at our disposal is also useful.  We will see shortly why. 
@@ -159,7 +159,7 @@ _Higher rank means generics are first class_
 
 ## Existential types
 
-In TAPL-ish it is called _existential quantification_  and it has to do with the ownership of definitions. In OO you would say "code to interfaces, not implementation", it is also related to the OO concepts of _inversion of control_ and _dependency injection_.  Here is how the story goes:
+In TAPL-ish this is called _existential quantification_  and it has to do with the ownership of definitions. In OO you would say "code to interfaces, not implementation", it is also related to the OO concepts of _inversion of control_ and _dependency injection_.  Here is how the story goes:
 
 
 
@@ -178,7 +178,7 @@ class MyFoo implements Foo{
 }
 ```
 
-We want to be able to hide which implementation of `Foo` we are passing to the callback.  
+We want to be able to hide which implementation of `Foo` we are passing to a callback.  
 Our first approach tries to use a vanilla TS generic function with a callback argument.  
 The input function parameter uses some `<T extends Foo>` of an unknown exact implementation type:
 
@@ -230,7 +230,7 @@ _side_note_end
 
 ### Preventing information escape 
 
-I am drawing a blank trying to think about an OO analogy for this.  It is somewhat related to friend classes in C++, package private scope in Java but not exactly.  
+I am drawing a blank trying to think about an OO analogy for this.  It is somewhat related to friend classes in C++, package-private scope in Java ... only not exactly.  
 This example will accomplish more than the above 'factory' pattern and will not use any interfaces or classes:
 
 ```JavaScript
@@ -269,7 +269,7 @@ secretive(goodProgram)
 secretive(stealPassword)
 ```
 
-Unfortunately, `secretive(stealPassword)` compiles.  Somewhat typical of TS, if things make no sense, the compiler infers `unknown`. Hovering over `secretive` shows me this:
+Unfortunately, `secretive(stealPassword)` compiles.  Somewhat typical of TS, instead of providing robust type safety, the compiler infers `unknown` and accepts my questionable code. Hovering over `secretive` shows me this:
 
 ```JavaScript
 //const secretive: <string[]>(fn: <Password>(p: Password) => string[]) => string[]
@@ -318,18 +318,18 @@ For example, existentials are related to dependent pairs (dependent sums) in dep
 lists with a type checked length. You want to be able to use such lists when processing runtime data that can have arbitrary size.  That size 'exists' but cannot be known statically at the compile time. 
 This is in essence an existential construction.  
 
-Another amazing example is an old (1993) code called _state threads_ (currently part of std base library in Haskell).  It allows to use a local mutable state to define computations that have to be _referentially transparent_ (I have discussed referential transparency in [_add_blank_target Part 2](2021-12-24-ts-types-part2.html#referential-transparency)).
-This is possible because the access to mutate the state cannot escape outside of these computations.  The state threads API remains unchanged since it was created 30 year ago, you can't improve on perfection!
+Another amazing example is an old (1993) code called _State Threads (ST)_ (currently part of std base library in Haskell).  It allows to use a local mutable state to define computations that have to be _referentially transparent_ (I have discussed referential transparency in [_add_blank_target Part 2](2021-12-24-ts-types-part2.html#referential-transparency)).
+This is possible because the access to mutate the state cannot escape outside of these computations.  ST API remains unchanged since it was created 30 year ago, you can't improve on perfection!
 
 I see higher rank types, mostly rank-2 being used a lot.  Having ability to pass generic (polymorphic) functions
-around is very useful. In my non-TS projects, the problem of 'separating interface from implementation' is typically solved by defining an EDSL and an interpreter. Interpreters are polymorphic (generic in TS lingo). Rank-2 types have to be used to make them first class and pass them around.
+around is very useful. In my non-TS projects, the problem of 'separating interface from implementation' is typically solved by defining an EDSL (Embedded Domain Specific Language) and an interpreter. Interpreters are polymorphic (generic in TS lingo). Rank-2 types have to be used to make them first class and pass them around.
 _side_note_end
 
 
 ## Safety preventing subtyping 
 
 Many TS users have observed the need for this.  The term _exact type_ is floating around, I believe _flow_
-introduced this name.  I have seen solutions like this one being used:
+introduced this name.  I have seen solutions like this one being proposed:
 
 ```JavaScript
 function exact<T>(item:T): T {
@@ -352,7 +352,7 @@ const helloSince = {hello: "world", since:2002}
 exact<Hello>(helloSince) //complies
 ```
 
-To make something more robust, here is a code that combines the above `unknown` verification idea with existentials:
+To create something more robust, here is a code that combines the above `unknown` verification idea with existentials:
 
 ```JavaScript
 type Same<P,T> = P extends T? (T extends P? true: false): false
@@ -410,7 +410,7 @@ verySafePush(true, unklist, unkstr) //this is risky and will not compile!
 
 We have discussed problems with the TS approach to variance in the [_add_blank_target previous installment](2022-01-03-ts-types-part3.html#variance-problems). We have a DIY approach to fight back!
 
-The linked github repo has an existentially typed version of `safePush` that has just one top level type variable.
+Side Note: The linked github repo has an existentially typed version of `safePush` (`safePush2`) that has just one top level type variable.
 That version is more cumbersome to use. TS ends up not working well with it.  
 
 Another fun exercise:
@@ -431,7 +431,7 @@ We have discussed problems with TS approach to `===` narrowing in the [_add_blan
 This section is related to a number of feature requests: 
 [_add_blank_target TypeScript issue 12936](https://github.com/microsoft/TypeScript/issues/12936) and
 [_add_blank_target TypeScript issue 7481](https://github.com/microsoft/TypeScript/issues/7481). 
-Hopefully a future version of TS will provide a simpler way to achive invariance and disable subtyping. 
+Hopefully a future version of TS will provide a simpler way to achieve invariance and disable subtyping. 
 
 
 ## Phantom types
@@ -442,7 +442,7 @@ Types like `type Person = {firstNm: string, lastNm: string}` are structural. Tha
 It is sometimes convenient to be able to define different types that share the same structure. 
 _Phantom types_ are a way to do that. We say _phantom_ because these types have no impact on runtime values. 
 
-Somewhere around 2006, haskell wiki published a write-up about [_add_blank_target phantom types](https://wiki.haskell.org/Phantom_type).  The write-up was expanded in 2010 to include a form validation example. Since then all blogs (in any programming language) about phantoms show a validation example.  I decided to be as unoriginal as everyone else.  This will allow me to focus on how this is done in TS.
+Somewhere around 2006, haskell wiki published a write-up about [_add_blank_target phantom types](https://wiki.haskell.org/Phantom_type).  The write-up was expanded in 2010 to include a form validation example. Since then all blogs (in any programming language) about phantoms show a validation example.  I decided to be as unoriginal as everyone else.  This will allow me to better focus on how it is done in TS.
 
 My first attempt at phantom types in TS will fail.  But this code should make the idea behind phantoms clear:
 
@@ -464,8 +464,8 @@ declare function validate<T>(p: Person<T>):  ValidationError | Person<Validated>
 declare function doSomethingValidated(p: Person<Validated>): void
 ```
 
-Again, these types are trying to create a puzzle. One I can assemble in a specific way only.  
-If the puzzle machinery works, I will have to call `validate` to use `Person<Validated>` in `doSomethingValidated`.
+Again, these types are trying to create a jigsaw puzzle. One I can assemble in a specific way only.  
+If the puzzle machinery works, I will have to call `validate` first to be able to use `doSomethingValidated`.
 
 Only, this machinery does not work. The following code compiles:
 
@@ -548,17 +548,20 @@ declare function doSomethingWithSortedList <T extends Comparator<T>> (list: List
 Again, notice the types form pieces of a puzzle and can be fitted only in a specific way.  
 You can think about a `sort` as something that not only does what it says, but also provides a _token_
 to use later to prove that the sort was done.  This _token_ is a phantom type. You can think about creating a library that helps orchestrate a similar approach to programming and this is what the linked article talks about.   
-Many FP programming languages support GADTs, these are very powerful types and limit the popularity of phantom typing.  
+Many FP programming languages support GADTs, these are very powerful types and limit the popularity of (subsume) phantom typing.  
 _side_note_end
 
 
 Phantom types could be a very powerful API building tool.   
-I am sure you can think about many other interesting use cases, like state machines.  
+I am sure you can think about many other interesting use cases, ... like state machines[^state].
+
+[^state]:  As an example, office.js is very stateful. It has _uninitialized_ state known to cause
+problems, there is the application state (e.g. user is writing new email), and much more. My experience with 
+office.js is that the code I write is very sensitive to where is placed and can be very brittle.  API like this could be made both safe and self-documenting by using phantom types.
 
 ## Next Chapter
 
 I want to talk about recursive types and type level programming.  It will be more of a review of TS capabilities in these areas.
-~~I am having second thoughts about including a subtyping note (we talked about subtyping in the previous installment already).~~  
 
 I need to take a break from writing posts. 
 The next installment will take me longer, maybe a month or a little more, to finish.  
