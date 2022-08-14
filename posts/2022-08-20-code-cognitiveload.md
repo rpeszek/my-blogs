@@ -22,7 +22,7 @@ I had quite a few eye opening moments when thinking about these topics.
 This is the main reason I decided to write and share my thoughts.
 This post will be a high level rant discussing programming across the industry spectrum from JavaScript to Haskell. 
 
-My pet peeve is identifying specific [patterns of erroneous code](/tags/patterns-of-erroneous-code.html) code and what could be causing them, there is obviously a human factor underlying these patterns.   
+My pet peeve is identifying specific [patterns of erroneous code](/tags/patterns-of-erroneous-code.html) and what could be causing them, there is obviously a human factor underlying these patterns.   
 Mental processes involved in writing code are such a fascinating and broad subject. 
 I am taking only a very narrow path trough it.   
 I am planning another high level post to discuss programming from a different but relevant angle: 
@@ -65,7 +65,7 @@ an FP-ier will may use denotational[^denotational] approach, look how things com
 
 > &emsp; _Cognitive load theory thesis is about reducing extraneous cognitive load redirecting it towards germane load._
 
-I need to emphasize that the _information presentation_ which is being considered facilitates understanding of the code itself and not so much the concepts (e.g. abstractions) used to create it. 
+I need to emphasize that the _information presentation_ under consideration facilitates understanding of the code itself and not so much the concepts (e.g. abstractions) used to create it. 
 Knowledge of these concepts is a prerequisite.  Prerequisites are an important caveat and one that ends but being contentious.  
 
 _side_note_start
@@ -74,7 +74,7 @@ Also, abstractions that can be used in the program are limited not only by what 
 what is supported in the PL vary a great deal. 
 _side_note_end
 
-[^denotational]: In my experience many programmers are confused by what denotational semantics means, here is a very nice [Conal Elliott's talk](https://www.youtube.com/watch?v=bmKYiUOEo2A) about it.  
+[^denotational]: Denotational approach maps requirements to mathematical concepts such as Monoids, identifies categorical structures (things that compose), etc. [Conal Elliott's talk](https://www.youtube.com/watch?v=bmKYiUOEo2A) about it.  
 
 [^accidental]:  Accidental and essential complexity have been introduced in [No Silver Bullet](https://en.wikipedia.org/wiki/No_Silver_Bullet)
 
@@ -85,15 +85,17 @@ _Cognitive overload_ happens when working memory is overwhelmed by the 3 cogniti
 
 
 I wanted to use _cognitive debt_ in the title, intending it as a pun on "technical debt", because I am interested in discussing
-negative impacts on the team's ability to understand and reason about the code.   
-However, this term turns out to have a clinical meaning and I decided against using it.  _Cognitive debt_ is a psychological term associated with _repetitive negative thinking (RNT)_.
+negative impacts on the team's ability to understand and reason about the code. 
+However, this term turns out to have a clinical meaning and I decided against using it.   
+_Cognitive debt_ is a psychological term associated with _repetitive negative thinking (RNT)_.
 _Cognitive debt_ and RNT are hypothesized to have some very negative health consequences that can lead to depression or even dementia. 
 RNT is described as 
 
 > &emsp;  _“excessive and repetitive thinking about current concerns, problems, past experiences or worries about the future”_
 
 I do not claim to know a lot about clinical psychology but the definition clearly is very relevant to programmers and could partially explain why programmers are often unhappy[^unhappy], why programming discussion groups are often very negative.   
-Sadly, RNT seems to be a condition that really good programmers are likely to experience.  Good programmers think about rainy day scenarios, notice design flaws, can anticipate program issues.  It seems important that we talk about it.   
+Sadly, RNT seems to be a condition that really good programmers are likely to experience.  Good programmers think about rainy day scenarios, notice design flaws, can anticipate program issues.  My pet peeve, [patterns of erroneous code](/tags/patterns-of-erroneous-code.html), is an RNT.
+It seems important that we talk about RNT.   
 
 
 [^unhappy]: Interesting youtube: [Why Do So Many Programmers Lose Hope?](youtube.com/watch?v=NdA6aQR-s4U)
@@ -131,7 +133,7 @@ that comes with a higher learning curve but offers much safer and reusable IAC, 
 
 ## Simple vs Easy 
 
-If you have looked at my [TS types]() series, you have seen me write about it before. 
+If you have looked at my [TypeScript types](/tags/TypeScript-Notes.html) series, you have seen me write about it [before](2022-03-13-ts-types-part6.html#about-simplicity). 
 I do not claim that my definitions are the only correct way that these terms should be interpreted.  However, I have seen other programmers use a similar disambiguation so I am including it here.  
 
 I consider the terms simple and easy to have a different meaning.   
@@ -179,7 +181,7 @@ I think it often can be, it is not that hard to incrementally develop a non pene
 IMO, this is what will happen by default. 
 Maintaining some code structure to manage the cognitive load is not "easy".    
 
-Software is made out of many interacting pieces (think a granularity of statements, atomic computations, even lines of code).
+Software is made out of many interacting pieces (granularity of statements, atomic computations, even lines of code).
 This collection will not be easy to comprehend just because the pieces are easy to comprehend. 
 The biggest contributors to the overall complexity are the interaction between the pieces, organization of the pieces, 
 and not the pieces themselves.   
@@ -188,8 +190,7 @@ Mutating state is well known to be a terrible way to accomplish communication be
 My career worst in the mutation department was a Java Struts 1 code where a class had over 200 of mutating instance variables[^inheritance].  Changing order of 2 lines in this code was almost guaranteed to create a (typically intermittent) bug, it was hard to even make sure that variables were set before they were read.     
 This code used no advanced concepts, all ingredients were simple: control statements, instance variables, lots of protected methods with typically no arguments and void returns that read and set the instance variables.  I consider it one of the most complex programs I worked with in my 27 years of professional programming.  
 This code become infamous for is complexity very fast.  Interestingly, Struts were blamed, not the needless overuse of mutable state.    
-Ability to program using clear inputs and outputs and immutable data requires a learning effort, I submit to you that this effort is lower than cognitive effort of maintaining such code. 
-
+Ability to program using clear inputs and outputs and immutable data requires a learning effort, I submit to you that this effort is lower than the cognitive effort of maintaining such code. Probably the _hardest_ bit is understanding which programming concepts to avoid. 
 
 [^msgs]:  I believe this was the original idea behind OOP
 
@@ -201,19 +202,20 @@ I call code without adequate abstraction a _brute force_.
 _Brute force code_ could be a large set of incrementally developed, well written, heterogeneous pieces which interact well but there are now just too many of them. Brute force code is something that can benefit from a more cohesive design.  
 The idea here is that a more cohesive design reduces cognitive load.  Human cognitive load is limited but we can do abstract reasoning!  It is simpler for us to deal with a few generalized abstractions than with multiplicity of concretes.  
 As a side note, concrete thinking is not always bad.  An interesting article on this in a broader context [Concrete Thinking: Building Block, Stumbling Block, or Both?](https://www.healthline.com/health/concrete-thinking). 
-Benefits of abstraction are a recurring pattern in this post.  We are talking progressively more of prerequisites.  
+Benefits of abstraction are a recurring pattern in this post.  We are talking about progressively more prerequisites.  
 
 
 Types can be very effective in reducing extraneous complexity.  It is much easier to comprehend types that it is to comprehend the whole program.  Types also aid defining and expressing abstractions. 
-Many PLs provide enough support to benefit from explicit well defined types  (see [Reasoning using Types](2022-03-13-ts-types-part6.html) and [Types as documentation](2021-12-24-ts-types-part2.html#types-as-documentation) in the context of TS).
-In my code, type declarations often take more space than the actual programs. But, we are talking more and more prerequisites.
+Many PLs provide enough support to benefit from explicit well defined types.
+In my code, type declarations often take more space than the actual programs. We are talking about progressively more prerequisites.
 
-Returning to the JS application I worked on. The final product is still close to JS (it uses TS) but...
-the new code has 4 simple ingredients: immutability, [referential transparency](2022-03-13-ts-types-part6.html#referential-transparency-purity-and-explicit-types), [clear types](2022-03-13-ts-types-part6.html#about-clarity), and _async/await_ abstraction to avoid callback hell.  Not that many prerequisites to consume the new code! The code may feel weird and opinionated (e.g. React components avoid using hooks) but a little weirdness is a small price to pay if one compares it to its predecessor.    
+Returning to the JS application I worked on. The final product is still close to JS (it uses TypeScript) but...
+the new code has 4 simple ingredients: immutability, [referential transparency](2022-03-13-ts-types-part6.html#referential-transparency-purity-and-explicit-types), [clear types](2022-03-13-ts-types-part6.html#about-clarity), and _async/await_ abstraction to avoid callback hell.  Not that many prerequisites to consume the new code! The code may feel weird and opinionated (e.g. React components avoid using hooks) but a little weirdness is a small price to pay if one compares it to its predecessor. 
 
 > &emsp; *IMO, high quality code shifts cognitive load from maintainer to implementer*   
 
-This works great even if both are the same person. My story about JS application rewrite shows that this is possible.  
+This works great even if both are the same person.  My story about JS application rewrite shows that this is possible.  
+The biggest prerequisite for the implementer was knowing what to avoid.
 
 
 _side_note_start
@@ -228,17 +230,17 @@ _side_note_end
 Let's define a bug as an unintended program defect, that removes all the temporary hacks and "bugs that are features" from consideration.  But it is the programmer's job to figure these things out. A bug implies some issue in the programmer mental process. 
 
 Types are relevant here.  Programmers who start using a PL with powerful strict types (like Idris or even Haskell) 
-experience this first hand: lots of compilation errors 9 out of 10 uncovering an issue in the program. 
+experience this first hand: lots of compilation errors and 9 out of 10 uncover an issue in the program. 
 
 I consider cognitive overload to be the main cause of bugs. 
-Thus, and if you agree, we should look for ways to reduce that load. Cognitive psychology advice is to reduce cognitive load by redirecting extraneous load towards germane load.  That would suggest using more abstractions, maybe using types more... 
+Thus, and if you agree, we should look for ways to reduce that load. Cognitive psychology advice is to reduce cognitive load by redirecting extraneous load towards germane load.  That would suggest using more types and abstractions, moving towards higher level concepts. 
 
 How about the typos, trivial overlooks that are sometimes so hard to spot?  That mysterious brain of ours is good at creating these. 
 A great reading on this, in the context of (non-programming) typos, is 
 [WUWT, Why It's So Hard to Catch Your Own Typos](https://www.wired.com/2014/08/wuwt-typos/).  
 Human brain has ability to fill in gaps, self-correct things.  Human brain is better at focusing on 
 high level ideas and is perfectly happy skipping over minute details.  This characteristics seems even stronger if we are on board with the big idea, and it seems fair to assume that programmers are on board with the features they are implementing. 
-The main point is that our brain is not well designed to work at the level of statements and lexical tokens. We need higher level abstractions. 
+The main point is that our brain is not well designed to work at the level of statements and lexical tokens. 
 
 _side_note_start
 Side note:  This line of thought could also partially explain why programmers seem to be at home in the code they wrote even if other programmers consider it a complete mess. Sometimes just changing font or background color allows us to spot issues we have overlooked before. Our perception changes if what we interact with feels foreign (interestingly this should increase the cognitive load). 
@@ -247,14 +249,14 @@ _side_note_end
 
 Error proneness of programming at the level of PL statements is also consistent with the cognitive load theory.  At this level a programmer needs to consider a multitude of details, most likely overwhelming the working memory limits.   
 An interesting piece of trivia is that Turing's original paper (the one about universal machines and halting problem) had several bugs in it.
-_If Turing could not do it right, what chance do we have?_[^scott]  
+_If Turing could not get it right, what chance do we have?_[^scott]  
 
-[^scott]:  “If Turing could not do it right, what chance do we have?”- is something I heard in a lecture by Dana Scott.  
+[^scott]:  “If Turing could not get it right, what chance do we have?”- is something I heard in a lecture by Dana Scott.  
 The bugs were only discovered during the actual implementation work ([Alan Turing](https://blog.wolframalpha.com/2010/06/23/happy-birthday-alan-turing/)).
 
 The level of details I am talking about here (PL statements, lexical tokens) is often associated with 
 dynamically typed PLs and imperative or even procedural programming. This is only partially true. 
-Compilation can prevent a lot of trivial errors and hopefully the prevented list will grow, but it is far from being exhaustive.   
+Compilation can prevent a lot of trivial errors and hopefully the prevented list will grow, but it is far from being exhaustive.  
 
 **What are my points?**  
 
@@ -269,7 +271,7 @@ let blah = blah
 in blah
 ```
 
-This to me is a good example of extraneous complexity allowed by the compiler.  Many PLs (e.g. anything in ML groups like OCaml, Reason will not allow such code). 
+This to me is a good example of extraneous complexity that could be prevented by the compiler.  Many PLs (e.g. anything in ML groups like OCaml, Reason will not allow such code). 
 Here is a relevant discussion on reddit [NoRecursiveLet](https://www.reddit.com/r/haskell/comments/lxnbrl/ghc_proposal_norecursivelet_prevent_accidental/).
 Thinking about reducing extraneous load could impact such discussion (in this case, by supporting the proposal). 
 
@@ -294,15 +296,16 @@ I like to think about this paraphrasing Gimli:
 > &emsp;  _"Abstractions are upon you, whether you would risk them or not."_ 
 
 Equality is an example of an abstraction developers implement and use, but not think much about.  
-
-The list of surprising behaviors like these is quite long affecting all kinds of abstractions. 
+However, the list of surprising behaviors like these is quite long affecting all kinds of abstractions. 
 Gochas create chaos in the cognitive process. 
 For abstractions to work as a cognitive load reducer, they need to be treated seriously.   
 Some developers are good at identifying gotchas.  I will note a possible relationship to _repetitive negative thinking_.
 
-Developers I talk to respond to such examples by saying something like: "This is just bad code, whoever implemented it should have been more careful". 
-Great, except I can point to examples in standard libraries of popular mainstream PLs or popular frameworks[^gotchas1].
-The issues come with no deprecation warning and, if documented, are considered a 'feature'.  
+Developers I talked to often responded to such examples by saying something like: "This is just bad code, whoever implemented it should have been more careful". 
+Except, I can point to examples in standard libraries of popular mainstream PLs or popular frameworks[^gotchas1].
+The issues come with no deprecation warning and, if documented, are considered a 'feature'. 
+Are questions like "does a developer have a fighting chance of troubleshooting this feature?" even being asked? 
+Gotchas often become mystery bugs and are resolved using workarounds. 
 
 [^gotchas1]: Example of non-symmetric equals is `java.sql.Timestamp` used with `java.sql.Date` or `java.util.Date`, these remain used as standard JDBC mappings for DB columns, the usage will show no deprecation warning.  `[] !== []` and
 `[] != []` in JS (incidentally `[] == ""`), working in JS often feels like explosives engineering. 
@@ -310,7 +313,7 @@ I wrote a blog series about [TypeScript Types](/tags/TypeScript-Notes.html) and 
 How do Hibernate users prevent this [concurrency issue](http://rpeszek.blogspot.com/2014/08/i-dont-like-hibernategrails-part-2.html)?  
 
 
-**Abstractions causing high extraneous load**
+**Abstractions themselves causing issues**
  
 OOP creates a very high cognitive load, to a point that even compiler writers mess it up all the time[^rust]. 
 I started my programming career as an OOP enthusiast and evangelist. OO programming has an appeal of simplicity and I was seduced by it for many years.  It took me a long time to realize that OOP is not simple at all. 
@@ -319,7 +322,7 @@ You will not learn if any of these less obvious are (or should be) true:
 &emsp; function accepting a _Cat_ *is a* function accepting an _Animal_  
 &emsp; array of _Cats_ *is a*n array of _Animals_[^array]    
 &emsp; function with no parameters *is a* function with one parameter (does this even sound logical to you?)[^function].  
-You will not learn about reduced type safety that comes with widening to a superclass. 
+You will not learn about reduced type safety that comes with widening to a superclass[^widening]. 
 I do not even want to start on subtyping gotchas of variant (union and sum) types. 
 OOP is approachable only because we hide the complex bits from the learners[^ts-variance].  
 Relevant psychological concept is a cognitive bias called _framing effect_. 
@@ -328,26 +331,30 @@ Relevant psychological concept is a cognitive bias called _framing effect_.
 and the answer will, unfortunately be the incorrect _yes_.
 
 [^function]:  In TS and JS the answer is yes. In TS this is a subtyping rule.
- 
-[^ts-variance]:  For example, it is hard to imagine than the incorrect implementation of variance in a PL like TS was accidental.  It must have been a decision to keep things easy.
+
+[^widening]:  This is a gotcha generator especially in OOP languages that have some level of type inference. 
+E.g. here are some gotchas in [TS](2021-12-12-ts-types-part1.html#compilation-bloopers) that involve widening to  `unknown` which is top type in TS, here is a discussion about these in [Scala](http://rpeszek.blogspot.com/2017/07/scala-whats-wrong-with-you_29.html).
+
+[^ts-variance]:  For example, it is hard to imagine than the unsound implementation of variance in a PL like TS was accidental.  It must have been a decision to keep things easy.
 
 [^rust]: "even compiler writers mess it up all the time" is a quote from ([Rust Subtyping Documentation](https://doc.rust-lang.org/nomicon/subtyping.html)) 
 
-The concept of exception (i.e. this ugly thing you `throw` and `catch`) is another example of risky complexity that impacts even Haskell.    
-Types add a lot of clarity and can reduce cognitive load of understanding the code except exceptions provide a very accessible and virally used
-way to bypass the types. 
+The concept of exception (i.e. this ugly thing you `throw` and `catch`) is another example of risky complexity that impacts even Haskell[^non-termination].    
+Types can reduce cognitive load of understanding the code, except exceptions provide a very accessible and virally used way to bypass the types. 
 Other "bottom" types like `null` are in the same boat.   
-It is interesting to note that Java _checked exceptions_ have been vastly unpopular.  Even more interestingly, I have noticed that old Java programmers are more likely to think about exceptions than other developers, seemingly Java checked exceptions have aided some germane learning process...   
-As side note, I really like what Rust has done in this regard, you can _panic_ but it is hard to recover if you do, otherwise errors are handled in an `Either`-like sum type called `Result`.  
+It is interesting to note that Java _checked exceptions_ have been vastly unpopular.  Even more interestingly, I have noticed that old Java programmers are more likely to think about exceptions than other developers, seemingly Java checked exceptions have aided some germane learning process? ... or maybe that habit comes from exposure to lots of `NullPointerException`s?
+As a side note, I really like what Rust has done in this regard, you can _panic_ but it is hard to recover if you do, otherwise errors are handled in an `Either`-like sum type called `Result`.  Hopefully we will see more of this pragmatic approach in the future PLs.
 
 Are there any "gotcha" free environments?  Haskell comes close but is not perfect[^haskell]. 
-Proof assistants like Idris or COQ come to mind.  That is kinda interesting, let's pause for a bit here.  
-Consider the levels of abstraction used in proof assistants. It appears that our brain needs something at the level of a dependently typed lambda calculus to work correctly[^ml]. 
+Proof assistants like Idris come to mind, these even can verify termination.  That is kinda interesting, let's pause for a bit here.  Consider the levels of abstraction used in proof assistants. It appears that our brain needs something at the level of a dependently typed lambda calculus to work correctly[^ml]. 
 That could make sense, for things to be logical you need, well you need the logic itself.      
 
-[^haskell]: Haskell dedicates a significant effort to soundness. For example, it comes with coherence features that are unique to it (see this Edward Kmett's presentation [Type Classes vs. the World](https://www.youtube.com/watch?v=hIZxTQP1ifo)). 
+[^non-termination]: I sometimes witness a misguiding argument "It is impossible to statically reason about termination in a Turing complete PL, thus, all hope is lost", first this is inaccurate, it is possible to statically verify totality on a subset of programs, second if non-termination is like accidentally hurting your foot, then exception is like shooting yourself in the foot.  
+
+[^haskell]: Haskell dedicates a significant effort to soundness. For example, it comes with coherence features that are unique to it (see [Type Classes vs. the World](https://www.youtube.com/watch?v=hIZxTQP1ifo)). 
 Not everything is perfect however. 
-As mentioned above, Haskell allows for easy abuse error non-termination (`error`, `undefined` functions), it also comes with a very useful `seq` combinator that has a somewhat questionable semantics. `seq` combined with `error` combined category laws. See [Hask is not a category](http://math.andrej.com/2016/08/06/hask-is-not-a-category/).
+As mentioned above, Haskell allows for easy abuse error non-termination (e.g. `error`, `undefined` functions). Non-termination in itself throws a wrench, one Haskell probably should not be blamed for, see [Hask is not a category](http://math.andrej.com/2016/08/06/hask-is-not-a-category/) and 
+[What Category do Haskell Types and Functions Live In](http://blog.sigfpe.com/2009/10/what-category-do-haskell-types-and.html).
 But overall Haskell language comes with much fewer surprises if compared to the mainstream.    
 Haskell ecosystem (including standard library) are more lax than the language itself.  Michael Snoyman's [Haskell Bad Parts](https://www.snoyman.com/blog/2020/10/haskell-bad-parts-1/) is a great series on this topic. 
 The most recent surprise for me is how _Aeson_ (the most popular Haskell library for dealing with JSON)
@@ -371,9 +378,9 @@ Incidentally, the negative comments mostly belonged in the general “what you a
 _side_note_end
 
 One simple to explain and not very abstract example that still fits into this section is the `guard`[^guard] combinator in Haskell. 
-I see it used and I also scratch my head when, say, a JSON parser error says only `"mempty"`.   
-Possibly, some programmers think in that more general abstraction called `Alternative` when they should be thinking
-in something like `MonadFail` which allows to specify error message.
+I see it used and I also scratch my head when, say, a JSON parser error says only `"mempty"`. 
+Possibly, some programmers think about abstraction called `Alternative` when they should be thinking
+about something like `MonadFail`, an abstraction that allows to specify error messages.   
 Some of us really dig abstractions and are arguably very good at them.  I consider myself in that group. 
 But we are kidding ourselves if we do not acknowledge that abstractions can also blind us. 
 IMO the one thing we can do about it is to be aware.  More diligence + awareness is typically all it takes.
@@ -432,9 +439,8 @@ For example, how does it relate to this line (looks very similar, just replace `
 newtype Fix f a = MkFix (f (Fix f a))
 ```
 
-Or, what does _free_ mean, and can other things than monads be _free_?  Can `Free`-s with different `f`-s be combined?  If so are there easier and harder ways of combining them.  What is _freer_? 
-Also, how do I use it?  What are the available libraries (there were not that many back then)?  How to I use it DIY style?   
-
+Or, what does _free_ mean, and can other things than monads be _free_?  Can `Free`-s with different `f`-s be combined?  If so are there easier and harder ways of combining them. What is _freer_? 
+Also, how do I use it?  What are the available libraries (there were not that many back then)?  How to I use it DIY style?  How does it relate to exceptions?   
 Effect systems (the main application of `Free`) are a very powerful programming tool, they can add a lot of structure and cognitive simplicity[^effect] to the code.  I use 2 of them at work, one of them we maintain. 
 Effect systems allow to organize code into DSLs and interpreters.  This approach creates very high level of code reuse, testability, defines very explicit, self-documenting types. 
 But, is it realistic to learn the concepts in a day or a week when starting a new project?  Imagine a programmer who uses Java for work exploring this knowledge.   
@@ -446,8 +452,10 @@ Also like most other tools effects can be abused. I sometimes see a single DSL i
 The learning process needs to be gradual and independent of current project work, even though some ability to use FP early
 is essential. 
 It has to be incremental, understanding is not all or nothing game. 
-Learning FP while programming in a mainstream language is super hard, however there are some steps one can take to move forward, e.g. introduce an FP-like library (e.g. Java's vavr).  With that said there is no substitute for the real thing.  
+Learning FP while programming in a mainstream language is super hard, however there are some steps one can take to move forward, e.g. introduce an FP-like library[^fplibrary] (e.g. Java's vavr).  With that said there is no substitute for the real thing.  
 The biggest obstacle will be getting other team members interested in the journey. 
+
+[^fplibrary]: Some care is needed in selecting the library, I have heard about people experiencing stack overflow issues, In TS/JS I had to implement my own immutable map because what came with _immutable_ library was not fast enough. 
 
 There has been some discussion about making Haskell itself more accessible (e.g. [_add_blank_target Elementary Programming](https://www.michaelpj.com/blog/2021/01/02/elementary-programming.html))
 and some library effort in this direction as well (e.g. [IHP](https://github.com/digitallyinduced/ihp)).  
@@ -502,9 +510,8 @@ This post has advocated for code simplicity over ease of development. Thinking t
 Understanding why things are the way they are is often good enough to create acceptance and alleviate frustration.  However, examples like [How to stop functional programming](https://brianmckenna.org/blog/howtostopfp) come to mind.  The industry should try to strive a balance between accessibility and simplicity better than this.  
 With micro-services being so popular one would expect more opportunities for some divide and concur where at least some of the code strives to be hard and simple.  Whats really hard is finding a places like that.  The job market for functional programming jobs is, frankly, dismal.  At the same time, languages like Haskell and Rust top the weekend use stats based on stackoverflow surveys[^weekend].  There must be quite a few frustrated programmers out there.  I have been in that position and I know it is mentally hard. 
 
-[^weekend]: Repeating some of what I wrote [here](2022-03-13-ts-types-part6.html#about-simplicity):  Haskell was firmly in the first position for the stackoverflow weekend use statistics for several years. I found this link: [_add_blank_target 2017](https://stackoverflow.blog/2017/02/07/what-programming-languages-weekends/).  These stats are hard to find but I also found this one: [_add_blank_target 2019](https://stackoverflow.blog/2019/10/28/research-update-coding-on-the-weekends/). In 2019 Rust moved ahead of Haskell.  
-At the same time, the job ranking (based on the UK's [_add_blank_target IT Jobs Watch](https://www.itjobswatch.co.uk/jobs/uk/haskell.do),  I have
-not found a similar ranking for the US.) puts Haskell at 932 as of 2022/02/06.  Haskell moved ahead of COBOL in that ranking in 2017.  
+[^weekend]: Repeating some of what I wrote [here](2022-03-13-ts-types-part6.html#about-simplicity):  Haskell was firmly in the first position for the stackoverflow weekend use statistics for several years. Here is one link: [_add_blank_target 2017](https://stackoverflow.blog/2017/02/07/what-programming-languages-weekends/).  In [_add_blank_target 2019](https://stackoverflow.blog/2019/10/28/research-update-coding-on-the-weekends/) Rust moved ahead of Haskell. 
+The job ranking (based on the UK's [_add_blank_target IT Jobs Watch](https://www.itjobswatch.co.uk/jobs/uk/haskell.do)) puts Haskell at 932 as of 2022/02/06.  Haskell moved ahead of COBOL in that ranking in 2017. 
 This ranking is possibly exaggerated too, lots of jobs list Haskell as good to have but will have you code in PHP.  This bias exist
 in any language but is stronger for something like Haskell than say COBOL. 
 
@@ -534,7 +541,7 @@ Syntax vs semantics, it seems syntax has a huge role in how we digest the code.
 
 Habit formation and unlearning are a big topic. 
 
-Cognitive biases in the context of coding seem like very interesting topic too. In particular _bandwagon effect_ (TypeScript is popular and hence must be very good), _framing effect_ (new cool technology), _commitment bias_ (we done it like this before), _functional fixedness_ (we do not need another PL?), _omission neglect (things we do not know are not important), _bikesheding_ (possibly most of this post &#128578;).
+Cognitive biases in the context of coding seem like very interesting topic too. In particular _bandwagon effect_ (TypeScript is popular and hence must be very good), _framing effect_ (new cool technology), _commitment bias_ (we done it like this before), _functional fixedness_ (we do not need another PL?), _omission neglect_ (things we do not know are not important), _bikesheding_ (possibly most of this post &#128578;).
 
 One topic I do plan to discuss (in future post) is a distinction between empirical and formal mental process in programming and how it impacts cognitive loads. 
 
