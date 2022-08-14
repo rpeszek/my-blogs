@@ -13,7 +13,7 @@ changelog: <ul>
      <li> (2021.02.16) Laws&colon; clarified some text</li>
      <li> (2021.02.17) <a href="#rethinking-the-typeclass-itself">Rethinking</a> section reworded a little</li>
      </ul>
-tags: Haskell, error-messages, maintainability, correctness
+tags: Haskell, error-messages, maintainability, patterns-of-erroneous-code
 ---
 **_subtitle:_ A Constructive ~~Criticism~~ Pessimism about the Alternative Typeclass**
 

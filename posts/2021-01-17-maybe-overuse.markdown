@@ -10,7 +10,7 @@ changelog: <ul>
      </li> 
      <li> (2021.02.17-now) <a href="#more-links">More Links</a> (list of related links)</li>      
      </ul>
-tags: Haskell, error-messages, maintainability
+tags: Haskell, error-messages, maintainability, patterns-of-erroneous-code
 ---
 
 

@@ -3,22 +3,12 @@ title: About
 ---
 
 
-**Infrequent:** I do not blog much.  Besides, there are many excellent functional programming blogs already. I will commit a post if something really bugs me or I feel very passionate about a topic that is not otherwise covered by people smarted than me  
+**Infrequent:** I do not blog much.  Besides, there are many excellent functional programming blogs already. I will commit a post if something really bugs me or I feel very passionate about a topic that is not otherwise covered by people smarted than me.  
 It will be about programming, most likely functional programming.  
 
-**Pragmatic:**  My interests are in software [maintainability](/tags/maintainability.html) and [correctness](/tags/correctness.html).  These can easily get very theoretical but the underlying pragmatic benefits and challenges is what interests me.
+**Pragmatic:**  My pet peeve is identifying specific [patterns of erroneous code](/tags/patterns-of-erroneous-code.html) and what could be causing them, there are technical and human factors underlying these patterns.  In particular I like to think about how certain abstractions could promote erroneous code. 
 
-``` haskell
-blog = do 
-    liftIO $ threadDelay veryLongTime1
-    ideas <- ask @PriorityQueue
-    a <- peek @Annoyance ideas
-    liftIO $ threadDelay veryLongTime2
-    file <- writeBlog a 
-    liftIO $ threadDelay sleepOnIt 
-    publish file
-    blog
-```
+
 
 **Links:**
 
@@ -26,7 +16,7 @@ blog = do
 *  This blog [_add_blank_target source code](https://github.com/rpeszek/my-blogs)
 *  My old blog [_add_blank_target Opinions and Programming](http://rpeszek.blogspot.com/)
 
-**About me:**  I work for Juris-Futura, Holland and Hart Innovation Lab as a Haskell Developer (hooray!) on a quite large Haskell code base that deals with lots of unstructured data.  
+**About me:**  I work for Juris-Futura, Holland and Hart Innovation Lab as a Haskell Developer (hooray!) on a quite large Haskell code base.  
 I have a long history of mainstream programming work, mostly using Java and friends (Groovy, JS, C#, ...).  
 My pet projects use Haskell and friends (Idris, Purescript, Elm, Scalaz, ...).  
 Before becoming a developer, I have done research work in mathematics in areas related to nonlinear analysis.  

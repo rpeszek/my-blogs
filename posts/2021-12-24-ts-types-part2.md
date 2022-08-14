@@ -8,7 +8,7 @@ changelog: <ul>
     <li> (2022.04.29 - 2022.05.29) Minor edits </li>
     <li> (2022.05.29) Draft warning removed </li>
      </ul>
-tags: TypeScript-Notes
+tags: TypeScript-Notes, patterns-of-erroneous-code
 codestyle: ts
 ---
 

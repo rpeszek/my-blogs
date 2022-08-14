@@ -4,7 +4,7 @@ lastmodified: Aug 20, 2022
 featured: true
 summary:  Easy to implement is not the same as simple to understand. Programming wants to be empirical it needs to be more deductive. 
 toc: true
-tags: maintainability
+tags: maintainability, patterns-of-erroneous-code
 ---
 
 
@@ -22,12 +22,11 @@ I had quite a few eye opening moments when thinking about these topics.
 This is the main reason I decided to write and share my thoughts.
 This post will be a high level rant discussing programming across the industry spectrum from JavaScript to Haskell. 
 
-We will also talk a little about stress, negativity, and other impacts of professional programming on our mental state.   
-
+My pet peeve is identifying specific [patterns of erroneous code](/tags/patterns-of-erroneous-code.html) code and what could be causing them, there is obviously a human factor underlying these patterns.   
 Mental processes involved in writing code are such a fascinating and broad subject. 
 I am taking only a very narrow path trough it.   
-I am planning another high level post to discuss programming from a different but relevant angle.  
-It will be about empirical and deductive approach to coding. 
+I am planning another high level post to discuss programming from a different but relevant angle: 
+It will be about empirical and deductive approach to coding.   
 I believe these 2 approaches come with different mindsets and impact our cognitive loads in interesting ways. 
 
 I am not a psychologist, these are observations of a coder.
@@ -228,6 +227,9 @@ _side_note_end
 
 Let's define a bug as an unintended program defect, that removes all the temporary hacks and "bugs that are features" from consideration.  But it is the programmer's job to figure these things out. A bug implies some issue in the programmer mental process. 
 
+Types are relevant here.  Programmers who start using a PL with powerful strict types (like Idris or even Haskell) 
+experience this first hand: lots of compilation errors 9 out of 10 uncovering an issue in the program. 
+
 I consider cognitive overload to be the main cause of bugs. 
 Thus, and if you agree, we should look for ways to reduce that load. Cognitive psychology advice is to reduce cognitive load by redirecting extraneous load towards germane load.  That would suggest using more abstractions, maybe using types more... 
 
@@ -271,7 +273,7 @@ This to me is a good example of extraneous complexity allowed by the compiler.  
 Here is a relevant discussion on reddit [NoRecursiveLet](https://www.reddit.com/r/haskell/comments/lxnbrl/ghc_proposal_norecursivelet_prevent_accidental/).
 Thinking about reducing extraneous load could impact such discussion (in this case, by supporting the proposal). 
 
-My second point is the recurring one, abstractions can play a big role in reducing bugs.  
+My second point is the recurring one, types and abstractions can play a big role in reducing bugs.  
 Hopefully abstractions themselves are bug free!  
 
 
@@ -365,11 +367,13 @@ Mathematics rarely concerns itself with error messages, falsehood is falsehood. 
 _side_note_start
 Side note:  Probably not surprisingly, these were rather negatively received, heavily down-voted posts. 
 The topic itself is very much a _repetitive negative thinking_. 
-Incidentally, the negative comments mostly belonged in the general “what you are describing is just bad code, whoever wrote it should have been more careful" category.  Psychology studies patterns of human behavior, my interest is in how code abstractions facilitate erroneous patterns in code, my interest is in what makes people not careful.     
+Incidentally, the negative comments mostly belonged in the general “what you are describing is just bad code, whoever wrote it should have been more careful" category.  My interest is in how code abstractions could promote erroneous patterns in code, my interest is in what makes people not careful.     
 _side_note_end
 
 One simple to explain and not very abstract example that still fits into this section is the `guard`[^guard] combinator in Haskell. 
-I see it used and I also scratch my head when, say, a JSON parser error says only `"mempty"`.    
+I see it used and I also scratch my head when, say, a JSON parser error says only `"mempty"`.   
+Possibly, some programmers think in that more general abstraction called `Alternative` when they should be thinking
+in something like `MonadFail` which allows to specify error message.
 Some of us really dig abstractions and are arguably very good at them.  I consider myself in that group. 
 But we are kidding ourselves if we do not acknowledge that abstractions can also blind us. 
 IMO the one thing we can do about it is to be aware.  More diligence + awareness is typically all it takes.
@@ -431,7 +435,7 @@ newtype Fix f a = MkFix (f (Fix f a))
 Or, what does _free_ mean, and can other things than monads be _free_?  Can `Free`-s with different `f`-s be combined?  If so are there easier and harder ways of combining them.  What is _freer_? 
 Also, how do I use it?  What are the available libraries (there were not that many back then)?  How to I use it DIY style?   
 
-Effect systems are a very powerful programming tool, they can add a lot of structure and cognitive simplicity[^effect] to the code.  I use 2 of them at work, one of them we maintain. 
+Effect systems (the main application of `Free`) are a very powerful programming tool, they can add a lot of structure and cognitive simplicity[^effect] to the code.  I use 2 of them at work, one of them we maintain. 
 Effect systems allow to organize code into DSLs and interpreters.  This approach creates very high level of code reuse, testability, defines very explicit, self-documenting types. 
 But, is it realistic to learn the concepts in a day or a week when starting a new project?  Imagine a programmer who uses Java for work exploring this knowledge.   
 

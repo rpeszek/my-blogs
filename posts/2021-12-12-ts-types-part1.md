@@ -10,7 +10,7 @@ changelog: <ul>
     <li> (2022.05.29) Draft warning removed </li>
      </ul>
 toc: true
-tags: TypeScript-Notes
+tags: TypeScript-Notes, patterns-of-erroneous-code
 codestyle: ts
 ---
 
