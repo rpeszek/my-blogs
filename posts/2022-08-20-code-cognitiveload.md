@@ -120,7 +120,7 @@ I could argue that the overall complexity of many _yaml_ files outweighs the cos
 
 _side_note_start
 **In real life,** _Dhall_ remains a niche approach, k8s configuration predominantly uses _YAML_. 
-There could be many considerations at play here. E.g. IAC configuration needs to be accessible to all developers in the team _today_.  People have preferences on want they want to learn.  Some developer prefer to avoid a layer of indirection, if _YAML_ or _JS_ is used in deployment this is what they want to write. 
+There could be many considerations at play here. E.g. IAC configuration needs to be accessible to all developers in the team _today_.  People have preferences on want they want to learn.  Some developer prefer to avoid a layer of indirection, if _YAML_ or _JS_ is used this is what they want to write. 
 There are many angles on this and I am not going to even try to explore them.  
 However, looking at just cognitive loads suggests giving _Dhall_ a consideration.   
 This post main focus is the cognitive load and this example is here to demonstrate that there is more at play. 
@@ -215,7 +215,7 @@ the new code has 4 simple ingredients: immutability, [referential transparency](
 > &emsp; *IMO, high quality code shifts cognitive load from maintainer to implementer*   
 
 This works great even if both are the same person.  My story about JS application rewrite shows that this is possible.  
-The biggest prerequisite for the implementer was knowing what to avoid.
+In this case, the biggest prerequisite for the implementer was knowledge about what to avoid.
 
 
 _side_note_start
@@ -230,7 +230,7 @@ _side_note_end
 Let's define a bug as an unintended program defect, that removes all the temporary hacks and "bugs that are features" from consideration.  But it is the programmer's job to figure these things out. A bug implies some issue in the programmer mental process. 
 
 Types are relevant here.  Programmers who start using a PL with powerful strict types (like Idris or even Haskell) 
-experience this first hand: lots of compilation errors and 9 out of 10 uncover an issue in the program. 
+experience this first hand: lots of compilation errors, many uncovering an issue in the program. 
 
 I consider cognitive overload to be the main cause of bugs. 
 Thus, and if you agree, we should look for ways to reduce that load. Cognitive psychology advice is to reduce cognitive load by redirecting extraneous load towards germane load.  That would suggest using more types and abstractions, moving towards higher level concepts. 
@@ -279,7 +279,7 @@ My second point is the recurring one, types and abstractions can play a big role
 Hopefully abstractions themselves are bug free!  
 
 
-## Extraneous loads of abstraction
+## Extraneous load of abstraction
 
 Summary of previous episodes:  Our cognitive load is limited but we are capable of abstract reasoning. Abstractions seem like our best hope in reducing the overall code complexity. But ...there are a few caveats.  
 
@@ -299,7 +299,6 @@ Equality is an example of an abstraction developers implement and use, but not t
 However, the list of surprising behaviors like these is quite long affecting all kinds of abstractions. 
 Gochas create chaos in the cognitive process. 
 For abstractions to work as a cognitive load reducer, they need to be treated seriously.   
-Some developers are good at identifying gotchas.  I will note a possible relationship to _repetitive negative thinking_.
 
 Developers I talked to often responded to such examples by saying something like: "This is just bad code, whoever implemented it should have been more careful". 
 Except, I can point to examples in standard libraries of popular mainstream PLs or popular frameworks[^gotchas1].
@@ -339,30 +338,33 @@ E.g. here are some gotchas in [TS](2021-12-12-ts-types-part1.html#compilation-bl
 
 [^rust]: "even compiler writers mess it up all the time" is a quote from ([Rust Subtyping Documentation](https://doc.rust-lang.org/nomicon/subtyping.html)) 
 
-The concept of exception (i.e. this ugly thing you `throw` and `catch`) is another example of risky complexity that impacts even Haskell[^non-termination].    
+The concept of exception (i.e. this ugly thing you `throw` and `catch`) is another example of a risky complexity that impacts even Haskell[^non-termination].    
 Types can reduce cognitive load of understanding the code, except exceptions provide a very accessible and virally used way to bypass the types. 
 Other "bottom" types like `null` are in the same boat.   
 It is interesting to note that Java _checked exceptions_ have been vastly unpopular.  Even more interestingly, I have noticed that old Java programmers are more likely to think about exceptions than other developers, seemingly Java checked exceptions have aided some germane learning process? ... or maybe that habit comes from exposure to lots of `NullPointerException`s?
 As a side note, I really like what Rust has done in this regard, you can _panic_ but it is hard to recover if you do, otherwise errors are handled in an `Either`-like sum type called `Result`.  Hopefully we will see more of this pragmatic approach in the future PLs.
 
 Are there any "gotcha" free environments?  Haskell comes close but is not perfect[^haskell]. 
-Proof assistants like Idris come to mind, these even can verify termination.  That is kinda interesting, let's pause for a bit here.  Consider the levels of abstraction used in proof assistants. It appears that our brain needs something at the level of a dependently typed lambda calculus to work correctly[^ml]. 
+Proof assistants like Idris come to mind, these can even verify termination.  That is kinda interesting, let's pause for a bit here...  Consider the levels of abstraction used in proof assistants. It appears that our brain needs something at the level of a dependently typed lambda calculus to work correctly[^ml]. 
 That could make sense, for things to be logical you need, well you need the logic itself.      
 
 [^non-termination]: I sometimes witness a misguiding argument "It is impossible to statically reason about termination in a Turing complete PL, thus, all hope is lost", first this is inaccurate, it is possible to statically verify totality on a subset of programs, second if non-termination is like accidentally hurting your foot, then exception is like shooting yourself in the foot.  
 
 [^haskell]: Haskell dedicates a significant effort to soundness. For example, it comes with coherence features that are unique to it (see [Type Classes vs. the World](https://www.youtube.com/watch?v=hIZxTQP1ifo)). 
 Not everything is perfect however. 
-As mentioned above, Haskell allows for easy abuse error non-termination (e.g. `error`, `undefined` functions). Non-termination in itself throws a wrench, one Haskell probably should not be blamed for, see [Hask is not a category](http://math.andrej.com/2016/08/06/hask-is-not-a-category/) and 
+As mentioned above, Haskell allows for easy to abuse error non-termination (e.g. `error`, `undefined` functions). Non-termination in itself throws a wrench, one Haskell probably should not be blamed for, see [Hask is not a category](http://math.andrej.com/2016/08/06/hask-is-not-a-category/) and 
 [What Category do Haskell Types and Functions Live In](http://blog.sigfpe.com/2009/10/what-category-do-haskell-types-and.html).
 But overall Haskell language comes with much fewer surprises if compared to the mainstream.    
-Haskell ecosystem (including standard library) are more lax than the language itself.  Michael Snoyman's [Haskell Bad Parts](https://www.snoyman.com/blog/2020/10/haskell-bad-parts-1/) is a great series on this topic. 
+Haskell ecosystem (including its standard library) are more lax than the language itself.  Michael Snoyman's [Haskell Bad Parts](https://www.snoyman.com/blog/2020/10/haskell-bad-parts-1/) is a great series on this topic. 
 The most recent surprise for me is how _Aeson_ (the most popular Haskell library for dealing with JSON)
 [generic instances work](https://github.com/haskell/aeson/issues/961). 
 
 [^ml]: _Standard ML_ is known for its soundness, I do not know _ML_ family that well, but I do know it has exceptions. Possibly a more accurate point here is that we need strict formal semantics, it does not need to be dependently typed. 
 
-Gotchas seem very related to psychological concept called _omission neglect_ (loosely described by this popular phrase: _out of sight out of mind_). 
+Gotchas seem very related to psychological concept called _omission neglect_ (loosely described by this popular phrase: _out of sight out of mind_) for some developers while other developers maintain a mental 
+knowledge base of gotchas and their potential impacts.  I am in the second group.
+I will note a possible relationship to _repetitive negative thinking_.
+
 
 
 **High levels of abstraction**
@@ -374,7 +376,7 @@ Mathematics rarely concerns itself with error messages, falsehood is falsehood. 
 _side_note_start
 Side note:  Probably not surprisingly, these were rather negatively received, heavily down-voted posts. 
 The topic itself is very much a _repetitive negative thinking_. 
-Incidentally, the negative comments mostly belonged in the general “what you are describing is just bad code, whoever wrote it should have been more careful" category.  My interest is in how code abstractions could promote erroneous patterns in code, my interest is in what makes people not careful.     
+Incidentally, the negative comments mostly belonged in the general “what you are describing is just bad code, whoever wrote it should have been more careful" category.  I want to understand how code abstractions could promote erroneous code, my interest is in what makes people not careful.  
 _side_note_end
 
 One simple to explain and not very abstract example that still fits into this section is the `guard`[^guard] combinator in Haskell. 
@@ -389,10 +391,10 @@ IMO the one thing we can do about it is to be aware.  More diligence + awareness
 based on a boolean expression. It is defined using a very general concept of `Alternative` and at this level of generality specifying error message is not possible. In real life I see it used with parsers and other computations that could really use an error message.  
 
 Gotchas may look like fun but in real life are not very pleasant to be around.  
-I plan to return to these topics, especially to "gotchas" in next post as IMO developers interact with gotchas very differently.
+I plan to return to gotchas in next post as IMO developers interact with gotchas very differently.
 
 _side_note_start
-**There is a planet** (not in our galaxy) where all programming abstractions are treated with respect. Unintuitive, abstractions and incorrect implementation are removed and replaced.  The cognitive effort of programming on this planet is low.  &#127776;
+**There is a planet** (not in our galaxy) where all programming abstractions are treated with respect. Unsound abstractions and incorrect implementation are removed and replaced.  The cognitive effort of programming on this planet is low.  &#127776;
 _side_note_end
 
 ## Germane cost of FP
