@@ -190,7 +190,7 @@ Mutating state is well known to be a terrible way to accomplish communication be
 My career worst in the mutation department was a Java Struts 1 code where a class had over 200 of mutating instance variables[^inheritance].  Changing order of 2 lines in this code was almost guaranteed to create a (typically intermittent) bug, it was hard to even make sure that variables were set before they were read.     
 This code used no advanced concepts, all ingredients were simple: control statements, instance variables, lots of protected methods with typically no arguments and void returns that read and set the instance variables.  I consider it one of the most complex programs I worked with in my 27 years of professional programming.  
 This code become infamous for is complexity very fast.  Interestingly, Struts were blamed, not the needless overuse of mutable state.    
-Ability to program using clear inputs and outputs and immutable data requires a learning effort, I submit to you that this effort is lower than the cognitive effort of maintaining such code. Probably the _hardest_ bit is understanding which programming concepts to avoid. 
+Ability to program using clear inputs and outputs and immutable data requires a learning effort, I submit to you that this effort is lower than the cognitive effort of maintaining such code. Probably the _hardest_ bit is knowing which programming concepts to avoid. 
 
 [^msgs]:  I believe this was the original idea behind OOP
 
@@ -210,7 +210,9 @@ Many PLs provide enough support to benefit from explicit well defined types.
 In my code, type declarations often take more space than the actual programs. We are talking about progressively more prerequisites.
 
 Returning to the JS application I worked on. The final product is still close to JS (it uses TypeScript) but...
-the new code has 4 simple ingredients: immutability, [referential transparency](2022-03-13-ts-types-part6.html#referential-transparency-purity-and-explicit-types), [clear types](2022-03-13-ts-types-part6.html#about-clarity), and _async/await_ abstraction to avoid callback hell.  Not that many prerequisites to consume the new code! The code may feel weird and opinionated (e.g. React components avoid using hooks) but a little weirdness is a small price to pay if one compares it to its predecessor. 
+the new code has 4 simple ingredients: immutability, [referential transparency](2022-03-13-ts-types-part6.html#referential-transparency-purity-and-explicit-types), [clear types](2022-03-13-ts-types-part6.html#about-clarity), and _async/await_ abstraction to avoid callback hell. 
+Not that many prerequisites to consume the new code! Referential transparency is an interesting dichotomy.  Different results every time the code is run are always treated as a surprise, however developers typically do not think about these things during implementation. 
+Thus, the code may feel weird and opinionated (e.g. React components avoid using hooks) but a little weirdness is a small price to pay if anyone compares it to its predecessor. 
 
 > &emsp; *IMO, high quality code shifts cognitive load from maintainer to implementer*   
 
@@ -233,7 +235,7 @@ Types are relevant here.  Programmers who start using a PL with powerful strict 
 experience this first hand: lots of compilation errors, many uncovering an issue in the program. 
 
 I consider cognitive overload to be the main cause of bugs. 
-Thus, and if you agree, we should look for ways to reduce that load. Cognitive psychology advice is to reduce cognitive load by redirecting extraneous load towards germane load.  That would suggest using more types and abstractions, moving towards higher level concepts. 
+Thus, and if you agree, we should look for ways to reduce that load. Cognitive psychology advice is to reduce cognitive load by redirecting extraneous load towards germane load.  That would suggest using more types and abstractions, moving towards higher level concepts.  This, obviously, assumes that these high level concepts themselves are not erroneous (to be discussed in next section).  
 
 How about the typos, trivial overlooks that are sometimes so hard to spot?  That mysterious brain of ours is good at creating these. 
 A great reading on this, in the context of (non-programming) typos, is 
@@ -256,11 +258,11 @@ The bugs were only discovered during the actual implementation work ([Alan Turin
 
 The level of details I am talking about here (PL statements, lexical tokens) is often associated with 
 dynamically typed PLs and imperative or even procedural programming. This is only partially true. 
-Compilation can prevent a lot of trivial errors and hopefully the prevented list will grow, but it is far from being exhaustive.  
+Static compilation can prevent a lot of trivial errors and hopefully the prevented list will grow, but it is far from being exhaustive.  
 
 **What are my points?**  
 
-My first is that programmers should start considering cognitive aspects of programming more. 
+My first point is that programmers should start considering cognitive aspects of programming more. 
 
 What is that we do when we discover a bug?  We write a test, right?  Does that decrease the cognitive load?  Of course it does not. Tests play important role but are not a Pavlov's stick.  Instead of adding a test, I often try to rethink types to make the code simpler and safer. 
 
@@ -302,14 +304,15 @@ For abstractions to work as a cognitive load reducer, they need to be treated se
 
 Developers I talked to often responded to such examples by saying something like: "This is just bad code, whoever implemented it should have been more careful". 
 Except, I can point to examples in standard libraries of popular mainstream PLs or popular frameworks[^gotchas1].
-The issues come with no deprecation warning and, if documented, are considered a 'feature'. 
+The issues come with no deprecation warning and, if documented, are considered a 'feature'.   
 Are questions like "does a developer have a fighting chance of troubleshooting this feature?" even being asked? 
 Gotchas often become mystery bugs and are resolved using workarounds. 
 
 [^gotchas1]: Example of non-symmetric equals is `java.sql.Timestamp` used with `java.sql.Date` or `java.util.Date`, these remain used as standard JDBC mappings for DB columns, the usage will show no deprecation warning.  `[] !== []` and
 `[] != []` in JS (incidentally `[] == ""`), working in JS often feels like explosives engineering. 
 I wrote a blog series about [TypeScript Types](/tags/TypeScript-Notes.html) and ended up presenting a lot of complexities and gotchas that probably surprise any TS developer.  
-How do Hibernate users prevent this [concurrency issue](http://rpeszek.blogspot.com/2014/08/i-dont-like-hibernategrails-part-2.html)?  
+How do Hibernate users prevent this [concurrency issue](http://rpeszek.blogspot.com/2014/08/i-dont-like-hibernategrails-part-2.html)?  Java Streams have a very interesting take on referential transparency. 
+If you execute a closure twice the second call will fail. This is probably the first and only attempt at dynamically typed linear types.
 
 
 **Abstractions themselves causing issues**
@@ -338,32 +341,33 @@ E.g. here are some gotchas in [TS](2021-12-12-ts-types-part1.html#compilation-bl
 
 [^rust]: "even compiler writers mess it up all the time" is a quote from ([Rust Subtyping Documentation](https://doc.rust-lang.org/nomicon/subtyping.html)) 
 
-The concept of exception (i.e. this ugly thing you `throw` and `catch`) is another example of a risky complexity that impacts even Haskell[^non-termination].    
+The concept of exception (i.e. `throw` and `catch` game) is another example of a risky complexity that impacts even Haskell[^non-termination].    
 Types can reduce cognitive load of understanding the code, except exceptions provide a very accessible and virally used way to bypass the types. 
 Other "bottom" types like `null` are in the same boat.   
-It is interesting to note that Java _checked exceptions_ have been vastly unpopular.  Even more interestingly, I have noticed that old Java programmers are more likely to think about exceptions than other developers, seemingly Java checked exceptions have aided some germane learning process? ... or maybe that habit comes from exposure to lots of `NullPointerException`s?
-As a side note, I really like what Rust has done in this regard, you can _panic_ but it is hard to recover if you do, otherwise errors are handled in an `Either`-like sum type called `Result`.  Hopefully we will see more of this pragmatic approach in the future PLs.
+I really like what Rust has done in this regard, you can _panic_ but it is hard to recover if you do, otherwise errors are handled in an `Either`-like sum type called `Result`.  Hopefully we will see more of this pragmatic approach in future PLs.
+
+You may notice that the examples of _gotchas_ I am coming up with have something in common. These issues can be classified under: _not trustworthy types_.  Misleading types will confuse any developer, that includes developers who work in dynamically typed languages and may not think about types explicitly.
 
 Are there any "gotcha" free environments?  Haskell comes close but is not perfect[^haskell]. 
 Proof assistants like Idris come to mind, these can even verify termination.  That is kinda interesting, let's pause for a bit here...  Consider the levels of abstraction used in proof assistants. It appears that our brain needs something at the level of a dependently typed lambda calculus to work correctly[^ml]. 
 That could make sense, for things to be logical you need, well you need the logic itself.      
 
-[^non-termination]: I sometimes witness a misguiding argument "It is impossible to statically reason about termination in a Turing complete PL, thus, all hope is lost", first this is inaccurate, it is possible to statically verify totality on a subset of programs, second if non-termination is like accidentally hurting your foot, then exception is like shooting yourself in the foot.  
+[^non-termination]: I sometimes witness a misguiding argument "It is impossible to statically reason about termination in a Turing complete PL, thus, all hope is lost", first this is inaccurate, it is possible to statically verify totality on a subset of programs, second if non-termination is like accidentally hurting your foot, then exception is like shooting yourself in the foot.  Missing file should, IMO, rarely be treated as non-termination. 
 
-[^haskell]: Haskell dedicates a significant effort to soundness. For example, it comes with coherence features that are unique to it (see [Type Classes vs. the World](https://www.youtube.com/watch?v=hIZxTQP1ifo)). 
+[^haskell]: Haskell dedicates a significant effort to soundness. E.g. see [Type Classes vs. the World](https://www.youtube.com/watch?v=hIZxTQP1ifo). 
 Not everything is perfect however. 
-As mentioned above, Haskell allows for easy to abuse error non-termination (e.g. `error`, `undefined` functions). Non-termination in itself throws a wrench, one Haskell probably should not be blamed for, see [Hask is not a category](http://math.andrej.com/2016/08/06/hask-is-not-a-category/) and 
+Haskell allows for easy to abuse error non-termination (e.g. `error`, `undefined` functions), however ability to `catch` is more limited than in most PLs. Non-termination in itself throws a wrench, one Haskell should not be blamed for, see [Hask is not a category](http://math.andrej.com/2016/08/06/hask-is-not-a-category/) and 
 [What Category do Haskell Types and Functions Live In](http://blog.sigfpe.com/2009/10/what-category-do-haskell-types-and.html).
-But overall Haskell language comes with much fewer surprises if compared to the mainstream.    
+Overall Haskell language comes with much fewer surprises if compared to the mainstream.    
 Haskell ecosystem (including its standard library) are more lax than the language itself.  Michael Snoyman's [Haskell Bad Parts](https://www.snoyman.com/blog/2020/10/haskell-bad-parts-1/) is a great series on this topic. 
 The most recent surprise for me is how _Aeson_ (the most popular Haskell library for dealing with JSON)
 [generic instances work](https://github.com/haskell/aeson/issues/961). 
 
-[^ml]: _Standard ML_ is known for its soundness, I do not know _ML_ family that well, but I do know it has exceptions. Possibly a more accurate point here is that we need strict formal semantics, it does not need to be dependently typed. 
+[^ml]: _Standard ML_ is known for its soundness, I do not know _ML_ family that well, but I do know it has exceptions and `throw/catch` (in this case `raise/handle`) games. Possibly a more accurate point here is that we need strict formal semantics, it does not need to be dependently typed. 
 
-Gotchas seem very related to psychological concept called _omission neglect_ (loosely described by this popular phrase: _out of sight out of mind_) for some developers while other developers maintain a mental 
+Some developers react to gotchas with something akin to _omission neglect_ (psychological concept loosely described by this popular phrase: _out of sight out of mind_), while other developers maintain a mental 
 knowledge base of gotchas and their potential impacts.  I am in the second group.
-I will note a possible relationship to _repetitive negative thinking_.
+I will also note a possible relationship to _repetitive negative thinking_.
 
 
 
@@ -381,7 +385,7 @@ _side_note_end
 
 One simple to explain and not very abstract example that still fits into this section is the `guard`[^guard] combinator in Haskell. 
 I see it used and I also scratch my head when, say, a JSON parser error says only `"mempty"`. 
-Possibly, some programmers think about abstraction called `Alternative` when they should be thinking
+Possibly, some programmers think about the abstraction called `Alternative` when they should be thinking
 about something like `MonadFail`, an abstraction that allows to specify error messages.   
 Some of us really dig abstractions and are arguably very good at them.  I consider myself in that group. 
 But we are kidding ourselves if we do not acknowledge that abstractions can also blind us. 
@@ -394,7 +398,7 @@ Gotchas may look like fun but in real life are not very pleasant to be around.
 I plan to return to gotchas in next post as IMO developers interact with gotchas very differently.
 
 _side_note_start
-**There is a planet** (not in our galaxy) where all programming abstractions are treated with respect. Unsound abstractions and incorrect implementation are removed and replaced.  The cognitive effort of programming on this planet is low.  &#127776;
+**There is a planet** (not in our galaxy) where all programming abstractions and types are treated with respect. Unsound abstractions and incorrect implementation are removed and replaced.  The cognitive effort of programming on this planet is low.  &#127776;
 _side_note_end
 
 ## Germane cost of FP
@@ -412,7 +416,7 @@ How many programmers or how many CS college graduates, do you think, will unders
 > $a^{(b * c)} = (a ^ b) ^ c$
 
 Is understanding of pattern match and currying formulas more or less important than knowing, say, the `kubectr` command?  The answer I recommend is: both are important. 
-To finish your assignment you have to know `kubectr`, to finish it well you would benefit from knowing the principles.  
+To finish your assignment you have to know `kubectr`, to finish it well you would benefit from understanding the principles.  
 Given limited resources "have to" wins over "benefit from" every time. 
 Learning, especially learning the principles has to happen outside of the project work. 
 
@@ -422,7 +426,7 @@ skills at work. The tools we use impact our cognitive function.
 
 > &emsp; "It is not only the violin that shapes the violinist, we are all shaped by the tools we train ourselves to use, and in this respect programming languages have a devious influence: they shape our thinking habits."
 
-The quote is from [Dijkstra letter to The University of Texas](https://chrisdone.com/posts/dijkstra-haskell-java/) protesting their Haskell -> Java curriculum change.  If you into technical sports, you may have heard the term "muscle memory".  It is often harder to unlearn or adjust a body movement then learn a new one from scratch.  It is even harder to "own" the old movement and the new movement at the same time.  Psychologists also believe that unlearning is hard[^unlearning].   
+The quote is from [Dijkstra letter to The University of Texas](https://chrisdone.com/posts/dijkstra-haskell-java/) protesting their Haskell -> Java curriculum change.  If you are into technical sports, you may have heard the term "muscle memory".  It is often harder to unlearn or adjust a body movement then learn a new one from scratch.  It is even harder to "own" the old movement and the new movement at the same time.  Psychologists also believe that unlearning is hard[^unlearning].   
 The required mental shift for FP is the source of all kinds of additional problems.  It can form a communication barrier, it can divide the community and teams.  
 
 [^unlearning]: see 2.1 section in [Unlearning before creating new knowledge: A cognitive process.](https://core.ac.uk/download/pdf/77240027.pdf)
@@ -442,7 +446,7 @@ newtype Fix f a = MkFix (f (Fix f a))
 ```
 
 Or, what does _free_ mean, and can other things than monads be _free_?  Can `Free`-s with different `f`-s be combined?  If so are there easier and harder ways of combining them. What is _freer_? 
-Also, how do I use it?  What are the available libraries (there were not that many back then)?  How to I use it DIY style?  How does it relate to exceptions?   
+Also, how do I use it?  What are the available libraries (there were not that many back then)?  How to I use it DIY style?  How does it (and should it) relate to `try-catch` games?   
 Effect systems (the main application of `Free`) are a very powerful programming tool, they can add a lot of structure and cognitive simplicity[^effect] to the code.  I use 2 of them at work, one of them we maintain. 
 Effect systems allow to organize code into DSLs and interpreters.  This approach creates very high level of code reuse, testability, defines very explicit, self-documenting types. 
 But, is it realistic to learn the concepts in a day or a week when starting a new project?  Imagine a programmer who uses Java for work exploring this knowledge.   
@@ -530,7 +534,7 @@ This post took a very narrow path through the very broad subject of cognitive as
 
 My focus was coding rather than process. I did not discuss things like keeping pool requests small, git hygiene, etc. 
  
-Some PLs (Haskell is a good example of this) suffer from what some people call the _Lisp curse_.  Instead of using established libraries one-off tools are often created.  In my current work we maintain our own effect system, our own _vinyl_-like extensible types library, our own logger library and much more. It is interesting why this happens and what to do about it.  Is this a case where programmers think about abstractions more than about libraries? 
+Some PLs (Haskell is a good example of this) suffer from what some people call the _Lisp curse_.  Instead of using established libraries one-off tools are often created.  It is interesting why this happens and what to do about it.  Is this a case where programmers think about abstractions more than about libraries? 
 From the cognitive load perspective, is writing it from scratch a lower effort than learning and applying existing solutions? 
 
 Cognitive load should be viewed as a resource problem, one that does not scale very well, and one that is not well understood. 
@@ -539,13 +543,13 @@ Context switching is very expensive, the programmer inability to find contiguous
 
 Linting, formatting, aesthetics are all very interesting topics as well.  Most programmers seem to be very sensitive to how the code is presented, (e.g. would you ever use a light background in your code editor?). 
 
-Syntax vs semantics, it seems syntax has a huge role in how we digest the code. 
+Syntax vs semantics, it seems syntax has a huge cognitive role even it we may think of it as bikeshed. 
 
 Habit formation and unlearning are a big topic. 
 
 Cognitive biases in the context of coding seem like very interesting topic too. In particular _bandwagon effect_ (TypeScript is popular and hence must be very good), _framing effect_ (new cool technology), _commitment bias_ (we done it like this before), _functional fixedness_ (we do not need another PL?), _omission neglect_ (things we do not know are not important), _bikesheding_ (possibly most of this post &#128578;).
 
-One topic I do plan to discuss (in future post) is a distinction between empirical and formal mental process in programming and how it impacts cognitive loads. 
+One topic I do plan to discuss (in future post) is a distinction between empirical and formal process in programming and how it impacts cognitive loads. 
 
 This post did not run out of topics, rather I have run out of steam.  I hope, I gave you things to think about.  Thank you for reading! 
 
