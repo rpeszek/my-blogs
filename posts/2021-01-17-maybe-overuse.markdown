@@ -8,9 +8,10 @@ toc: true
 changelog: <ul> 
      <li> (2021.01.18) Added <a href="#monadfail-and-maybe">MonadFail</a> subsection to <a href="#maybe-on-hackage">Maybe on Hackage</a>
      </li> 
-     <li> (2021.02.17-now) <a href="#more-links">More Links</a> (list of related links)</li>      
+     <li> (2021.02.17-now) <a href="#more-links">More Links</a> (list of related links)</li>  
+     <li> (2022.08.30) reclassified under <a href="/tags/patterns-of-erroneous-code.html">patterns-of-erroneous-code</a> tag</li>      
      </ul>
-tags: Haskell, error-messages, maintainability, patterns-of-erroneous-code
+tags: Haskell, error-messages, patterns-of-erroneous-code
 ---
 
 

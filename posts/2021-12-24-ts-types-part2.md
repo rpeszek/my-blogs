@@ -7,6 +7,8 @@ toc: true
 changelog: <ul> 
     <li> (2022.04.29 - 2022.05.29) Minor edits </li>
     <li> (2022.05.29) Draft warning removed </li>
+    <li> (2022.08.30) added <a href="/tags/patterns-of-erroneous-code.html">patterns-of-erroneous-code</a> tag
+    </li>     
      </ul>
 tags: TypeScript-Notes, patterns-of-erroneous-code
 codestyle: ts

@@ -6,7 +6,7 @@ title: About
 **Infrequent:** I do not blog much.  Besides, there are many excellent functional programming blogs already. I will commit a post if something really bugs me or I feel very passionate about a topic that is not otherwise covered by people smarted than me.  
 It will be about programming, most likely functional programming.  
 
-**Pragmatic:**  My pet peeve is identifying specific [patterns of erroneous code](/tags/patterns-of-erroneous-code.html) and what could be causing them, there are technical and human factors underlying these patterns.  In particular I like to think about how certain abstractions could promote erroneous code. 
+**Pragmatic:**  My pet peeve is identifying [patterns of erroneous code](/tags/patterns-of-erroneous-code.html) and what could be causing them, there are technical and human factors underlying these patterns.  In particular I like to think about how certain abstractions could promote erroneous code. 
 
 
 

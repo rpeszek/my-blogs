@@ -1,10 +1,10 @@
 ---
 title:  Cognitive Loads in Programming 
-lastmodified: Aug 20, 2022
+lastmodified: Aug 30, 2022
 featured: true
 summary:  Easy to implement is not the same as simple to understand. Programming wants to be empirical it needs to be more deductive. 
 toc: true
-tags: maintainability, patterns-of-erroneous-code
+tags: patterns-of-erroneous-code
 ---
 
 
@@ -29,12 +29,13 @@ I am planning another high level post to discuss programming from a different bu
 It will be about empirical and deductive approach to coding.   
 I believe these 2 approaches come with different mindsets and impact our cognitive loads in interesting ways. 
 
+This post reflects on my personal observations accumulated over 27 years of professional programming work. 
 I am not a psychologist, these are observations of a coder.
 
 
 ## Cognitive psychology
 
-Cognitive psychology defines cognitive load as the amount of information that working memory holds at one time. 
+Cognitive load theory defines cognitive load as the amount of information that working memory holds at one time. 
 The idea is that the human brain is limited in that capacity.  Psychologist have identified the load to be about 7 "units of information". 
 If you are into certain technical sports like skiing, swimming, golf...,
 you may know first hand how hard it is to control just 2 aspects of your body movement at the same time. This space appears to be quite limited. I imagine the magic number is << 7 in programming. 
@@ -164,7 +165,7 @@ An interesting way to look at easy vs simple is to think about a creative proces
 Easy to write is clearly very different from simple to read. 
 In programming these two are bundled together, a program created by one developer needs to be consumed by another dev
 who needs to modify it or interact with it. 
-The term "readable code" comes again to mind. I consider it different form simple.  E.g. readable code does not mean no subtle bugs. Message is readable if you know what it conveys but what it conveys could be complex or even incorrect. 
+The term "readable code" comes again to mind. I consider it different form simple.  E.g. readable code does not mean no subtle bugs. Message is readable if you know what it conveys but what it conveys could be complex or even misleading. 
 
 IMO, the popularity of easy and the unpopularity of simple are a systemic problem in today’s programming and elsewhere.
 
@@ -188,8 +189,8 @@ and not the pieces themselves.
 
 Mutating state is well known to be a terrible way to accomplish communication between parts of the code. 
 My career worst in the mutation department was a Java Struts 1 code where a class had over 200 of mutating instance variables[^inheritance].  Changing order of 2 lines in this code was almost guaranteed to create a (typically intermittent) bug, it was hard to even make sure that variables were set before they were read.     
-This code used no advanced concepts, all ingredients were simple: control statements, instance variables, lots of protected methods with typically no arguments and void returns that read and set the instance variables.  I consider it one of the most complex programs I worked with in my 27 years of professional programming.  
-This code become infamous for is complexity very fast.  Interestingly, Struts were blamed, not the needless overuse of mutable state.    
+This code used no advanced concepts, all ingredients were easy: control statements, instance variables, lots of protected methods with typically no arguments and void returns that read and set the instance variables.  I consider it one of the most complex programs I worked with in my 27 years of professional programming.  
+This code become infamous for its complexity very fast.  Interestingly, Struts were blamed, not the needless overuse of mutable state.    
 Ability to program using clear inputs and outputs and immutable data requires a learning effort, I submit to you that this effort is lower than the cognitive effort of maintaining such code. Probably the _hardest_ bit is knowing which programming concepts to avoid. 
 
 [^msgs]:  I believe this was the original idea behind OOP
@@ -211,7 +212,7 @@ In my code, type declarations often take more space than the actual programs. We
 
 Returning to the JS application I worked on. The final product is still close to JS (it uses TypeScript) but...
 the new code has 4 simple ingredients: immutability, [referential transparency](2022-03-13-ts-types-part6.html#referential-transparency-purity-and-explicit-types), [clear types](2022-03-13-ts-types-part6.html#about-clarity), and _async/await_ abstraction to avoid callback hell. 
-Not that many prerequisites to consume the new code! Referential transparency is an interesting dichotomy.  Different results every time the code is run are always treated as a surprise, however developers typically do not think about these things during implementation. 
+Not that many prerequisites to consume the new code! Referential transparency is an interesting dichotomy.  Experiencing different results every time the code is executed it typically a surprise, however developers typically do not think about this during implementation. 
 Thus, the code may feel weird and opinionated (e.g. React components avoid using hooks) but a little weirdness is a small price to pay if anyone compares it to its predecessor. 
 
 > &emsp; *IMO, high quality code shifts cognitive load from maintainer to implementer*   
@@ -229,13 +230,16 @@ _side_note_end
 
 ## Bugs 
 
-Let's define a bug as an unintended program defect, that removes all the temporary hacks and "bugs that are features" from consideration.  But it is the programmer's job to figure these things out. A bug implies some issue in the programmer mental process. 
+Let's define a bug as an unintended program defect, that removes all the temporary hacks and "bugs that are features" from consideration.  But it is the programmer's job to figure these things out. A bug implies some issue in the mental process. 
 
-Types are relevant here.  Programmers who start using a PL with powerful strict types (like Idris or even Haskell) 
-experience this first hand: lots of compilation errors, many uncovering an issue in the program. 
+Types can be very helpful in bug prevention.  Programmers who start using a PL with powerful types (e.g. Idris, Haskell) experience this first hand: lots of compilation errors, many uncovering an issue in the program.   
+I started analyzing and recording all defects I encounter at work, even if it is an issue I introduced and fixed within the same commit.  My goal is to understand better what have caused and could have prevented each issue.  Almost all issue I encounter could have been prevented with better types.  However this judgment has some _hind-sight cognitive bias_ and likely is specific to my projects and PL tool capabilities. 
 
 I consider cognitive overload to be the main cause of bugs. 
-Thus, and if you agree, we should look for ways to reduce that load. Cognitive psychology advice is to reduce cognitive load by redirecting extraneous load towards germane load.  That would suggest using more types and abstractions, moving towards higher level concepts.  This, obviously, assumes that these high level concepts themselves are not erroneous (to be discussed in next section).  
+Thus, and if you agree, we should look for ways to reduce that load.   
+That load could be intrinsic (complex requirements) or extraneous (a complexity under programmer's control).
+My records suggest that more bugs fall into the second category. 
+Cognitive psychology advice is to reduce cognitive load by redirecting extraneous load towards germane load.  That would suggest using more types and abstractions, moving towards higher level concepts.  This, obviously, assumes that these high level concepts themselves are not erroneous (to be discussed in next section).  
 
 How about the typos, trivial overlooks that are sometimes so hard to spot?  That mysterious brain of ours is good at creating these. 
 A great reading on this, in the context of (non-programming) typos, is 
@@ -266,6 +270,10 @@ My first point is that programmers should start considering cognitive aspects of
 
 What is that we do when we discover a bug?  We write a test, right?  Does that decrease the cognitive load?  Of course it does not. Tests play important role but are not a Pavlov's stick.  Instead of adding a test, I often try to rethink types to make the code simpler and safer. 
 
+_Metacognition_ is an important concept in cognitive psychology. It is about knowing strengths and weaknesses in your cognitive process.  This suggests some form of bug post mortem retrospective where we analyze the cause and think how the bug could have been prevented.  My suggestion is asking these questions:
+Is the cause intrinsic or extraneous complexity?  Could this bug be prevented with better type safety? 
+Could this bug be prevented with better abstractions? 
+
 Here is an example that keeps popping in my mind when thinking about trivial errors.  I have seen many stack overlflow errors in my life, I have seen only 2 or 3 since I moved to Haskell.  They all were caused by Haskell allowing this lambda expression:
 
 ```Haskell
@@ -274,11 +282,11 @@ in blah
 ```
 
 This to me is a good example of extraneous complexity that could be prevented by the compiler.  Many PLs (e.g. anything in ML groups like OCaml, Reason will not allow such code). 
-Here is a relevant discussion on reddit [NoRecursiveLet](https://www.reddit.com/r/haskell/comments/lxnbrl/ghc_proposal_norecursivelet_prevent_accidental/).
+Here is a relevant discussion on reddit: [NoRecursiveLet](https://www.reddit.com/r/haskell/comments/lxnbrl/ghc_proposal_norecursivelet_prevent_accidental/).
 Thinking about reducing extraneous load could impact such discussion (in this case, by supporting the proposal). 
 
 My second point is the recurring one, types and abstractions can play a big role in reducing bugs.  
-Hopefully abstractions themselves are bug free!  
+Hopefully types and abstractions themselves are bug free!  
 
 
 ## Extraneous load of abstraction
@@ -323,7 +331,7 @@ Let's talk OOP a little. Pick a random OOP training. You will probably learn tha
 You will not learn if any of these less obvious are (or should be) true:  
 &emsp; function accepting a _Cat_ *is a* function accepting an _Animal_  
 &emsp; array of _Cats_ *is a*n array of _Animals_[^array]    
-&emsp; function with no parameters *is a* function with one parameter (does this even sound logical to you?)[^function].  
+&emsp; function with no parameters *is a* function with one parameter[^function].  
 You will not learn about reduced type safety that comes with widening to a superclass[^widening]. 
 I do not even want to start on subtyping gotchas of variant (union and sum) types. 
 OOP is approachable only because we hide the complex bits from the learners[^ts-variance].  
@@ -349,10 +357,10 @@ I really like what Rust has done in this regard, you can _panic_ but it is hard 
 You may notice that the examples of _gotchas_ I am coming up with have something in common. These issues can be classified under: _not trustworthy types_.  Misleading types will confuse any developer, that includes developers who work in dynamically typed languages and may not think about types explicitly.
 
 Are there any "gotcha" free environments?  Haskell comes close but is not perfect[^haskell]. 
-Proof assistants like Idris come to mind, these can even verify termination.  That is kinda interesting, let's pause for a bit here...  Consider the levels of abstraction used in proof assistants. It appears that our brain needs something at the level of a dependently typed lambda calculus to work correctly[^ml]. 
+Proof assistants like Idris come to mind, these can even verify totality.  That is kinda interesting, let's pause for a bit here...  Consider the levels of abstraction used in proof assistants. It appears that our brain needs something at the level of a dependently typed lambda calculus to work correctly[^ml]. 
 That could make sense, for things to be logical you need, well you need the logic itself.      
 
-[^non-termination]: I sometimes witness a misguiding argument "It is impossible to statically reason about termination in a Turing complete PL, thus, all hope is lost", first this is inaccurate, it is possible to statically verify totality on a subset of programs, second if non-termination is like accidentally hurting your foot, then exception is like shooting yourself in the foot.  Missing file should, IMO, rarely be treated as non-termination. 
+[^non-termination]: I sometimes see this argument "It is impossible to statically reason about termination in a Turing complete PL, thus, all hope is lost".  Firstly, this is inaccurate: it is possible to statically verify totality on a subset of programs. Secondly: if non-termination is like accidentally hurting your foot, then exception is like shooting yourself in the foot.  Missing file should, IMO, rarely be treated as non-termination. (I use the terms _total_, _terminating_ and _partial_, *non_terminating* interchangeably.)
 
 [^haskell]: Haskell dedicates a significant effort to soundness. E.g. see [Type Classes vs. the World](https://www.youtube.com/watch?v=hIZxTQP1ifo). 
 Not everything is perfect however. 
@@ -446,7 +454,7 @@ newtype Fix f a = MkFix (f (Fix f a))
 ```
 
 Or, what does _free_ mean, and can other things than monads be _free_?  Can `Free`-s with different `f`-s be combined?  If so are there easier and harder ways of combining them. What is _freer_? 
-Also, how do I use it?  What are the available libraries (there were not that many back then)?  How to I use it DIY style?  How does it (and should it) relate to `try-catch` games?   
+Also, how do I use it?  What are the available libraries (there were not that many back then)?  How to I use it DIY style?  How does it (and should it, back then I did not understood errorproness of partiality) relate to `try-catch` games?   
 Effect systems (the main application of `Free`) are a very powerful programming tool, they can add a lot of structure and cognitive simplicity[^effect] to the code.  I use 2 of them at work, one of them we maintain. 
 Effect systems allow to organize code into DSLs and interpreters.  This approach creates very high level of code reuse, testability, defines very explicit, self-documenting types. 
 But, is it realistic to learn the concepts in a day or a week when starting a new project?  Imagine a programmer who uses Java for work exploring this knowledge.   
@@ -461,13 +469,16 @@ It has to be incremental, understanding is not all or nothing game.
 Learning FP while programming in a mainstream language is super hard, however there are some steps one can take to move forward, e.g. introduce an FP-like library[^fplibrary] (e.g. Java's vavr).  With that said there is no substitute for the real thing.  
 The biggest obstacle will be getting other team members interested in the journey. 
 
-[^fplibrary]: Some care is needed in selecting the library, I have heard about people experiencing stack overflow issues, In TS/JS I had to implement my own immutable map because what came with _immutable_ library was not fast enough. 
+[^fplibrary]: Some care is needed in selecting the library, I have heard about people experiencing stack overflow issues, In my TS/JS project, I had to implement my own immutable map because one provided by _immutable.js_ caused performance issues. 
 
 There has been some discussion about making Haskell itself more accessible (e.g. [_add_blank_target Elementary Programming](https://www.michaelpj.com/blog/2021/01/02/elementary-programming.html))
 and some library effort in this direction as well (e.g. [IHP](https://github.com/digitallyinduced/ihp)).  
 Some development teams are organized by separating micro services with high level of abstraction from the rest.  
 Some places separate a possibly very advanced implementation from a simple to use API (I believe Facebook's Haxl does it). 
 Creating a progression from easy to hard is less trivial.   
+
+FP teaches respect for principles. IMO, large part of this is can be presented to learners easily.  E.g. importance of immutability, referential transparency, computations obeying laws, type clarity.  Thinking about computations as something that can be 
+understood changed my life as a programmer.
 
 _side_note_start
 **In a parallel universe** Alonso Church did not take a temporary break from lambda calculus and showed it to his student, Alan Turning.  The first computer hardware was based on SKI calculus. In that universe kids learn mathematics with proofs, imperative programming is considered a great addition after programmers learn the principles.  In that parallel universe 

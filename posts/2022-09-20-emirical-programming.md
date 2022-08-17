@@ -1,6 +1,6 @@
 ---
 title: On Empirical Nature of Coding and Why We Can't Agree 
-lastmodified: Aug 20, 2022
+lastmodified: Sep 20, 2022
 featured: true
 summary:  Easy to implement is not the same as simple to understand. Programming wants to be empirical it needs to be more deductive. 
 toc: true
@@ -108,3 +108,7 @@ that proposition,  even better if the troubled code uses parts of that syntax.
 Does that sounds more and more like functional programming?
 
 Deductive process is a cognitive ability, so is the empirical process.  It appears to me that an ability to identify gotchas is related to possessing the first one.  
+
+
+Inductive reasoning...
+Just thinking about computations as something that can be understood changed my life as a programmer.
