@@ -112,3 +112,15 @@ Deductive process is a cognitive ability, so is the empirical process.  It appea
 
 Inductive reasoning...
 Just thinking about computations as something that can be understood changed my life as a programmer.
+
+Thinking about computations as something that can be 
+understood changed my life as a programmer.
+
+
+
+Referential transparency is perfect scientific experiment,  
+Clear, predictable inputs and outputs are what is needed in empirical process. 
+
+Haskell is considered a great imperative language, FP is a great empirical method.
+
+Coping with cognitive overload is different. 

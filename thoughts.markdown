@@ -8,7 +8,7 @@ title: Semiserious
   Haskell comes close, except for its support of literal strings.  You can easily do a lot of bad with literal strings.
 
 * Java Streams have a very interesting take on referential transparency. 
-  If you execute a closure twice the second call will fail.
+  If you execute a stream twice the second attempt will fail.
 
 * Rainbow Bikeshed.  If a bikeshed had all colors, how would we discuss it?   
 
