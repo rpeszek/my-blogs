@@ -282,7 +282,7 @@ and to use a lot of type variables. [About Maintainability](#about-maintainabili
 
 ## About Simplicity
 
-I consider the terms _simple_ and _easy_ to have different meaning.  Easy: The low barrier to entry (e.g. language).
+I consider the terms _simple_ and _easy_ to have different meaning.  Easy: A low barrier to entry (e.g. language).
 Simple: Low effort to reason about (e.g. code written in that language). 
 There is no free lunch, to get simplicity you need to accept that things will not be easy.   
 Simplicity is about ability to reason about things and as such is closely related to all other bullet points in this post.   
@@ -503,7 +503,7 @@ The other issue is the correlation between interest in types with interest in ma
 Current rush towards machine learning sways the precious few mathematically inclined CS students towards well paying data science careers.   
 Yet another issue is education and how mathematics and CS are being taught. 
   
-[^weekend]: I remember Haskell firmly in the first position for the stackoverflow weekend use statistics for several years. I found this link: [_add_blank_target 2017](https://stackoverflow.blog/2017/02/07/what-programming-languages-weekends/).  These stats are hard to find but I also found this one: [_add_blank_target 2019](https://stackoverflow.blog/2019/10/28/research-update-coding-on-the-weekends/). In 2019 Rust moved ahead of Haskell.  
+[^weekend]: I remember Haskell being firmly in the first position for the stackoverflow weekend use statistics for several years. I found this link: [_add_blank_target 2017](https://stackoverflow.blog/2017/02/07/what-programming-languages-weekends/).  These stats are hard to find but I also found this one: [_add_blank_target 2019](https://stackoverflow.blog/2019/10/28/research-update-coding-on-the-weekends/). In 2019 Rust moved ahead of Haskell.  
 At the same time, the job ranking (based on the UK's [_add_blank_target IT Jobs Watch](https://www.itjobswatch.co.uk/jobs/uk/haskell.do),  I have
 not found a similar ranking for the US.)  puts Haskell at 932 as of 2022/02/06.  Haskell moved ahead of COBOL in that ranking in 2017.  
 This ranking is possibly exaggerated too,  lots of jobs list Haskell and good to have but will have you code in PHP.  This bias exist
