@@ -124,3 +124,66 @@ Clear, predictable inputs and outputs are what is needed in empirical process.
 Haskell is considered a great imperative language, FP is a great empirical method.
 
 Coping with cognitive overload is different. 
+
+There appear to be 2 distinct camps:  "this abstraction is hard to learn" camp and "that abstraction is broken" camp.  
+I see developers divided into 2 camps: "this abstraction is too complicated to use because is too theoretical"
+(the majority) camp and "this abstraction is too complicated because it lacks theoretical backing" (the minority) camp.  The first focuses on germane, the second on extraneous load.  
+
+
+There appear to be 2 critical angles with which abstractions are approached: "this abstraction is too complicated to use because is too theoretical" and "this abstraction is too complicated because it lacks theoretical backing". 
+The first focuses on germane, the second on extraneous load.    
+
+## About stress 
+
+Maintaining messy code can be stressful. Fortunately, projects like these become "infamous" very fast, and you get moral support from other team members.  That really helps. 
+My advice is: be a source of such support if your colleagues end up working in messy code.  Few words of encouragement and acknowledgment of that hardship can go a long way.  
+Also the information will slowly percolate up and the management may become more receptive to accept the cost of a big refactor or even a complete re-write. 
+
+This post has advocated for code simplicity over ease of development. Thinking that you know how to write simple code and not being allowed to do so can be very frustrating.  Sometimes there is a good reasons why the code is kept in a certain way. 
+Understanding why things are the way they are is often good enough to create acceptance and alleviate frustration.  However, examples like [How to stop functional programming](https://brianmckenna.org/blog/howtostopfp) come to mind.  The industry should try to strive a balance between accessibility and simplicity better than this.  
+With micro-services being so popular one would expect more opportunities for some divide and concur where at least some of the code strives to be hard and simple.  Whats really hard is finding a places like that.  The job market for functional programming jobs is, frankly, dismal.  At the same time, languages like Haskell and Rust top the weekend use stats based on stackoverflow surveys[^weekend].  There must be quite a few frustrated programmers out there.  I have been in that position and I know it is mentally hard. 
+
+[^weekend]: Repeating some of what I wrote [here](2022-03-13-ts-types-part6.html#about-simplicity):  Haskell was firmly in the first position for the stackoverflow weekend use statistics for several years. Here is one link: [_add_blank_target 2017](https://stackoverflow.blog/2017/02/07/what-programming-languages-weekends/).  In [_add_blank_target 2019](https://stackoverflow.blog/2019/10/28/research-update-coding-on-the-weekends/) Rust moved ahead of Haskell. 
+The job ranking (based on the UK's [_add_blank_target IT Jobs Watch](https://www.itjobswatch.co.uk/jobs/uk/haskell.do)) puts Haskell at 932 as of 2022/02/06.  Haskell moved ahead of COBOL in that ranking in 2017. 
+This ranking is possibly exaggerated too, lots of jobs list Haskell as good to have but will have you code in PHP.  This bias exist
+in any language but is stronger for something like Haskell than say COBOL. 
+
+How do you cope with problems you cannot do anything about?  You have to find some way to stay positive. 
+The big helpers are openness and empathy.   
+Openness is the key, it is helpful to share our though process and to try to learn how out teammates think. 
+We all are learning and there should be no shame in not knowing everything.  
+It is OK to say "I do not understand this", even more than that, such statement should be encouraged. 
+By saying it we do 3 things: accept our own limitations, say that we accept limitations of other team members, and move towards a more open team environment.  We also allow others to help,  helping others is a very positive and meaningful experience that, among other things, can reduce stress.
+
+
+
+## Low Code
+
+This post operated on the assumption that there is no free lunch, the cognitive load needs to be somewhere. 
+Is this a valid assumption? 
+
+What is _low code_?  At work I am working on a Haskell infrastructure that supports "low code" Python development. 
+I have been around the block for a long time and it is hard not to see _low code_ as part of a reoccurring pattern (RAD e.g. Borland C++ or Powerbuilder, frameworks like Ruby on RAILS or Grails). The industry keeps trying to simplify software development but there are takeoffs.
+_No code_ seems like the lowest possible cognitive load ever.  It might be!  Unless, of cause, it produces incorrect results or not the outcome you want.  
+
+Low code typically implies a very simplified opinionated development that tries to remove coding out of ...well coding.  
+Low-code is more "done for you" rather than "do it yourself". 
+In the extreme _no code_ case, the target user could be someone who never wrote a program before. 
+This can be great if you can live with the opinions.  But what if your needs are even slightly different that what the low-code designers have envisioned?
+
+I look at low-code/no-code as evolution of frameworks like Ruby on Rails or Grails. 
+With a framework like Grails you can interactively scaffold a simple CRUD app that is ready to use!  But what happens if your needs grow
+and the app has to become more involved.  Hey, you still have access to the generated code and can do whatever you want, you do not even need to scaffold to start.  I worked on 3 Grails projects, 2 were not a cookie cutter. These 2 were very hard to maintain.    
+How can one remove coding out of app development, yet provide ability to do arbitrary customizations?
+Arbitrary customization benefits from access to the code and from no opinions. 
+
+The other issue is that is is hard to automate a rainy day.  The designer of low code needs to be able to think about the rainy day to start with.
+Returning to my Grails experience: using Grails, for means, for example, that you need to accept a serious [concurrency issue](http://rpeszek.blogspot.com/2014/08/i-dont-like-hibernategrails-part-2.html) I mentioned above.  
+
+AI solutions look interesting in this space but have the same (and probably amplified) concerns. 
+
+The idea of distributing cognitive effort across different components is not new.  The terms "decoupling" or
+"isolation of concerns" are in this space.  Low code is an idea of a very lopsided distribution in which most of the complexity 
+falls onto the infrastructure.  
+The big question remains on what do you do if requirements change in a way not foreseen by the low-code design?  
+IMO, low-code can be an interesting choice if you can work closely with the team of devs who implemented and maintain it.  
