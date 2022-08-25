@@ -187,3 +187,6 @@ The idea of distributing cognitive effort across different components is not new
 falls onto the infrastructure.  
 The big question remains on what do you do if requirements change in a way not foreseen by the low-code design?  
 IMO, low-code can be an interesting choice if you can work closely with the team of devs who implemented and maintain it.  
+
+
+We are looking for _tried and true_ solutions. 
