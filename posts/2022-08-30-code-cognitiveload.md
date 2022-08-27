@@ -21,16 +21,30 @@ This is the main reason I decided to write and share my thoughts.
 This post will be a high level rant discussing programming across the industry spectrum from JavaScript to Haskell. 
 I will try to explain psychological terminology but this post assumes readers' (high level) familiarity with concepts of FP and OOP.
 
-My pet peeve is identifying specific [patterns of erroneous code](/tags/patterns-of-erroneous-code.html) and what could be causing them, there is obviously a human factor underlying these patterns.   
+My pet peeve is identifying specific [patterns of erroneous code](/tags/patterns-of-erroneous-code.html) and what could be causing them, there is a human factor and a technical part to these patterns.   
 Mental processes involved in writing code are such a fascinating and broad subject. 
 I am taking only a very narrow path trough it.   
 I am planning another high level post to discuss programming from a different but relevant angle,
 it will be about empirical and deductive approach to coding.   
-I believe these 2 approaches come with different mindsets and impact our cognitive loads in interesting ways. 
+I believe these 2 approaches come with different mindsets and impact our cognitive loads in interesting ways.  
+So, this post will focus on cognitive challenges caused by code.  The next post will more look at the human aspect. 
 
 This post reflects on my personal observations accumulated over 27 years of professional programming work, augmented by few years of academic teaching.   
 I am not a psychologist, these are observations of a coder.
 
+## That dreaded YAML
+
+I am perusing thousands of lines in Infrastructure as Code (IAC) yaml files. I am looking at already refactored and improved version. It is a lot of templated _YAML_ of k8s configuration at my work.  The underlying reason for the complexity is the PL itself[^yaml].  Did the refactor broke things?  Of course it did.  Complexity has consequences.   
+
+I want to contrast _YAML_ with a configuration language like [Dhall](https://dhall-lang.org/) (one of my favorites). 
+To use _Dhall_, you may need to adjust to a Haskell-like syntax, maybe learn a few new concepts (like ADTs), think about configuration that uses lambda expressions.  The return on the investment are Dhall safety features. 
+Dhall even makes the process of refactoring safe, 
+you can compare the old configuration and the new and Dhall will tell you if both are equivalent or why not. 
+
+[^yaml]: E.g. see [Every Simple Language Will Eventually End Up Turing Complete](https://solutionspace.blog/2021/12/04/every-simple-language-will-eventually-end-up-turing-complete/)
+
+
+_Dhall_ and _YAML_ come with very different cognitive challenges. 
 
 ## Cognitive psychology
 
@@ -39,21 +53,23 @@ The idea is that the human brain is limited in that capacity.  Psychologist have
 If you are into certain technical sports like skiing, swimming, golf...,
 you may know first hand how hard it is to control just 2 aspects of your body movement at the same time. This space appears to be quite limited.   
 I imagine the magic number is << 7 in programming. However, I expect it to vary between 
-individuals.   
-Notice, it would be hard to enumerate chunks involved in a classic imperative program.   
+individuals.  
 If we can load only a limited "chunks" into working memory, how big can these chunks be? 
 The answer is interesting: it seems that it does not matter![^chunking]  
-For some of us, the magic number appears to be 3 (the concept + 2 constituent chunks)[^magic3].
+In some situations, the magic number appears to be 3 (the concept + 2 constituent chunks)[^magic3].   
+Notice, it would be hard to enumerate chunks involved in a classic imperative program, but that number will be >> 7.  
 
 [^chunking]: See this wiki page: [Chunking](https://psychology.fandom.com/wiki/Chunking). 
 
 [^magic3]: Examples of concepts in programming that come with 2 chunks: assignment statement, function (input and output) function application (function and input), function composition. 
 This pattern allows for very big chunks, here are some loads with 2 big chunks I have worked a lot with in the past:
-algebraic topology, compensated compactness (using measure theory to study PDEs).  Moving closer to programming, good bigger chunk examples are: computation laws (properties), operational semantics rules, Curry-Howard correspondence.  Mathematical theorems follow this pattern (e.g. in context of programming "Simply typed lambda calculus is strongly normalizing").  It appears that we can do, indeed, great things with 2 chunks, However, I have not found much psychological research on 3 being the magic number.
+algebraic topology, compensated compactness (using measure theory to study PDEs).  Moving closer to programming, good bigger chunk examples are: computation laws (properties), operational semantics rules, Curry-Howard correspondence.  Mathematical theorems follow this pattern (e.g. in context of programming "Simply typed lambda calculus is strongly normalizing").  It appears that we can do, indeed, great things with 2 chunks, However, I have not found much psychological research on 3 being the magic number.   
+A candy: "Dhall is strongly normalizing".
 
+The idea of decomposing the program into fewer (but bigger) "chunks" that interact in a clear way has been around for as long as I can remember.  We will examine this idea in terms of _Cognitive Load Theory_.
 
-Cognitive load theory is concerned with _instructional design_ and improving how _information is presented_ to a _learner_. 
-Controlling learner's cognitive loads is an essential part of this work.   
+Cognitive Load Theory is concerned with _instructional design_ and improving how _information is presented_ to a _learner_. 
+Controlling learner's cognitive loads is an essential part of this work. 
 
 Continuous learning is a part of what programmers do, but implementing and modifying project code is by far the biggest cognitive effort that programmers face.   
 I look at this as: the code itself is a very important _instructional material_, programmers are _learners_ and _instructional designers_ at the same time.    
@@ -83,10 +99,11 @@ I need to emphasize that the _information presentation_ under consideration faci
 Knowledge of these concepts is a prerequisite.  Prerequisites are an important caveat and one that ends up being contentious.  
 
 _side_note_start
-**Time for first reality check.** Working on a project code will reinforce knowledge of the abstractions (psychologist call something similar a [worked-example effect](https://en.wikipedia.org/wiki/Worked-example_effect)) but, for a working programmer, learning programming concepts ideally needs to happen outside of project work. In reality, there is no time for this. 
-Also, abstractions that can be used in the program are limited not only by what the developer and the team know, but also by what is supported by the PL (programming language).  Developer backgrounds and 
-what is supported in an PL vary a great deal. 
+**Prerequisites:** Working on a project code will reinforce knowledge of programming concepts (psychologist call something similar a [worked-example effect](https://en.wikipedia.org/wiki/Worked-example_effect)) but, for a working programmer, learning new concepts ideally needs to happen outside of project work. In reality, there is no time for this. 
+Also, available programming concepts are limited not only by what the developer and the team know, but also by what is supported by the PL (programming language).  Developer backgrounds and 
+what is supported in a PL vary a great deal.  Thus, the list of prerequisites that can go into a programming project is limited. 
 _side_note_end
+
 
 [^denotational]: Denotational approach means mapping requirements to mathematical concepts such as Monoids, identifies categorical structures (things that compose), etc.  
 
@@ -95,11 +112,11 @@ _side_note_end
 
 This sets the stage for what I want do discuss, but before continuing let me briefly review a ***few more relevant concepts.***  
 
-_Cognitive overload_ happens when working memory is overwhelmed by the 3 cognitive loads we have described, IMO, bugs are evidence of cognitive overload in programming.   
-I want to point out, however, that psychology is not a simple arithmetic, a programmer can learn how to process large cognitive loads
-sequentially few chunks of information at the time and some programmers appear to be very good at this.  However high cognitive loads will overwhelm even the most diligent among us, There is even a trivial combinatorial complexity to this (does working memory go through a binomial number reloads?). 
+_Cognitive overload_ happens when working memory is overwhelmed by the 3 cognitive loads we have described, IMO, bugs are evidence of a cognitive overload.   
+However, psychology is not a simple arithmetic, some programmers learn how to process large cognitive loads
+sequentially a few chunks of information at the time and get good at it.  However, high cognitive loads will overwhelm even the most diligent among us, There is even a trivial combinatorial complexity to this (does working memory go through a binomial number reloads?). 
 
-I wanted to use _cognitive debt_ in the title, intending it as a pun on "technical debt", because I am interested in discussing
+I wanted to use _cognitive debt_ in the title, intending it as a pun on "technical debt" because I am interested in discussing
 negative impacts on the team's ability to understand and reason about the code. 
 However, this term turns out to have a clinical meaning and I decided against using it.   
 _Cognitive debt_ is a psychological term associated with _repetitive negative thinking (RNT)_.
@@ -112,7 +129,6 @@ I do not claim to know a lot about clinical psychology but the definition clearl
 Sadly, RNT seems to be a condition that really good programmers are likely to experience.  Good programmers think about rainy day scenarios, notice design flaws, can anticipate program issues.  My pet peeve, [patterns of erroneous code](/tags/patterns-of-erroneous-code.html), is an RNT.
 It seems important that we talk about RNT.   
 
-
 [^unhappy]: Interesting youtube: [Why Do So Many Programmers Lose Hope?](youtube.com/watch?v=NdA6aQR-s4U)
 
 You may want to think about _working memory_ and _cognitive loads_ as something akin to _RAM_ in a computer.  
@@ -123,19 +139,7 @@ What is an equivalent of the CPU cost?   In this post I use _cognitive effort_, 
 This were cliff notes written by a non expert.  There are many tricky and relevant bits like _information retrieval from long term memory_.  Things I am progressively less and less component to describe in psychological context.  
 
 
-## That dreaded YAML
 
-I am perusing thousands of lines in Infrastructure as Code (IAC) yaml files. I am looking at already refactored and improved version. It is a lot of templated _YAML_ of k8s configuration at my work.  The underlying reason for the complexity is the PL itself[^yaml].  Did the refactor broke things?  Of course it did.  Complexity has consequences.   
-
-I want to contrast _YAML_ with a configuration language like [Dhall](https://dhall-lang.org/) (one of my favorites). 
-To use _Dhall_, you may need to adjust to a Haskell-like syntax, maybe learn a few new concepts (like ADTs), think about configuration that uses lambda expressions.  The return on the investment are Dhall safety features. 
-Dhall even makes the process of refactoring safe, 
-you can compare the old configuration and the new and Dhall will tell you if both are equivalent or why not. 
-
-[^yaml]: E.g. see [Every Simple Language Will Eventually End Up Turing Complete](https://solutionspace.blog/2021/12/04/every-simple-language-will-eventually-end-up-turing-complete/)
-
-
-_Dhall_ and _YAML_ come with very different cognitive challenges. 
 
 ## Easy vs Simple 
 
@@ -192,18 +196,17 @@ The biggest contributors to the overall complexity are the interaction between t
 and not the pieces themselves.   
 
 Mutating state is known to be a terrible way to accomplish communication between the code pieces. 
-My career worst in the mutation department was a Java Struts 1 code where a class had about 200  mutating instance variables[^inheritance].  Changing order of 2 lines in this code was almost guaranteed to create an (often intermittent) bug, it was hard to even make sure that variables were set before they were read.     
+My career worst in the mutation department was a Java Struts 1 code where a class had about 200  mutating instance variables.  Changing order of 2 lines in this code was almost guaranteed to create an (often intermittent) bug, it was hard to even make sure that variables were set before they were read.     
 This code used no advanced concepts, all ingredients were easy: control statements, instance variables, lots of protected methods with typically no arguments and void returns that read and set the instance variables.  I consider it one of the most complex programs I worked with in my 27 years of professional programming.  
-This code become infamous for its complexity very fast.  Interestingly, Struts were blamed, not the needless overuse of mutable state.  This piece of code was eventually changed. If I remember correctly about 8 instance variables were kept, they were needed by Struts.    
+This code become infamous for its complexity very fast.  Interestingly, Struts were blamed, not the needless overuse of mutable state.  This piece of code was eventually changed. If I remember correctly, about 8 instance variables were kept, they were needed by Struts.    
 Ability to program using clear immutable inputs and outputs requires a learning effort, I submit to you that this prerequisite is easier than the cognitive effort of maintaining such code.    
 Let's think about such code as an instructional material.  I can attest, it was virtually impossible to even know what this code is supposed to do from looking at it.  By contrast, clear inputs and outputs are great learning objectives.  You know the app if you understand its inputs and outputs.  
 
-[^inheritance]: actually, there were 2 classes with about 100 vars each, inheritance was used. 
 
 _side_note_start
 Maintaining messy code can be stressful. Fortunately, projects like these become "infamous" very fast and you get moral support from other team members.  That really helps. 
 Be a source of such support for your teammates as well.  Few words of encouragement and acknowledgment of the hardship go a long way. 
-Also the information will slowly percolate up and the management may become more receptive to accept the cost of a big refactor or even a complete re-write.  This is what happened in my Java Struts example.
+Also, the information will slowly percolate up and the management may become more receptive to accept the cost of a big refactor or even a complete re-write.  This is what happened in my Java Struts example.
 _side_note_end
 
 Returning to the JS application rewrite. The new version is still close to JS (it uses TypeScript and vanilla React) but tries to enforce these 3 principles: [referential transparency](2022-03-13-ts-types-part6.html#referential-transparency-purity-and-explicit-types), [clear, explicit](2022-03-13-ts-types-part6.html#about-clarity) types that also [work as documentation](2021-12-24-ts-types-part2.html#types-as-documentation), and _async/await_ abstraction to avoid callback hell.   
@@ -229,14 +232,14 @@ Unfortunately, programming abstractions are nontrivial.  That makes them hard to
 Types are, obviously, an important tool in controlling cognitive load.  Types _offload_ many code verification tasks from developer. This is significant, developer can ignore a potentially high extraneous load of a program by trusting its type. 
 As I already mentioned, types are an _instructional material_, a blueprint. 
 Using type checker can, in itself, be an interactive learning process (e.g. using REPL to ask type questions about the code).  
-However, types are subject to similar limitations as abstractions: a learning curve, PL limitations, correctness issues (we call it soundness when types are involved &#128522;).  
+However, types are subject to similar limitations as abstractions: a learning curve, PL limitations, correctness issues (only, we call it soundness if types are involved).  
 
 Reducing cognitive load using abstractions and types is doable but requires navigating some tricky waters. 
 
 _side_note_start
 **In a unicorn universe,** projects are not allowed to exceed certain thresholds of cognitive load. 
 When the threshold is reached abstractions that lower the load are identified, learned, and respectfully applied. 
-If that is not possible, requirements are reexamined. 
+If that is not possible, requirements are reexamined.  Unicorn managers are automatically beatified when they die. 
 &#129412; 
 _side_note_end
 
@@ -249,12 +252,13 @@ I consider cognitive overload to be the main cause of bugs.
 _Metacognition_ is an important concept in cognitive psychology. It is about knowing strengths and weaknesses in our own cognitive process.   
 I started analyzing and recording all defects I encounter at my work.  My goal is to understand better what have caused and what could have prevented each issue.  My records suggest that bugs _uncover_ extraneous complexity.  Another words, it is a good idea to ask this question: What is the underlying complexity that caused me to create this bug? 
 The idea is to learn from bugs.       
-Types, obviously, can be very helpful in bug prevention.  Programmers who start using a PL with powerful types (e.g. Idris, Haskell) experience this first hand: a lot of compilation errors, many uncovering an issue in the program.  Notice, this is a very interactive process and an interactive learning experience in which developers can observe how and why they failed.   
+Types, obviously, can be very helpful in bug prevention.  Programmers who start using a PL with powerful types (e.g. Idris, Haskell) experience this first hand: a lot of compilation errors, many uncovering an issue in the program.  Notice, this is a very interactive process and an interactive learning experience in which developers can observe how and why they failed. Developers also observe what PL feature prevent the bug from escaping. E.g. bugs can be avoided by making computation input and output types more precise.  
 
 > &emsp; _Programming is an interactive process of finding and fixing bugs.    
   &emsp; IMO, programming **should be** an interactive process of identifying and resolving the underlying causes of bugs._
 
-“Insanity is doing the same thing over and over and expecting different results".
+“Insanity is doing the same thing over and over and expecting different results". I promise you 2 things:
+When you start analyzing bugs, you will start seeing patterns (similar to [patterns of erroneous code](/tags/patterns-of-erroneous-code.html)).  Unfortunately, you will likely have problems in communicating these patterns to developers who do not go through a similar process. 
 
 How about typos, trivial overlooks that are sometimes so hard to spot?  That mysterious brain of ours is good at creating these. 
 A great reading on this, in the context of (non-programming) typos, is 
@@ -281,7 +285,7 @@ Static compilation can prevent a lot of trivial errors and hopefully the prevent
 
 My first point is that programmers should start considering cognitive aspects of programming more. 
 
-What is that we do when we discover a bug?  We write a test, right?  Does that decrease the cognitive load?  Of course it does not. Tests play important role but are not a Pavlov's stick.  Instead of adding a test, I prefer to spend the time on some intro and retrospection, on improving the code, and future prevention. I want to learn from bugs.  _Fixing bugs is the least important part of the process._  I should also mention this, unfortunately, is a _repetitive negative thinking_ territory. 
+What is that we do when we discover a bug?  We write a test, right?  Does this reduce the cognitive load?  Of course it does not.  IMO, it is more important to spend time on some intro- and retrospection and look for ways to lower the extraneous load or build some type safety.  If that is not possible, improving test coverage becomes important.  I want to learn from bugs.  _Fixing bugs is the least important part of the process._  I should also mention that this is, unfortunately, a _repetitive negative thinking_ territory. 
 
 Here is an example that keeps popping into my mind when thinking about trivial errors.  I have seen many stack overlflow errors in my life, I have seen only 2 or 3 since I moved to Haskell but they were not easy to find. 
 They all were caused by Haskell allowing this lambda expression:
@@ -298,6 +302,9 @@ Thinking about reducing extraneous load could impact such discussion (in this ca
 My second point is the recurring one, types and abstractions can play a big role in reducing bugs.  
 Hopefully types and abstractions themselves are bug free!  
 
+_side_note_start
+**There is a alien civilization** of programmers who analyze their bugs, Alien PL designers consider these analyses to decide which features are in and which are out. Their PLs do not even have strings. 
+_side_note_end
 
 ## Extraneous nature of abstraction
 
@@ -361,7 +368,7 @@ E.g. here are some gotchas in [TS](2021-12-12-ts-types-part1.html#compilation-bl
 
 The concept of exception (i.e. `throw` and `catch` game) is another example of a risky complexity that impacts even Haskell[^non-termination].    
 Types can reduce cognitive load of understanding the code, except exceptions provide a very accessible and virally used way to bypass the types. 
-Other "bottom" types like `null` are in the same boat.   In my experience, many developers turn a blind eye on error handling in general. This seems akin to _omission neglect_ (psychological concept loosely described by this popular phrase: out of sight out of mind).   
+Other "bottom" types like `null` are in the same boat.   In my experience, many developers turn a blind eye on error handling in general. This seems akin to _omission neglect_ (psychological concept loosely described by this popular phrase: out of sight out of mind) and some _optimism bias_ (focus on sunny day scenarios only).   
 I really like what Rust has done in this regard, you can _panic_ but it is hard to recover if you do, otherwise errors are handled in an `Either`-like sum type called `Result`.   
 Hopefully we will see more of this pragmatic approach in future PLs. 
 
@@ -369,8 +376,10 @@ You may notice that the examples of _gotchas_ I am coming up with have something
 _We think in types more than we realize._ 
 
 Are there any "gotcha" free environments?  Haskell comes close but is not perfect[^haskell]. 
-Proof assistants like Idris come to mind, these can even verify totality.  That is kinda interesting, let's pause for a bit here...  Consider the levels of abstraction used in proof assistants. It appears that our brain needs something at the level of a dependently typed lambda calculus to work correctly[^ml]. 
-That could make sense, for things to be logical you need, well you need the logic itself.      
+Proof assistants like Idris come to mind, you get sound abstractions, these can even verify totality.  
+That is kinda interesting, let's pause for a bit here...  Consider the levels of abstraction used in proof assistants. It appears that our brain needs something at the level of a dependently typed lambda calculus to work correctly[^ml]. 
+That could make sense, for things to be logical you need, well you need the logic itself.  
+Proof assistants are not "gotcha" free, they have different type of gotchas[^proofassist].   
 
 [^non-termination]: I sometimes see this argument "It is impossible to statically reason about termination in a Turing complete PL, thus, all hope is lost".  Firstly, this is inaccurate: it is possible to statically verify totality on a subset of programs. Secondly: if non-termination is like accidentally hurting your foot, then exception is like shooting yourself in the foot.  Missing file should, IMO, rarely be treated as non-termination. (I use the terms _total_, _terminating_ and _partial_, *non_terminating* interchangeably.)
 
@@ -385,8 +394,17 @@ The most recent surprise for me is how _Aeson_ (the most popular Haskell library
 
 [^ml]: _Standard ML_ is known for its soundness, I do not know _ML_ family that well, but I do know it has exceptions and `throw/catch` (in this case `raise/handle`) games. Possibly a more accurate point here is that we need strict formal semantics, it does not need to be dependently typed. 
 
+[^proofassist]: TODO
 
-**High levels of abstraction an extraneous aspect**
+**Wrong abstraction for the job**
+
+Let's talk data structures a bit. The choice you make can impact extraneous complexity a great deal. An example which emphasizes this is [CRDT](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type).  
+Imagine that you are working on an app where 2 or more agents (human or not) can concurrently work on some list  and your program needs to merge their work.  Using a standard _list type_ will be a cognitive nightmare, right?
+Think about one agent (R) removing items, another agent (A) adding items. How do you know if an item was removed by (R) or (A) just added it?  So what do you do? You introduce some distributed locking mechanism. 
+Way to go sport!  Next JIRA ticket: "Deadlock issue ...". Session types here we come?   
+The choice of which data structure is used can have a big impact on extraneous complexity. 
+
+**High levels of abstraction, an extraneous aspect**
 
 I have seen very abstract code where the abstraction was like trees preventing developer from noticing a forest. 
 One source of such examples is error handling. 
@@ -398,15 +416,16 @@ The topic itself is very much a _repetitive negative thinking_.
 Incidentally, the negative comments mostly belonged in the general “what you are describing is just bad code, whoever wrote it should have been more careful" category.  I want to understand how code abstractions could promote erroneous code, my interest is in what makes people not careful.  
 _side_note_end
 
-One simple to explain and not very abstract example that still fits into this section is the `guard`[^guard] combinator in Haskell. 
+Let's focus on Haskell. One simple to explain and not very abstract example that still fits into this section is the `guard`[^guard] combinator. 
 I see it used and I also scratch my head when, say, a JSON parser error says only `"mempty"`. 
 Possibly, some programmers think about the abstraction called `Alternative` when they should be thinking
 about something like `MonadFail`, an abstraction that allows to specify error messages.   
-Abstractions seem to come with what psychologist call _commitment bias_.   
+Abstractions seem to come with what psychologist call a _commitment bias_ (hey, I am doing `MonadPlus` damn it!).   
+It is us, not the tooling, Haskell ecosystem offers a very expressive variety of abstractions. 
+E.g. consider the error handling blind spot we talked about earlier.
+You can think about `Either` as a `Bifunctor` or an `ArrowChoice` argument, what typically gets our attention is its throw and forget `Monad` semantics.    
 Some of us really dig abstractions and are arguably very good at them. 
-But we are kidding ourselves if we do not acknowledge that abstractions can also blind us. 
-There seems to be an abstraction for everything.  E.g. consider the error handling blind spot we talked about earlier.
-You can think about `Either` as a `Bifunctor`, not just as a `Monad`. 
+But we are kidding ourselves if we do not acknowledge that abstractions can also blind us.   
 IMO the one thing we can do about it is to be aware.  More diligence + awareness is typically all it takes.
 
 [^guard]: For readers not familiar with Haskell, `guard` allows to reject a computation 
@@ -417,22 +436,25 @@ Some developers react to gotchas with something akin to _omission neglect_, whil
 I will also note a possible relationship to _repetitive negative thinking_.  
 Gotchas often become mystery bugs and are resolved using workarounds.     
 
-Gotchas presented to us by language designers (thank you very much) or library implementers should technically be classified as _intrinsic_ since a common bloke like me can't do much about them other than look for a job that uses a better tooling. 
-If you look at the programming as a whole, these are extraneous loads. 
+Gotchas presented to us (thank you very much) by language designers or library implementers should technically be classified as _intrinsic_ since a common bloke like me can't do much about them other than look for a job that uses a better tooling. 
+If you look at programming as a whole, these are extraneous loads. 
 
 I plan to return to the topic of gotchas in my next post.
 
 _side_note_start
-**There is a planet** (not in our galaxy) where all programming abstractions and types are treated with respect. Unsound abstractions and incorrect implementations are removed and replaced.  The cognitive effort of programming on this planet is low.  &#127776;
+**There is a planet** where PL designers treat all programming abstractions and types with respect.
+Only sound, correctly implemented abstractions are used.  
+As result, this planet has only unpopular languages, their TIOBE index starts at number 100. &#127776;
 _side_note_end
 
 ## Germane and intrinsic load of FP
  
 I was learning FP while working as a Java / Groovy developer. 
-It took me 8 years, I estimated about 7000 hours.  This effort included Category Theory, Types (my main interest), PLT, programming in bunch of FP languages. 
+It took me 8 years, I estimated about 7000 hours.  This effort included Category Theory, Types (my main interest), PLT, programming in bunch of FP languages.  3 learning experiences stood out:
+[TAPL](https://www.goodreads.com/book/show/112252.Types_and_Programming_Languages) (~7 months), [CTFP](https://www.goodreads.com/book/show/33618151-category-theory-for-programmers) (~6 months), and [T(ype)DD in Idris](https://www.manning.com/books/type-driven-development-with-idris) (~4 months).  
 Given typical consulting rates for a senior Java dev that is close to a million dollar personal investment. And, I still had to internalize a lot of this when I started my actual Haskell job.   
 
-I probably have convinced you that either I am slow on the uptake or FP is just too hard.  My point is not that FP cannot be learned and applied incrementally, rather that there is a lot to learn and doing so within project timelines is not going to work well. 
+I probably have convinced you that either I am slow on the uptake or FP is just too hard.  My point is not that FP cannot be learned and applied incrementally, rather that there is a lot to it and trying to learn FP only as part of a project work is not going to work well.  Unfortunately, a large effort outside of project scope is incompatible with how the industry works.   
 The other point is that even though my learning effort was high, it was still lower than concurrent cognitive loads I was facing at work. Was I allowed to use what I learned, the result might had been a net decrease.  We should not think about the learning effort in isolation. 
 
 How many programmers or how many CS college graduates, do you think, will understand how the following (mid-school?) formulas apply to programming?:
@@ -491,7 +513,7 @@ You hear terms like coding principles, computation laws, computation properties,
 Looking at cognitive aspects these translate to understanding computations
 in ways that are not possible without FP.    
  
-FP a niche,  I think FP has a stable niche place in programming. 
+FP is a niche,  I think FP has a stable niche place in programming. 
 Correctness and understanding of computations are problems almost nobody in the industry cares about.
 This reminds me of a Terry Pratchett Disk World character: Esmerelda (Granny) Weatherwax 
 
@@ -501,14 +523,29 @@ Wanted means popular, needed means stable.  There always will be some need for c
 I plan to return to discussion of cognitive aspects of FP in next post. 
 
 _side_note_start
-**In a parallel universe** Alonso Church did not take a temporary break from lambda calculus and showed it to his student, Alan Turning.  The first computer hardware was based on SKI calculus. In that universe kids learn mathematics with proofs, imperative programming is considered a great addition after programmers learn the principles.  In that parallel universe 
-software has very few bugs, but there is much less of it.  &#127756;
+**In a parallel dimension** Alonso Church did not take a temporary break from lambda calculus and showed it to his student, Alan Turning.  The first computer hardware was based on SKI calculus. In that dimension kids learn mathematics with proofs, imperative programming is considered a great addition after programmers learn the principles.  In that dimension 
+software has very few bugs, however, this universe has fewer programs and even fewer programmers. &#127756;
 _side_note_end
 
+
+## My conclusions
+
+Exploring the topic of cognitive loads has changed how I think about coding.  I am now thinking about code complexity more.  I do not have any good measurements for it.  Analysis of bugs is probably the best tool.
+The amount of a tedious "did I do that right" that I go through also tells me a story.  I consider this knowledge to be more important than, say, knowing team velocity calculation.   
+Cognitive load presented by code appears to be not correlated in any way to product being successful or not. 
+It is, IMO, correlated to programmers' quality of life.  
+
+
+I like to visualize a program as a collection of large well behaving "chunks".
+
+I think programming is making a series of choices between strict and flexible.  Strict type safety can be cumbersome. If types enforce code working in a certain way, they will need refactoring when things change.  But with strict I can trust the types, that can remove a lot from consideration. 
+Flexible is not safe and needs extra effort in design and code clarity and it needs test coverage.  
 
 ## There is much more to it
 
 This post took a very narrow path through the very broad subject of cognitive aspects of programming.  
+
+Size of program files is an obvious, related topics I did not discuss.
 
 My focus was coding rather than process. I did not discuss things like cognitive loads in pool requests, cognitive considerations during sprint planning, etc. 
 
@@ -528,9 +565,9 @@ Linting, formatting, aesthetics are all very interesting cognitive load topics. 
 
 Habit formation and unlearning are a big very interesting topic. 
 
-Cognitive biases in the context of coding seem like very interesting topic too. In particular _bandwagon effect_ (TypeScript is popular and hence must be very good), _framing effect_ (new cool technology), _commitment bias_ (we done it like this before), _functional fixedness_ (we do not need another PL), _omission neglect_ (things we do not know are not important), _bikesheding_ (possibly most of this post &#128578;).
+Cognitive biases in the context of coding seem like very interesting topic too. In particular _bandwagon effect_ (TypeScript is popular and hence must be very good), _framing effect_ (new cool technology), _commitment bias_ (we done it like this before, "tried and tested"), _functional fixedness_ (we do not need another PL), _omission neglect_ (things we do not know are not important), _groupthink_ (we want to work with people who think like us), _bikesheding_ (possibly most of this post &#128578;).
 
-One topic I do plan to discuss (in future post) is a distinction between empirical and formal process in programming and how it impacts cognitive loads.  
+One topic I do plan to discuss (in future post) is a distinction between empirical and formal process in programming and how it impacts cognitive loads and acts as a divider.  
 
 Cognitive loads are related to stress, I intend to return to this topic in the future as well.
 

@@ -190,3 +190,8 @@ IMO, low-code can be an interesting choice if you can work closely with the team
 
 
 We are looking for _tried and true_ solutions. 
+
+Why Do We Like People Who Are Similar to Us?
+https://www.psychologytoday.com/us/blog/close-encounters/201812/why-do-we-people-who-are-similar-us
+
+https://news.ku.edu/2016/02/19/new-study-finds-our-desire-minded-others-hard-wired-controls-friend-and-partner
