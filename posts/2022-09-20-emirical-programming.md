@@ -195,3 +195,8 @@ Why Do We Like People Who Are Similar to Us?
 https://www.psychologytoday.com/us/blog/close-encounters/201812/why-do-we-people-who-are-similar-us
 
 https://news.ku.edu/2016/02/19/new-study-finds-our-desire-minded-others-hard-wired-controls-friend-and-partner
+
+
+Like everyone else, I like to visualize a program as a collection of large well behaving "chunks". 
+It is natural to want these "chunk" abstractions to mimic the business domain.  This has been the appeal of OOP. 
+The code we typically write is clearer if we focus on designing clean inputs and outputs.  This has been the appeal of FP. 

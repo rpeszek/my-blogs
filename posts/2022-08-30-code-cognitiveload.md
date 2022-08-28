@@ -36,10 +36,10 @@ I am not a psychologist, these are observations of a coder.
 
 I am perusing thousands of lines in Infrastructure as Code (IAC) yaml files. I am looking at already refactored and improved version. It is a lot of templated _YAML_ of k8s configuration at my work.  The underlying reason for the complexity is the PL itself[^yaml].  Did the refactor broke things?  Of course it did.  Complexity has consequences.   
 
-I want to contrast _YAML_ with a configuration language like [Dhall](https://dhall-lang.org/) (one of my favorites). 
-To use _Dhall_, you may need to adjust to a Haskell-like syntax, maybe learn a few new concepts (like ADTs), think about configuration that uses lambda expressions.  The return on the investment are Dhall safety features. 
+I want to contrast _YAML_ with a configuration language called [Dhall](https://dhall-lang.org/) (one of my favorites). 
+To use _Dhall_ you may need to adjust to a Haskell-like syntax, maybe learn a few new concepts (like ADTs), think about configuration that uses lambda expressions.  The return on the investment are Dhall safety features. 
 Dhall even makes the process of refactoring safe, 
-you can compare the old configuration and the new and Dhall will tell you if both are equivalent or why not. 
+you can compare the previous configuration against the new and Dhall will tell you if both are equivalent or why not. 
 
 [^yaml]: E.g. see [Every Simple Language Will Eventually End Up Turing Complete](https://solutionspace.blog/2021/12/04/every-simple-language-will-eventually-end-up-turing-complete/)
 
@@ -137,7 +137,6 @@ What is an equivalent of the CPU cost?   In this post I use _cognitive effort_, 
 [^effort]: See the discussion in [A Computational Analysis of Cognitive Eﬀort](https://www.researchgate.net/publication/220963754_A_Computational_Analysis_of_Cognitive_Effort). The term _cognitive cost_ is typically used to mean a negative impact on a cognitive function induced by stress and the usage is also not very consistent, I am avoiding its use.
 
 This were cliff notes written by a non expert.  There are many tricky and relevant bits like _information retrieval from long term memory_.  Things I am progressively less and less component to describe in psychological context.  
-
 
 
 
@@ -321,7 +320,7 @@ that sometimes `x =! x` and you have used an equality check to find things.
 
 I like to think about this paraphrasing Gimli: 
 
-> &emsp;  _"Abstractions are upon you, whether you would risk them or not."_ 
+> &emsp;  _"Computation Laws are upon you, whether you would risk them or not."_ 
 
 Equality is an example of an abstraction developers implement and use, but not think much about.
 However, the list of surprising behaviors like these is quite long affecting all kinds of abstractions. 
@@ -530,16 +529,21 @@ _side_note_end
 
 ## My conclusions
 
-Exploring the topic of cognitive loads has changed how I think about coding.  I am now thinking about code complexity more.  I do not have any good measurements for it.  Analysis of bugs is probably the best tool.
-The amount of a tedious "did I do that right" that I go through also tells me a story.  I consider this knowledge to be more important than, say, knowing team velocity calculation.   
-Cognitive load presented by code appears to be not correlated in any way to product being successful or not. 
-It is, IMO, correlated to programmers' quality of life.  
+I am sure you have noticed that I think a lot about code complexity and consider it very important.
+Yes, I do not feel comfortable working in messy code. Assessing and controlling the level of code complexity is crucial to me.  
 
+It has dawned on me that my dislike of code complexity may not be shared by others. _False consensus effect_  is assuming that everyone else thinks like me.   
+I am still certain that many programmers react negatively to code complexity, but now I think that most programmers feel at home in code with a high cognitive load.  This motivated me to work on this and the next post.  IMO it is important that we try to understand each other a little better.
+ 
 
-I like to visualize a program as a collection of large well behaving "chunks".
+Here is my high level approach to lowering cognitive load in code:  
+Haskell gives me access to implement some useful type level guarantees.  I call such code _strict_. 
+I think programming is making a series of choices between strict and flexible. 
+Strict type safety can be cumbersome, requiring type refactoring when things change.  But with strict I can trust in types and that can remove a lot from consideration.  Idiosyncratic requirement often are best encoded at type level.   
+Flexible is easy (but dangerous) to change and, thus, needs extra effort to compensate for the lack of safety and for the extra cognitive load that comes with it (e.g. design clarity, test coverage). IMO, awareness of where the extra diligence is needed is crucially important.  Writing some recursion schemes or complex Aeson instances and declaring "it compiles so it must work" is not it.    
+Abstractions and types complement each other, I prefer to focus on selecting abstractions during initial design
+while types is something I like to tinker with all the time to make my code simpler (even if strictness may cause me to sweat a bit). 
 
-I think programming is making a series of choices between strict and flexible.  Strict type safety can be cumbersome. If types enforce code working in a certain way, they will need refactoring when things change.  But with strict I can trust the types, that can remove a lot from consideration. 
-Flexible is not safe and needs extra effort in design and code clarity and it needs test coverage.  
 
 ## There is much more to it
 
@@ -556,6 +560,7 @@ Low Code: The idea of distributing cognitive load across different components is
  
 Some PLs (Haskell is a good example of this) suffer from what some people call the _Lisp curse_.  Instead of using established libraries one-off tools are often created.  It is interesting why this happens and what to do about it.  Could love of abstractions be causing it? 
 Is writing it from scratch a lower cognitive effort than learning and applying an existing solution? 
+The end result, obviously, increases the cognitive load. 
 
 Cognitive load should be viewed as a resource problem, one that does not scale very well, and one that is not well understood. 
 Cognitive load is greatly impacted by turn over rates, switching of code ownership, and by installed processes. 
@@ -563,11 +568,11 @@ Context switching is very expensive, the programmer inability to find contiguous
 
 Linting, formatting, aesthetics are all very interesting cognitive load topics.  Most programmers seem to be very sensitive to how the code is presented, (e.g. would you ever use a light background in your code editor?). Similarly, syntax vs semantics, it seems syntax has a huge cognitive role even it we think about it as bikeshed. 
 
-Habit formation and unlearning are a big very interesting topic. 
+Habit formation and unlearning are a big and very interesting topic. 
 
-Cognitive biases in the context of coding seem like very interesting topic too. In particular _bandwagon effect_ (TypeScript is popular and hence must be very good), _framing effect_ (new cool technology), _commitment bias_ (we done it like this before, "tried and tested"), _functional fixedness_ (we do not need another PL), _omission neglect_ (things we do not know are not important), _groupthink_ (we want to work with people who think like us), _bikesheding_ (possibly most of this post &#128578;).
+Cognitive biases in the context of coding seem like very interesting topic too. In particular _bandwagon effect_ (TypeScript is popular and hence must be very good), _framing effect_ (new cool technology), _commitment bias_ (we done it like this before, it has been tried and tested), _functional fixedness_ (we do not need another PL), _omission neglect_ (things we do not know are not important), _groupthink_ (we want to work with people who think like us), _bikesheding_ (possibly most of this post &#128578;).
 
-One topic I do plan to discuss (in future post) is a distinction between empirical and formal process in programming and how it impacts cognitive loads and acts as a divider.  
+One topic I do plan to discuss (in the next post) is a distinction between empirical and formal process in programming and how it impacts cognitive loads and acts as a divider.  
 
 Cognitive loads are related to stress, I intend to return to this topic in the future as well.
 
