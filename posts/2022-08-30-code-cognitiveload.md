@@ -281,7 +281,7 @@ The bugs were only discovered during the actual implementation work (see [_add_b
 
 Static compilation can prevent a lot of trivial errors and hopefully the prevented list will grow, but that list is not exhaustive.  
 
-**Summary**  
+**Section Summary**  
 
 My first point is that programmers should start considering cognitive aspects of programming more. 
 
@@ -433,7 +433,7 @@ IMO the one thing we can do about it is to be aware.  More diligence + awareness
 [^guard]: For readers not familiar with Haskell, `guard` allows to reject a computation 
 based on a boolean expression. It is defined using a very general concept of `Alternative` and at this level of generality specifying an error message is not possible. In real life I see it used with parsers and other computations that could really use an error message.  
 
-**Summary**   
+**Section Summary**   
 Some developers react to gotchas with something akin to _omission neglect_, while other developers appear to create a mental store of gotchas and their potential impacts.  I am in the second group.   Maintaining this store is not necessarily easy.
 I will also note a possible relationship to _repetitive negative thinking_.  
     
@@ -451,23 +451,30 @@ _side_note_end
 
 ## Germane and intrinsic load of FP
  
-I was learning FP while working as a Java / Groovy developer. 
-It took me 8 years, I estimated about 7000 hours.  This effort included Category Theory, Types (my main interest), PLT, and programming in bunch of FP languages.  3 learning experiences stood out:
-[_add_blank_target TAPL](https://www.goodreads.com/book/show/112252.Types_and_Programming_Languages) (~7 months), [_add_blank_target CTFP](https://www.goodreads.com/book/show/33618151-category-theory-for-programmers) (~6 months), and [_add_blank_target T(ype)DD in Idris](https://www.manning.com/books/type-driven-development-with-idris) (~4 months).  
-Given typical consulting rates for a senior Java dev that is close to a million dollar personal investment. And, I still had to internalize a lot of this when I started my actual Haskell job.   
+Functional Programming allows us to understand computations in ways that are not possible without FP. 
+Understanding is a big cognitive simplifier[^understanding]. We are more at home with things we understand than with things
+we just know.  Realizing that computations is something I can actually understand has been a game changer for me as a programmer. 
 
-I probably have convinced you that either I am slow on the uptake or FP is just too hard.  My point is not that FP cannot be learned and applied incrementally, rather that there is a lot to it and trying to learn FP only as part of a project is not going to work well.  Unfortunately, a large effort outside of a project scope is incompatible with how the industry works.   
-The other point is that even though my learning effort was high, it was still lower than the concurrent cognitive loads I was facing at work. If I was allowed to use what I learned, the result might have been a net decrease. We should not think about the learning effort in isolation. 
+[^understanding]: The terms understanding and 
+knowledge are often conflated.  The difference, however, is significant, here it is described in the context of learning math: [_add_blank_target “Understanding” Versus “Knowledge” – What’s The Difference?](https://japan-math.com/blogs/news/understanding-versus-knowledge). This has been very much my experience as a mathematics learner and educator. 
+Things become both easy and simple once you understand them. 
 
-How many programmers or CS college graduates, do you think, will understand the following (mid-school?) formulas apply to programming?:
+Consider the following (mid-school?) formulas and how they relate to programming:
 
 > $a^{(b + c)} = a ^b * a ^c$    
 > $a^{(b * c)} = (a ^ b) ^ c$
 
-Is understanding of pattern match and currying formulas more or less important than knowing, say, the `kubectl` command?  The answer I recommend is: both are important. 
-To finish your assignment you have to know `kubectl`, to finish it well you would benefit from understanding the principles.  
-Given limited resources "have to" wins over "benefit from" every time. 
-Learning the principles needs to happen outside of the project work. 
+These, pattern match and currying formulas, suggest that computations relate to other things we already know in ways that are almost surprising[^ct].   
+From the cognitive load point of view an ability to map to existing knowledge could be a big simplifying factor (a missed opportunity in how we learn programming). 
+
+[^ct]: Category Theory will never cease to surprise
+
+I was learning FP while working as a Java / Groovy developer. 
+It took me 8 years, I estimated about 7000 hours.  This effort included Category Theory, Types (my main interest), PLT, and programming in a bunch of FP languages. 
+This has been, obviously, a big personal investment. And, I still had to internalize a lot of this when I started my actual Haskell job.  
+
+[^fpeffort]: 3 learning experiences stood out:
+[_add_blank_target TAPL](https://www.goodreads.com/book/show/112252.Types_and_Programming_Languages) (~7 months), [_add_blank_target CTFP](https://www.goodreads.com/book/show/33618151-category-theory-for-programmers) (~6 months), and [_add_blank_target T(ype)DD in Idris](https://www.manning.com/books/type-driven-development-with-idris) (~4 months).
 
 There are 2 reasons why FP is hard.  One: it is simply hard (has a decent surface area but is also deep), two: it is different.  
 It requires a shift in how developers think.  This shift is especially hard if the developer can only practice imperative 
@@ -476,29 +483,34 @@ skills at work. The tools we use impact our cognitive function.
 > &emsp; "It is not only the violin that shapes the violinist, we are all shaped by the tools we train ourselves to use, and in this respect programming languages have a devious influence: they shape our thinking habits."
 
 The quote is from [_add_blank_target Dijkstra letter to The University of Texas](https://chrisdone.com/posts/dijkstra-haskell-java/) protesting their Haskell -> Java curriculum change.  If you are into technical sports, you may have heard the term "muscle memory".  It is often harder to unlearn or adjust a body movement than learn a new one from scratch.  It is even harder to "own" the old movement and the new movement at the same time.  Psychologists also believe that unlearning is hard[^unlearning].   
-The required mental shift for FP is the source of all kinds of additional problems.  It can form a communication barrier, it can divide the community and teams.  
+The required mental shift for FP is the source of all kinds of additional problems.  It can form a communication barrier, it can divide the community and teams.   
+At the same time, this cognitive shift is an opportunity to understand programs in a different way.
 
 [^unlearning]: see 2.1 section in [_add_blank_target Unlearning before creating new knowledge: A cognitive process.](https://core.ac.uk/download/pdf/77240027.pdf)
 
-Let's come back to the topic of learning FP so I can dig my hole a little deeper, here is one example. 
-There is one line of code that made a huge impact on me (it is called the _Free Monad_ and is in Haskell):
+I will dig my hole a little deeper. 
+This one line of code made a huge impact on me (it is called the _Free Monad_ and is in Haskell):
 
 ```Haskell
 data Free f a = MkFree (f (Free f a)) | Pure a 
 ```
  
-I decided to dedicate a full summer to learning this line and it ended up taking longer than that.  There is actually quite a bit to learn here!  
+I decided to dedicate a full summer to learning this line and it ended up taking longer than that.  There is actually quite a bit to learn and _understand_ here!  
 For example, how does it relate to this line (looks very similar, just replace `Free` with `Fix` and drop one constructor):
 
 ```Haskell
 newtype Fix f a = MkFix (f (Fix f a))
 ```
 
-Or, what does _free_ mean, and can other things than monads be _free_?  Can `Free`-s with different `f`-s be combined?  If so, are there easier and harder ways of combining them? What is _freer_? 
-Also, how do I use it?  What are the available libraries (there were not that many back then)?  How do I use it DIY style?  How does it (and should it) relate to `try-catch` games?   
+Or, what does _free_ mean? Can other things than monads be _free_?  Can `Free`-s with different `f`-s be combined?  If so, are there easier and harder ways of combining them? What is _freer_?  How do I program with it? 
+How does it (and should it) relate to `try-catch` games?    
+The point I am trying to make is that FP computations are a different breed. 
+They actually have properties and the learner can build an understanding of these properties.  
+Notice, the learning objectives I listed (purposefully) skipped this question: "What libraries implement and use `Free`?". 
+This objective is about _knowledge_ and I tried to focus on _understanding_.   
 Effect systems (the main application of `Free`) are a very powerful programming tool, they can add a lot of structure and cognitive simplicity[^effect] to the code.  I use 2 of them at work, one of them we maintain. 
-Effect systems allow us to organize code into DSLs and interpreters.  This approach creates a very high level of code reuse, testability, and defines very explicit, self-documenting types. 
-But, is it realistic to learn the concepts in a day or a week when starting a new project?  Imagine a programmer who uses Java at work exploring this knowledge.   
+Effect systems allow us to organize code into DSLs and interpreters.  This approach creates a very high level of code reuse, testability, and defines very explicit, self-documenting types.   
+Now, is it realistic to learn these concepts in a day or a week when starting a new project?  Imagine a programmer who uses Java at work exploring this knowledge.   
 
 [^effect]: Any extraneous cognitive loads associated with effects?  Yes, there are a few, especially on the implementation side. 
 Also like most other tools, effects can be abused. I sometimes see a single DSL instruction interpreted directly to IO (more Haskell terminology here, IO is what we call a sin-bin) and used in a brute-force IO code.  This just adds cognitive overhead of effects without taking advantage of what they have to offer. 
@@ -509,18 +521,14 @@ Some teams separate _hard_ micro services with high levels of abstraction from t
 Some places separate a possibly very advanced implementation from a simple to use API (I believe Facebook's Haxl does it). 
 Creating a progression from easy to hard is less trivial.   
 
-**Summary**   
-FP strives to improve code correctness. 
-FP teaches coding principles, computation laws, computation properties, type safety guarantees. 
-This allows us to understand computations in ways that are not possible without FP.    
- 
 FP is a niche,  I think FP has a stable niche in programming. 
-Correctness and understanding of computations are problems almost nobody in the industry cares about.
+Correctness and understanding of computations are problems almost nobody in the industry cares about but they are sometimes needed.
 This reminds me of a Terry Pratchett Diskworld character: Esmerelda (Granny) Weatherwax 
 
 >  &emsp; _"Esme Weatherwax hadn't done nice. She'd done what was needed."_
 
-Wanted means popular, needed means stable.  There always will be some need for correctness and deeper understanding.   
+Wanted means popular, needed means stable.  However, basic principles of FP will probably find a wider use (as discussed in 
+[Extraneous loads that grow](#extraneous-loads-that-grow)).   
 I plan to return to discussion of cognitive aspects of FP in my next post. 
 
 _side_note_start
@@ -529,22 +537,18 @@ software has very few bugs, however, this universe has fewer programs and even f
 _side_note_end
 
 
-## My conclusions
+## Post Summary
 
-I am sure you have noticed that I think a lot about code complexity and consider it very important.
-Yes, I do not feel comfortable working in messy code. Assessing and controlling the level of code complexity is crucial to me.  
+I am sure you have noticed that I think a lot about code complexity.
+And, yes, I do not feel comfortable working in messy code. Assessing and controlling the level of code complexity is crucial to me. 
 
 It has dawned on me that my dislike of code complexity may not be shared by others. _False consensus effect_  is assuming that everyone else thinks like me.   
-I am still certain that many programmers react negatively to code complexity, but now I think that most programmers feel at home in code with a high cognitive load.  This motivated me to work on this and the next post.  IMO it is important that we try to understand each other a little better.
+I remain convinced that some programmers react negatively to code complexity, but now I think that many programmers feel at home in code with a high cognitive load.  This motivated me to work on this and the next post.  IMO it is important that we try to understand each other a little better. 
  
-
-Focusing on Haskell, here is my high level approach to lowering cognitive load in code:  
-Haskell gives me access to implement some useful type level guarantees.  I call such code _strict_. 
-I think programming is making a series of choices between strict and flexible. 
-Strict type safety can be cumbersome, it requires types to be refactored when things change.  But with strict I can trust in types and that can remove a lot from consideration.  Idiosyncratic requirement, state machines are often best encoded at type level.     
-Flexible is easy (but dangerous) to change and, thus, needs extra effort to compensate for the lack of safety and for the extra cognitive load that comes with it (e.g. design clarity, test coverage). IMO, awareness of where the extra diligence is needed is crucially important.  Writing some recursion schemes or complex Aeson instances and declaring "it compiles so it must work" is not it.    
-Abstractions and types complement each other, I prefer to focus on selecting abstractions during initial design
-while types is something I like to tinker with all the time (even if strictness may cause me to sweat a bit). 
+Are we doing a good job in making sure that programs are not overly complex?  I think this a fair question to ask even if you think
+that simplicity is not crucially important.  This post has argued that we are mostly failing on that front.  
+In this post, we looked at how project complexity grows unnoticed, how bugs provide an unused learning opportunity for what makes us fail, and how FP can be hard to learn. As a whole this post has been a bit of _repetitive negative thinking_, but I hope you found
+some positives and useful ideas in it as well.  Sometimes taking a different point of view can expose things that can be improved and I hope this has been the case here.
 
 
 ## There is much more to it
