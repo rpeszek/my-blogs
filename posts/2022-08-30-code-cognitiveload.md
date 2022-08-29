@@ -13,7 +13,7 @@ This long post presents programming in a different light than what is commonly c
 
 We will examine cognitive effort that goes into the implementation and cognitive loads on these poor souls who need to work on that code later.  We will consider the programming language, its libraries, and implemented programs as 
 _instructional materials_.  We will view the developer as both an _instructional designer_ and a _learner_. 
-We will think about bugs as cognitive overload and a learning opportunity.  We will discuss the cognitive impact of abstractions, types, and programming principles.  
+We will think about bugs as cognitive overload and a missed learning opportunity.  We will discuss the cognitive impact of abstractions, types, and programming principles.  We will observe how considering cognitive load exposes issues that typically go unnoticed.
   
 Cognitive load of working with code is rarely considered. We ask "How long will it take?" (in fibonacci numbers, of course), we do not ask "How will it impact the overall complexity?".   
 I had quite a few eye opening moments when thinking about these topics. 
@@ -547,8 +547,8 @@ I remain convinced that some programmers react negatively to code complexity, bu
  
 Are we doing a good job in making sure that programs are not overly complex?  I think this a fair question to ask even if you think
 that simplicity is not crucially important.  This post has argued that we are mostly failing on that front.  
-In this post, we looked at how project complexity grows unnoticed, how bugs provide an unused learning opportunity for what makes us fail, and how FP can be hard to learn. As a whole this post has been a bit of _repetitive negative thinking_, but I hope you found
-some positives and useful ideas in it as well.  Sometimes taking a different point of view can expose things that can be improved and I hope this has been the case here.
+In this post, we looked at how project complexity grows unnoticed, how bugs are a missed opportunity to learn about how we fail, and how FP changes the cognitive process but can be hard to learn. As a whole this post has been a bit of _repetitive negative thinking_, but I hope you found
+some positives and useful ideas in it as well.  Taking a different point of view often exposes things that can be improved and I hope this has been the case here.
 
 
 ## There is much more to it
