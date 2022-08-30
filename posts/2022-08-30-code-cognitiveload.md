@@ -13,9 +13,9 @@ This long post presents programming in a different light than what is commonly c
 
 We will examine cognitive effort that goes into the implementation and cognitive loads on these poor souls who need to work on that code later.  We will consider the programming language, its libraries, and implemented programs as 
 _instructional materials_.  We will view the developer as both an _instructional designer_ and a _learner_. 
-We will think about bugs as cognitive overload and a missed learning opportunity.  We will discuss the cognitive impact of abstractions, types, and programming principles.  We will observe how considering cognitive load exposes issues that typically go unnoticed.
+We will think about bugs as cognitive overload and a missed learning opportunity.  We will discuss the cognitive impact of abstractions, types, and programming principles.  
   
-Cognitive load of working with code is rarely considered. We ask "How long will it take?" (in fibonacci numbers, of course), we do not ask "How will it impact the overall complexity?".   
+Cognitive load of working with code is rarely considered. We ask "How long will it take?" (in fibonacci numbers, of course), we do not ask "How will it impact the overall complexity?".  IMO, thinking about cognitive load can expose project issues that typically go unnoticed.   
 I had quite a few eye opening moments when thinking about these topics. 
 This is the main reason I decided to write and share my thoughts.
 This post will be a high level rant discussing programming across the industry spectrum from JavaScript to Haskell. 
@@ -25,16 +25,16 @@ My pet peeve is identifying specific [_add_blank_target patterns of erroneous co
 Mental processes involved in writing code are such a fascinating and broad subject. 
 I am taking only a very narrow path through it.   
 I am planning another high level post to discuss programming from a different but relevant angle,
-it will be about empirical and deductive approaches to coding.   
-I believe these 2 approaches come with different mindsets and impact our cognitive loads in interesting ways.  
-So, this post will focus on cognitive challenges caused by code.  The next post will focus on the human aspect. 
+it will be about empirical and deductive aspects of working with code. 
+I believe these 2 aspects impact our cognitive loads in interesting ways.  
+So, this post will focus on cognitive challenges caused by code.  The next post will focus more on a human aspect. 
 
 This post reflects on my personal observations accumulated over 27 years of professional programming work, augmented by a few years of academic teaching.   
 I am not a psychologist, these are observations of a coder.
 
 ## That dreaded YAML
 
-I am perusing thousands of lines in Infrastructure as Code (IAC) yaml files. I am looking at an already refactored and improved version. It is a lot of templated _YAML_ of k8s configuration at my work.  The underlying reason for the complexity is the PL itself[^yaml].  Did the refactor break things?  Of course it did.  Complexity has consequences.  We fixed all the issues with lots of trial and error.  This is how things are, there is nothing we can do about it.  There isn't?
+I am perusing thousands of lines in Infrastructure as Code (IAC) yaml files. I am looking at an already refactored and improved version. It is a lot of templated _YAML_ of k8s configuration at my work.  The underlying reason for the complexity is the PL itself[^yaml].  Did the refactor break things?  Of course it did.  Complexity has consequences.  With some effort, the issues were fixed. This is how things are, there is nothing we can do about it.  There isn't?
 
 I want to contrast _YAML_ with a configuration language called [_add_blank_target Dhall](https://dhall-lang.org/) (one of my favorites). 
 To use _Dhall_ you may need to adjust to a Haskell-like syntax, maybe learn a few new concepts (like ADTs), think about configuration that uses lambda expressions.  The return on the investment are Dhall safety features. 
@@ -178,7 +178,7 @@ The term "readable code" comes to mind. I consider it different from simple.  E.
 
 IMO, the popularity of easy and the unpopularity of simple are a systemic problem in today’s programming and elsewhere.
 
-Next section discusses examples of code which was implemented to be easy and ended up complex.
+Next section discusses examples of code which was intended to be easy and ended up complex.
 
 
 ## Extraneous loads that grow 
@@ -198,7 +198,7 @@ and not the pieces themselves.
 Mutating state is known to be a terrible way to accomplish communication between parts of code. 
 My career worst in the mutation department was a Java Struts 1 code where a class had about 200  mutating instance variables.  Changing the order of 2 lines in this code was almost guaranteed to create an (often intermittent) bug, it was hard to even make sure that variables were set before they were read.     
 This code used no advanced concepts, all ingredients were easy: control statements, instance variables, lots of protected methods with typically no arguments and void returns that read and set the instance variables.  I consider it one of the most complex programs I worked with in my 27 years of professional programming.  
-This code became infamous for its complexity very fast.  Interestingly, Struts were blamed, not the needless overuse of mutable state.  This piece of code was eventually changed. If I remember correctly, about 8 instance variables were kept, they were needed by Struts.    
+This code became infamous for its complexity very fast.  Interestingly, Struts were blamed, not the needless overuse of mutable state.  This piece of code was eventually changed. If I remember correctly, about 12 instance variables were kept, they were needed by Struts.    
 Ability to program using clear immutable inputs and outputs requires a learning effort, I submit to you that this prerequisite is easier than the cognitive effort of maintaining such code.    
 Let's think about such code as an instructional material.  I can attest, it was virtually impossible to even know what this code is supposed to do from looking at it.  By contrast, clear inputs and outputs are great learning objectives.  You know the app if you understand its inputs and outputs.  
 
@@ -224,6 +224,7 @@ Just a moment ago, I wanted you to think about your program as a collection of m
 There is just too much extraneous load at this level (I will discuss this more in [Bugs](#bugs-and-metacognition) section).  Abstractions are needed.   
 I call code without adequate abstraction a _brute force_. _Brute force code_ has many heterogeneous, idiosyncratic pieces.   
 Human cognitive load is limited but we can do abstract reasoning.  It is simpler for us to deal with a few generalized abstractions than with a multiplicity of concretes[^concrete].  And, as we know, abstractions are a better use of our working memory _chunk_ space.   
+_To clarify, in this argument applying cognitive load theory to programming does not translate to "imperative is complex", rather it translates to "too much of imperative in one place (logically coupled) is complex"._    
 Unfortunately, programming abstractions are nontrivial.  That makes them hard to learn, but what is worse is that developers and language designers sometimes (if not often) mess them up.  I will provide evidence for this in [Extraneous nature of abstraction](#extraneous-nature-of-abstraction).   
 
 [^concrete]: As a side note, concrete thinking is not always bad.  An interesting article on this in a broader context: [_add_blank_target Concrete Thinking: Building Block, Stumbling Block, or Both?](https://www.healthline.com/health/concrete-thinking).    
@@ -310,7 +311,7 @@ _side_note_end
 ## Extraneous nature of abstraction
 
 Summary of previous sections:  Our cognitive load is limited but we are capable of abstract reasoning and can work with big _chunks_ of knowledge. Abstractions seem like our best hope in reducing the overall code complexity. But ...there are a few caveats.   
-Programming abstractions are known for their germane load (for being _hard_ to learn) but not so much for their extraneous nature (for being needlessly _complex_), the second aspect is much more interesting so let's discuss it.  
+Programming abstractions are known for their germane load (for being _hard_ to learn and for being less straightforward than imperative) but not so much for their extraneous nature (for being needlessly _complex_), the second aspect is much more interesting so let's discuss it.  
 
 **Poorly implemented abstractions**
 
@@ -441,7 +442,7 @@ I will also note a possible relationship to _repetitive negative thinking_.
 Gotchas presented to us (thank you very much) by language designers or library implementers should technically be classified as _intrinsic_ since a common bloke like me can't do much about them other than look for a job that has a better tooling. 
 If you look at programming as a whole, these are extraneous loads. 
 
-I plan to return to the topic of gotchas in my next post.
+I have left the subject of abstraction vs imperative (abstractions being less straightforward and harder to map to actual execution) untouched. I plan to return to this and to the topic of gotchas in my next post.
 
 _side_note_start
 **There is a planet** where PL designers treat all programming abstractions and types with respect.
@@ -453,7 +454,7 @@ _side_note_end
  
 Functional Programming allows us to understand computations in ways that are not possible without FP. 
 Understanding is a big cognitive simplifier[^understanding]. We are more at home with things we understand than with things
-we just know.  Realizing that computations is something I can actually understand has been a game changer for me as a programmer. 
+we just know.  Realizing that computations is something I can actually study to understand has been a game changer for me as a programmer. 
 
 [^understanding]: The terms understanding and 
 knowledge are often conflated.  The difference, however, is significant, here it is described in the context of learning math: [_add_blank_target “Understanding” Versus “Knowledge” – What’s The Difference?](https://japan-math.com/blogs/news/understanding-versus-knowledge). This has been very much my experience as a mathematics learner and educator. 
@@ -465,19 +466,20 @@ Consider the following (mid-school?) formulas and how they relate to programming
 > $a^{(b * c)} = (a ^ b) ^ c$
 
 These, pattern match and currying formulas, suggest that computations relate to other things we already know in ways that are almost surprising[^ct].   
-From the cognitive load point of view an ability to map to existing knowledge could be a big simplifying factor (a missed opportunity in how we learn programming). 
+From the cognitive load theory point of view, an ability to map to existing knowledge needs to be viewed as a big plus (and a missed opportunity in how we learn programming). 
 
 [^ct]: Category Theory will never cease to surprise
 
+FP is hard and there are 2 reasons why.  One: it is simply hard (has a decent surface area but is also deep), two: it is different.  
+
 I was learning FP while working as a Java / Groovy developer. 
 It took me 8 years, I estimated about 7000 hours.  This effort included Category Theory, Types (my main interest), PLT, and programming in a bunch of FP languages. 
-This has been, obviously, a big personal investment. And, I still had to internalize a lot of this when I started my actual Haskell job.  
+This has been, obviously, a big personal investment. And, I still had to internalize a lot of this when I started my actual Haskell job.  Please do not interpret these stats as an argument that FP cannot be learned incrementally, or that learning FP does not provide immediate benefits. I am including these personal stats as evidence of an overall effort but also as evidence of the multitude of learning opportunities. We should resist thinking about knowledge as a binary checkbox. 
 
 [^fpeffort]: 3 learning experiences stood out:
 [_add_blank_target TAPL](https://www.goodreads.com/book/show/112252.Types_and_Programming_Languages) (~7 months), [_add_blank_target CTFP](https://www.goodreads.com/book/show/33618151-category-theory-for-programmers) (~6 months), and [_add_blank_target T(ype)DD in Idris](https://www.manning.com/books/type-driven-development-with-idris) (~4 months).
 
-There are 2 reasons why FP is hard.  One: it is simply hard (has a decent surface area but is also deep), two: it is different.  
-It requires a shift in how developers think.  This shift is especially hard if the developer can only practice imperative 
+FP requires a shift in how developers think.  This shift is especially hard if the developer can only practice imperative 
 skills at work. The tools we use impact our cognitive function. 
 
 > &emsp; "It is not only the violin that shapes the violinist, we are all shaped by the tools we train ourselves to use, and in this respect programming languages have a devious influence: they shape our thinking habits."
@@ -502,18 +504,18 @@ For example, how does it relate to this line (looks very similar, just replace `
 newtype Fix f a = MkFix (f (Fix f a))
 ```
 
-Or, what does _free_ mean? Can other things than monads be _free_?  Can `Free`-s with different `f`-s be combined?  If so, are there easier and harder ways of combining them? What is _freer_?  How do I program with it? 
-How does it (and should it) relate to `try-catch` games?    
+Or, how is this a monad?  Does it satisfy monad laws?  What does _free_ mean? Can other things than monads be _free_?  Can `Free`-s with different `f`-s be combined?  If so, are there easier and harder ways of combining them? What is _freer_?  How do I program with it? 
+How does it (and should it) relate to `try-catch` games? And finally, what libraries implement and use `Free`?
 The point I am trying to make is that FP computations are a different breed. 
-They actually have properties and the learner can build an understanding of these properties.  
-Notice, the learning objectives I listed (purposefully) skipped this question: "What libraries implement and use `Free`?". 
-This objective is about _knowledge_ and I tried to focus on _understanding_.   
+They actually have properties and the learner can build an understanding of these properties.    
 Effect systems (the main application of `Free`) are a very powerful programming tool, they can add a lot of structure and cognitive simplicity[^effect] to the code.  I use 2 of them at work, one of them we maintain. 
 Effect systems allow us to organize code into DSLs and interpreters.  This approach creates a very high level of code reuse, testability, and defines very explicit, self-documenting types.   
 Now, is it realistic to learn these concepts in a day or a week when starting a new project?  Imagine a programmer who uses Java at work exploring this knowledge.   
 
+
 [^effect]: Any extraneous cognitive loads associated with effects?  Yes, there are a few, especially on the implementation side. 
 Also like most other tools, effects can be abused. I sometimes see a single DSL instruction interpreted directly to IO (more Haskell terminology here, IO is what we call a sin-bin) and used in a brute-force IO code.  This just adds cognitive overhead of effects without taking advantage of what they have to offer. 
+
 
 There has been some discussion about making Haskell itself more accessible (e.g. [_add_blank_target Elementary Programming](https://www.michaelpj.com/blog/2021/01/02/elementary-programming.html))
 and some library effort in this direction as well (e.g. [_add_blank_target IHP](https://github.com/digitallyinduced/ihp)).  
@@ -579,6 +581,8 @@ Linting, formatting, aesthetics are all very interesting cognitive load topics. 
 Habit formation and unlearning are a big and very interesting topic. 
 
 Cognitive biases in the context of coding seem like very interesting topics too. In particular _bandwagon effect_ (TypeScript is popular and hence must be very good), _framing effect_ (new cool technology), _commitment bias_ (we done it like this before, it has been tried and tested), _functional fixedness_ (we do not need another PL), _omission neglect_ (things we do not know are not important), _groupthink_ (we want to work with people who think like us), _bikeshedding_ (possibly most of this post &#128578;).
+
+Cognitive aspects of troubleshooting are something I only touched on.  
 
 One topic I do plan to discuss (in the next post) is a distinction between empirical and formal processes in programming and how it impacts cognitive loads and acts as a divider.  
 
