@@ -58,7 +58,7 @@ The answer is interesting: it seems that it does not matter![^chunking]
 In some situations, the magic number appears to be 3 (the concept + 2 constituent chunks)[^magic3].   
 Notice, it would be hard to enumerate chunks involved in a classic imperative program, but that number will be >> 7.  
 
-[^chunking]: See this wiki page: [_add_blank_target Chunking](https://psychology.fandom.com/wiki/Chunking).  For me, thinking about a big chunk without a context, e.g. OOP or topology triggers some high level information plus a seemingly random example, thinking more causes my brain to wander down some path. "Tell me everything you know about ..." is not something I could do. 
+[^chunking]: See this wiki page: [_add_blank_target Chunking](https://psychology.fandom.com/wiki/Chunking).  For me, thinking about a big chunk without a context, e.g. _OOP_ or _Geometry_ triggers some high level information plus a seemingly random example, thinking more causes my brain to wander down some path. "Tell me everything you know about ..." is not something I am capable of. 
 So I do not think we load a whole huge chunk into working memory, but we can operate using chunks of seemingly unlimited size. 
 
 
@@ -183,25 +183,17 @@ Next section discusses examples of code which was intended to be easy and ended 
 
 ## Extraneous loads that grow 
 
-I was recently involved in a big rewrite of a JS application. 
-It is one of these apps that can be described as: _was easy to write, is hard to maintain or understand_. 
-I am sure very few readers will be surprised by the existence of a hard to maintain JS application, but let's put talking about this aspect aside. 
-Is writing "easy" code the same as generating excessive cognitive load for the maintainers?
-I think it typically is, it is not that hard to incrementally develop a non penetrable maze. 
-Maintaining some code structure to manage the cognitive load is not "easy". 
+What was the most complex code you've worked on?  
+My answer will be very unimpressive: I had to maintain a web page (just one page), it was implemented using Java Struts 1.  This code used no advanced concepts, all ingredients were easy: control statements, instance variables, lots of protected methods with typically no arguments and void returns that read and set the instance variables.   
+The Java class behind it had about 200 mutating instance variables.  Changing the order of 2 lines in this code was almost guaranteed to create an (often intermittent) bug, it was hard to even make sure that variables were set before they were read.  
+This code became infamous for its complexity very fast.  Interestingly, Struts were blamed, not the needless overuse of mutable state.  
+_I want you to channel your inner psychologist and answer this question: what is going to happen when a new functionality is added to a Java class with 200 instance variables?  Right, I agree,  we will have 201 instance variables._   
+This piece of code was eventually refactored. If I remember correctly, about 12 instance variables were kept, they were actually needed by Struts.   
 
-Software is made out of many interacting pieces (granularity of statements, atomic computations, even lines of code).
-This collection will not be easy to comprehend just because the pieces are easy to comprehend. 
-The biggest contributors to the overall complexity are the interaction between the pieces, organization of the pieces, 
-and not the pieces themselves.   
-
-Mutating state is known to be a terrible way to accomplish communication between parts of code. 
-My career worst in the mutation department was a Java Struts 1 code where a class had about 200  mutating instance variables.  Changing the order of 2 lines in this code was almost guaranteed to create an (often intermittent) bug, it was hard to even make sure that variables were set before they were read.     
-This code used no advanced concepts, all ingredients were easy: control statements, instance variables, lots of protected methods with typically no arguments and void returns that read and set the instance variables.  I consider it one of the most complex programs I worked with in my 27 years of professional programming.  
-This code became infamous for its complexity very fast.  Interestingly, Struts were blamed, not the needless overuse of mutable state.  This piece of code was eventually changed. If I remember correctly, about 12 instance variables were kept, they were needed by Struts.    
-Ability to program using clear immutable inputs and outputs requires a learning effort, I submit to you that this prerequisite is easier than the cognitive effort of maintaining such code.    
-Let's think about such code as an instructional material.  I can attest, it was virtually impossible to even know what this code is supposed to do from looking at it.  By contrast, clear inputs and outputs are great learning objectives.  You know the app if you understand its inputs and outputs.  
-
+This experience seems to me a good example of a big extraneous load, I had to deal with a load of 200 "chunks".    
+Let's think about such code as an instructional material.  I can attest, it was virtually impossible to even know what this code is supposed to do from looking at it.  
+Ability to program using clear inputs and outputs (rather than void methods with no input parameters) requires a learning effort, I submit to you that this prerequisite is easier than the cognitive effort of maintaining such code.  
+Thinking about this as instructional material, clear inputs and outputs are great learning objectives.  You know the app if you understand its inputs and outputs. 
 
 _side_note_start
 Maintaining messy code can be stressful. Fortunately, projects like these become "infamous" very fast and you get moral support from other team members.  That really helps. 
@@ -209,8 +201,15 @@ Be a source of such support for your teammates as well.  Few words of encouragem
 Also, the information will slowly percolate up and the management may become more receptive to accept the cost of a big refactor or even a complete rewrite.  This is what happened in my Java Struts example.
 _side_note_end
 
-Returning to the JS application rewrite. The new version is still close to JS (it uses TypeScript and vanilla React) but tries to enforce these 3 principles: [_add_blank_target referential transparency](2022-03-13-ts-types-part6.html#referential-transparency-purity-and-explicit-types), [_add_blank_target clear, explicit](2022-03-13-ts-types-part6.html#about-clarity) types that also [_add_blank_target work as documentation](2021-12-24-ts-types-part2.html#types-as-documentation), and _async/await_ abstraction to avoid callback hell.   
-Referential transparency is an interesting dichotomy.  Experiencing different results every time the code is executed typically causes surprise, however developers rarely think about this during implementation. 
+
+My second example is something that happened more recently. I worked on reimplementing a JS application. 
+It was one of these apps that can be described as: _was easy to write, is hard to maintain or understand_. 
+I am sure very few readers will be surprised by the existence of a hard to maintain JS application, but let's put talking about this aspect aside. 
+Is writing "easy" code the same as generating excessive cognitive load for the maintainers?
+I think it typically is, it is not that hard to incrementally develop a non penetrable maze. 
+Maintaining some code structure to manage the cognitive load is not "easy".   
+The new version is still close to JS (it uses TypeScript and vanilla React) but tries to enforce these 3 principles: [_add_blank_target referential transparency](2022-03-13-ts-types-part6.html#referential-transparency-purity-and-explicit-types), [_add_blank_target clear, explicit](2022-03-13-ts-types-part6.html#about-clarity) types that also [_add_blank_target work as documentation](2021-12-24-ts-types-part2.html#types-as-documentation), and _async/await_ abstraction to avoid callback hell.   
+Referential transparency is an interesting dichotomy.  Experiencing different results every time the code is executed typically causes surprise, in my experience developers rarely think about this during implementation. 
 Thus, the code may feel weird and opinionated (e.g. React components avoid using hooks) but it remains accessible.  
 
 > &emsp; *IMO, high quality code shifts cognitive load from maintainer to implementer*   
@@ -220,18 +219,16 @@ Let's consider the new JS app as an instructional material.  Referential transpa
 The biggest prerequisite for the implementers was knowledge about what to avoid. 
 
 Besides some common sense FP, what else can we do to control extraneous load? Things are about to get more tricky.  
-Just a moment ago, I wanted you to think about your program as a collection of many small pieces (e.g. statements).  This is a terrible way to comprehend a program!
-There is just too much extraneous load at this level (I will discuss this more in [Bugs](#bugs-and-metacognition) section).  Abstractions are needed.   
-I call code without adequate abstraction a _brute force_. _Brute force code_ has many heterogeneous, idiosyncratic pieces.   
-Human cognitive load is limited but we can do abstract reasoning.  It is simpler for us to deal with a few generalized abstractions than with a multiplicity of concretes[^concrete].  And, as we know, abstractions are a better use of our working memory _chunk_ space.   
-_To clarify, in this argument applying cognitive load theory to programming does not translate to "imperative is complex", rather it translates to "too much of imperative in one place (logically coupled) is complex"._    
-Unfortunately, programming abstractions are nontrivial.  That makes them hard to learn, but what is worse is that developers and language designers sometimes (if not often) mess them up.  I will provide evidence for this in [Extraneous nature of abstraction](#extraneous-nature-of-abstraction).   
+Human cognitive load is limited but we can do abstract reasoning.  It is simpler for us to deal with a few generalized abstractions than with a multiplicity of concretes[^concrete].  And, as we know, abstractions are a better use of our working memory _chunk_ space.  
+This suggests exploring the space of programming abstractions.
+Unfortunately, programming abstractions are nontrivial.  That makes them hard to learn, but what is worse is that developers and language designers sometimes (if not often) mess them up.  Instead of decreasing, this increases (or even explodes) the cognitive load.  We will explore this topic in [Extraneous nature of abstraction](#extraneous-nature-of-abstraction).   
+
 
 [^concrete]: As a side note, concrete thinking is not always bad.  An interesting article on this in a broader context: [_add_blank_target Concrete Thinking: Building Block, Stumbling Block, or Both?](https://www.healthline.com/health/concrete-thinking).    
 
 
 Types are, obviously, an important tool in controlling cognitive load.  Types _offload_ many code verification tasks from the developer. This is significant, developers can ignore a potentially high extraneous load of a program by trusting its type. 
-As I already mentioned, types are an _instructional material_, a blueprint. 
+As I already mentioned, types can be an _instructional material_, a blueprint. 
 Using a type checker can, in itself, be an interactive learning process (e.g. using REPL to ask type questions about the code).  
 However, types are subject to similar limitations as abstractions: a learning curve, PL limitations, correctness issues (only, we call it _soundness_ if types are involved).  
 
@@ -251,15 +248,15 @@ Let's define a bug as an unintended program defect. That removes all the tempora
 
 I consider cognitive overload to be the main cause of bugs. 
 _Metacognition_ is an important concept in cognitive psychology. It is about knowing strengths and weaknesses in our own cognitive process.   
-I started analyzing and recording all defects I encountered at my work.  My goal is to understand better what has caused and what could have prevented each issue.  My records suggest that bugs _uncover_ extraneous complexity.  In other words, it is a good idea to ask this question: What is the underlying complexity that caused me to create this bug? 
+I started analyzing and recording all defects I encounter at my work.  My goal is to understand better what has caused and what could have prevented each issue.  My records suggest that bugs _uncover_ extraneous complexity.  In other words, it is a good idea to ask this question: What is the underlying complexity that caused the developer to create this bug? 
 The idea is to learn from bugs.       
 Types, obviously, can be very helpful in bug prevention.  Programmers who start using a PL with powerful types (e.g. Idris, Haskell) experience this first hand: a lot of compilation errors, many uncovering an issue in the program.  Notice, this is a very interactive process and an interactive learning experience in which developers can observe how and why they failed. Developers also observe what PL features prevent the bug from escaping. 
 
 > &emsp; _Programming is an interactive process of finding and fixing bugs.    
-  &emsp; IMO, programming **should be** an interactive process of identifying and resolving the underlying causes of bugs._
+  &emsp; IMO, programming should be an interactive process of identifying and resolving the underlying causes of bugs._
 
 “Insanity is doing the same thing over and over and expecting different results". I promise you 2 things:
-When you start analyzing bugs, you will start seeing patterns (similar to [_add_blank_target patterns of erroneous code](/tags/patterns-of-erroneous-code.html)).  Unfortunately, you will likely have problems in communicating these patterns to developers who do not go through a similar process. 
+When you start analyzing bugs, you will start seeing patterns (similar to [_add_blank_target patterns of erroneous code](/tags/patterns-of-erroneous-code.html)).  Unfortunately, you will likely have problems in communicating these patterns to developers who do not go through a similar process.  I found that code review sessions work better then trying to explain this without a concrete context (oops). 
 
 How about typos, trivial overlooks that are sometimes so hard to spot?  That mysterious brain of ours is good at creating these. 
 A great reading on this, in the context of (non-programming) typos, is 
@@ -284,7 +281,7 @@ Static compilation can prevent a lot of trivial errors and hopefully the prevent
 
 **Section Summary**  
 
-My first point is that programmers should start considering cognitive aspects of programming more. 
+My first point is that programmers should start considering cognitive aspects when thinking about bugs. 
 
 What is that we do when we discover a bug?  We write a test, right?  Does this reduce the cognitive load?  Of course it does not.  IMO, it is more important to spend time on some intro- and retrospection and look for ways to lower the extraneous load or build some type safety.  If that is not possible, improving test coverage becomes important.  I want to learn from bugs.  _Fixing bugs is the least important part of the process._  I should also mention that this is, unfortunately, a _repetitive negative thinking_ territory. 
 
@@ -539,6 +536,9 @@ software has very few bugs, however, this universe has fewer programs and even f
 _side_note_end
 
 
+TODO   
+_To clarify, in this argument applying cognitive load theory to programming does not translate to "imperative is complex", rather it translates to "too much of imperative in one place (logically coupled) is complex"._ 
+
 ## Post Summary
 
 I am sure you have noticed that I think a lot about code complexity.
@@ -581,6 +581,8 @@ Linting, formatting, aesthetics are all very interesting cognitive load topics. 
 Habit formation and unlearning are a big and very interesting topic. 
 
 Cognitive biases in the context of coding seem like very interesting topics too. In particular _bandwagon effect_ (TypeScript is popular and hence must be very good), _framing effect_ (new cool technology), _commitment bias_ (we done it like this before, it has been tried and tested), _functional fixedness_ (we do not need another PL), _omission neglect_ (things we do not know are not important), _groupthink_ (we want to work with people who think like us), _bikeshedding_ (possibly most of this post &#128578;).
+
+Point-free code, I stayed away from discussing it.
 
 Cognitive aspects of troubleshooting are something I only touched on.  
 
