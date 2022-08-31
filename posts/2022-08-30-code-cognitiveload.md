@@ -184,13 +184,13 @@ Next section discusses examples of code which was intended to be easy and ended 
 ## Extraneous loads that grow 
 
 What was the most complex code you've worked on?  
-My answer will be very unimpressive: I had to maintain a web page (just one page), it was implemented using Java Struts 1.  This code used no advanced concepts, all ingredients were easy: control statements, instance variables, lots of protected methods with typically no arguments and void returns that read and set the instance variables.   
+I can think about a number of contenders, but my answer will be very unimpressive: I had to maintain a web page (just one page), it was implemented using Java Struts 1.  This code used no advanced concepts, all ingredients were easy: control statements, instance variables, lots of protected methods with typically no arguments and void returns that read and set the instance variables.   
 The Java class behind it had about 200 mutating instance variables.  Changing the order of 2 lines in this code was almost guaranteed to create an (often intermittent) bug, it was hard to even make sure that variables were set before they were read.  
 This code became infamous for its complexity very fast.  Interestingly, Struts were blamed, not the needless overuse of mutable state.  
 _I want you to channel your inner psychologist and answer this question: what is going to happen when a new functionality is added to a Java class with 200 instance variables?  Right, I agree,  we will have 201 instance variables._   
 This piece of code was eventually refactored. If I remember correctly, about 12 instance variables were kept, they were actually needed by Struts.   
 
-This experience seems to me a good example of a big extraneous load, I had to deal with a load of 200 "chunks".    
+This experience seems to me a good example of a big extraneous load, I had to deal with a load of 200 coupled "chunks".    
 Let's think about such code as an instructional material.  I can attest, it was virtually impossible to even know what this code is supposed to do from looking at it.  
 Ability to program using clear inputs and outputs (rather than void methods with no input parameters) requires a learning effort, I submit to you that this prerequisite is easier than the cognitive effort of maintaining such code.  
 Thinking about this as instructional material, clear inputs and outputs are great learning objectives.  You know the app if you understand its inputs and outputs. 
@@ -218,7 +218,8 @@ This works great even if both are the same person.
 Let's consider the new JS app as an instructional material.  Referential transparency creates learning objectives (inputs and outputs can be learned if outputs are predictable) while explicit types are an instructional material in itself (a blueprint). 
 The biggest prerequisite for the implementers was knowledge about what to avoid. 
 
-Besides some common sense FP, what else can we do to control extraneous load? Things are about to get more tricky.  
+Besides some common sense principles (feel free to add more), what else can we do to control extraneous load? 
+Things are about to get more tricky.  
 Human cognitive load is limited but we can do abstract reasoning.  It is simpler for us to deal with a few generalized abstractions than with a multiplicity of concretes[^concrete].  And, as we know, abstractions are a better use of our working memory _chunk_ space.  
 This suggests exploring the space of programming abstractions.
 Unfortunately, programming abstractions are nontrivial.  That makes them hard to learn, but what is worse is that developers and language designers sometimes (if not often) mess them up.  Instead of decreasing, this increases (or even explodes) the cognitive load.  We will explore this topic in [Extraneous nature of abstraction](#extraneous-nature-of-abstraction).   
@@ -256,7 +257,7 @@ Types, obviously, can be very helpful in bug prevention.  Programmers who start 
   &emsp; IMO, programming should be an interactive process of identifying and resolving the underlying causes of bugs._
 
 “Insanity is doing the same thing over and over and expecting different results". I promise you 2 things:
-When you start analyzing bugs, you will start seeing patterns (similar to [_add_blank_target patterns of erroneous code](/tags/patterns-of-erroneous-code.html)).  Unfortunately, you will likely have problems in communicating these patterns to developers who do not go through a similar process.  I found that code review sessions work better then trying to explain this without a concrete context (oops). 
+When you start analyzing bugs, you will start seeing patterns (similar to [_add_blank_target patterns of erroneous code](/tags/patterns-of-erroneous-code.html)).  Unfortunately, you will likely have problems in communicating these patterns to developers who do not go through a similar process.  I found that a code review session showing the same issue in a few places works better than trying to explain this without a concrete context (oops). 
 
 How about typos, trivial overlooks that are sometimes so hard to spot?  That mysterious brain of ours is good at creating these. 
 A great reading on this, in the context of (non-programming) typos, is 
@@ -402,7 +403,7 @@ The most recent surprise for me is how _Aeson_ (the most popular Haskell library
 Let's talk about data structures a bit. The choice you make can impact extraneous complexity a great deal. An example which emphasizes this is [_add_blank_target CRDT](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type).  
 Imagine that you are working on an app where 2 or more agents (human or not) can concurrently work on some list  and your program needs to merge their work.  Using a standard _list type_ will be a cognitive nightmare, right?
 Think about one agent (R) removing items, another agent (A) adding items. How do you know if an item was removed by (R) or (A) just added it?  So what do you do? You introduce some distributed locking mechanism?  ...Things are becoming complex very fast.   
-The choice of which data structure is used can have a big impact on extraneous complexity. 
+The choice of which data structure is used can have a big impact on extraneous complexity.  This extends to other abstractions as well.
 
 **High levels of abstraction, an extraneous aspect**
 
@@ -448,7 +449,10 @@ As a result, this planet has only unpopular languages, their TIOBE index starts 
 _side_note_end
 
 ## Germane and intrinsic load of FP
- 
+
+I expect that nothing in this section will be surprising to a functional programmer, but FP has such a unique cognitive impact 
+that it is hard for me to not talk about.    
+
 Functional Programming allows us to understand computations in ways that are not possible without FP. 
 Understanding is a big cognitive simplifier[^understanding]. We are more at home with things we understand than with things
 we just know.  Realizing that computations is something I can actually study to understand has been a game changer for me as a programmer. 
@@ -457,7 +461,7 @@ we just know.  Realizing that computations is something I can actually study to 
 knowledge are often conflated.  The difference, however, is significant, here it is described in the context of learning math: [_add_blank_target “Understanding” Versus “Knowledge” – What’s The Difference?](https://japan-math.com/blogs/news/understanding-versus-knowledge). This has been very much my experience as a mathematics learner and educator. 
 Things become both easy and simple once you understand them. 
 
-Consider the following (mid-school?) formulas and how they relate to programming:
+Consider the following (middle-school?) formulas and how they relate to programming:
 
 > $a^{(b + c)} = a ^b * a ^c$    
 > $a^{(b * c)} = (a ^ b) ^ c$
@@ -488,7 +492,7 @@ At the same time, this cognitive shift is an opportunity to understand programs 
 [^unlearning]: see 2.1 section in [_add_blank_target Unlearning before creating new knowledge: A cognitive process.](https://core.ac.uk/download/pdf/77240027.pdf)
 
 I will dig my hole a little deeper. 
-This one line of code made a huge impact on me (it is called the _Free Monad_ and is in Haskell):
+This one line of code made a huge impact on me (it is called the _Free Monad_ and is in Haskell[^free]):
 
 ```Haskell
 data Free f a = MkFree (f (Free f a)) | Pure a 
@@ -505,10 +509,11 @@ Or, how is this a monad?  Does it satisfy monad laws?  What does _free_ mean? Ca
 How does it (and should it) relate to `try-catch` games? And finally, what libraries implement and use `Free`?
 The point I am trying to make is that FP computations are a different breed. 
 They actually have properties and the learner can build an understanding of these properties.    
-Effect systems (the main application of `Free`) are a very powerful programming tool, they can add a lot of structure and cognitive simplicity[^effect] to the code.  I use 2 of them at work, one of them we maintain. 
+Effect systems (the main application of `Free`) are a very powerful programming tool, they can add a lot of structure and cognitive simplicity[^effect].  I use 2 of them at work, one of them we maintain. 
 Effect systems allow us to organize code into DSLs and interpreters.  This approach creates a very high level of code reuse, testability, and defines very explicit, self-documenting types.   
 Now, is it realistic to learn these concepts in a day or a week when starting a new project?  Imagine a programmer who uses Java at work exploring this knowledge.   
 
+[^free]: For readers not familiar with this concept and curious about what this does, `Free f a` allows to construct monadic (whatever that means) syntax trees with instructions provided by `f`.  In the context of this article, the only important point is that this one line of code has a lot of properties that can be learned (and that many computations come with a similar learning potential).
 
 [^effect]: Any extraneous cognitive loads associated with effects?  Yes, there are a few, especially on the implementation side. 
 Also like most other tools, effects can be abused. I sometimes see a single DSL instruction interpreted directly to IO (more Haskell terminology here, IO is what we call a sin-bin) and used in a brute-force IO code.  This just adds cognitive overhead of effects without taking advantage of what they have to offer. 
@@ -532,14 +537,15 @@ I plan to return to discussion of cognitive aspects of FP in my next post.
 
 _side_note_start
 **In a parallel dimension** Alonso Church did not take a temporary break from lambda calculus and showed it to his student, Alan Turning.  The first computer hardware was based on SKI calculus. In that dimension kids learn mathematics with proofs, imperative programming is considered a great addition after programmers learn the principles.  In that dimension 
-software has very few bugs, however, this universe has fewer programs and even fewer programmers. &#127756;
+software has very few bugs, however, this universe has fewer programs, even fewer programmers, and the error messages suck. &#127756;
 _side_note_end
 
 
-TODO   
-_To clarify, in this argument applying cognitive load theory to programming does not translate to "imperative is complex", rather it translates to "too much of imperative in one place (logically coupled) is complex"._ 
-
 ## Post Summary
+
+My readers may get the impression that this post is a criticism of imperative programming. 
+Applying cognitive load theory to programming does not translate to "imperative is complex", rather it translates to "too much of imperative in one place (logically coupled) is complex".  IMO, some amount of imperative is often helpful.   
+I plan to return to this topic in my next blog.
 
 I am sure you have noticed that I think a lot about code complexity.
 And, yes, I do not feel comfortable working in messy code. Assessing and controlling the level of code complexity is crucial to me. 
@@ -561,7 +567,7 @@ My focus was coding rather than process. I did not discuss things like cognitive
 
 Size of program files is an obvious, related topic I did not discuss.
 
-Monorepo vs single projects has interesting relevance. 
+Monorepo vs single projects has interesting relevance.  Dependency graphs of or sorts (version, library deps) are a similar interesting topic. 
 
 Coding efficiency and the 10X programmer in the context of cognitive loads is an interesting (but contentious) topic.
 
