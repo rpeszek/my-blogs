@@ -7,6 +7,8 @@ toc: true
 tags: patterns-of-erroneous-code
 ---
 
+> > &emsp; _"My brain hurts", a quote from a code review_ 
+
 **DRAFT version:** _This post is a work-in-progress. I am publishing it to solicit early feedback._ 
 
 This long post presents programming in a different light than what is commonly considered.  We will look at cognitive aspects of interacting with code.  
@@ -15,10 +17,17 @@ We will examine cognitive effort that goes into the implementation and cognitive
 _instructional materials_.  We will view the developer as both an _instructional designer_ and a _learner_. 
 We will think about bugs as cognitive overload and a missed learning opportunity.  We will discuss the cognitive impact of abstractions, types, and programming principles.  
   
-Cognitive load of working with code is rarely considered. We ask "How long will it take?" (in fibonacci numbers, of course), we do not ask "How will it impact the overall complexity?".  IMO, thinking about cognitive load can expose project issues that typically go unnoticed.   
+Cognitive load of working with code is rarely considered. We ask "How long will it take?" (in fibonacci numbers, of course), we do not ask "How will it impact the overall complexity?".  
 I had quite a few eye opening moments when thinking about these topics. 
 This is the main reason I decided to write and share my thoughts.
 This post will be a high level rant discussing programming across the industry spectrum from JavaScript to Haskell. 
+It is written as a set of loose notes about various cognitive aspects related to working with code. The main goals are 
+to: 
+
+* show that considering _cognitive loads_ in context of programming projects provides valuable insights 
+* present some useful terminology for reasoning about code complexity.
+
+
 I will try to explain psychological terminology but this post assumes readers' (high level) familiarity with concepts of FP and OOP.
 
 My pet peeve is identifying specific [_add_blank_target patterns of erroneous code](/tags/patterns-of-erroneous-code.html) and what could be causing them, there is a human factor and a technical part to these patterns.   
@@ -26,7 +35,7 @@ Mental processes involved in writing code are such a fascinating and broad subje
 I am taking only a very narrow path through it.   
 I am planning another high level post to discuss programming from a different but relevant angle,
 it will be about empirical and deductive aspects of working with code. 
-I believe these 2 aspects impact our cognitive loads in interesting ways.  
+I believe these 2 aspects impact our cognitive loads in interesting ways. 
 So, this post will focus on cognitive challenges caused by code.  The next post will focus more on the human aspect. 
 
 This post reflects on my personal observations accumulated over 27 years of professional programming work, augmented by a few years of academic teaching.   
@@ -48,15 +57,15 @@ _Dhall_ and _YAML_ come with very different cognitive challenges.
 ## Cognitive psychology
 
 Cognitive load theory defines cognitive load as the amount of information that working memory holds at one time. 
-The idea is that the human brain is limited in that capacity.  Psychologists have identified the load to be about 7 "units of information" (also called "chunks"). 
-If you are into certain technical sports like skiing, swimming, golf...,
-you may know first hand how hard it is to control just 2 aspects of your body movement at the same time. This space appears to be quite limited.   
-I imagine the magic number is << 7 in programming. However, I expect it to vary between 
+The idea is that the human brain is limited in that capacity.  Psychologists have identified the load to be about 3-5[^correct1] "units of information" (also called "chunks"). This space appears to be quite limited.   
+I imagine the magic number is small in programming. However, I expect it to vary between 
 individuals.  
 If we can load only a limited number of "chunks" into working memory, how big can these chunks be? 
 The answer is interesting: it seems that it does not matter![^chunking]  
 In some situations, the magic number appears to be 3 (the concept + 2 constituent chunks)[^magic3].   
-Notice, it would be hard to enumerate chunks involved in a classic imperative program, but that number will be >> 7.  
+Notice, it would be hard to enumerate chunks involved in a classic imperative program, but that number will be >> 5.  
+
+[^correct1]: Corrected from 7 to 3-5 based on feedback from [_add_blank_target u/Fereydoon37](https://www.reddit.com/r/haskell/comments/x2du9d/comment/imjc87f/?utm_source=share&utm_medium=web2x&context=3). The number 7 came from earlier studies which have been observing higher levels of "chunkability", 3-5 seems more relevant.  I have also removed my use of technical sports as an analogy (motor skills seem not very relevant to our discussion). 
 
 [^chunking]: See this wiki page: [_add_blank_target Chunking](https://psychology.fandom.com/wiki/Chunking).  For me, thinking about a big chunk without a context, e.g. _OOP_ or _Geometry_ triggers some high level information plus a seemingly random example, thinking more causes my brain to wander down some path. "Tell me everything you know about ..." is not something I am capable of. 
 So I do not think we load a whole huge chunk into working memory, but we can operate using chunks of seemingly unlimited size. 
@@ -553,18 +562,17 @@ And, yes, I do not feel comfortable working in messy code. Assessing and control
 It has dawned on me that my dislike of code complexity may not be shared by others. _False consensus effect_  is assuming that everyone else thinks like me.   
 I remain convinced that some programmers react negatively to code complexity, but now I think that many programmers feel at home in code with a high cognitive load.  This motivated me to work on this and the next post.  IMO it is important that we try to understand each other a little better. 
  
-Are we doing a good job in making sure that programs are not overly complex?  I think this a fair question to ask even if you think
-that simplicity is not crucially important.  This post has argued that we are mostly failing on that front.  
-In this post, we looked at how project complexity grows unnoticed, how bugs are a missed opportunity to learn about how we fail, and how FP changes the cognitive process but can be hard to learn. As a whole this post has been a bit of _repetitive negative thinking_, but I hope you found
-some positives and useful ideas in it as well.  Taking a different point of view often exposes things that can be improved and I hope this has been the case here.
+Are we doing a good job in managing code complexity?  I think this a fair question to ask even if you think
+that simplicity is not crucially important.  This post has argued that we are mostly failing on that front. 
+In this post, we looked at how project complexity grows unnoticed, how bugs are a missed opportunity to learn about how we fail, and how FP changes the cognitive process but can be hard to learn. As a whole this post has been a bit of _repetitive negative thinking_, but I hope you found some positives and useful ideas in it as well.  The main point of this post was to advocate for including cognitive aspects of programming projects into consideration and to present some useful terminology for doing it. 
 
 
 ## There is much more to it
 
 This post took a very narrow path through the very broad subject of cognitive aspects of programming.  
 
-My focus was coding rather than process. I did not discuss things like cognitive loads in pool requests, cognitive considerations during sprint planning, git hygiene, etc. 
-
+My focus was coding rather than process. I did not discuss things like cognitive loads in pool requests, cognitive considerations during sprint planning, git hygiene, etc.
+  
 Size of program files is an obvious, related topic I did not discuss.
 
 Monorepo vs single projects has interesting relevance.  Dependency graphs of or sorts (version, library deps) are a similar interesting topic. 
@@ -591,6 +599,8 @@ Cognitive biases in the context of coding seem like very interesting topics too.
 Point-free code, I stayed away from discussing it.
 
 Cognitive aspects of troubleshooting are something I only touched on.  
+
+Imperative vs denotative is something I only touched on.
 
 One topic I do plan to discuss (in the next post) is a distinction between empirical and formal processes in programming and how it impacts cognitive loads and acts as a divider.  
 
