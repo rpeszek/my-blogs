@@ -27,7 +27,7 @@ I am taking only a very narrow path through it.
 I am planning another high level post to discuss programming from a different but relevant angle,
 it will be about empirical and deductive aspects of working with code. 
 I believe these 2 aspects impact our cognitive loads in interesting ways.  
-So, this post will focus on cognitive challenges caused by code.  The next post will focus more on a human aspect. 
+So, this post will focus on cognitive challenges caused by code.  The next post will focus more on the human aspect. 
 
 This post reflects on my personal observations accumulated over 27 years of professional programming work, augmented by a few years of academic teaching.   
 I am not a psychologist, these are observations of a coder.
