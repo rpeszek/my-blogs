@@ -24,7 +24,7 @@ This post will be a high level rant discussing programming across the industry s
 It is written as a set of loose notes about various cognitive aspects related to working with code. The main goals are 
 to: 
 
-* show that considering _cognitive loads_ in context of programming projects provides valuable insights 
+* show how considering _cognitive loads_ in context of programming projects provides valuable insights 
 * present some useful terminology for reasoning about code complexity.
 
 
