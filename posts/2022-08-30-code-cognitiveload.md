@@ -17,7 +17,7 @@ We will examine cognitive effort that goes into the implementation and cognitive
 _instructional materials_.  We will view the developer as both an _instructional designer_ and a _learner_. 
 We will think about bugs as cognitive overload and a missed learning opportunity.  We will discuss the cognitive impact of abstractions, types, and programming principles.  
   
-Cognitive load of working with code is rarely considered. We ask "How long will it take?" (in fibonacci numbers, of course), we do not ask "How will it impact the overall complexity?".  
+Cognitive load of working with code is rarely considered in actual project work. We ask "How long will it take?" (in fibonacci numbers, of course), we do not ask "How will it impact the overall complexity?".  
 I had quite a few eye opening moments when thinking about these topics. 
 This is the main reason I decided to write and share my thoughts.
 This post will be a high level rant discussing programming across the industry spectrum from JavaScript to Haskell. 
@@ -570,6 +570,8 @@ In this post, we looked at how project complexity grows unnoticed, how bugs are 
 ## There is much more to it
 
 This post took a very narrow path through the very broad subject of cognitive aspects of programming.  
+
+These were observations of a programmer, this post does not try to cover research on this topic or provide a good list of reading materials. I do not feel qualified to provide either. This topic is also related to code quality and this has been vastly discussed.
 
 My focus was coding rather than process. I did not discuss things like cognitive loads in pool requests, cognitive considerations during sprint planning, git hygiene, etc.
   
