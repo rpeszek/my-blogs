@@ -166,7 +166,10 @@ This differentiation could also be expressed as:
 
 > &emsp;  _Easy means low cost of creation, simple means low cost of consumption_
 
-except, in this post my interest is the cognitive effort only not the total cost.
+except, in this post my interest is the cognitive effort only not the total cost[^disambiguation].
+
+[^disambiguation]: Note that these terms imply some context.  E.g. _simple to reason about correctness_ could be very different from _simple to reason about performance_.  The most popular context is "this code needs to work" with a somewhat relaxed definition of what "works" means, typically implying a reasonable level of correctness.  This was pointed out to me
+in the conversation with [_add_blank_target hasufell in Haskell discourse](https://discourse.haskell.org/t/cognitive-loads-in-programming/4994/12?u=rpeszek)
 
 Achieving _simplicity_ on a larger project is not _easy_. Easy does not scale well. 
 There appears to be no free lunch, cognitive load needs to be somewhere.
