@@ -146,7 +146,7 @@ What is the equivalent of a CPU cost?   In this post I use _cognitive effort_, t
 
 [^effort]: See the discussion in [_add_blank_target A Computational Analysis of Cognitive Eﬀort](https://www.researchgate.net/publication/220963754_A_Computational_Analysis_of_Cognitive_Effort). The term _cognitive cost_ is typically used to mean a negative impact on a cognitive function induced by stress and the usage is also not very consistent, I am avoiding its use.
 
-These were cliff notes written by a non expert.  There are many tricky and relevant bits like _information retrieval from long term memory_.  Things I am progressively less and less component to describe in psychological context.  
+These were cliff notes written by a non expert.  There are many tricky and relevant bits like _information retrieval from long term memory_.  Things I am progressively less and less competent to describe in psychological context.  
 
 
 
@@ -166,7 +166,7 @@ This differentiation could also be expressed as:
 
 > &emsp;  _Easy means low cost of creation, simple means low cost of consumption_
 
-except, in this post my interest is the cognitive effort only not the total cost[^disambiguation].
+Except, in this post, my interest is the cognitive effort not only the total cost[^disambiguation].
 
 [^disambiguation]: Note that these terms imply some context.  E.g. _simple to reason about correctness_ could be very different from _simple to reason about performance_.  The most popular context is "this code needs to work" with a somewhat relaxed definition of what "works" means, typically implying a reasonable level of correctness.  This was pointed out to me
 in the conversation with [_add_blank_target hasufell in Haskell discourse](https://discourse.haskell.org/t/cognitive-loads-in-programming/4994/12?u=rpeszek)
@@ -218,7 +218,7 @@ My second example is something that happened more recently. I worked on reimplem
 It was one of these apps that can be described as: _was easy to write, is hard to maintain or understand_. 
 I am sure very few readers will be surprised by the existence of a hard to maintain JS application, but let's put talking about this aspect aside. 
 Is writing "easy" code the same as generating excessive cognitive load for the maintainers?
-I think it typically is, it is not that hard to incrementally develop a non penetrable maze. 
+I think it typically is, it is not that hard to incrementally develop an impenetrable maze. 
 Maintaining some code structure to manage the cognitive load is not "easy".   
 The new version is still close to JS (it uses TypeScript and vanilla React) but tries to enforce these 3 principles: [_add_blank_target referential transparency](2022-03-13-ts-types-part6.html#referential-transparency-purity-and-explicit-types), [_add_blank_target clear, explicit](2022-03-13-ts-types-part6.html#about-clarity) types that also [_add_blank_target work as documentation](2021-12-24-ts-types-part2.html#types-as-documentation), and _async/await_ abstraction to avoid callback hell.   
 Referential transparency is an interesting dichotomy.  Experiencing different results every time the code is executed typically causes surprise, in my experience developers rarely think about this during implementation. 
@@ -274,7 +274,7 @@ When you start analyzing bugs, you will start seeing patterns (similar to [_add_
 How about typos, trivial overlooks that are sometimes so hard to spot?  That mysterious brain of ours is good at creating these. 
 A great reading on this, in the context of (non-programming) typos, is 
 [_add_blank_target WUWT, Why It's So Hard to Catch Your Own Typos](https://www.wired.com/2014/08/wuwt-typos/).  
-Human brain has an ability to fill in gaps, self-correct things.  Human brain is better at focusing on 
+The human brain has an ability to fill in gaps, self-correct things.  The human brain is better at focusing on 
 high level ideas and is perfectly happy skipping over minute details.  This characteristic seems even stronger if we are on board with the big idea, and it seems fair to assume that programmers are on board with the features they are implementing. 
 The main point is that our brain is not well designed to work at the level of statements and lexical tokens, it wants to work on big picture items. 
 
@@ -325,7 +325,7 @@ Programming abstractions are known for their germane load (for being _hard_ to l
 
 **Poorly implemented abstractions**
 
-You spotted an intermittent malfunction in a code you maintain. Luckily, you see only one commit in recent history and you have a strong hunch something is wrong with that commit. Only some 50 code changes. 
+You spotted an intermittent malfunction in code you maintain. Luckily, you see only one commit in recent history and you have a strong hunch something is wrong with that commit. Only some 50 code changes. 
 The one that caused the issue is: `var1 == var2` changed to `var2 == var1`.  Would you be able to spot it? 
 I call this type of issue a "gotcha".   
 How about: your _finder_ function seems to be not finding stuff, only that sounds too far fetched, the function looks correct, so you just ignore this as a possible explanation.  The underlying issue is
@@ -337,7 +337,7 @@ I like to think about this paraphrasing Gimli:
 
 Equality is an example of an abstraction developers implement and use, but not think much about.
 However, the list of surprising behaviors like these is quite long affecting all kinds of abstractions. 
-Gochas create chaos in the cognitive process. Gotchas often become mystery bugs and are resolved using workarounds.  
+Gotchas create chaos in the cognitive process. Gotchas often become mystery bugs and are resolved using workarounds.  
 For abstractions to work as a cognitive load reducer, they need to be treated seriously by the implementer.   
 
 Developers I talked to often responded to such examples by saying something like: "This is just bad code, whoever implemented it should have been more careful". 
@@ -366,7 +366,7 @@ You will not learn if any of these less obvious are (or should be) true:
 You will not learn about reduced type safety that comes with widening to a superclass[^widening]. 
 I don't even want to start on subtyping gotchas of variant (union and sum) types. 
 OOP is approachable only because we hide the complex bits from the learners[^ts-variance]. 
-A relevant psychological concept is a cognitive bias called _framing effect_. 
+A relevant psychological concept is a cognitive bias called _the framing effect_. 
 
 [^array]:  Keeping things easy, arrays are mutable. Sadly, you can explore the answer on your own by asking a mainstream compiler like Java or TS 
 and the answer will, unfortunately, be the incorrect _yes_.
@@ -449,7 +449,7 @@ Some developers react to gotchas with something akin to _omission neglect_, whil
 I will also note a possible relationship to _repetitive negative thinking_.  
     
 
-Gotchas presented to us (thank you very much) by language designers or library implementers should technically be classified as _intrinsic_ since a common bloke like me can't do much about them other than look for a job that has a better tooling. 
+Gotchas presented to us (thank you very much) by language designers or library implementers should technically be classified as _intrinsic_ since a common bloke like me can't do much about them other than look for a job that has better tooling. 
 If you look at programming as a whole, these are extraneous loads. 
 
 I have left the subject of abstraction vs imperative (abstractions being less straightforward and harder to map to actual execution) untouched. I plan to return to this and to the topic of gotchas in my next post.
@@ -580,7 +580,7 @@ My focus was coding rather than process. I did not discuss things like cognitive
   
 Size of program files is an obvious, related topic I did not discuss.
 
-Monorepo vs single projects has interesting relevance.  Dependency graphs of or sorts (version, library deps) are a similar interesting topic. 
+Monorepo vs single projects has interesting relevance.  Dependency graphs of sorts (version, library deps) are a similar interesting topic. 
 
 Coding efficiency and the 10X programmer in the context of cognitive loads is an interesting (but contentious) topic.
 
