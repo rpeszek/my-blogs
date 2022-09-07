@@ -12,8 +12,9 @@ changelog: <ul>
      <li> (2021.02.15-16) Added <a href="#readers-response">Reader's Response</a> section</li> 
      <li> (2021.02.16) Laws&colon; clarified some text</li>
      <li> (2021.02.17) <a href="#rethinking-the-typeclass-itself">Rethinking</a> section reworded a little</li>
+     <li> (2022.08.30) reclassified under <a href="/tags/patterns-of-erroneous-code.html">patterns-of-erroneous-code</a> tag</li>    
      </ul>
-tags: Haskell, error-messages, maintainability, correctness
+tags: Haskell, error-messages, patterns-of-erroneous-code
 ---
 **_subtitle:_ A Constructive ~~Criticism~~ Pessimism about the Alternative Typeclass**
 

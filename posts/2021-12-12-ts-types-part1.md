@@ -8,9 +8,10 @@ changelog: <ul>
     <li> (2021.12.26) <a href="#fn1">footnote [1]</a> 
     <li> (2022.01.03 - 2022.05.29) Changes are documented in <a href="#summary-of-final-edits">Summary of final edits</a>.
     <li> (2022.05.29) Draft warning removed </li>
+    <li> (2022.08.30) added <a href="/tags/patterns-of-erroneous-code.html">patterns-of-erroneous-code</a> tag</li>    
      </ul>
 toc: true
-tags: TypeScript-Notes
+tags: TypeScript-Notes, patterns-of-erroneous-code
 codestyle: ts
 ---
 
