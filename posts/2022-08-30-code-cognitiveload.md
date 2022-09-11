@@ -452,7 +452,7 @@ I will also note a possible relationship to _repetitive negative thinking_.
 Gotchas presented to us (thank you very much) by language designers or library implementers should technically be classified as _intrinsic_ since a common bloke like me can't do much about them other than look for a job that has a better tooling. 
 If you look at programming as a whole, these are extraneous loads. 
 
-I have left the subject of abstraction vs imperative (abstractions being less straightforward and harder to map to actual execution) untouched. I plan to return to this and to the topic of gotchas in my next post.
+I have left the subject of abstraction vs imperative (abstractions being less straightforward and harder to map to actual execution) untouched. I plan to return to this in my next post.
 
 _side_note_start
 **There is a planet** where PL designers treat all programming abstractions and types with respect.
@@ -545,7 +545,6 @@ This reminds me of a Terry Pratchett Diskworld character: Esmerelda (Granny) Wea
 
 Wanted means popular, needed means stable.  However, basic principles of FP will probably find a wider use (as discussed in 
 [Extraneous loads that grow](#extraneous-loads-that-grow)).   
-I plan to return to discussion of cognitive aspects of FP in my next post. 
 
 _side_note_start
 **In a parallel dimension** Alonso Church did not take a temporary break from lambda calculus and showed it to his student, Alan Turning.  The first computer hardware was based on SKI calculus. In that dimension kids learn mathematics with proofs, imperative programming is considered a great addition after programmers learn the principles.  In that dimension 
@@ -593,7 +592,7 @@ The end result, obviously, increases the cognitive load.
 
 Cognitive load should be viewed as a resource problem, one that does not scale very well, and one that is not well understood. 
 Cognitive load is greatly impacted by turn over rates, switching of code ownership, and by installed processes. 
-Context switching is very expensive, the programmer's inability to find contiguous blocks of time to focus could be viewed as an indication of an under-resourced project.  
+Context switching is very expensive, the programmer's inability to find contiguous blocks of time to focus could be viewed as an indication of an under-resourced project. Needless to say, under-resourced yields quick and dirty code.  
 
 Linting, formatting, aesthetics are all very interesting cognitive load topics.  Most programmers seem to be very sensitive to how the code is presented, (e.g. would you ever use a light background in your code editor?). Similarly, syntax vs semantics, it seems syntax has a huge cognitive role even if we think about it as bikeshed. 
 
