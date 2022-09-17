@@ -204,6 +204,11 @@ In contrast, to a pragmatist error output is an (important) observation.  It is 
 
 [^falsehood]: I am not a logician, I vaguely remember some versions of logic that allow multiple moralities, in particular one where there was _lax_ in addition to _false_.  Few (even) mathematicians will know these. 
 
+_side_note_start
+The biggest problem with theoretical is that it is not pragmatic. The biggest problem with pragmatic is that it is not theoretical. People will keep using 
+Fibonacci numbers to explain things. Mainstream PLs and frameworks will disregard theoretical concerns in perpetuity. Even for people who "own" both, being a pragmatist or being a theorist is like wearing a hat.  You can't wear both at the same time, you would look ridiculous. 
+_side_note_end
+
 This post argues that both traits are important.  I need to emphasize that we all have both characteristics but one tends to be dominant.  We will dig deeper into both mindset by analyzing some examples. 
 
 
@@ -219,8 +224,7 @@ Bob: "Are you talking about a production issue, a failing test, or is it purely 
 If Alice gets a change to explain the race condition, she may hear this response:   
 Carol: "We done it like this before and everything was fine". 
   
-Alice (nick name Negative Nancy, a theorist) considers all logical defects to be a disappointment.  Bob and Carol are pragmatists. 
-The conversation could be in an impasse, it could be hard to reset it. 
+Alice (nick name Negative Nancy, a theorist) considers all logical defects to be a disappointment.  Bob and Carol are pragmatists and approach logical defects differently. 
 It seems like a good idea for Bob and Carol to understand a little bit about how Alice approaches programming, and vice versa. 
 Let's analyze this dialog a little bit.  
 
@@ -233,10 +237,11 @@ to verify the brittle bits.  This session was very productive, we all learned so
 Their response is something I still contemplate:  "We do not go through such steps, we just assume it will work". 
 For me it was a learning experience I still think about, I realized that developers non only create code differently, but also very differently consume it. 
 
-Returning to Bob, he is a pragmatists.  Notice that Bob has stratified all contexts he assumed relevant to Alice's finding: production issue, failing test, and theoretical. To Bob, a logical issue in code are just a part of life.  He will not lose much sleep over it.  "It has bugs, it is called software."  This empirical mindset, in some ways, is healthier[^rnt]. 
-However, proper empirical reasoning should not dismiss theoretical concerns.  It is hard to assess impact of some bugs (e.g. race conditions) using testing.
+Returning to Bob, he is a pragmatists.  Notice that Bob has stratified all contexts he assumed relevant to Alice's finding: production issue, failing test, and theoretical. To Bob, a logical issue in code are just a part of life.  He will not lose much sleep over it.  "It has bugs, it's called software."  This empirical mindset, in some ways, is healthier[^rnt]. 
+However, proper empirical reasoning should not dismiss theoretical concerns.  It is hard to assess impact of some bugs (e.g. race conditions) using testing or other forms of observations.
 
 [^rnt]: I have discussed RNT (..) in my previous post. 
+
 
 Carol response suggest an empirical mindset as well. Carol has generalized previous observations of a working product and that generalization overrides Alice's warning bells. Going from specific to general is what empirical process is about. However, proper empirical reasoning will question, even invalidate, previous "hypothesis" if new evidence provides reasons for doing so. 
 
@@ -255,7 +260,20 @@ Carol has a very valid point too, one that Alice may have hard time accepting.  
 
 [^foundation]: TODO list to the footnote
 
+_side_note_start
+For a very long time I could not figure out why certain decisions about PLs and popular library designs are being made.
+I could not understand why certain bugs remain not fixed, why there are no deprecation attempts, why certain design 
+decisions have been made in the first place[^why].  The idea of software as something that is made from loose ends and made
+usable by testing effort still feels strange to me.  The empirical mindset I have tried to explain here is my best attempt
+at understanding these things. 
+_side_note_end
+
+[^why]: TODO
+
+
 I have noticed some pragmatists (not all!) arrive at conclusions too soon.  E.g. “ABC PL is no good, each time I try it I get (this) negative experience”, "Our issues are caused by the technology we use", etc.  This is often confounding correlation with causality and is bad empirical reasoning. These statements can be valid if there is more than the observations to support them.
+
+
 
 I invite you to think more about the differences between pragmatists and theorists in both creating
 and consuming the code.  I invite you to think more about how each side thinks.  
@@ -268,13 +286,9 @@ I need to emphasize, this is not a binary separation where everyone is are eithe
 There is quite a bit of negativity around us, programming community is not exempt from it. 
 I will wrap up with some loose thoughts about negativity in the context of deductive and empirical mindsets. 
 
-I fully expect this post to go into negative territory in some discussion boards, I hope it will be well received by some readers too, but the negative is given. Blogging is putting a nontrivial effort into something that is almost guaranteed to receive a significant amount of negative response (which makes me question the sanity of it). 
-I can't answer why this is happening.  I can observe that the negativity often comes with very little or no context. 
-Engaging in internet discussion forums is like a Manhattan of communication skills, if you can make it there you will do really good in your project team. 
-
    
-Venting frustration, IMO, it does not improve how either the "venter" or the "ventee" feel. It only fuels the negativity. 
-IMO, the best way to fight negative emotions is, you guessed it, to employ the deductive.  Figuring out the underlying context that causes negativity can save
+Venting frustration, IMO, does not improve how either the "venter" or the "ventee" feel. It only fuels the negativity. 
+IMO, the best way to fight negative emotions is to employ the deductive.  Figuring out the underlying context that causes negativity can save
 a conversation, simply engaging in that deductive search can protect you.  Using logic to confront emotions is a form of what psychologist call [cognitive restructuring](https://www.apa.org/topics/anger/control).
 
 Criticism of bad code is bound to be unpleasant to its authors. Even worse, a lot of code can be criticized on purely logical grounds. This can be interpreted
@@ -314,20 +328,19 @@ I hope I have convinced you that understanding these mindsets is helpful, it pro
 
 ## Unexplored
 
-In this post we asked is programming can learn from empirical process. Putting this question on its head seems interesting. 
-Empirical sciences (e.g. medical sciences, neuroscience, nutrition science...) knowledge gets adjusted if not invalidated from time to time. This is reminiscent of finding a bug in a program. Programming does it in a very accelerated fashion with an immediate feedback from testing and app use. Can software development explain some of what is happening in other sciences?
-
-It is interesting to consider psychological cognitive biases and how they impact both groups. In particular _bandwagon effect_ (popular == good), _commitment bias_ (we done it like this before, it has been tried and tested), _omission neglect_ (things we do not know are not important), _bikeshedding_ (syntax vs semantics, etc).  
+Psychological cognitive biases and how they impact both groups. In particular _bandwagon effect_ (popular == good), _commitment bias_ (we done it like this before, it has been tried and tested), _omission neglect_ (things we do not know are not important), _bikeshedding_ (syntax vs semantics, etc). 
 In particular, syntax vs semantics would be an interesting discussion.  Theorists tend to think about syntax as a bikeshed, pragmatists fill the gap and talk mostly about liners and formaters, clearly both aspects are important.  
 
 Imperative vs denotative in the context of both mindsets.  IMO, this is not a clear cut (few things are), I consider myself very theoretical, yet I like parts of my code to be imperative.  
 
 Impact of education on the development of either mindset. 
 
-It appears that developers approach bugs differently. This is how my interests in figuring out different programmer mindsets has started. I think the approach to bugs has 3 axes: "It has bugs, it is called software" is the origin, testing is one axis, 
+As we have discussed, developers approach bugs differently. This is how my interests in figuring out different programmer mindsets has started. There is a different way to look at this. Consider these 3 axes: "It has bugs, it's called software" is the origin, testing is one axis, 
 "correctness by design" abstractions and type safety is second, a mental repository of 
 possible issues and their impacts is third.  Pragmatists are on the first axis, theorists on the second.  We need the name for the
 third group, lets call them _perfectionists_. I came to FP on a correctness wagon, theory and improved coding efficiency are for me an added bonus. The question is how the _perfectionists_ fit into this picture.    
 
-I am sure there is are many more interesting angles to explore here. 
+Implicit contexts in communication between programmers. There appears to be much more to explore here. Consider programming internet discussion forums (IMO, a Manhattan of communication skills, if you can make it there you will do really good in your project team).  One can observe all kinds of context bias issues (e.g. some redditers do not consider reading to be a prerequisite for responding) or lack of context clarity (e.g. heavily downvoted posts with no comments). 
+Teams tend to create their own localized contexts (unique vocabulary, proprietary technical solutions) which is often not ideal especially on the technical front.  Context clarity is to communication what referential transparency is to programming. 
 
+I am sure there is are many more interesting angles to explore here. 
