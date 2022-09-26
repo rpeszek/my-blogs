@@ -1,6 +1,6 @@
 ---
 title:  Let's agree to be different. On empirical and deductive nature of coding. 
-lastmodified: Sep 20, 2022
+lastmodified: Oct 20, 2022
 featured: true
 summary:  On Empirical Nature of Coding. Let's agree to disagree
 toc: true
