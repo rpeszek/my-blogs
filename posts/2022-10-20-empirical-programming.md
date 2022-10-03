@@ -40,7 +40,7 @@ In this post I will mostly try to use _empirical_ and _deductive_ when referring
 
 Empirical (to avoid using inductive[^inductive]) reasoning draws general conclusions from observations.  E.g. certain software functionality will work because we tested it (notice how well software testing fits in to this definition).
 Thinking about software testing as an empirical process allows us to consider things like bias (did we miss a range of scenarios?), observation sample size (did we test enough?), correlation vs causality (e2e tests are unstable, is there something wrong with e2e testing itself?), if observations are balanced (adequate coverage of test scenarios across functional areas)... 
-Here is a fun extreme example of a correlation vs causation problem: "Each time I test the app it works just fine, yet users keep reporting issues. Something's wrong with these people!".  Another fun example is the how we establish observation baseline: if app does not work, restart it, if that does not help reboot &#128578;.
+Here is an exaggerated example of a correlation vs causation problem: "Each time I test the app it works just fine, yet users keep reporting issues. Something's wrong with these people!".  Another fun example is the how we establish observation baseline: if app does not work, restart it, if that does not help reboot &#128578;.
 But is it even more fun to think about both experiments and observations. 
 
 Deductive reasoning goes from general knowledge to specific conclusions. E.g. certain software functionality will work because of type safety or because it is a straightforward application of something else we believe works. In this post, deductive represents a wide range of thought processes: from tedious observationless mental verification 
@@ -48,12 +48,12 @@ of values and types (oh, this value was supposed to be a positive number why is 
 
 Empirical and deductive work in tandem and both are essential.  IMO, we (as individuals) prefer to use one more than the other. 
 Understanding more about these preferences will be the main topic of this post. 
-
 [^inductive]: This inductive reasoning should be confused with mathematical (or structural in PLT) induction. Believe it or not it sometimes is. 
 
+
 _side_note_start
-Formal reasoning[^formalprog] is the only approach humans have figured out to solve complex problems correctly on the first go (without trial and error associated with empirical reasoning).  In this post I am not separating the formal out, it is bundled into deductive. 
-I have struggled with this decision, at the end I decided to simplify things and keep formal reasoning bundled into the more broad deductive process.
+Formal reasoning[^formalprog] is the only approach humans have figured out to solve complex problems correctly on the first go (without trial and error associated with empirical reasoning).  Formal reasoning seems to be needed to understand limitations of empirical. "Program testing can be used to show the presence of bugs, but never to show their absence!" is a projection of that understanding onto programming. In this post I am not separating the formal out, it is bundled into deductive. 
+I have struggled with this decision, at the end I decided to simplify things and keep formal reasoning bundled into the more broad deductive process.  
 _side_note_end
 
 [^formalprog]: The term _formalism_ has special meaning in mathematics, I use it colloquially (e.g. all mathematics is formal).
@@ -83,11 +83,13 @@ We may try to reason about what solution is likely to work, but that is not much
 
 Let's talk process bureaucracy.  Working in empirical world means procedural protocols.  Scrum is a procedural protocol: 
 consider continuous improvement process with retrospectives or team velocity calculation,  these are all very empirical. 
+Test plans and test cases are also procedural protocols.
 In contrast, the deductive needs a cushy couch. Deductive and bureaucracy, IMO, do not mix well. Waterfall was a failed idea of applying a deductive approach to project management.  There is a lot of real word complexity in project management and empirical is needed (see also [Defined Process Vs Empirical Process](https://premieragile.com/defined-vs-empirical-process/)). 
+
 
 Let's talk bias in empirical reasoning. Figuring out contributing factors and causality is often the hardest and the most important part in empirical reasoning.  If you wrist hurts when you type, is this a pinched nerve in the wrist? or, are you looking down on your laptop and the nerve is pinched around your neck? or there is a pressure point somewhere on your arm? or maybe it is not a nerve issue at all?  Practitioners of empirical have been known to assume wrong cause[^bias]. Empirical is tricky. 
 
-[^bias]: Rate of misdiagnosis for carpal tunnel is over 80% [carpal tunnel misdiagnosis](https://www.carpalrx.com/post/carpal-tunnel-misdiagnosis). A very sad example for the past: it is now believed that a big cause of death during Spanish Flu was too much prescribed aspirin. 
+[^bias]: Rate of misdiagnosis for carpal tunnel is over 80% [carpal tunnel misdiagnosis](https://www.carpalrx.com/post/carpal-tunnel-misdiagnosis). A very sad example for the past: it is now believed that a big cause of death during Spanish Flu was too much aspirin prescribed to treat the symptoms. 
 
 Programmers are exposed to bias too. Performance issue or a bug could be caused by many factors, e.g. an application could misbehave only in certain scenarios or only in certain environment configurations, the underlying issue could be application code, library code, configuration issue, environment problem... 
 It is not unlikely for a developer to go down a wrong path during troubleshooting process. I view programming as empirical process with accelerated feedback. You can go down a wrong path but you typically learn that fast.
@@ -155,11 +157,13 @@ Haskell is sometimes called _the best imperative PL_[^best_imperative].  I propo
 
 [^best_imperative]: "Haskell is the world’s finest imperative programming language" famous quote, probably originated in this paper [Simon Peyton Jones on Tackling the Awkward Squad](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/07/mark.pdf?from=https%3A%2F%2Fresearch.microsoft.com%2Fen-us%2Fum%2Fpeople%2Fsimonpj%2Fpapers%2Fmarktoberdorf%2Fmark.pdf)
 
+Can we accumulate empirical evidence of FP being less error prone?  There have been some attempts[^error-prone]. 
+I can only offer my personal observations. (TODO bug analysis, code reviews outside of FP - single focus input-output clarity.)
 
-Programming is often associated with mathematics and logic (mostly by non-programmers[^reynolds]). FP is a very much an outlier, and an interesting one, FP is both quite theoretical and quite empirical. 
+[^error-prone]: TODO
+
+Programming is often associated with mathematics and logic (mostly by non-programmers). FP is a very much an outlier, and an interesting one, FP is both quite theoretical and quite empirical. 
 However, it's theoretical part is what many FP-ers love.  
-
-[^reynolds]: I just love the beginning story in [Types, Abstraction and Parametric Polymorphism (John C. Reynolds)](https://people.mpi-sws.org/~dreyer/tor/papers/reynolds.pdf) paper. 
 
 
 ## Pragmatists and theorists
@@ -236,7 +240,7 @@ This post argues that both traits are important.  I need to emphasize that we ma
 
 Perhaps not surprisingly, theorists are not all equally disappointed about logical software defects.
 Explaining this diversity is a price I have to pay for bundling all theorists together. 
-Think physics, it is very theoretical, yet theoretical physicists are happy to do crazy mathematically unsound things before they pat themselves in the back. In contrast, there is no such thing as "a partially correct" in mathematics.  IMO, this stricter view plays a role in how some of us approach programming. 
+Think physics, it is very theoretical, yet theoretical physicists are happy to do hand waving arguments. In contrast, there is no such thing as "a partially correct" in mathematics.  IMO, this stricter view plays a role in how some of us approach programming. 
 
 
 Alice: "We have a concurrency issue in our code"   
@@ -258,12 +262,16 @@ Their response is something I still contemplate:  "We do not go through such ste
 For me it was a learning experience I still think about, I realized that developers non only create code differently, but also very differently consume it. 
 
 Returning to Bob, he is a pragmatists.  Notice that Bob has stratified all contexts he assumed relevant to Alice's finding: production issue, failing test, and theoretical. To Bob, a logical issue in code is just a part of life.   "It has bugs, it's called software."  This empirical mindset, in some ways, is healthier[^rnt]. 
-However, proper empirical reasoning should not dismiss theoretical concerns.  It is hard to assess impact of some bugs (e.g. race conditions) using testing or other observation based methods.
+It is not unusual for empirical reasoning to dismiss theoretical concerns, however in this case this is likely to be wrong. 
+It is hard to assess impact of some bugs (e.g. race conditions) using testing or other observation based methods.
 
 [^rnt]: I have discussed RNT (..) in my previous post. 
 
 
-Carol response suggest an empirical mindset as well. Carol has generalized previous observations of a working product and that generalization overrides Alice's warning bells. Going from specific to general is what empirical process is about. However, proper empirical reasoning will question, even invalidate, previous "hypothesis" if new evidence provides reasons for doing so. 
+Carol response suggest an empirical mindset as well. Carol has generalized previous observations of a working product and that generalization overrides Alice's warning bells. Going from specific to general is what empirical process is about. 
+Proper empirical reasoning will question, even invalidate, previous "hypothesis" if new evidence provides reasons for doing so. 
+Alice argument is purely deductive, it could be helpful if she came up with a testing scenario that exposes the race condition 
+she has identified. 
 
 Bob: "We are starting new frontend project, I propose we keep using XYZ PL, but maybe we could add a new library to our setup?"   
 Alice: "XYZ is fundamentally broken, we should move to something sound, like Reason."   
@@ -307,13 +315,28 @@ and consuming the code.  I invite you to think more about how each side thinks.
 
 I need to emphasize, this is not a binary separation where everyone is are either pragmatist or theorist. Many of us have both traits, just one is more dominant then the other. 
 
+## vs other empirical 
+
+The odd discourse between formal and empirical is, IMO, not unique to programming. 
+I still remember a few anecdotes about "a mathematician, a physicist, a chemist, ...". 
+Empirical vs deductive, if one needs to budge then the empirical wins, deductive moves. This makes some sense: observations overrule theory. Mathematics is called _The Queen of Sciences_ but in that analogy she is more a figure head monarch.  E.g. theoretical physicists are happy to do crazy mathematically unsound things before they pat themselves in the back. There is often a lot of hand waving in how formalism is applied in the empirical science[^handwaving]. 
+
+Some (functional programmers) argue that computer science and programming could benefit from a stricter rule and more respect of _The Queen_.  After all, a logical flaw in PL design or a program design is a problem, right? 
+This position appears to be rather rare[^reynolds]. That is, IMO, one of the reasons why FP is divided from the mainstream.  
+
+[^handwaving]: From my applied mathematics past life, I vaguely remember a lot of physics as physicist marching forward while mathematicians slowly follow rebuilding the path with valid formalism. Quantum mechanics, Dirac measure...  A lot of science uses very simplified mathematical models. E.g. gas dynamics uses hyperbolic PDEs: these ignore (a small) diffraction effects of things like viscosity, thus, changing the mathematical model qualitatively.  There are (decent but hand waving) arguments why these PDEs make sense but the gist is: they seem to match observations.  Interestingly, I considered a lot of economics and finance (e.g. Black-Scholes equation) more formally sound than, say, physics. 
+
+[^reynolds]: I just love the beginning story in [Types, Abstraction and Parametric Polymorphism (John C. Reynolds)](https://people.mpi-sws.org/~dreyer/tor/papers/reynolds.pdf) paper. 
+
+The difference is, IMO, where the source of truth is.  In a pure empirical world that source has to be what we observe.  In programming
+there can be just enough determinism to make this a bit more tricky favoring a stricter application of a deductive process.
+ 
 
 ## Negativity
 
 There is quite a bit of negativity around us, programming community is not exempt from it. 
 I will wrap up with some loose thoughts about negativity in the context of deductive and empirical mindsets. 
 
-   
 Venting frustration, IMO, does not improve how either the "venter" or the "ventee" feel. It only fuels the negativity. 
 IMO, the best way to fight negative emotions is to employ the deductive.  Figuring out the underlying context that causes negativity can save
 a conversation and simply engaging in that deductive search can protect you.  Using logic to confront emotions is a form of what psychologist call [cognitive restructuring](https://www.apa.org/topics/anger/control).
