@@ -17,7 +17,7 @@ The topic for this post came from a realization I had when thinking about cognit
 I may be obvious to some of you, but it was not obvious to me: programming is largely an empirical process. 
 I will argue that the pragmatic empirical mindset is also dominant. 
 
-What the others mean, how they reason, or what is important to them are the contexts in human communication. Communication without the basis of common interest is hard. Good communication requires an effort of understanding these contexts.  IMO, _empirical, deductive, pragmatist,_ and _theorist_ are a good terminology to analyze some of the current discourse (especially about FP). 
+What the others mean, how they reason, or what is important to them are the contexts in human communication. Communication without the basis of common interest is hard. Good communication requires an effort of understanding these contexts (we call it finding a common language).  IMO, _empirical, deductive, pragmatist,_ and _theorist_ are a good terminology to analyze some of the current discourse (especially about FP). 
 In this post I will try to present my honest opinions about the empirical and deductive mindsets. You may disagree with my opinions, please let me know if you do. The point is to get these contexts right and to have all of us think about them a little.  
 
 Fairness and lack of bias are rare but beautiful if encountered in human interactions.  My programming interests 
@@ -52,7 +52,7 @@ Understanding more about these preferences will be the main topic of this post.
 
 
 _side_note_start
-Formal reasoning[^formalprog] is the only approach humans have figured out to solve complex problems correctly on the first go (without trial and error associated with empirical reasoning).  Formal reasoning seems to be needed to understand limitations of empirical. "Program testing can be used to show the presence of bugs, but never to show their absence!" is a projection of that understanding onto programming. In this post I am not separating the formal out, it is bundled into deductive. 
+Formal reasoning[^formalprog] is the only approach humans have figured out to solve complex problems correctly on the first go (without trial and error associated with empirical reasoning).  Some experience in formal seems to be needed to understand limitations of empirical. "Program testing can be used to show the presence of bugs, but never to show their absence!" is a projection of that understanding onto programming. In this post I am not separating the formal out, it is bundled into deductive. 
 I have struggled with this decision, at the end I decided to simplify things and keep formal reasoning bundled into the more broad deductive process.  
 _side_note_end
 
@@ -83,7 +83,7 @@ We may try to reason about what solution is likely to work, but that is not much
 
 Let's talk process bureaucracy.  Working in empirical world means procedural protocols.  Scrum is a procedural protocol: 
 consider continuous improvement process with retrospectives or team velocity calculation,  these are all very empirical. 
-Test plans and test cases are also procedural protocols.
+Test plans, test cases, coding and formatting standards, git hygiene, are also procedural protocols.
 In contrast, the deductive needs a cushy couch. Deductive and bureaucracy, IMO, do not mix well. Waterfall was a failed idea of applying a deductive approach to project management.  There is a lot of real word complexity in project management and empirical is needed (see also [Defined Process Vs Empirical Process](https://premieragile.com/defined-vs-empirical-process/)). 
 
 
@@ -198,6 +198,9 @@ In contrast, theorists want tools that support, rather than inhibit, deductive r
 This is where the _imperative vs denotative_ discussion comes into play as well. 
 
 [^fussion]: E.g. rewrite rules in Haskell. 
+
+I consider programming to be a combination of both (engineering) process and (mathematical) science. 
+Pragmatists are interested in the process, they want code standards, formatting standards, clean git history...  Theorists will want functors, monads, higher rank types, higher kinded types, dependent types...  Programming, obviously, benefits from both engineering and mathematics.  
 
 One bizarre difference I have noticed between heavy deductive thinkers and empirical mindsets is their favorite approach 
 to learning.  When learning, some (not all!) theorists may want to finish a whole book before writing a single line of code. The top-down thinking sometimes extends to top-down learning.  Me and my wife are in the first group. 
@@ -319,17 +322,20 @@ I need to emphasize, this is not a binary separation where everyone is are eithe
 
 The odd discourse between formal and empirical is, IMO, not unique to programming. 
 I still remember a few anecdotes about "a mathematician, a physicist, a chemist, ...". 
-Empirical vs deductive, if one needs to budge then the empirical wins, deductive moves. This makes some sense: observations overrule theory. Mathematics is called _The Queen of Sciences_ but in that analogy she is more a figure head monarch.  E.g. theoretical physicists are happy to do crazy mathematically unsound things before they pat themselves in the back. There is often a lot of hand waving in how formalism is applied in the empirical science[^handwaving]. 
+Empirical vs deductive, if one needs to budge then the empirical wins, deductive moves. This makes sense: observations overrule theory. Mathematics is called _The Queen of Sciences_[^gauss] but in that analogy she is more a figure head monarch.  E.g. theoretical physicists are happy to do crazy mathematically unsound things before they pat themselves in the back. There is often a lot of hand waving in how formalism is applied in empirical sciences[^handwaving]. 
 
-Some (functional programmers) argue that computer science and programming could benefit from a stricter rule and more respect of _The Queen_.  After all, a logical flaw in PL design or a program design is a problem, right? 
-This position appears to be rather rare[^reynolds]. That is, IMO, one of the reasons why FP is divided from the mainstream.  
+Some argue that computer science and programming could benefit from a stricter rule and more respect of _The Queen_.  After all, a logical flaw in PL design or a program design is a problem, right? 
+This position appears to be rather rare[^reynolds] (restricted to functional programmers). That is, IMO, one of the reasons why FP is divided from the mainstream.  
+
+[^gauss]: TODO
 
 [^handwaving]: From my applied mathematics past life, I vaguely remember a lot of physics as physicist marching forward while mathematicians slowly follow rebuilding the path with valid formalism. Quantum mechanics, Dirac measure...  A lot of science uses very simplified mathematical models. E.g. gas dynamics uses hyperbolic PDEs: these ignore (a small) diffraction effects of things like viscosity, thus, changing the mathematical model qualitatively.  There are (decent but hand waving) arguments why these PDEs make sense but the gist is: they seem to match observations.  Interestingly, I considered a lot of economics and finance (e.g. Black-Scholes equation) more formally sound than, say, physics. 
 
 [^reynolds]: I just love the beginning story in [Types, Abstraction and Parametric Polymorphism (John C. Reynolds)](https://people.mpi-sws.org/~dreyer/tor/papers/reynolds.pdf) paper. 
 
-The difference is, IMO, where the source of truth is.  In a pure empirical world that source has to be what we observe.  In programming
-there can be just enough determinism to make this a bit more tricky favoring a stricter application of a deductive process.
+The difference is, IMO, where the source of truth is.  In a pure empirical world that source has to be what we observe.  In programming there can be just enough determinism to favor a stricter application of a deductive process. Empirical sciences use mathematics to create simplified (often oversimplified) models of the real world or to just statistically analyze a hypothesis.  In programming, computations can be directly viewed as mathematical objects. 
+Strict formalism in programming is more practical and more relevant. 
+
  
 
 ## Negativity
@@ -374,7 +380,9 @@ Both have looked at the programming from the outside. Both allowed to critique t
 
 In this post we considered programming to be a mostly empirical process and we asked the question: are we good at this empirical thing?    
 More importantly, we have looked at programmers as individuals interested in either the empirical or the deductive. Can you place yourself into one of these camps? Can you place your coworkers? This is not always easy, sometimes the placement will depend on the situation. 
-I hope I have convinced you that understanding these mindsets is helpful, it provides extra context when interacting with others and a mirror.  This post presented my honest opinions, these are not scientific claims, just opinions.  Thank you for reading!   
+I hope I have convinced you that understanding these mindsets is helpful, it provides extra context when interacting with others and a mirror.  This post presented my honest opinions, these are not scientific claims, just opinions. 
+
+Thank you for reading!   
 
 ## Unexplored
 
@@ -388,7 +396,7 @@ Impact of education on the development of either mindset.
 As we have discussed, developers approach bugs differently. This is how my interests in figuring out different programmer mindsets has started. There is a different way to look at this. Consider these 3 axes: "It has bugs, it's called software" is the origin, testing is one axis, 
 "correctness by design" abstractions and type safety is second, a mental repository of 
 possible issues and their impacts is third.  Pragmatists are on the first axis, theorists on the second.  We need the name for the
-third group, lets call them _perfectionists_. I came to FP on a correctness wagon, theory and improved coding efficiency are for me an added bonus. The question is how the _perfectionists_ fit into this picture.    
+third group, lets call them _perfectionists_. I came to FP on a correctness wagon, theory and improved coding efficiency are for me an added bonus. The question is how the _perfectionists_ fit into this picture.  This post bundled them with theorists, this was likely an oversimplification. 
 
 Implicit contexts in communication between programmers. There appears to be much more to explore here. Consider programming internet discussion forums (IMO, a Manhattan of communication skills, if you can make it there you will do really good in your project team).  One can observe all kinds of context related bias issues (e.g. some redditers do not consider reading to be a prerequisite for responding) or lack of context clarity (e.g. heavily downvoted posts with no comments). 
 Moving away form discussion groups, teams tend to create their own localized contexts (unique vocabulary, proprietary technical solutions) which is often not ideal.  IMO, context clarity is to communication what referential transparency is to programming.  IMO, context is to communication what causation is to empirical science. 
