@@ -4,7 +4,7 @@ lastmodified: Aug 30, 2022
 featured: true
 summary: About cognitive aspects of bugs, abstractions, types, PL ecosystems.   
 toc: true
-tags: patterns-of-erroneous-code
+tags: patterns-of-erroneous-code, communication
 ---
 
 > > &emsp; _"My brain hurts", a quote from a code review_ 

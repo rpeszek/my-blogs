@@ -4,7 +4,7 @@ lastmodified: Oct 20, 2022
 featured: true
 summary:  On Empirical Nature of Coding. Let's agree to disagree
 toc: true
-tags: Haskell
+tags: patterns-of-erroneous-code, communication
 ---
 
 > *"When the going gets tough, the tough get empirical." Jon Carroll* 
@@ -18,9 +18,9 @@ I may be obvious to some of you, but it was not obvious to me: programming is la
 I will argue that the pragmatic empirical mindset is also dominant. 
 
 What the others mean, how they reason, or what is important to them are the contexts in human communication. Communication without the basis of common interest is hard. Good communication requires an effort of understanding these contexts (we call it finding a common language).  IMO, _empirical, deductive, pragmatist,_ and _theorist_ are a good terminology to analyze some of the current discourse (especially about FP). 
-In this post I will try to present my honest opinions about the empirical and deductive mindsets. You may disagree with my opinions, please let me know if you do. The point is to get these contexts right, or at least to have all of us think about them a little.  
+In this post I will present my observations about the empirical and deductive mindsets. You may disagree with me, please let me know if you do. The point is to get these contexts right, or at least to have all of us think about them a little.  
 
-Fairness and lack of bias are rare but beautiful if encountered in human interactions.  At my current work I mostly use Haskell and I am interested in functional programming, thus, this post is likely to have some unintended bias. Also, these are my opinions, not an attempt at a scientifically sound reasoning.  
+Fairness and lack of bias are rare but beautiful if encountered in human interactions.  At my current work I mostly use Haskell and I have been interested in functional programming for a long time, thus, this post is likely to have some unintended bias. Also, these are my opinions, not an attempt at a scientifically sound reasoning.  
 
 I have not found much discussion about this, I am not following academic research in any related area. 
 The topic of [_add_blank_target empirical software engineering](https://en.wikipedia.org/wiki/Empirical_software_engineering) is relevant to programming and the empirical method, but is not really what I will talk about. 
@@ -35,7 +35,7 @@ This sounds like a beginning of a catchy song.  There is also informal and forma
 In this post I will mostly try to use _empirical_ and _deductive_ when referring to the thought process, I will use _pragmatist_ and _theorist_ when referring to people. 
 
 Empirical (to avoid using inductive[^inductive]) reasoning draws general conclusions from observations.  E.g. certain software functionality will work because we tested it (notice how well software testing fits in to this definition).
-Thinking about software testing as an empirical process allows us to consider things like bias[^biasdef] (e.g. did we miss a range of scenarios?), observation sample size (did we test enough?), correlation vs causality (e2e tests are unstable, is there something wrong with e2e testing itself?), if observations are balanced (adequate coverage of test scenarios across functional areas)... 
+Thinking about software testing as an empirical process allows us to consider things like bias[^biasdef] (e.g. did we miss a range of scenarios?), observation sample size (did we test enough?), correlation vs causality (e2e tests are unstable, is there something wrong with e2e testing itself?), if observations are balanced (adequate coverage of test scenarios across functional areas), establish observation baseline ([_add_blank_target golden testing](https://en.wikipedia.org/wiki/Characterization_test) for complex deterministic code)... 
 Here is an exaggerated example of a correlation vs causation problem: "Each time I test the app it works just fine, yet users keep reporting issues. Something's wrong with these people!". 
 But is it even more fun to think about both experiments and observations. 
 
@@ -111,7 +111,7 @@ Let's put our empirical hats on and let's discuss what code is bad and what code
 ### Experimental process and high extraneous loads
 
 This frames the discussion of empirical in the context of my previous ([_add_blank_target cognitive loads in programming](2022-08-30-code-cognitiveload.html)) post. 
-If you have not looked at that post, simply substitute _high extraneous load_ with messy code. 
+If you have not looked at that post, simply substitute _high extraneous load_ with messy code or complex code. 
 I think we are in a position to put a 1 and 1 together:  
 
 > &emsp; _The experimental nature of programming is a consequence of its high extraneous load and also one of its main causes_ 
@@ -250,11 +250,11 @@ _side_note_start
 Theoretical and practical mindsets are antipodes of programming.  Even for people who "own" both, being a pragmatist or being a theorist is like wearing a hat.  You can't wear both at the same time, you would look ridiculous. 
 I started making a conscious effort to understand which hat I have on. 
 
-Many things about programming seems to be on their head (making hats a somewhat tricky accessory).  Some ideas typically associated with FP are very pragmatic.  E.g. descriptive types, clear inputs and outputs, getting the same result on each try... Lack of these is IMO unpragmatic. At the same time OOP is quite theoretical and very complex (e.g. variance).  
+Many things about programming seem to be on their head (making hats a somewhat tricky accessory).  Some ideas typically associated with FP are very pragmatic.  E.g. descriptive types, clear inputs and outputs, getting the same result on each try... Lack of these is IMO unpragmatic. At the same time OOP is quite theoretical and very complex (e.g. variance).  
 
 Another complex aspect is how _theoretical_ or _pragmatic_ are you.  If we classify a typical _Rust_ programmer as a _theorist_, where do we put someone using [_add_blank_target _ATS_](http://www.ats-lang.org/)?  If a typical _Haskell_ developer is a _theorist_, how do we classify someone working with _Agda_ or _Coq_...?
 
-We are simplifying all of this and consider programmers to be either _pragmatists_ or _theorists_ 
+I am simplifying all of this and consider programmers to be either _pragmatists_ or _theorists_ 
 and take an oversimplified (binary) and a somewhat stereotypical view of what these terms mean.
 _side_note_end
 
@@ -280,14 +280,14 @@ Let's analyze this dialog a little bit.
 
 To Alice a logical issues are kinda a big deal. She will consider it very hard to reason about code sprinkled with logical flaws. 
 There is actually a good reason for this. 
-Some logical flaws we examined in my previous post[^logicalflaws] are quite isolated but it is hard (if not impossible) to understand the full impact of many of them.  I am a like Alice, working in a complex imperative program or a poorly written functional code results in me forming a large mental repository of issues and their unclear impacts. Maintaining it is a tough mental effort.   
-
-[^logicalflaws]: See [_add_blank_target Extraneous nature of abstraction](2022-08-30-code-cognitiveload.html#extraneous-nature-of-abstraction) and footnotes. 
+Some logical flaws we examined in my previous post[^logicalflaws] are quite isolated but it is hard (if not impossible) to understand the full impact of many of them.  I am a like Alice, working in a complex imperative program or a poorly written functional code results in me forming a large mental repository of issues and their unclear impacts. Maintaining it is a tough mental effort. 
 
 Here is a story from my personal experience.  A few year back I done a code review session with two (very capable) developers.  I showed them one of my "bug stashes" in the project we all were contributing to. It had to do with a logically brittle use of inheritance.  I demonstrated the process I go through 
 to verify the brittle bits.  This session was very productive, we all learned something from it, and this code was refactored later. 
 Their response is something I still contemplate:  "We do not go through such steps, we just assume it will work". 
 For me it was a learning experience I still think about, I realized that developers non only create code differently, but also very differently consume it. 
+
+[^logicalflaws]: See [_add_blank_target Extraneous nature of abstraction](2022-08-30-code-cognitiveload.html#extraneous-nature-of-abstraction) and footnotes. 
 
 Returning to Bob, he is a pragmatists.  Notice that Bob has stratified all contexts he assumed relevant to Alice's finding: production issue, failing test, and theoretical. To Bob, a logical issue in code is just a part of life.   "It has bugs, it's called software."  This empirical mindset, in some ways, is healthier[^rnt]. 
 It is not unusual for empirical reasoning to dismiss theoretical concerns, however in this case this is likely to be wrong. 
@@ -298,7 +298,7 @@ It is hard to spot or even assess impact of some bugs (e.g. race conditions) usi
 
 Carol response suggest an empirical mindset as well. Carol has generalized previous observations of a working product and that generalization overrides Alice's warning bells. Going from specific to general is what empirical process is about. 
 Proper empirical reasoning will question, even invalidate, previous "hypothesis" if new evidence provides reasons for doing so, but Alice is not providing any empirical evidence. 
-Alice argument is purely deductive, it could be helpful if she came up with a test that exposes the concurrency problem she has identified. 
+Alice argument is purely deductive, it could be helpful if she came up with a test that exposes the concurrency problem she has identified (this could be, obviously, very hard or even impossible to do).
 
 Bob: "We are starting the new frontend project, I propose we keep using XYZ PL, but maybe we could add a new library to our setup?"   
 Alice: "XYZ is fundamentally broken, we should move to something sound, like Reason."   
@@ -325,6 +325,7 @@ I have noticed that developers are typically surprised when computation behavior
 [^limitations]: I will repeat myself here, it does seem that there is a more general lack of understanding about the limitations of empirical reasoning.  Few people think about physics as a set of simplified mathematical models that only approximate reality. 
 Few people look deeply for bias in biological studies.  100% test coverage is in the "we tested it and it is correct" category. 
 
+
 Let's get a little philosophical:
 
 Alice: "Ideal code to me is one I would still be proud of after 10 years"  
@@ -341,7 +342,7 @@ A PL could be immortal but the ideas that went into its design may have died a l
 For that reason alone, it is a good idea to try to broaden the amount of formalism.
 _side_note_end
 
-These conversation examples were not intended to be exhaustive. They are somewhat biased, it is hard for me
+These conversation examples were not intended to be exhaustive. They are biased, it is hard for me
 to present the other view point this way. 
 I invite you to think more about the differences between pragmatists and theorists in both creating
 and consuming the code.  I invite you to think more about how each side thinks.   
@@ -409,7 +410,8 @@ in any language but is stronger for something like Haskell than say COBOL.
 ## Final toughs and summary
  
 This and the previous ([_add_blank_target Cognitive Loads in Programming](2022-08-30-code-cognitiveload.html)) post were high level rants about topics that have changed how I think about programming. 
-Both looked at the programming from outside, facilitated a critique of the programming process, and forced thinking about the human factor.  Both allow me to more critically look at myself.
+Both looked at the programming from outside and considered the human factor (including myself as a human coder).  
+Both were fundamentally about simplicity: ability to put the code in my head to do other things then trial and error. 
 
 In this post we considered programming to be a mostly empirical process and we asked the question: are we good at this empirical thing?    
 We have looked at programmers as individuals interested in either the empirical or the deductive. Can you place yourself into one of these camps? Can you place your coworkers? This is not always easy, sometimes the placement will depend on the situation. 
