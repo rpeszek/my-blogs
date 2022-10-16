@@ -9,7 +9,6 @@ tags: patterns-of-erroneous-code, communication
 
 > > &emsp; _"My brain hurts", a quote from a code review_ 
 
-**DRAFT version:** _This post is a work-in-progress. I am publishing it to solicit early feedback._ 
 
 This long post presents programming in a different light than what is commonly considered.  We will look at cognitive aspects of interacting with code.  
 
