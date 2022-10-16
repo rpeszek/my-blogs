@@ -88,7 +88,8 @@ We may try to reason about what solution is likely to work, but that is not much
 Let's talk process bureaucracy.  Working in empirical world means procedural protocols.  Scrum is a procedural protocol: 
 consider continuous improvement process with retrospectives or team velocity calculation,  these are all very empirical. 
 Test plans, test cases, coding and formatting standards, git hygiene, even design patterns are also procedural protocols.
-In contrast, the deductive needs a cushy couch. Deductive and bureaucracy, IMO, do not mix well. Waterfall was a failed idea of applying a deductive approach to project management.  There is a lot of real word complexity in project management and empirical is needed (see also [_add_blank_target Defined Process Vs Empirical Process](https://premieragile.com/defined-vs-empirical-process/)). 
+In contrast, the deductive needs a cushy couch. Deductive and bureaucracy, IMO, do not mix well. Waterfall was a failed idea of applying a informal deductive approach to project management.  There is a lot of real word complexity in project management and empirical is needed (see also [_add_blank_target Defined Process Vs Empirical Process](https://premieragile.com/defined-vs-empirical-process/)). 
+IMO, waterfall is to project planning what mocking is to unit testing. 
 
 
 Let's talk bias in empirical reasoning. Figuring out contributing factors and causality is often the hardest and the most important part in empirical reasoning.  If you wrist hurts when you type, is this a pinched nerve in the wrist? or, are you looking down on your laptop and the nerve is pinched around your neck? or there is a pressure point somewhere on your arm? or maybe it is not a nerve issue at all?  Practitioners of empirical have been known to assume wrong cause[^bias]. Empirical is tricky. 
@@ -158,7 +159,7 @@ Consider 2 cornerstones of scientific experiments: reproducibility and properly 
 FP-ers will immediately notice two related concepts: _referential transparency_ and _property testing_ (e.g. QuickCheck).  Clearly FP has a lot going on for it if you look at it from the empirical angle. 
 
 Why did we settle on using empirical method in science?  We do empirical not because we want to but because we have to. 
-Empirical is the only way to study the unruly real world. Why did we settle on using empirical method in programming?  IMO, there are 2 reasons: nondeterminism and code complexity. Whatever your opinion about FP vs code complexity is, you have to agree that FP is about controlling nondeterminism. Functional programming tries to separate out the predicable deterministic part (pure functions) and limit (even stratify) the unruly effectful parts. Functional programming tries to reduce the need for empirical. I think that is why it seems so empirically-friendly.    
+Empirical is the only way to study the unruly real world. Why did we settle on using empirical method in programming?  IMO, there are 2 reasons: nondeterminism and code complexity. Whatever your opinion about FP vs code complexity is, you have to agree that FP is about controlling nondeterminism. Functional programming tries to separate out the predictable deterministic part (pure functions) and limit (even stratify) the unruly effectful parts. Functional programming tries to reduce the need for empirical the same way a proper empirical reduces variability. I think that this is why FP seems so empirically-friendly.    
 
 Haskell is sometimes called _the best imperative PL_[^best_imperative].  I propose that _FP could become the best empirical programming method_ (yeah, could I be a little biased). However, it is "could become" rather than "is".  Empirical process benefits from good observability, e.g. decent debuggers, stack traces, rich amount of error information...  This is an area where FP could improve in general (and Haskell could improve in particular)[^logger]. 
 
@@ -250,7 +251,7 @@ _side_note_start
 Theoretical and practical mindsets are antipodes of programming.  Even for people who "own" both, being a pragmatist or being a theorist is like wearing a hat.  You can't wear both at the same time, you would look ridiculous. 
 I started making a conscious effort to understand which hat I have on. 
 
-Many things about programming seem to be on their head (making hats a somewhat tricky accessory).  Some ideas typically associated with FP are very pragmatic.  E.g. descriptive types, clear inputs and outputs, getting the same result on each try... Lack of these is IMO unpragmatic. At the same time OOP is quite theoretical and very complex (e.g. variance).  
+Many things about programming seem to be on their head (making hats a somewhat tricky accessory).  Some ideas typically associated with FP are very pragmatic.  E.g. descriptive types, clear inputs and outputs, getting the same result on each try... Lack of these is IMO unpragmatic. At the same time OOP is quite theoretical (taxonomies are fascinating academically, e.g. linguistics, but how practically useful is this type of knowledge?) and very complex (e.g. variance).  I dislike OOP primarily because it makes type checking less effective and I rely on type safety.
 
 Another complex aspect is how _theoretical_ or _pragmatic_ are you.  If we classify a typical _Rust_ programmer as a _theorist_, where do we put someone using [_add_blank_target _ATS_](http://www.ats-lang.org/)?  If a typical _Haskell_ developer is a _theorist_, how do we classify someone working with _Agda_ or _Coq_...?
 
@@ -326,7 +327,7 @@ I have noticed that developers are typically surprised when computation behavior
 Few people look deeply for bias in biological studies.  100% test coverage is in the "we tested it and it is correct" category. 
 
 
-Let's get a little philosophical:
+Alice’s deductive approach can really be beneficial when writing code, probably more than when troubleshooting empirically implemented code.  Let's get a little philosophical:
 
 Alice: "Ideal code to me is one I would still be proud of after 10 years"  
 Bob: "If you think about your 10 year old code as perfect, you learned nothing in these 10 years"  
@@ -338,8 +339,11 @@ This is almost an exact copy of a conversation I had with some of my coworkers. 
 
 _side_note_start
 We consider PLs that reach a certain threshold of usage as immortal. 
-A PL could be immortal but the ideas that went into its design may have died a long time ago. 
+A PL could be immortal but the ideas that went into its design may have died a long time ago.
 For that reason alone, it is a good idea to try to broaden the amount of formalism.
+Another example were immutability of formal thought is very, very useful is P2P (e.g. distributed blockchains). 
+If distributing a change is expensive or impossible, then formal is needed. 
+Inadequate formal thought in these areas is simply unpragmatic. 
 _side_note_end
 
 These conversation examples were not intended to be exhaustive. They are biased, it is hard for me
@@ -440,6 +444,6 @@ possible issues and their impacts is third.  Pragmatists are on the first axis, 
 third group, lets call them _perfectionists_. I came to FP on a correctness wagon, theory and improved coding efficiency are for me an added bonus. The question is how the _perfectionists_ fit into this picture.  This post bundled them with theorists, this was likely an oversimplification. 
 
 Implicit contexts in communication between programmers. There appears to be much more to explore here. Consider programming internet discussion forums (IMO, a Manhattan of communication skills, if you can make it there you will do really good in your project team).  One can observe all kinds of context related bias issues (e.g. some redditers do not consider reading to be a prerequisite for responding) or lack of context clarity (e.g. heavily downvoted posts with no comments). 
-Moving away form discussion groups, teams tend to create their own localized contexts (unique vocabulary, proprietary technical solutions) which is often not ideal.  IMO, context clarity is to communication what referential transparency is to programming.  IMO, context is to communication what causation is to empirical science. 
+Moving away form discussion groups, teams tend to create their own localized contexts (unique vocabulary, proprietary technical solutions) which is often not ideal.  IMO, context clarity is to communication what referential transparency is to programming.  IMO, context is to communication what understanding of causation is to empirical science. 
 
 I am sure there is are many more interesting angles to explore here. 
