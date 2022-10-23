@@ -20,9 +20,9 @@ I will argue that the pragmatic empirical mindset is also dominant.
 What the others mean, how they reason, or what is important to them are the contexts in human communication. Communication without the basis of common interest is hard. Good communication requires an effort of understanding these contexts (we call it finding a common language).  IMO, _empirical, deductive, pragmatist,_ and _theorist_ are a good terminology to analyze some of the current discourse (especially about FP). 
 In this post I will present my observations about the empirical and deductive mindsets. You may disagree with me, please let me know if you do. The point is to get these contexts right, or at least to have all of us think about them a little.  
 
-Fairness and lack of bias are rare but beautiful if encountered in human interactions.  At my current work I mostly use Haskell and I have been interested in functional programming for a long time, thus, this post is likely to have some unintended bias. Also, these are my opinions, not an attempt at a scientifically sound reasoning.  
+Fairness and lack of bias are rare but beautiful if encountered in human interactions.  In my current work I mostly use Haskell and I have been interested in functional programming for a long time, I am a mathematician who became a software developer (27 years ago, but these things stay with you). Thus, this post is likely to have some unintended bias. Also, these are my opinions, not an attempt at a scientifically sound reasoning.  
 
-I have not found much discussion about this, I am not following academic research in any related area. 
+I have not found much discussion about the empirical nature of programming, I am not following academic research in any related area. 
 The topic of [_add_blank_target empirical software engineering](https://en.wikipedia.org/wiki/Empirical_software_engineering) is relevant to programming and the empirical method, but is not really what I will talk about. 
 Retrospecting on my software programmer career,  I recall good and bad things. The good had good communication, the bad had bad communication of some sort.  Pragmatists vs theorists is just a part of a bigger puzzle, I am going to explore that part here. 
 
@@ -35,14 +35,14 @@ This sounds like the beginning of a catchy song.  There is also informal and for
 In this post I will mostly try to use _empirical_ and _deductive_ when referring to the thought process, I will use _pragmatist_ and _theorist_ when referring to people. 
 
 Empirical (to avoid using inductive[^inductive]) reasoning draws general conclusions from observations.  E.g. certain software functionality will work because we tested it (notice how well software testing fits into this definition).
-Thinking about software testing as an empirical process allows us to consider things like bias[^biasdef] (e.g. did we miss a range of scenarios?), observation sample size (did we test enough?), correlation vs causality (e2e tests are unstable, is there something wrong with e2e testing itself?), if observations are balanced (adequate coverage of test scenarios across functional areas), establish observation baseline ([_add_blank_target golden testing](https://en.wikipedia.org/wiki/Characterization_test) for complex deterministic code)... 
+Thinking about software testing as an empirical process allows us to consider things like bias[^biasdef] (e.g. the assumptions we make in unit tests), observation sample size (did we test enough?), correlation vs causality (e2e tests are unstable, is there something wrong with e2e testing itself?), if observations are balanced (adequate coverage of test scenarios across functional areas), establish observation baseline ([_add_blank_target golden testing](https://en.wikipedia.org/wiki/Characterization_test) for complex deterministic code)... 
 Here is an exaggerated example of a correlation vs causation problem: "Each time I test the app it works just fine, yet users keep reporting issues. Something's wrong with these people!". 
 But it is even more fun to think about both experiments and observations. 
 
 [^biasdef]: I use the term bias loosely as well.  Scientists are concerned about bias in the design of empirical studies (which observations go in, how things are observed, etc), bias in how results are analyzed (e.g. proper stratification).  Bias is a [_add_blank_target statistics](https://en.wikipedia.org/wiki/Bias_(statistics)) term, [_add_blank_target psychology](https://en.wikipedia.org/wiki/List_of_cognitive_biases) term,  all of this seems very relevant to programming. 
 
 Deductive reasoning goes from general knowledge to specific conclusions. E.g. certain software functionality will work because of type safety or because it is a straightforward application of something else we believe works. In this post, deductive represents a wide range of thought processes: from tedious "observation-less" mental verification 
-of values and types (oh, this value was supposed to be a positive number why is it negative?, is the new refactored code equivalent to the previous?...) all the way to formal reasoning.  
+of values and types (oh, this value was supposed to be a positive number, why is it negative?, is the new refactored code equivalent to the previous?...) all the way to formal reasoning (e.g. equational proof that refactored code is equivalent).  
 
 Empirical and deductive work in tandem and both are essential.  IMO, we (as individuals) prefer to use one more than the other. 
 Understanding more about these preferences will be the main topic of this post.
@@ -62,10 +62,10 @@ _side_note_end
 [^formalprog]: The term _formalism_ has special meaning in mathematics, I use it colloquially (i.e. all mathematics is formal).
 Examples of formal approaches popular among FP-ers could be equational reasoning, use of logical implication (e.g. with Haskell type class constraints), use of mathematical or structural induction (e.g. with inductive types like a functional list prove properties of, say, the implementation of `map`). Readers familiar with equational reasoning may agree with me about its similarity to a refactoring process where the developer mentally verifies that the new code is equivalent to the old. The line between formal and informal is sometimes thin. 
 
-[^formalprog2]: This is kinda fun: we have only empirical evidence of mathematics itself being _correct_, we know we will never prove it formally. Mistakes in mathematics are also extremely rare.  However, we have a lot of empirical evidence of (past) _incorrectness_ in empirical sciences. 
-I am a pragmatist enough to say that mathematics is correct, the rest looks good only until we find something wrong with it (just like bugs in software). 
+[^formalprog2]: This is kinda fun: we have only empirical evidence of mathematics itself being _correct_, we know we will never prove it formally. Mistakes in mathematics are extremely rare.  However, we have a lot of empirical evidence of (past) _incorrectness_ in empirical sciences. 
+I am a pragmatist enough to say that mathematics is correct, the rest looks good only until we learn more about it (just like bugs in software). 
 
-You may think that I am spending too much time explaining the obvious:  any engineering will have a strong empirical side, engineers like to tinker with things.  I assume that some readers are like me and have not thought about it before.  The next section goes deeper into the empirical nature of coding.   
+You may think that I am spending too much time explaining the obvious:  any engineering will have a strong empirical aspect, engineers like to tinker with things.  I assume that some readers are like me and have not thought about it before.  The next section goes deeper into the empirical nature of coding.   
 
 ## Coding by experimenting and observing
 
@@ -77,7 +77,7 @@ However, this is not that much different from, say, a wildlife biologist general
 Hard to resist: They say symbiotic, we say decoupling... ;)   
 
 Trial and error is how a lot of programming is done.  We write some code (_experiment_) and then _observe_ the result using tests, a debugger, looking at the logs, or simply observe how the app behaves ignoring other diligence. 
-Personally, I am a little afraid of experimenting with certain types of code and I try to think through all scenarios, I could miss something but my mental process includes a lot of deductive effort. I have worked with many programmers who  operate in a similar way.  However, I still need to test the code to _observe_ it working, make changes if needed, and rinse and repeat. Despite some deductive elements, this approach is still very experimental in its nature.  
+Personally, I am a little afraid of experimenting with certain types of code and I try to think through all scenarios, I could miss something but my mental process includes a lot of deductive effort. I have worked with many programmers who  operate in a similar way.  However, I still need to test the code to _observe_ it working, make changes if needed, and rinse and repeat. Despite some deductive elements, this approach is still very experimental in its nature. 
 
 How about working in code that is a complete mess? 
 We make experimental changes and then test / debug / trace the heck out of it[^heck], right? 
@@ -88,18 +88,18 @@ We may try to reason about what solution is likely to work, but that is not much
 Let's talk about process bureaucracy.  Working in an empirical world means procedural protocols.  Scrum is a procedural protocol: 
 consider the continuous improvement process with retrospectives or team velocity calculation,  these are all very empirical. 
 Test plans, test cases, coding and formatting standards, git hygiene, even design patterns are also procedural protocols.
-In contrast, the deductive needs a cushy couch. Deductive and bureaucracy, IMO, do not mix well. Waterfall was a failed idea of applying an informal deductive approach to project management.  There is a lot of real word complexity in project management and empirical is needed (see also [_add_blank_target Defined Process Vs Empirical Process](https://premieragile.com/defined-vs-empirical-process/)). 
-IMO, waterfall reminds me of mocking in unit testing.  Both do not work well for similar reasons. 
+In contrast, the deductive needs a cushy couch. Deductive and bureaucracy, IMO, do not mix well. Waterfall was a failed idea of applying an informal deductive approach to project management.  There is a lot of real world complexity in project management and empirical is needed (see also [_add_blank_target Defined Process Vs Empirical Process](https://premieragile.com/defined-vs-empirical-process/)). 
+Waterfall reminds me of mocking in unit testing.  Both do not work well for similar reasons. 
 
 
-Let's talk about bias in empirical reasoning. Figuring out contributing factors and causality is often the hardest and the most important part in empirical reasoning.  If you wrist hurts when you type, is this a pinched nerve in the wrist? or, are you looking down on your laptop and the nerve is pinched around your neck? or there is a pressure point somewhere on your arm? or maybe it is not a nerve issue at all?  Practitioners of empirical have been known to assume wrong cause[^bias]. Empirical is tricky. 
+Let's talk about bias in empirical reasoning. Figuring out contributing factors and causality is often the hardest and the most important part in empirical reasoning.  If your wrist hurts when you type, is this a pinched nerve in the wrist? or, are you looking down n your laptop and the nerve is pinched around your neck? or there is a pressure point somewhere in your arm? or maybe it is not a nerve issue at all?  Practitioners of empirical have been known to assume wrong cause[^bias]. Empirical is tricky. 
 
 [^bias]: Rate of misdiagnosis for carpal tunnel is over 80% [_add_blank_target carpal tunnel misdiagnosis](https://www.carpalrx.com/post/carpal-tunnel-misdiagnosis). A very sad example for the past: it is now believed that a big cause of death during Spanish Flu was too much aspirin prescribed to treat the symptoms. 
 
-Programmers are exposed to bias too. Performance issues or a bug could be caused by many factors, e.g. an application could misbehave only in certain scenarios or only in certain environment configurations, the underlying issue could be in the application code, library code, configuration issue, environment problem... 
+Programmers are exposed to bias too. Performance issues or a bug could be caused by many factors, e.g. an application could misbehave only in certain scenarios or only in certain environment configurations, the underlying issue could be in the application code, library code, a configuration issue, an environment problem... 
 It is not unlikely for a developer to go down a wrong path during the troubleshooting process. I view programming as an empirical process with accelerated feedback. You can go down a wrong path but you typically learn that fast.
 
-I had a fun discussion with my wife, she is a statistician and data scientist working on pharmacological studies.  We were discussing if a design of a clinical trial could be adjusted to software benchmarks. 
+I had a fun discussion with my wife, she is a statistician and data scientist working on pharmacological studies.  We were discussing if a design of a clinical trial could be adjusted to do software benchmarks. 
 There are some intriguing similarities. Obviously, humans are much more complex than programs and targeted approaches will work better in either domain.  But it was a fun discussion and one that convinced me even more about the empirical nature of programming. 
 
 So, if programming is mostly experimental and empirical, let's do something unusual and discuss it as such:
@@ -129,7 +129,8 @@ It is called type safety and I will briefly discuss it:
 ### Type safe experiments
 
 This is my favorite approach to programming. 
-In the presence of a nice type system, coding can become solving jig-saw puzzles. 
+In the presence of a nice type system, coding can become solving jig-saw puzzles (writing code by using building blocks that can 
+fit only in a correct way). 
 A similar process can work even in TypeScript[^jigsaw]. 
 This approach could include an interactive, type checker assisted deductive process (asking the compiler a series of type questions, something akin to type hole driven development[^idris]) or just making a guess and trying to see if the pieces fit. 
 The second approach is a form of experimentation. 
@@ -138,7 +139,7 @@ I often need to get _a solution_ in and the linter will replace it with a much n
 
 [^jigsaw]: See [_add_blank_target A walk in the park](2022-03-13-ts-types-part6.html#a-walk-in-the-park), [_add_blank_target phantom types](2022-01-09-ts-types-part4.html#phantom-types), [_add_blank_target existential types](2022-01-09-ts-types-part4.html#preventing-information-escape) in my TS series.
 
-Combinator term is 100 years old and I could be wrong about its intended intuitive meaning[^combinator]. It feels like it was all about jigsaw puzzles.  What I do now is that functional programming is about designing well fitting combinators. 
+_Combinator_ is a 100 years old term and I could be wrong about its intended intuitive meaning[^combinator]. However, that meaning appears to be _a building block_.  What I know for sure is that functional programming is about designing and using well fitting combinators. 
 
 This jig-saw puzzle approach results in very clean programs, is addictive, and a lot of fun, but (sadly) is not commonly used at large. 
 It is an approach FP-ers often use. Is FP empirical?  
@@ -171,7 +172,7 @@ FP is about clear inputs and outputs after all.
 Programming is often associated with mathematics and logic (mostly by non-programmers[^reynolds]). FP is very much an outlier and an interesting one, FP is both quite mathematical and quite empirical. 
 However, it's the theoretical part that many FP-ers love.  
 
-[^reynolds]: I just love the beginning story in [_add_blank_target Types, Abstraction and Parametric Polymorphism (John C. Reynolds)](https://people.mpi-sws.org/~dreyer/tor/papers/reynolds.pdf) paper. 
+[^reynolds]: I just love the the beginning story in [_add_blank_target Types, Abstraction and Parametric Polymorphism (John C. Reynolds)](https://people.mpi-sws.org/~dreyer/tor/papers/reynolds.pdf) paper. 
 
 
 ## Pragmatists and theorists
@@ -181,7 +182,7 @@ I am using terms _theorist_ and _pragmatist_ somewhat colloquially, but the mean
 
 If you listen to a functional programmer talk, you are likely to hear these terms: "reasoning about code", "principled computation", "computation laws", "correctness by design", "type safety".  These people are likely to study things like lambda calculi, operational semantics, category theory, type theory...  All these things come with formal proofs and could result in a very specific mental training.  _To this group programming is more of a deductive process._  
 
-These things do not resonate with the vast majority of programmers who have a more pragmatic mindset.  You are more likely to hear these terms:  "testing", "TDD", "hacking" (meant as a compliment), even "design patterns" (though rarely these days).  _To this group programming is more an empirical process._[^pragmatists]   
+These things do not resonate with the vast majority of programmers who have a more pragmatic mindset.  You are more likely to hear these terms:  "testing", "TDD", "hacking" (meant as a compliment, "I made it work"), even "design patterns" (though rarely these days).  _To this group programming is more an empirical process._[^pragmatists]   
 
 [^pragmatists]: The association of pragmatism and empirical process is not unique to programmers, e.g. if you google "pragmatists vs formalists" today you will probably get a link to this quote "Formalism follows deductive approach whereas pragmatism applies empirical approach" from this legal philosophy paper: [_add_blank_target Formalism vs. Pragmatism in Legal Philosophy](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3423036)
 
@@ -190,10 +191,12 @@ IMO, mindset and interest are very related terms. In this post I could almost us
 A theorist's primary interest is in deductive reasoning. This implies an interest in the deductive itself. Deductive reasoning is often called top-down reasoning (general knowledge comes first). Formal reasoning (the pinnacle of deductive) has a very strong attraction for some individuals while being very much disliked by others. 
 Some programmers dive deep into FP and learn formal reasoning.  Sometimes a mathematician (this was the case with me) makes a career conversion and becomes a developer. Interest in the deductive and formal is rather rare, to many programmers formal methods are a foreign concept. 
 
-In contrast, a pragmatist's primary interest is in accomplishing the tasks at hand. Pragmatists will experiment and go empirical to get there. “When the going gets tough, the tough get empirical.”  Real world complexity is rarely fully amenable to formal reasoning. Unfortunately pragmatists take a stronger stance on this, 
-a pragmatist may think that formal reasoning is never useful. 
+In contrast, a pragmatist's primary interest is in accomplishing the tasks at hand. Pragmatists will experiment and go empirical to get there. “When the going gets tough, the tough get empirical.”  Real world complexity is rarely fully amenable to formal reasoning. Unfortunately pragmatists take a stronger stance on this, a pragmatist may think that formal reasoning is never useful.  
 
-Pragmatists will say "it works because we tested it".  Theorists will say "it is correct by design" (or closer to Dijkstra: "we tested it and we know it does not work"[^dijkstra]). Pragmatist will say "this abstraction is too complicated to use because is too theoretical".  Theorists will say "this abstraction is too complicated because it lacks theoretical backing".  The 2 groups may find it difficult to communicate "this is nice" and "this is terrible" have a very different context when spoken by pragmatist and theorist.  
+I need to emphasize that what I am presenting is an oversimplification.  People are complex and cannot be
+easily labeled.  In particular, data scientists, statisticians, programmers interested in probabilistic computing models have a lot of formal training but probably will develop a more empirical attitude towards programming.  I am continuing with my oversimplification because, I think, it explains some of the discourse. 
+
+Pragmatists will say "it works because we tested it".  Theorists will say "it is correct by design" (or closer to Dijkstra: "we tested it and we know it does not work"[^dijkstra]). Pragmatist will say "this abstraction is too complicated to use because it is too theoretical".  Theorists will say "this abstraction is too complicated because it lacks theoretical backing".  The 2 groups may find it difficult to communicate "this is nice" and "this is terrible" have a very different context when spoken by a pragmatist and a theorist.  
 
 
 [^dijkstra]: IMO, some experience with the formal is needed to better understand limitations of empirical. "Program testing can be used to show the presence of bugs, but never to show their absence!" is a projection of that understanding onto programming.
@@ -215,8 +218,8 @@ I consider programming to be a combination of both engineering procedural proces
 Pragmatists are interested in the process, they want code standards, formatting standards, clean git history...  Theorists will want functors, monads, higher rank types, higher kinded types, dependent types...  Programming, obviously, benefits from both engineering and mathematics.  
 
 One bizarre difference I have noticed between heavy deductive thinkers and empirical mindsets is their favorite approach 
-to learning.  When learning, some (not all!) theorists may want to finish a whole book before writing a single line of code. The top-down thinking sometimes extends to top-down learning.  My wife and I are in the first group. 
-I had to force myself to write some code when going through [_add_blank_target TAPL](https://www.goodreads.com/book/show/112252.Types_and_Programming_Languages), I decided to create a public github repo to give myself incentive to "code as I learn" with [_add_blank_target CTFP](https://www.goodreads.com/book/show/33618151-category-theory-for-programmers) and [_add_blank_target T(ype)DD in Idris](https://www.manning.com/books/type-driven-development-with-idris).  Obviously, this is not ideal and such theorists should learn to like bottom-up learning.  Some theorists treat learning as a murder mystery and want to learn ASAP who done it, pragmatists know it will be the butler.  
+to learning.  When learning, some theorists will want to finish a section or chapter before writing a single line of code. The top-down thinking sometimes extends to top-down learning (a theorist wants to internalize the theory before applying it).  My wife and I are in this group. 
+I had to force myself to write some code early when going through [_add_blank_target TAPL](https://www.goodreads.com/book/show/112252.Types_and_Programming_Languages), I decided to create a public github repo to give myself incentive to "code as I learn" with [_add_blank_target CTFP](https://www.goodreads.com/book/show/33618151-category-theory-for-programmers) and [_add_blank_target T(ype)DD in Idris](https://www.manning.com/books/type-driven-development-with-idris).  Some theorists treat learning as a murder mystery and want to learn ASAP who done it, pragmatists know it will be the butler.  
 
 On the flip side, pragmatists prefer hands-on learning from code examples (ideally, associated with project work) and typically expect immediate return on their learning investments. E.g. a pragmatist is unlikely to spend several months studying, say, a one line of code[^one-line].  Pragmatists are less likely to search for deep understanding (this is kinda definitional, having theoretical interests makes you a theorist).  
 Also, it seems logical to assume that learning from experience is more habituating. Pragmatists may have a harder time making mental shifts to how they work with code.  I have linked this Dijkstra quote ([_add_blank_target Dijkstra letter to The University of Texas](https://chrisdone.com/posts/dijkstra-haskell-java/)) in my previous post, but is seems so relevant that I will repeat it:  
@@ -248,6 +251,23 @@ Some theorists may not see a big difference between a prototype and a product th
 
 I have noticed some pragmatists (not all!) arrive at conclusions too soon.  E.g. “ABC PL is no good, each time I try it I get (this) negative experience”, "Our issues are caused by the technology we use", etc.  This is often confounding correlation with causation and is bad empirical reasoning. These statements are better justified if there is more than the observations to support them.  
 
+Probably, the most important pragmatic difference is:
+
+> &emsp; _Bug means observed malfunction to an empirical pragmatist_    
+> &emsp; _Bug means a logical flaw to a formal theorist_
+
+In empirical science, rare it tricky. Rare can escape the empirical process. 
+The term "outlier" is used in statistics, outliers are often removed from analysis. The term "zebra" is used by medical doctors, "zebras" are hard to figure out, rare cases.
+When dealing with real world we say:
+
+> &emsp; _"the exception that proves the rule"_   
+> &emsp; In formal reasoning _exceptions disprove the rule._
+
+In software engineering, _exceptional, rare events_ often stop being rare (e.g. when data changes or usage changes expose it). The stricter (one that considers rare cases) approach to software design is a useful contribution. 
+I have witnessed many cases where a programmer made a decision that a certain 
+scenario is very unlikely and acted on that decision by cutting corners in the code.  
+In my experience, this approach ends up being very costly. However, I am not convinced that cutting corners is unique to either mindset.  A pragmatist may think "this is so unlikely, who cares".  The rare case could be outside of the theoretical model that a theorist is considering (e.g. error information in a bunch of FP code). However, cutting corners in formal reasoning is not a thing.  
+
 _side_note_start
 Theoretical and practical mindsets are antipodes of programming.  Even for people who "own" both, being a pragmatist or being a theorist is like wearing a hat.  You can't wear both at the same time, you would look ridiculous. 
 I started making a conscious effort to understand which hat I have on. 
@@ -260,7 +280,6 @@ I am simplifying all of this and consider programmers to be either _pragmatists_
 and take an oversimplified (binary) and a somewhat stereotypical view of what these terms mean.
 _side_note_end
 
-
 This post argues that both traits are important.  We will dig deeper into both ways of thinking by analyzing some examples. 
 
 
@@ -268,7 +287,7 @@ This post argues that both traits are important.  We will dig deeper into both w
 
 Perhaps not surprisingly, theorists are not all equally disappointed about logical software defects.
 Explaining this diversity is a price I have to pay for bundling all theorists together. 
-Think physics, it is very theoretical, yet theoretical physicists are happy to do hand waving arguments. In contrast, there is no such thing as "a partially correct" in mathematics.  IMO, this stricter view plays a role in how some of us approach programming. 
+Think physics, it is very theoretical, yet theoretical physicists are happy to do hand waving arguments. In contrast, there is no hand waving in mathematics.  IMO, this stricter view plays a role in how some of us approach programming. 
 
 
 Alice: "We have a concurrency issue in our code"   
@@ -300,7 +319,7 @@ It is hard to spot or even assess the impact of some bugs (e.g. race conditions)
 
 Carol's response suggests an empirical mindset as well. Carol has generalized previous observations of a working product and that generalization overrides Alice's warning bells. Going from specific to general is what empirical process is about. 
 Proper empirical reasoning will question, even invalidate, previous "hypothesis" if new evidence provides reasons for doing so, but Alice is not providing any empirical evidence. 
-Alice's argument is purely deductive, it could be helpful if she came up with a test that exposes the concurrency problem she has identified (this could be, obviously, very hard or even impossible to do).
+Alice's argument is purely deductive, it could be helpful if she came up with a test that exposes the concurrency problem she has identified (this could be, obviously, very hard or even impossible to do).  Rare can be easily overlooked by the empirical, rare defects in software sometimes do not stay rare for long. 
 
 Bob: "We are starting the new frontend project, I propose we keep using XYZ PL, but maybe we could add a new library to our setup?"   
 Alice: "XYZ is fundamentally broken, we should move to something sound, like Reason."   
@@ -324,7 +343,7 @@ Alice: "Remember we patched a bug by updating shared state in the middle of this
 This code review session shows a benefit of having someone around who keeps a repository of potential issues in their head.
 I have noticed that developers are typically surprised when computation behavior keeps changing, yet are mostly not willing to engage with the concept of referential transparency.  I also think many do not think about what 100% test coverage implies and what it does not[^limitations]. 
 
-[^limitations]: I will repeat myself here, it does seem that there is a more general lack of understanding about the limitations of empirical reasoning.  Few people think about physics as a set of simplified mathematical models that only approximate reality. 
+[^limitations]: I will repeat myself here, it does seem that there is a more general lack of understanding about the limitations of empirical reasoning.  Few people think about physics as a collection of simplified mathematical models that only approximate reality. 
 Few people look deeply for bias in biological studies.  100% test coverage is in the "we tested it and it is correct" category. 
 
 
@@ -345,6 +364,7 @@ For that reason alone, it is a good idea to try to broaden the amount of formali
 Another example where immutability of formal thought is very, very useful is P2P (e.g. distributed blockchains). 
 If distributing a code change is expensive or impossible, then the formal is needed. 
 Inadequate formal thought in these areas is simply unpragmatic. 
+IMO, "code that ages well" is a topic that should be discussed more. 
 _side_note_end
 
 These conversation examples were not intended to be exhaustive. **They are biased, it is hard for me
@@ -358,7 +378,7 @@ _side_note_start
 For a very long time I could not figure out why certain decisions about PLs, popular libraries, or programming projects are being made.
 I could not understand why certain bugs remain not fixed, why there are no deprecation attempts, why certain 
 decisions have been made in the first place.  The idea of software as something that is made from loose ends and somehow made whole by a testing effort feels wrong to me.  The empirical mindset I have tried to explain here is my best attempt
-at understanding these things.  E.g. I cannot explain in any other way why Java maintainers decided not to deprecate standard library classes where `equals` is not symmetric (the list of such examples is long[^why]).  If I was in charge of designing programming courses, an example exercise would look like this:   
+at understanding these things.  E.g. I cannot explain in any other way why Java maintainers decided not to deprecate standard library classes where `equals` is not symmetric (the list of such issues is long[^why], are all of these "exceptions that prove the rule" in the mindset of the maintainers?).  If I was in charge of designing programming courses, an example exercise would look like this:   
 
 > &emsp;  *There is a common belief that TypeScript compilation flags like `strictNullChecks` prevent escaped `null` and `undefined`.   
 &emsp;  Exploit how TS defines variance to create a function that has `number` as the return type but it returns `undefined` for some of its input parameter values.* 
@@ -369,12 +389,12 @@ _side_note_end
 [^why0]: I created a long list of logically unsound decisions made by PLs and some mainstream libraries in this [_add_blank_target footnote](2022-08-30-code-cognitiveload.html#fn12)
 in my previous post, I wrote a [_add_blank_target footnote](2022-08-30-code-cognitiveload.html#fnref19) about Haskell as well.
 
-[^why]: I will partially repeat a list I came up with for my last post.  Example of non-symmetric equals is `java.sql.Timestamp` used with `java.sql.Date` or `java.util.Date`, these remain used as standard JDBC mappings for DB columns, the usage will show no deprecation warning.  Working in JS often feels like explosives engineering.   
+[^why]: I will partially repeat a list I came up with in my last post.  Example of non-symmetric equals is `java.sql.Timestamp` used with `java.sql.Date` or `java.util.Date`, these remain used as standard JDBC mappings for DB columns, the usage will show no deprecation warning. 
 I wrote a blog series about [_add_blank_target TypeScript Types](/tags/TypeScript-Notes.html) and ended up presenting a lot of complexities and gotchas that probably surprise any TS developer.  
 How do Hibernate users prevent this [_add_blank_target concurrency issue](http://rpeszek.blogspot.com/2014/08/i-dont-like-hibernategrails-part-2.html)?  
 I remember Grails as a land mine of issues, I wrote an 11 part [_add_blank_target blog series](http://rpeszek.blogspot.com/2014/10/i-dont-like-hibernategrails-part-11_31.html) about it back in 2014.  
 Returning to Java, its implementation of `Optional` is often [_add_blank_target criticized](https://www.sitepoint.com/how-optional-breaks-the-monad-laws-and-why-it-matters/). Java array variance is fundamentally broken.
-Java Streams are broken as well:  if you execute a stream twice the second attempt will fail. This is probably the first and only attempt at dynamically typed linear types &#128578; and is bound to create interesting intermittent issues.   
+Java Streams are broken as well:  if you execute a stream twice the second attempt will fail. This (interesting take on referential transparency &#128578;) is bound to create interesting intermittent issues.   
 I wrote a [_add_blank_target footnote](2022-08-30-code-cognitiveload.html#fnref19) in the previous post about Haskell ecosystem issues as well. 
 
 
@@ -402,7 +422,7 @@ Theorists are likely to devote a significant effort into learning.
 How does it feel to not be allowed to use what you worked hard to figure out?
 Examples like [_add_blank_target How to stop functional programming](https://brianmckenna.org/blog/howtostopfp) come to mind. 
 This is something that can be changed on a small scale but there are a (very) few places who care to do so. 
-The job market for functional programming jobs is, frankly, dismal.  At the same time, languages like Haskell and Rust had toped the weekend use stats based on stackoverflow surveys[^weekend].  There must be quite a few frustrated programmers out there.  I have been in that position and I know it is mentally hard. 
+The job market for functional programming jobs is, frankly, dismal.  At the same time, languages like Haskell and Rust had topped the weekend use stats based on stackoverflow surveys[^weekend].  There must be quite a few frustrated programmers out there.  I have been in that position and I know it is mentally hard. 
 I have argued that the deductive process plays an important role and, IMO, it is in the interest of the industry to treat the "theorists" minority better.   
 
 [^weekend]: Repeating some of what I wrote [_add_blank_target here](2022-03-13-ts-types-part6.html#about-simplicity):  Haskell was firmly in the first position for the stackoverflow weekend use statistics for several years. Here is one link: [_add_blank_target 2017](https://stackoverflow.blog/2017/02/07/what-programming-languages-weekends/).  In [_add_blank_target 2019](https://stackoverflow.blog/2019/10/28/research-update-coding-on-the-weekends/) Rust moved ahead of Haskell. 
