@@ -191,6 +191,8 @@ IMO, the popularity of easy and the unpopularity of simple are a systemic proble
 
 Next section discusses examples of code which was intended to be easy and ended up complex.
 
+> &emsp; _“Simplicity is a great virtue but it requires hard work to achieve it and education to appreciate it. And to make matters worse: complexity sells better.”_  Dijkstra 
+
 
 ## Extraneous loads that grow 
 
@@ -567,6 +569,7 @@ Are we doing a good job in managing code complexity?  I think this a fair questi
 that simplicity is not crucially important.  This post has argued that we are mostly failing on that front. 
 In this post, we looked at how project complexity grows unnoticed, how bugs are a missed opportunity to learn about how we fail, and how FP changes the cognitive process but can be hard to learn. As a whole this post has been a bit of _repetitive negative thinking_, but I hope you found some positives and useful ideas in it as well.  The main point of this post was to advocate for including cognitive aspects of programming projects into consideration and to present some useful terminology for doing it. 
 
+> > &emsp;  _"It is time to unmask the computing community as a Secret Society for the Creation and Preservation of Artificial Complexity"_ Dijkstra (of course).
 
 ## There is much more to it
 
