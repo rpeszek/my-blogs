@@ -26,7 +26,8 @@ Fairness and lack of bias are rare but beautiful if encountered in human interac
 
 I have not found much discussion about the empirical nature of programming, I am not following academic research in any related area. 
 The topic of [_add_blank_target empirical software engineering](https://en.wikipedia.org/wiki/Empirical_software_engineering) is relevant to programming and the empirical method, but is not really what I will talk about. 
-Retrospecting on my software programmer career,  I recall good and bad things. The good had good communication, the bad had bad communication of some sort.  Pragmatists vs theorists is just a part of a bigger puzzle, I am going to explore that part here. 
+Retrospecting on my software programmer career,  I recall good and bad things. The good had good communication, the bad had bad communication of some sort.  Pragmatists vs theorists is just a part of a bigger puzzle, I am going to explore that part here. So what is the point I am trying to make?  _I am not trying to make any_, my goal is to 
+discuss empirical and deductive (programming), theorists and pragmatists (programmers) in as much debt as I can muster. 
 
 ## Empirical vs Deductive 
 
@@ -188,28 +189,23 @@ partitionSecondEithers ((a, Right c): xs) = (rb, (a,c): rc)
     where (rb, rc) = partitionSecondEithers xs
 ```
 
-You can use these equations to formally verify properties of this function. 
-You can do equational inductive reasoning to, e.g. formally show that the list length is conserved (that
-`prop` holds for any list of type `[(a, Either b c)]`): 
+Fun exercise 1:  Identify obvious conservation law for the list lengths. Use paper and pencil (not something like QuickCheck) to formally prove that law. 
+This exercise shows, formal properties do not need to be complex or advanced[^solution1]. 
 
-```Haskell
-prop :: [(a, Either b c)] -> Bool
-prop xs = length xs == length lefts + length rights 
-  where (lefts, rights) = partitionSecondEithers xs
-```
-(no need for QuickCheck randomness here, paper and pencil is all you need[^pencil]). 
-As this example shows, formal properties do not need to be complex or advanced. 
-A great exercise is to think about what could you do to "incorrectly" implement the above function. 
+Fun exercise 2: Change the above code to violate the conservation law.  Notice that such code would be hard
+to implement by accident.  Add Liquid Haskell annotations to prevent unlawful solutions[^solution2]. 
 _side_note_end
+
+[^solution1]: Hint: pattern matches become equations, recursion becomes induction step.  
+
+[^solution2]: Solution: `{-@ partitionSecondEithers :: xs:[(a, Either b c)] -> {ys: ([(a, b)], [(a,c)])  | (len xs) = (len (fst ys)) + (len (snd ys))} @-}`.  You can try it online [_add_blank_target here](http://goto.ucsd.edu:8090/index.html#?demo=product.hs). 
 
 FP is a hybrid containing both empirical and formal. ... But I got sidetracked a bit. 
 Let's finally get to my main topic: the human aspect. 
 
-[^pencil]: Arguably paper and pencil do not maintain well, but still... 
-
 ## Pragmatists and theorists
 
-I am using terms _theorist_ and _pragmatist_ somewhat colloquially, but the meaning is close to how the terms are used elsewhere.  
+I am using terms _theorist_ and _pragmatist_ somewhat colloquially, but the meaning is close to how the terms are used elsewhere.  In this section I will try my best to describe both mindsets.  IMO, mindset and interest are very related terms. In this post I could almost use them interchangeably. 
 
 If you listen to a functional programmer talk, you are likely to hear these terms: "reasoning about code", "principled computation", "computation laws", "correctness by design", "type safety".  These people are likely to study things like lambda calculi, operational semantics, category theory, type theory...  All these things come with formal proofs and could result in a very specific mental training.  _To this group programming is more of a deductive process._  
 
@@ -217,7 +213,6 @@ These things do not resonate with the vast majority of programmers who have a mo
 
 [^pragmatists]: The association of pragmatism and empirical process is not unique to programmers, e.g. if you google "pragmatists vs formalists" today you will probably get a link to this quote "Formalism follows deductive approach whereas pragmatism applies empirical approach" from this legal philosophy paper: [_add_blank_target Formalism vs. Pragmatism in Legal Philosophy](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3423036)
 
-IMO, mindset and interest are very related terms. In this post I could almost use them interchangeably. 
 
 A theorist's primary interest is in deductive reasoning. This implies an interest in the deductive itself. Deductive reasoning is often called top-down reasoning (general knowledge comes first). Formal reasoning (the pinnacle of deductive) has a very strong attraction for some individuals while being very much disliked by others. 
 Some programmers dive deep into FP and learn formal reasoning.  Sometimes a mathematician (this was the case with me) makes a career conversion and becomes a developer. Interest in the deductive and formal is rather rare, to many programmers formal methods are a foreign concept. 
@@ -266,11 +261,15 @@ Also, it seems logical to assume that learning from experience is more habituati
 
 [^one-line]:  I dig a deep hole by using [_add_blank_target Free Monad](2022-08-30-code-cognitiveload.html#germane-and-intrinsic-load-of-fp) as example of such a line in my previous post. 
 
-The part of FP that has been the most disappointing for me is a typically low quality of error outputs.  This may have to do with all falsehoods being equivalent in mathematics[^falsehood].  However, we should not criticize the theory, rather the theorists for selecting abstractions that suppress or confuse error information.  I wrote about it in the previous post and also before[^before].
+The part of FP that has been the most disappointing for me is a typically low quality of error outputs.  This may have to do with all falsehoods being equivalent in mathematics[^falsehood].  However, we should not criticize the theory, rather the theorists for selecting abstractions that suppress or confuse error information.  I wrote about it in the previous post and also before[^before].    
 
 [^before]: See my posts about maybe and alternative overuse [_add_blank_target patterns-of-erroneous-code](/tags/patterns-of-erroneous-code.html)
 
-In contrast, to an experienced pragmatist error output is (typically) an important observation.  It is a pragmatic thing to do to know _what_ went wrong.  
+In contrast, to an experienced pragmatist error output is (typically) an important observation.  It is a pragmatic thing to do to know _what_ went wrong.  However, the tendency towards the use of `null`, `Option`, `Maybe` suppressing available information is something I do not understand. IMO, goes beyond the topics we are discussing here. 
+
+While theorists may have a problem engaging with things outside of their theoretical model, pragmatists often have a problem engaging with things that are even mildly theoretical like computational laws
+or even referential transparency.  Programmers often don't care about computational properties, but will be surprised by software behavior when they are missing.  Many gotchas can be described as 
+a "natural" computation property that is violated.  
 
 [^falsehood]: I am not a logician, I vaguely remember some versions of logic that allow multiple moralities, in particular one where there was _lax_ in addition to _false_.  Few (even) mathematicians will know these. 
 
@@ -292,7 +291,7 @@ When dealing with real world we say:
 In software engineering an exceptional, rare event often stops being rare (e.g. when the data or usage changes expose it). 
 I fixed many bugs caused by a programmer's decision that a certain 
 scenario is very unlikely and, thus, it is OK to cut corners. 
-In my experience, cutting corners saves hours and ends up costing weeks or even months later. 
+In my experience, ignoring rare scenarios saves hours and ends up costing weeks or even months later. 
 
 However, I am not convinced that cutting corners is unique to either mindset.  A pragmatist may think "this is so unlikely, I will not waste time on it". 
 The rare case could be not represented by the theoretical model that a theorist is considering (e.g. error information in a bunch of FP code). IMO, pragmatists and theorists cut corners in different ways, however, _cutting corners has no place in formal reasoning_ and I expect some programmers (most likely a subset of theorists) carefully think through rare cases. 
@@ -301,7 +300,7 @@ Theoretical and practical mindsets are antipodes of programming.  Even for peopl
 I started making a conscious effort to understand which hat I have on. 
 
 _side_note_start
-**Side Notes.** Many things about programming seem to be on their head (making hats a somewhat tricky accessory).  Some ideas typically associated with FP are very pragmatic.  E.g. descriptive types, clear inputs and outputs, getting the same result on each try, ADTs (how could the ability to get a lot of generic code for free in Haskell be considered anything but pragmatic?)...  At the same time OOP is quite theoretical (taxonomic knowledge is fascinating academically, e.g. in biology or linguistics, but IMO not that practically important to programming) and very complex (e.g. subtyping variance).  I dislike OOP primarily because it makes type checking less effective and I rely on type safety.
+**Side Notes.** Many things about programming seem to be on their head (making hats a somewhat tricky accessory).  Some ideas typically associated with FP are very pragmatic.  E.g. descriptive types, clear inputs and outputs, getting the same result on each try, ADTs (how could the ability to get a lot of generic code for free in Haskell be considered anything but pragmatic?)...  At the same time OOP is quite theoretical (taxonomic knowledge is fascinating academically, e.g. in biology or linguistics, but how practically important is it in programming?) and very complex (e.g. subtyping variance).  I dislike OOP primarily because it makes type checking less effective and I rely on type safety.
 
 Another complex aspect is how _theoretical_ or _pragmatic_ you are.  If we classify a typical _Rust_ programmer as a _theorist_, where do we put someone using [_add_blank_target _ATS_](http://www.ats-lang.org/)?  If a typical _Haskell_ developer is a _theorist_, how do we classify someone working with _Agda_ or _Coq_...?
 
@@ -343,7 +342,7 @@ For me it was a learning experience I still think about, it made me realize how 
 
 Returning to Bob, he is a pragmatist.  Notice that Bob has stratified all contexts he assumed relevant to Alice's finding: production issue, failing test, and theoretical. To Bob, a logical issue in code is just a part of life.   "It has bugs, it's called software."  This empirical mindset, in some ways, is healthier[^rnt]. 
 It is not unusual for empirical reasoning to dismiss theoretical concerns, however in this case this is likely to be wrong. 
-It is hard to spot or even assess the impact of some bugs (e.g. race conditions) using testing or other observation based methods[^tla]. The concurrency flaw Alice has identified can start manifesting itself all the sudden, this is what concurrency issues have been _observed_ to do. 
+It is hard to spot or even assess the impact of some bugs (e.g. race conditions) using testing or other observation based methods[^tla]. The concurrency flaw Alice has identified can start manifesting itself all the sudden, this is what concurrency issues have been _observed_ &#128578; to do. 
 
 [^rnt]: I have discussed RNT (repetitive negative thinking) in my [_add_blank_target previous post](2022-08-30-code-cognitiveload.html) in my previous post. 
 
@@ -373,7 +372,7 @@ Bob:  "We are assuming that it is referentially transparent and want consistent 
 Alice: "Remember we patched a bug by updating shared state in the middle of this computation, did you retest this scenario?"  
 
 This code review session shows a benefit of having someone around who keeps a repository of potential issues in their head.
-I have noticed that developers are typically surprised when computation behavior keeps changing, yet are mostly not willing to engage with the concept of referential transparency.  I also think many do not think about what 100% test coverage implies and what it does not[^limitations]. 
+I have noticed that developers are typically surprised when computation behavior keeps changing, yet are mostly not willing to engage with the concept of referential transparency.  I also think some do not think about what 100% test coverage implies and what it does not[^limitations]. 
 
 [^limitations]: I will repeat myself here, it does seem that there is a more general lack of understanding about the limitations of empirical reasoning.  Few people think about physics as a collection of simplified mathematical models that only approximate reality. 
 Few people look deeply for bias in biological studies.  100% test coverage is in the "we tested it and it is correct" category. 
@@ -387,19 +386,20 @@ Alice: "I am looking for something as timeless as mathematics"
 Carol: "Mathematics keeps improving and changing I am sure, everything does"  
 Alice: "No, it only grows, it has not changed its mind in 100+ years"
 
-This is almost an exact copy of a conversation I had with some of my coworkers. Formal reasoning is a foreign concept to many programmers.  The immutability analogy I have used before works well here: mathematics is immutable while empirical sciences mutate in-place.  
+This is almost an exact copy of a conversation I had with some of my coworkers. The immutability analogy I have used before works well here: mathematics is immutable while empirical sciences mutate in-place. 
 Bob's argument is partially valid as there is a lot of engineering going into coding and that is likely to keep changing[^eng].  Can you think about code examples that aged very well?
 
-[^eng]: E.g. consider various improvements that can be made to my `partitionSecondEithers`. 
-E.g. you can think about performance improvements, maybe using `foldr` with lazy pattern matching... 
+[^eng]: E.g. consider performance improvements that can be made to my `partitionSecondEithers`. 
+Note, Haskell code that is implemented using constructors and pattern matching only
+does not take advantage of rewrite rules that are already in place for combinators like `foldr`.  Compare my code to the source of `paritionEithers` in `Data.Either`. 
 
 _side_note_start
 We consider PLs that reach a certain threshold of usage as immortal. 
 A PL could be immortal but the ideas that went into its design may have died a long time ago.
-Empirical needs an ability to mutate to improve. PLs are an example where, due to backward compatibility,  changes are very hard to do. 
+Empirical needs an ability to mutate to improve. PLs are an example where, due to backward compatibility,  changes are very hard to do.  Empirical + immutable + immortal is a bad combination, we need more formalism in PL design. 
 Another example where immutability of formal thought is very, very useful is P2P (e.g. distributed blockchains). 
 If distributing a code change is expensive or impossible, then the formal is needed. 
-Inadequate amount of formal in these areas is simply unpragmatic and costly.  
+Inadequate amount of formal in these areas is simply unpragmatic and costly. 
 IMO, "code that ages well" is an important topic.  
 _side_note_end
 
@@ -410,13 +410,14 @@ I need to emphasize, this is not a binary separation where everyone is either pr
 
 
 _side_note_start
-I could never figure out why certain decisions about PLs, popular libraries, or programming projects are being made.
-I could not understand why certain bugs remain not fixed, why there are no deprecation attempts, why certain decisions have been made in the first place.  The idea of software as something that is made from loose ends and somehow made whole by a testing effort feels wrong to me.  The empirical mindset I have tried to explain here is my best attempt at understanding these things.  E.g. I cannot explain in any other way why Java maintainers decided not to deprecate standard library classes where `equals` is not symmetric (the list of such issues is long[^why]). Are all of these "exceptions that prove the rule", rare and thus not important cases in the mindset of the maintainers?  I consider this approach to be not pragmatic and expensive.  If I was in charge of designing programming courses[^training], an example exercise would look like this:   
+For the longest time, I could not figure out why certain decisions about PLs, popular libraries, or programming projects are being made.
+I could not understand why certain bugs remain not fixed, why there are no deprecation attempts, why certain decisions have been made in the first place.  The empirical mindset I have tried to explain here is my best attempt at understanding these things.  E.g. I cannot explain in any other way why Java maintainers decided not to deprecate standard library classes where `equals` is not symmetric. The list of such issues is long[^why]. Are all of these "exceptions that prove the rule", rare and thus not important cases in the mindset of the maintainers?  I consider this approach to be not pragmatic and expensive.  If I was in charge of designing programming courses[^training], an example exercise would look like this:   
 
 > &emsp;  *There is a common belief that TypeScript compilation flags like `strictNullChecks` prevent escaped `null` and `undefined`.   
 &emsp;  Exploit how TS defines variance to create a function that has `number` as the return type but it returns `undefined` for some of its input parameter values.* 
 
-The pragmatist's take (as I see it) is: the ingredients you use do not need to be sound, they are just a part of a bigger implementation noise. I do not agree with this argument, but at least I think I know what the argument is. 
+The pragmatist's take (as I see it) is: (1) the impact of these booby traps is small and with some luck you will not notice (or _observe_) them in your project, 
+(2) the ingredients you use do not need to be sound, they are just a part of a bigger implementation noise. I do not agree with these arguments, but at least I think I know what the arguments are. 
 _side_note_end
 
 [^why0]: I created a long list of logically unsound decisions made by PLs and some mainstream libraries in this [_add_blank_target footnote](2022-08-30-code-cognitiveload.html#fn12)
@@ -457,32 +458,21 @@ Theorists are likely to devote a significant effort into learning.
 How does it feel to not be allowed to use what you worked hard to figure out?
 Examples like [_add_blank_target How to stop functional programming](https://brianmckenna.org/blog/howtostopfp) come to mind. 
 This is something that can be changed on a small scale but there are only a few places who care to do so. 
-The job market for functional programming jobs is, frankly, dismal.  At the same time, languages like Haskell and Rust had topped the weekend use stats based on stackoverflow surveys[^weekend].  There must be quite a few frustrated programmers out there.  I have been in that position and I know it is mentally hard. 
+There must be quite a few frustrated programmers out there[^weekend].  I have been in that position and I know it is mentally hard. 
 I have argued that the deductive process plays an important role and, IMO, it is in the interest of the industry to treat the "theorists" minority better.   
 
-[^weekend]: Repeating some of what I wrote [_add_blank_target here](2022-03-13-ts-types-part6.html#about-simplicity):  Haskell was firmly in the first position for the stackoverflow weekend use statistics for several years. Here is one link: [_add_blank_target 2017](https://stackoverflow.blog/2017/02/07/what-programming-languages-weekends/).  In [_add_blank_target 2019](https://stackoverflow.blog/2019/10/28/research-update-coding-on-the-weekends/) Rust moved ahead of Haskell. 
-The job ranking (based on the UK's [_add_blank_target IT Jobs Watch](https://www.itjobswatch.co.uk/jobs/uk/haskell.do)) puts Haskell at 932 as of 2022/02/06.  Haskell moved ahead of COBOL in that ranking in 2017. 
+[^weekend]: The job market for functional programming jobs is, frankly, dismal.  At the same time, languages like Haskell and Rust had topped the weekend use stats based on stackoverflow surveys. 
+Repeating some of what I wrote [_add_blank_target here](2022-03-13-ts-types-part6.html#about-simplicity):  Haskell was firmly in the first position for the stackoverflow weekend use statistics for several years. Here is one link: [_add_blank_target 2017](https://stackoverflow.blog/2017/02/07/what-programming-languages-weekends/).  In [_add_blank_target 2019](https://stackoverflow.blog/2019/10/28/research-update-coding-on-the-weekends/) Rust moved ahead of Haskell. 
+The job ranking (based on the UK's [_add_blank_target IT Jobs Watch](https://www.itjobswatch.co.uk/jobs/uk/haskell.do)) put Haskell at 932 as of 2022/02/06.  Haskell moved ahead of COBOL in that ranking in 2017. 
 This ranking is possibly exaggerated too, lots of jobs list Haskell as good to have but will have you code in PHP.  This bias exist
-in any language but is stronger for something like Haskell than say COBOL. 
+for any language but is stronger for something like Haskell than say COBOL. 
     
 
-## Final thoughts and summary
+## Final thoughts
  
 We can learn a thing or two about programming if we think about it as an empirical process. We can learn a
 thing or two about the empirical process itself if we
 examine programming as a case study. We did a little bit of both in this post. 
-
-This and the previous ([_add_blank_target Cognitive Loads in Programming](2022-08-30-code-cognitiveload.html)) post were high level rants about topics that have changed how I think about programming. 
-Both looked at the programming from outside and considered the human factor. 
-Both were fundamentally about simplicity: an ability to put the code in my head so I can work on it. 
-
-But this post was also about the human factor. 
-We have looked at programmers as individuals interested in either the empirical or the deductive. Can you place yourself into one of these camps? Can you place your coworkers? This is not always easy, sometimes the placement will depend on the situation. 
-I hope I have convinced you that understanding these mindsets is helpful.  IMO, it provides extra context when interacting with others and a mirror.  This post presented my honest opinions, these are not scientific claims, just opinions. 
-
-This post has argued for more formalism in programming. Formal computation properties are laws that everyone expects to hold but most refuse to consider (at least this is what I have been _observing_). 
-I have argued that lack of formalism can be costly and unpragmatic.  
-
 
 The odd discourse between formal and empirical is not unique to programming. 
 I still remember a few jokes about "a mathematician, a physicist, a chemist, ...". 
@@ -499,9 +489,10 @@ Thank you for reading!
 
 ## Unexplored
 
-Imperative vs denotative in the context of both mindsets.  IMO, this is not a clear cut (few things are), I consider myself very theoretical, yet I like parts of my code to be imperative.  
-
 Impact of education on the development of either mindset.  
+
+Related psychology: Humans have evolved "observing" things and acting on these observations. Empirical process is in our nature. This also explains why we dismiss rare scenarios. 
+I do not feel qualified to discuss these in more depth.  
 
 As we have discussed, developers approach bugs differently. This is how my interest in figuring out different programmer mindsets has started. There is a different way to look at this. Consider these 3 axes: "It has bugs, it's called software" is the origin, testing is one axis, 
 "correctness by design" abstractions and type safety is second, a mental repository of 
