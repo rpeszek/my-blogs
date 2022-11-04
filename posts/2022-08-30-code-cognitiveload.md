@@ -1,6 +1,6 @@
 ---
 title:  Cognitive Loads in Programming 
-lastmodified: Aug 30, 2022
+lastmodified: Nov 07, 2022
 featured: true
 summary: About cognitive aspects of bugs, abstractions, types, PL ecosystems.   
 toc: true
