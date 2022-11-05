@@ -10,6 +10,8 @@ tags: patterns-of-erroneous-code, communication
 
 > *"If in physics there's something you don't understand, you can always hide behind the uncharted depths of nature. You can always blame God. You didn't make it so complex yourself. But if your program doesn't work, there is no one to hide behind. You cannot hide behind an obstinate nature. If it doesn't work, you've messed up." Edsger W. Dijkstra*
 
+**DRAFT version:** _This post is a work-in-progress. Thank you for your feedback._ 
+
 I will discuss (on a very high level) empirical, experimental, and deductive aspects of programming. 
 This distinction is fun to analyze (and a somewhat unusual way to look at programming) but it seems mostly a useless curiosity in itself.  I have convinced myself that programmers tend to favor empirical or favor deductive. IMO, we are placing ourselves into 2 camps.  I call these camps _pragmatists_ and _theorists_. 
 This division impacts how we program and communicate. Discussion of both mindsets is the main goal of this post. 
@@ -115,11 +117,10 @@ There are some intriguing similarities. Obviously, humans are much more complex 
 Why did we settle on using the empirical method in science?  We do empirical not because we want to but because we have to. Empirical is the only way to study the unruly real world. Why did we settle on using the empirical method in programming? 
  
 ## Why is programming empirical? 
-
-Imperative nature of programming must be a big contributing (root) factor. Supply-demand laws and how mathematics is being taught must be a part of it too. 
+ 
 I will focus on these 2 reasons: nondeterminism and code complexity.
-Nondeterminism immediately brings FP to mind.  But, let's start with the second. 
-An interesting question is how much the empirical nature of programming has to do with arbitrary (artificial) complexity.  IMO, a lot.  So before we move on to discuss the human aspect, let's indulge in a short discussion about these 2 topics. 
+Let's start with the second. 
+An interesting question is how much the empirical nature of programming has to do with arbitrary (artificial) complexity.  IMO, a lot.  
 
 ### Experimental process and high extraneous loads
 
@@ -192,8 +193,8 @@ partitionSecondEithers ((a, Right c): xs) = (rb, (a,c): rc)
     where (rb, rc) = partitionSecondEithers xs
 ```
 
-Fun exercise 1:  Identify obvious conservation law for the list lengths. Use QuickCheck or similar to verify it. 
-It does not make the test any weaker if we test just one type, say `a ~ b ~ c ~ Int` why?  
+Fun exercise 1:  Identify the obvious conservation law for list lengths. Use QuickCheck or other property testing library to verify it. 
+It does not make the test any weaker if we test just one type, say `a ~ b ~ c ~ Int`, can you provide a formal reason why?   
 Fun exercise 2: Use paper and pencil to formally prove that this implementation satisfies that law[^solution1]. 
 This exercise shows, formal reasoning does not need to be complex or advanced.   
 Fun exercise 3: Change the above code to violate the conservation law.  Notice that such code would be hard
@@ -319,7 +320,8 @@ This post argues that both traits are important.  We will dig deeper into both w
 
 ## Conversations
 
-So far, this post has tried to upset people on both sides equally. This section will be biased towards theorists, it is hard for me to present the pragmatist's viewpoint this way.
+So far, this post has tried to upset people on both sides equally. This section will be biased towards theorists, it is hard for me to present the pragmatist's viewpoint this way.  Engineers are some of the cleverest people on this planet. If someone
+rewrote this section from an engineer pragmatist' point of view, I would love to read it. 
 
 Perhaps not surprisingly, theorists are not all equally disappointed about logical software defects.
 Explaining this diversity is a price I have to pay for bundling all theorists together. 
@@ -344,7 +346,7 @@ to verify the brittle bits.  This session was very productive, we all learned so
 Their response is something I still contemplate:  "We do not go through such steps, we just assume it will work". 
 For me it was a learning experience I still think about, it made me realize how different our mindsets are. 
 
-[^logicalflaws]: See [_add_blank_target Extraneous nature of abstraction](2022-08-30-code-cognitiveload.html#extraneous-nature-of-abstraction) and footnotes. 
+[^logicalflaws]: See [_add_blank_target Extraneous nature of abstraction](2022-08-30-code-cognitiveload.html#extraneous-nature-of-abstraction) and its footnotes. 
 
 Returning to Bob, he is a pragmatist.  Notice that Bob has stratified all contexts he assumed relevant to Alice's finding: production issue, failing test, and theoretical. To Bob, a logical issue in code is just a part of life.   "It has bugs, it's called software."  This empirical mindset, in some ways, is healthier[^rnt]. 
 It is not unusual for empirical reasoning to dismiss theoretical concerns, however in this case this is likely to be wrong. 
