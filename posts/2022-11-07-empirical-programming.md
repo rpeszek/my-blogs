@@ -110,7 +110,7 @@ Let's talk about bias in empirical reasoning. Figuring out contributing factors 
 Programmers are exposed to bias too. Performance issues or a bug could be caused by many factors, e.g. an application could misbehave only in certain scenarios or only in certain environment configurations, the underlying issue could be in the application code, library code, a configuration issue, an environment problem... 
 It is not unlikely for a developer to go down a wrong path during the troubleshooting process. I view programming as an empirical process with accelerated feedback. You can go down a wrong path but you typically learn that fast.
 
-I had a fun discussion with my wife, she is a statistician and data scientist working on pharmacological studies.  We were discussing if a design of a clinical trial could be adjusted to do software benchmarks. 
+I had a fun discussion with my wife, she is a data scientist working on pharmacological studies.  We were discussing if a design of a clinical trial could be adjusted to do software benchmarks. 
 There are some intriguing similarities. Obviously, humans are much more complex than programs and targeted approaches will work better in either domain.  But it was a fun discussion and one that convinced me even more about the empirical nature of software development. 
 
 
@@ -194,11 +194,12 @@ partitionSecondEithers ((a, Right c): xs) = (rb, (a,c): rc)
 ```
 
 Fun exercise 1:  Identify the obvious conservation law for list lengths. Use QuickCheck or other property testing library to verify it. 
-It does not make the test any weaker if we test just one type, say `a ~ b ~ c ~ Int`, can you provide a formal reason why?   
+It suffices to test just one type, say `a ~ b ~ c ~ Bool` (unit `()` will do too), can you provide a formal reason why?   
 Fun exercise 2: Use paper and pencil to formally prove that this implementation satisfies that law[^solution1]. 
 This exercise shows, formal reasoning does not need to be complex or advanced.   
 Fun exercise 3: Change the above code to violate the conservation law.  Notice that such code would be hard
-to implement by accident.  Add [_add_blank_target Liquid Haskell](https://ucsd-progsys.github.io/liquidhaskell/) annotations to prevent unlawful solutions[^solution2]. 
+to implement by accident.  Add [_add_blank_target Liquid Haskell](https://ucsd-progsys.github.io/liquidhaskell/) annotations to prevent unlawful solutions[^solution2].    
+Fun exercise 4: Try to come up with other laws for `partitionSecondEithers` and prove them.  E.g. Prove that `partitionSecondEithers` is a [_add_blank_target natural transformation](https://bartoszmilewski.com/2015/04/07/natural-transformations/) in `a`, `b`, and in `c`.  Can this be used in exercise 1 or 2?
 _side_note_end
 
 [^intro]: Equivalents exist in, say, [_add_blank_target containers, Data.Map](https://hackage.haskell.org/package/containers-0.4.0.0/docs/Data-Map.html#v:mapEither)
@@ -206,6 +207,8 @@ _side_note_end
 [^solution1]: Hints: You will need "elementary" implementation for `length` (`length [] = 0; length (x:xs) = 1 + length xs`). Recursion step becomes induction step, the conservation law is an equation, you prove it by writing bunch of equations you get from the program itself. 
 
 [^solution2]: Solution: `{-@ partitionSecondEithers :: xs:[(a, Either b c)] -> {ys: ([(a, b)], [(a,c)])  | (len xs) = (len (fst ys)) + (len (snd ys))} @-}`.  As of this writing, you can try it online [_add_blank_target here](http://goto.ucsd.edu:8090/index.html#?demo=lenMapReduce.hs). 
+
+[^hint3]: E.g. `partitionSecondEithers` interacts (commutes) with list `map` in interesting ways.
 
 FP is a hybrid containing both empirical and formal. ... But I got sidetracked a bit. 
 Let's finally get to my main topic: the human aspect. 
@@ -365,7 +368,7 @@ Alice: "XYZ is fundamentally broken, we should move to something sound, like Rea
 Carol: "Alice, we do not know that PL, this will put the project at risk!"   
 Alice: "We know so many problems about XYZ, XYZ puts the project in jeopardy too".   
 
-You may be wondering why I call JavaScript XYZ?  Well, XYZ was intended as a placeholder. 
+You may be wondering why I call JavaScript XYZ?  Well &#128578;, XYZ was intended as a placeholder. 
 Alice would like to use tools that help, not inhibit her deductive process and are logically sound.
 Alice has witnessed her colleagues (and probably herself) trip over XYZ unsound design numerous times. She considers the
 use of XYZ akin to building a house on a broken foundation.  
