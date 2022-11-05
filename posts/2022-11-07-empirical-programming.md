@@ -25,7 +25,9 @@ Fairness and lack of bias are rare but beautiful if encountered in human interac
 
 I have not found much discussion about the empirical nature of programming, I am not following academic research in any related area. 
 The topic of [_add_blank_target empirical software engineering](https://en.wikipedia.org/wiki/Empirical_software_engineering) is relevant to programming and the empirical method, but is not really what I will talk about. 
-Retrospecting on my software programmer career,  I recall good and bad things. The good had good communication, the bad had bad communication of some sort.  Pragmatists vs theorists is just a part of a bigger puzzle, I am going to explore that part here. So what is the point I am trying to make? 
+Retrospecting on my software programmer career,  I recall good and bad things. The good had good communication, the bad had bad communication of some sort.  Pragmatists vs theorists is just a part of a bigger puzzle, I am going to explore that part here. 
+
+So what is the point I am trying to make? 
 My only real point is that both mindsets are important, my goal is to 
 discuss empirical and deductive (programming), theorists and pragmatists (programmers) in as much debt as I can muster. 
 
@@ -101,7 +103,7 @@ Waterfall reminds me of mocking in unit testing.  Both do not work well for simi
 
 Let's talk about bias in empirical reasoning. Figuring out contributing factors and causality is often the hardest and the most important part in empirical reasoning.  If your wrist hurts when you type, is this a pinched nerve in the wrist? or, are you looking down on your laptop and the nerve is pinched around your neck? or there is a pressure point somewhere in your arm? or maybe it is not a nerve issue at all?  Practitioners of empirical have been known to assume wrong cause[^bias]. Empirical is tricky. 
 
-[^bias]: Rate of misdiagnosis for carpal tunnel is over 80% [_add_blank_target carpal tunnel misdiagnosis](https://www.carpalrx.com/post/carpal-tunnel-misdiagnosis). A very sad example for the past: it is now believed that a big cause of death during Spanish Flu was too much aspirin prescribed to treat the symptoms. 
+[^bias]: Rate of misdiagnosis for carpal tunnel is over 80% according to this article: [_add_blank_target carpal tunnel misdiagnosis](https://www.carpalrx.com/post/carpal-tunnel-misdiagnosis). A very sad example for the past: it is now believed that a big cause of death during Spanish Flu was too much aspirin prescribed to treat the symptoms. 
 
 Programmers are exposed to bias too. Performance issues or a bug could be caused by many factors, e.g. an application could misbehave only in certain scenarios or only in certain environment configurations, the underlying issue could be in the application code, library code, a configuration issue, an environment problem... 
 It is not unlikely for a developer to go down a wrong path during the troubleshooting process. I view programming as an empirical process with accelerated feedback. You can go down a wrong path but you typically learn that fast.
@@ -176,8 +178,9 @@ Haskell is sometimes called _the best imperative PL_[^best_imperative].  I propo
 [^logger]: I implemented a proprietary Haskell logger library at my work. It is interesting to think about what we want to observe when we FP. Standard logger libraries for, say, Java are "object-centric" and will allow configuration options based on which class spilled out info into the log. The library I implemented is "data-centric" and allows you to configure what data you want to see. FP is about clear inputs and outputs after all. 
 
 _side_note_start
-**Side Note:** I like to use Haskell because it allows for a hybrid development that combines both empirical and formal in ways not possible when using a mainstream PL.  Here is an "elemental" (from ground up, using only basic language features) 
-implementation of a combinator I find very useful.  Notice the implementation is just a bunch of equations
+**Side Note:** (Haskell 101). I like to use Haskell because it allows for a hybrid development that combines both empirical and formal in ways not possible when using a mainstream PL.  Here is an "elementary" (from ground up, using only basic language features) 
+implementation of a combinator I find very useful[^intro]. 
+Notice the implementation is just a bunch of equations
 that use constructors or pattern match and nothing else:
 
 ```Haskell
@@ -189,16 +192,19 @@ partitionSecondEithers ((a, Right c): xs) = (rb, (a,c): rc)
     where (rb, rc) = partitionSecondEithers xs
 ```
 
-Fun exercise 1:  Identify obvious conservation law for the list lengths. Use paper and pencil to formally prove that law for this program[^solution1]. 
-This exercise shows, formal properties do not need to be complex or advanced. 
-
-Fun exercise 2: Change the above code to violate the conservation law.  Notice that such code would be hard
-to implement by accident.  Add Liquid Haskell annotations to prevent unlawful solutions[^solution2]. 
+Fun exercise 1:  Identify obvious conservation law for the list lengths. Use QuickCheck or similar to verify it. 
+It does not make the test any weaker if we test just one type, say `a ~ b ~ c ~ Int` why?  
+Fun exercise 2: Use paper and pencil to formally prove that this implementation satisfies that law[^solution1]. 
+This exercise shows, formal reasoning does not need to be complex or advanced.   
+Fun exercise 3: Change the above code to violate the conservation law.  Notice that such code would be hard
+to implement by accident.  Add [_add_blank_target Liquid Haskell](https://ucsd-progsys.github.io/liquidhaskell/) annotations to prevent unlawful solutions[^solution2]. 
 _side_note_end
 
-[^solution1]: Hints: You will need "elemental" implementation for `length` (`length [] = 0; length (x:xs) = 1 + length xs`). Recursion step becomes induction step, the conservation law is an equation, you prove it by writing bunch of equations you get from the program itself.
+[^intro]: Equivalents exist in, say, [_add_blank_target containers, Data.Map](https://hackage.haskell.org/package/containers-0.4.0.0/docs/Data-Map.html#v:mapEither)
 
-[^solution2]: Solution: `{-@ partitionSecondEithers :: xs:[(a, Either b c)] -> {ys: ([(a, b)], [(a,c)])  | (len xs) = (len (fst ys)) + (len (snd ys))} @-}`.  You can try it online [_add_blank_target here](http://goto.ucsd.edu:8090/index.html#?demo=product.hs). 
+[^solution1]: Hints: You will need "elementary" implementation for `length` (`length [] = 0; length (x:xs) = 1 + length xs`). Recursion step becomes induction step, the conservation law is an equation, you prove it by writing bunch of equations you get from the program itself. 
+
+[^solution2]: Solution: `{-@ partitionSecondEithers :: xs:[(a, Either b c)] -> {ys: ([(a, b)], [(a,c)])  | (len xs) = (len (fst ys)) + (len (snd ys))} @-}`.  As of this writing, you can try it online [_add_blank_target here](http://goto.ucsd.edu:8090/index.html#?demo=lenMapReduce.hs). 
 
 FP is a hybrid containing both empirical and formal. ... But I got sidetracked a bit. 
 Let's finally get to my main topic: the human aspect. 
@@ -380,25 +386,24 @@ Few people look deeply for bias in biological studies.  100% test coverage is in
 Bob: "I changed the interface, you can now pass new parameters to control how the data is processed"   
 Alice: "I changed the module, you can now use new functions (combinators) to manipulate the data"
 
-Functions have properties and types, theorists can use these to reason about code.  Parameters are great for 
-tweaking and experimenting, engineers love to tweak things. 
-
+Functions are great for reasoning about code, parameters are great for tweaking and experimenting.  
 Alice’s deductive approach can really be beneficial when writing code, probably more than when troubleshooting empirically implemented code.  Let's get a little philosophical:
 
 Alice: "Ideal code to me is one I would still be proud of after 10 years"  
 Bob: "If you think about your 10 year old code as perfect, you learned nothing in these 10 years"  
 Alice: "I am looking for something as timeless as mathematics"  
 Carol: "Mathematics keeps improving and changing I am sure, everything does"  
-Alice: "No, it only grows, it has not changed its mind in 100+ years"
+Alice: "No, it only grows, it has not changed its mind in over 100 years"
 
 This is almost an exact copy of a conversation I had with some of my coworkers. The immutability analogy I have used before works well here: mathematics is immutable while empirical sciences mutate in-place. 
-Bob's argument is partially valid as there is a lot of engineering going into coding and that is likely to keep changing[^eng]. Also, there is an engineering cost of formal verification[^mathcost]. Can you think about code examples that aged very well?
+Bob's argument is partially valid as there is a lot of engineering going into coding and that is likely to keep changing[^eng]. Also, formal verification has a maintenance cost[^mathcost] making me question how realistic Alice's dream is. Can you think about code examples that aged very well?
 
 [^eng]: E.g. consider performance improvements that can be made to my `partitionSecondEithers`. 
 Note, Haskell code that is implemented using constructors and pattern matching only
 does not take advantage of rewrite rules that are already in place for combinators like `foldr`.  Compare my code to the source of [_add_blank_target `paritionEithers`](https://hackage.haskell.org/package/base-4.17.0.0/docs/src/Data.Either.html#partitionEithers) in `Data.Either`.  
 
-[^mathcost]: Consider refactoring `partitionSecondEithers` to use `foldr`.  If property proofs were somehow included in source code (e.g. if this was a dependently typed language), then these will now need to be refactored. If Liquid Haskell is used, the verification could break and may require extra work as well.  
+[^mathcost]: If you use a PL with a proof assistant features and write proofs for your programs, a refactoring will have additional cost of rethinking the proofs. This could be not an issue with Liquid Haskell, which does the proofs for you, but still may require extra work if the logic solver needs extra help.  Consider refactoring `partitionSecondEithers` (annotated as before) to use `foldr`, Liquid Haskell will tell you that your code is unsafe.  It is interesting to note that QuickCheck-like property tests
+maintain very well. 
 
 _side_note_start
 We consider PLs that reach a certain threshold of usage as immortal. 
@@ -508,7 +513,7 @@ It seems that this synergy can be explored more.
 
 Impact of education on the development of either mindset.  
 
-Related psychology, evolutionary biology: Humans have evolved "observing" things and acting on these observations. Empirical process is in our nature. This also explains why we dismiss rare scenarios. 
+Related psychology, evolutionary biology: Humans survived and evolved by "observing" things and acting on these observations. Empirical process is in our nature. This also explains why we dismiss rare scenarios. 
 I do not feel qualified to discuss these in more depth.  
 
 As we have discussed, developers approach bugs differently. This is how my interest in figuring out different programmer mindsets has started. There is a different way to look at this. Consider these 3 axes: "It has bugs, it's called software" is the origin, testing is one axis, 
