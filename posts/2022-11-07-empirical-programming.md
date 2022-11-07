@@ -324,7 +324,7 @@ This post argues that both traits are important.  We will dig deeper into both w
 ## Conversations
 
 So far, this post has tried to upset people on both sides equally. This section will be biased towards theorists, it is hard for me to present the pragmatist's viewpoint this way.  Engineers are some of the cleverest people on this planet. If someone
-rewrote this section from an engineer pragmatist' point of view, I would love to read it. 
+rewrote this section from an engineer/pragmatist point of view, I would love to read it. 
 
 Perhaps not surprisingly, theorists are not all equally disappointed about logical software defects.
 Explaining this diversity is a price I have to pay for bundling all theorists together. 
@@ -407,7 +407,7 @@ Bob's argument is partially valid as there is a lot of engineering going into co
 Note, Haskell code that is implemented using constructors and pattern matching only
 does not take advantage of rewrite rules that are already in place for combinators like `foldr`.  Compare my code to the source of [_add_blank_target `paritionEithers`](https://hackage.haskell.org/package/base-4.17.0.0/docs/src/Data.Either.html#partitionEithers) in `Data.Either`.  
 
-[^mathcost]: If you use a PL with a proof assistant features and write proofs for your programs, a refactoring will have additional cost of rethinking the proofs. This could be not an issue with Liquid Haskell, which does the proofs for you, but still may require extra work if the logic solver needs extra help.  Consider refactoring `partitionSecondEithers` (annotated as before) to use `foldr`, Liquid Haskell will tell you that your code is unsafe.  It is interesting to note that QuickCheck-like property tests
+[^mathcost]: If you use a PL with a proof assistant feature and write proofs for your programs, a refactoring will have additional cost of rethinking the proofs. This could be not an issue with Liquid Haskell, which does the proofs for you, but still may require extra work if the logic solver needs extra help.  Consider refactoring `partitionSecondEithers` (annotated as before) to use `foldr`, Liquid Haskell will tell you that your code is unsafe.  It is interesting to note that QuickCheck-like property tests
 maintain very well. 
 
 _side_note_start
