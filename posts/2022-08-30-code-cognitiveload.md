@@ -1,15 +1,17 @@
 ---
 title:  Cognitive Loads in Programming 
-lastmodified: Aug 30, 2022
+lastmodified: Nov 07, 2022
 featured: true
 summary: About cognitive aspects of bugs, abstractions, types, PL ecosystems.   
+changelog: <ul> 
+     <li> (2022.11.07) Draft warning removed, minor changes only </li>
+     </ul>
 toc: true
-tags: patterns-of-erroneous-code
+tags: patterns-of-erroneous-code, communication
 ---
 
 > > &emsp; _"My brain hurts", a quote from a code review_ 
 
-**DRAFT version:** _This post is a work-in-progress. I am publishing it to solicit early feedback._ 
 
 This long post presents programming in a different light than what is commonly considered.  We will look at cognitive aspects of interacting with code.  
 
@@ -146,7 +148,7 @@ What is the equivalent of a CPU cost?   In this post I use _cognitive effort_, t
 
 [^effort]: See the discussion in [_add_blank_target A Computational Analysis of Cognitive Eﬀort](https://www.researchgate.net/publication/220963754_A_Computational_Analysis_of_Cognitive_Effort). The term _cognitive cost_ is typically used to mean a negative impact on a cognitive function induced by stress and the usage is also not very consistent, I am avoiding its use.
 
-These were cliff notes written by a non expert.  There are many tricky and relevant bits like _information retrieval from long term memory_.  Things I am progressively less and less component to describe in psychological context.  
+These were cliff notes written by a non expert.  There are many tricky and relevant bits like _information retrieval from long term memory_.  Things I am progressively less and less competent to describe in psychological context.  
 
 
 
@@ -191,6 +193,8 @@ The term "readable code" comes to mind. I consider it different from simple.  E.
 IMO, the popularity of easy and the unpopularity of simple are a systemic problem in today’s programming and elsewhere.
 
 Next section discusses examples of code which was intended to be easy and ended up complex.
+
+> &emsp; _“Simplicity is a great virtue but it requires hard work to achieve it and education to appreciate it. And to make matters worse: complexity sells better.”_  Dijkstra 
 
 
 ## Extraneous loads that grow 
@@ -452,7 +456,7 @@ I will also note a possible relationship to _repetitive negative thinking_.
 Gotchas presented to us (thank you very much) by language designers or library implementers should technically be classified as _intrinsic_ since a common bloke like me can't do much about them other than look for a job that has a better tooling. 
 If you look at programming as a whole, these are extraneous loads. 
 
-I have left the subject of abstraction vs imperative (abstractions being less straightforward and harder to map to actual execution) untouched. I plan to return to this and to the topic of gotchas in my next post.
+I have left the subject of abstraction vs imperative (abstractions being less straightforward and harder to map to actual execution) untouched. I plan to return to this in my next post.
 
 _side_note_start
 **There is a planet** where PL designers treat all programming abstractions and types with respect.
@@ -545,7 +549,6 @@ This reminds me of a Terry Pratchett Diskworld character: Esmerelda (Granny) Wea
 
 Wanted means popular, needed means stable.  However, basic principles of FP will probably find a wider use (as discussed in 
 [Extraneous loads that grow](#extraneous-loads-that-grow)).   
-I plan to return to discussion of cognitive aspects of FP in my next post. 
 
 _side_note_start
 **In a parallel dimension** Alonso Church did not take a temporary break from lambda calculus and showed it to his student, Alan Turning.  The first computer hardware was based on SKI calculus. In that dimension kids learn mathematics with proofs, imperative programming is considered a great addition after programmers learn the principles.  In that dimension 
@@ -569,6 +572,7 @@ Are we doing a good job in managing code complexity?  I think this a fair questi
 that simplicity is not crucially important.  This post has argued that we are mostly failing on that front. 
 In this post, we looked at how project complexity grows unnoticed, how bugs are a missed opportunity to learn about how we fail, and how FP changes the cognitive process but can be hard to learn. As a whole this post has been a bit of _repetitive negative thinking_, but I hope you found some positives and useful ideas in it as well.  The main point of this post was to advocate for including cognitive aspects of programming projects into consideration and to present some useful terminology for doing it. 
 
+> > &emsp;  _"It is time to unmask the computing community as a Secret Society for the Creation and Preservation of Artificial Complexity"_ Dijkstra (of course).
 
 ## There is much more to it
 
@@ -593,7 +597,7 @@ The end result, obviously, increases the cognitive load.
 
 Cognitive load should be viewed as a resource problem, one that does not scale very well, and one that is not well understood. 
 Cognitive load is greatly impacted by turn over rates, switching of code ownership, and by installed processes. 
-Context switching is very expensive, the programmer's inability to find contiguous blocks of time to focus could be viewed as an indication of an under-resourced project.  
+Context switching is very expensive, the programmer's inability to find contiguous blocks of time to focus could be viewed as an indication of an under-resourced project. Needless to say, under-resourced yields quick and dirty code.  
 
 Linting, formatting, aesthetics are all very interesting cognitive load topics.  Most programmers seem to be very sensitive to how the code is presented, (e.g. would you ever use a light background in your code editor?). Similarly, syntax vs semantics, it seems syntax has a huge cognitive role even if we think about it as bikeshed. 
 
