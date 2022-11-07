@@ -60,7 +60,7 @@ Understanding more about these preferences will be the main topic of this post.
 
 _side_note_start
 Formal reasoning[^formalprog] is the only approach humans have figured out to solve complex problems correctly[^formalprog2] on the first go (without trial and error associated with empirical reasoning). 
-Being a programmer, I like to think about formal reasoning as immutable and empirical reasoning as an in-place mutation (e.g. mathematics keeps adding to itself while empirical sciences like medicine keep changing)[^immu]. 
+Being a programmer, I like to think about formal reasoning as immutable and empirical reasoning as an in-place mutation (e.g. mathematics keeps adding to itself while empirical sciences like medicine keep changing)[^immu].  
 In-place mutation in programming is the refactoring process. Can you think about math-like immutable designs in programming?  E.g. a design or code that aged very well over, say, over the last 20 years?  
 In this post I am not separating the formal out, it is bundled into deductive. 
 I have struggled with this decision, at the end I decided to simplify things and keep formal reasoning bundled into the more broad deductive process.  
@@ -70,7 +70,7 @@ _side_note_end
 [^formalprog]: The term _formalism_ has special meaning in mathematics, I use it colloquially (i.e. all mathematics is formal).
 Examples of formal approaches popular among FP-ers could be equational reasoning, use of logical implication (e.g. with Haskell type class constraints), use of mathematical or structural induction (e.g. with inductive types like a functional list prove properties of, say, the implementation of `map`). Readers familiar with equational reasoning may agree with me about its similarity to a refactoring process where the developer mentally verifies that the new code is equivalent to the old. The line between formal and informal is sometimes thin. 
 
-[^formalprog2]: This is kinda fun to think about: we have only empirical evidence of mathematics itself being _correct_, we know we will never prove it formally. Mistakes in mathematics are extremely rare.  However, we have a lot of empirical evidence of (past) _incorrectness_ in empirical sciences. 
+[^formalprog2]: This is kinda fun to think about: we have only empirical evidence of mathematics itself being _correct_, we know we will never prove it formally. Mistakes in mathematics are extremely rare.  However, we have a lot of empirical evidence of (past) _incorrectness_ in various empirical sciences. 
 I am a pragmatist enough to say that mathematics is correct, the rest looks good only until we learn more about it (just like bugs in software). 
 
 [^immu]: Obviously, a well established empirical knowledge will not change for ages as well. Immutability is a result of getting things right, empirical method converges towards it, formal method starts there. My metaphor "empirical is mutating in-place" is not perfect.  
@@ -385,8 +385,8 @@ Alice: "Remember we patched a bug by updating shared state in the middle of this
 This code review session shows a benefit of having someone around who keeps a repository of potential issues in their head.
 I have noticed that developers are typically surprised when computation behavior keeps changing, yet are mostly not willing to engage with the concept of referential transparency.  I also think some do not think about what 100% test coverage implies and what it does not[^limitations]. 
 
-[^limitations]: I will repeat myself here, it does seem that there is a more general lack of understanding about the limitations of empirical reasoning.  Few people think about physics as a collection of simplified mathematical models that only approximate reality. 
-Few people look deeply for bias in biological studies.  100% test coverage is in the "we tested it and it is correct" category. 
+[^limitations]: It does seem that there is a more general disagreement about the limitations of empirical reasoning.  Few people think about physics as a collection of simplified mathematical models that only approximate reality. Even some famous physicists (e.g. Niels Bohr, if I remember correctly my reading about it) have apparently thought otherwise. 
+Few people look deeply for bias in biological studies. _Hypotheses non fingo_ is a rare position.  100% test coverage is in the "we tested it and it is correct" category. 
 
 Bob: "I changed the interface, you can now pass new parameters to control how the data is processed"   
 Alice: "I changed the module, you can now use new functions (combinators) to manipulate the data"
