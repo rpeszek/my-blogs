@@ -2,6 +2,9 @@
 title:  Let's agree to be different. On empirical and deductive nature of coding. 
 featured: true
 summary:  Empirical and deductive mindsets compared.
+changelog: <ul> 
+     <li> (2022.11.12) <a href="#fn15">footnote [15]</a> </li>
+     </ul>
 toc: true
 tags: patterns-of-erroneous-code, communication
 ---
@@ -141,9 +144,9 @@ It is called type safety.
 
 _side_note_start
 **Side Note: Type safe experiments** are my favorite approach to programming. 
-In the presence of a nice type system, coding can become solving jig-saw puzzles (writing code by using building blocks that can 
-fit only in a correct way). 
-A similar process can work even in TypeScript[^jigsaw]. 
+In the presence of a nice type system, coding can become solving jig-saw puzzles (writing code by using building blocks that can fit only in a correct way). 
+A similar process can work even in TypeScript[^jigsaw]. It is typically enough to provide just enough safety to reduce the implementation solution space to prevent accidental incorrect implementations (this more relaxed approach ignores [Hyrum's Law](https://www.hyrumslaw.com/) but IMO still works well). 
+
 This approach could include an interactive, type checker assisted deductive process (asking the compiler a series of type questions, something akin to type hole driven development[^idris]) or just making a guess and trying to see if the pieces fit. 
 The second approach is a form of experimentation. 
 Working with _hlint_ (Haskell linter, other static tools that do similar things exist) is lots of experimental fun too. 
@@ -179,36 +182,47 @@ Haskell is sometimes called _the best imperative PL_[^best_imperative].  I propo
 [^logger]: I implemented a proprietary Haskell logger library at my work. It is interesting to think about what we want to observe when we FP. Standard logger libraries for, say, Java are "object-centric" and will allow configuration options based on which class spilled out info into the log. The library I implemented is "data-centric" and allows you to configure what data you want to see. FP is about clear inputs and outputs after all. 
 
 _side_note_start
-**Side Note:** (Haskell 101). I like to use Haskell because it allows for a hybrid development that combines both empirical and formal in ways not possible when using a mainstream PL.  Here is an "elementary" (from ground up, using only basic language features) 
-implementation of a combinator I find very useful[^intro]. 
+**Side Note:**[^change1] (Haskell 101).  What could better explain a theorist mindset than to actually experience some of the formal thinking?   Here is an "elementary" (from ground up, using only basic language features) 
+implementation of a popular Haskell combinator. 
 Notice the implementation is just a bunch of equations
 that use constructors or pattern match and nothing else:
 
 ```Haskell
-partitionSecondEithers :: [(a, Either b c)] -> ([(a, b)], [(a,c)]) 
-partitionSecondEithers [] = ([], [])
-partitionSecondEithers ((a, Left b): xs) = ((a, b): rb, rc)
-    where (rb, rc) = partitionSecondEithers xs
-partitionSecondEithers ((a, Right c): xs) = (rb, (a,c): rc)
-    where (rb, rc) = partitionSecondEithers xs
+partitionEithers :: [Either a b] -> ([a], [b]) 
+partitionEithers [] = ([], [])
+partitionEithers (Left a: es) = (a: ra, rb)
+    where (ra, rb) = partitionEithers es
+partitionEithers (Right b: es) = (ra, b: rb)
+    where (ra, rb) = partitionEithers es
 ```
 
-Fun exercise 1:  Identify the obvious conservation law for list lengths. Use QuickCheck or other property testing library to verify it. 
-It suffices to test just one type, say `a ~ b ~ c ~ Bool` (unit `()` will do too), can you provide a formal reason why?   
-Fun exercise 2: Use paper and pencil to formally prove that this implementation satisfies that law[^solution1]. 
+**Fun exercise 1**:  Identify the obvious conservation law for list lengths. Use QuickCheck or other property testing library to verify it. 
+It suffices to test just one type, say `a ~ b  ~ Bool` (unit `()` will do too), can you provide a reason why? 
+Can you try to formalize it?   
+**Fun exercise 2**: Use paper and pencil to prove that this implementation satisfies that law. 
 This exercise shows, formal reasoning does not need to be complex or advanced.   
-Fun exercise 3: Change the above code to violate the conservation law.  Notice that such code would be hard
-to implement by accident.  Add [_add_blank_target Liquid Haskell](https://ucsd-progsys.github.io/liquidhaskell/) annotations to prevent unlawful solutions[^solution2].    
-Fun exercise 4: Try to come up with other laws for `partitionSecondEithers` and prove them.  E.g. Prove that `partitionSecondEithers` is a [_add_blank_target natural transformation](https://bartoszmilewski.com/2015/04/07/natural-transformations/) in `a`, `b`, and in `c`.  Can this be used in exercise 1 or 2?
+**Fun exercise 3**: Change the above code to violate the conservation law.  How likely is for such implementation to be accidental?  Add [_add_blank_target Liquid Haskell](https://ucsd-progsys.github.io/liquidhaskell/) annotations to prevent unlawful solutions.    
+**Fun exercise 4**: In Haskell, any implementation of 
+`partitionEithers` type is a [_add_blank_target natural transformation](https://bartoszmilewski.com/2015/04/07/natural-transformations/) in `a` and `b`.  Can this be used in exercise 1?   
+**Fun exercise 5**: (1) and (4) rely on Haskell language property called parametricity.  This prevents Haskell programs from 
+learning what the actual types behind `a` and `b` are or use values of these types in a concrete way (e.g. there are no globally available `==`, `toString` etc).  A number of mainstream languages have 
+now the ability to express a type similar to `partitionEithers`.  Exploit lack of parametricity in your chosen language to create an implementation of `partitionEithers`
+that violates the conservation law only for some types and works as expected for others (this makes randomized testing harder, why?). Show that your implementation is not a natural transformation. 
+
+Hints and partial solutions[^hints].
 _side_note_end
 
-[^intro]: Equivalents exist in, say, [_add_blank_target containers, Data.Map](https://hackage.haskell.org/package/containers-0.4.0.0/docs/Data-Map.html#v:mapEither)
+[^change1]: I rewrote the side note and changed the exercises type based on comments from [_add_blank_target u/kindaro](https://www.reddit.com/r/haskell/comments/yonk01/comment/ivk8pgr/?utm_source=share&utm_medium=web2x&context=3)
+ on reddit. Thanks!
 
-[^solution1]: Hints: You will need "elementary" implementation for `length` (`length [] = 0; length (x:xs) = 1 + length xs`). Recursion step becomes induction step, the conservation law is an equation, you prove it by writing bunch of equations you get from the program itself. 
 
-[^solution2]: Solution: `{-@ partitionSecondEithers :: xs:[(a, Either b c)] -> {ys: ([(a, b)], [(a,c)])  | (len xs) = (len (fst ys)) + (len (snd ys))} @-}`.  As of this writing, you can try it online [_add_blank_target here](http://goto.ucsd.edu:8090/index.html#?demo=lenMapReduce.hs). 
+[^proofassist]:  Even with proof assistants, increased refactoring cost is a consideration.  But I do hope we will 
+see more of Idris like PLs and proofs in real world projects in the future. 
 
-[^hint3]: E.g. `partitionSecondEithers` interacts (commutes) with list `map` in interesting ways.
+[^hints]:  Exercise 2: You will need "elementary" implementation for `length` (`length [] = 0; length (x:xs) = 1 + length xs`). Recursion step becomes induction step, the conservation law is an equation, you prove it by writing bunch of equations you get from the program itself.    
+Exercise 3: Liquid Haskell annotation just spells out the law: `{-@ partitionEithers :: xs:[Either a b] -> {ys: ([a], [b])  | (len xs) = (len (fst ys)) + (len (snd ys))} @-}`.  As of this writing, you can try it online [_add_blank_target here](http://goto.ucsd.edu:8090/index.html#?demo=lenMapReduce.hs).   
+Here is a page with more information: [_add_blank_target partial solutions](https://github.com/rpeszek/experiments/tree/master/partition-eithers-excercise).
+
 
 FP is a hybrid containing both empirical and formal. ... But I got sidetracked a bit. 
 Let's finally get to my main topic: the human aspect. 
@@ -403,12 +417,11 @@ Alice: "No, it only grows, it has not changed its mind in over 100 years"
 This is almost an exact copy of a conversation I had with some of my coworkers. The immutability analogy I have used before works well here: mathematics is immutable while empirical sciences mutate in-place. 
 Bob's argument is partially valid as there is a lot of engineering going into coding and that is likely to keep changing[^eng]. Also, formal verification has a maintenance cost[^mathcost] making me question how realistic Alice's dream is. Can you think about code examples that aged very well?
 
-[^eng]: E.g. consider performance improvements that can be made to my `partitionSecondEithers`. 
+[^eng]: E.g. consider performance improvements that can be made to my `partitionEithers`. 
 Note, Haskell code that is implemented using constructors and pattern matching only
 does not take advantage of rewrite rules that are already in place for combinators like `foldr`.  Compare my code to the source of [_add_blank_target `paritionEithers`](https://hackage.haskell.org/package/base-4.17.0.0/docs/src/Data.Either.html#partitionEithers) in `Data.Either`.  
 
-[^mathcost]: If you use a PL with a proof assistant feature and write proofs for your programs, a refactoring will have additional cost of rethinking the proofs. This could be not an issue with Liquid Haskell, which does the proofs for you, but still may require extra work if the logic solver needs extra help.  Consider refactoring `partitionSecondEithers` (annotated as before) to use `foldr`, Liquid Haskell will tell you that your code is unsafe.  It is interesting to note that QuickCheck-like property tests
-maintain very well. 
+[^mathcost]: If you use a PL with a proof assistant feature and write proofs for your programs, a refactoring will have additional cost of rethinking the proofs. This could be not an issue with Liquid Haskell, which does the proofs for you, but still may require extra work if the logic solver needs extra help.  Consider refactoring my `partitionEithers` (annotated as before) to use `foldr` (which is incidentally what Base implementation uses), Liquid Haskell will tell you that your code is unsafe.  It is interesting to note that QuickCheck-like property tests maintain very well. 
 
 _side_note_start
 We consider PLs that reach a certain threshold of usage as immortal. 
