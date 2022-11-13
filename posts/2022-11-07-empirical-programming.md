@@ -3,7 +3,10 @@ title:  Let's agree to be different. On empirical and deductive nature of coding
 featured: true
 summary:  Empirical and deductive mindsets compared.
 changelog: <ul> 
-     <li> (2022.11.12) <a href="#fn15">footnote [15]</a> </li>
+     <li> (2022.11.12) <a href="#fn15">footnote [15]</a>
+     </li>
+    <li> (2022.11.13) <a href="##fn37">footnote [37]</a>
+     </li>
      </ul>
 toc: true
 tags: patterns-of-erroneous-code, communication
@@ -289,7 +292,9 @@ The part of FP that has been the most disappointing for me is a typically low qu
 
 [^before]: See my posts about maybe and alternative overuse [_add_blank_target patterns-of-erroneous-code](/tags/patterns-of-erroneous-code.html)
 
-In contrast, to an experienced pragmatist error output is (typically) an important observation.  It is a pragmatic thing to do to know _what_ went wrong.  However, the tendency towards the use of `null`, `Option`, `Maybe` suppressing available information is something I do not understand. IMO, goes beyond the topics we are discussing here. 
+In contrast, to an experienced pragmatist error output is (typically) an important observation.  It is a pragmatic thing to do to know _what_ went wrong.  However, the tendency towards the use of `null`, `Option`, `Maybe` suppressing available information is something I do not understand. IMO, goes beyond the topics we are discussing here[^errorhandling]. 
+
+[^errorhandling]: E.g. browsing a random website with developer tools console opened and observing all the red is, IMO, a signal of something different going on, e.g. things like _omission neglect_ (psychological concept loosely described by the phrase: out of sight out of mind) should be considered. 
 
 While theorists may have a problem engaging with things outside of their theoretical model, pragmatists often have a problem engaging with things that are even mildly theoretical like computational laws
 or even referential transparency.  Programmers often don't care about computational properties, but will be surprised by software behavior when they are missing.  Many gotchas can be described as 
@@ -546,4 +551,8 @@ Program synthesis, you know the thing that is going to render programmers obsole
 translates to 2 different approaches to do program synthesis.  I have listened to a few presentations about the formal approach.  I expect probabilistic models, deep learning approaches to be more mainstream and prevalent.  It is interesting
 how this will play out, but I do not feel qualified to discuss this in much depth. _"The effort of using machines to mimic the human mind has always struck me as rather silly. I would rather use them to mimic something better."_ (Dijkstra, of course).  Quite possibly we will see an equivalent of empirical vs deductive play out in this area.
 
+[_add_blank_target Abductive reasoning](https://en.wikipedia.org/wiki/Abductive_reasoning) and applicability of Ockham razor to software development seems like another fascinating philosophical topic that is orthogonal to what we have discussed[^abductive]. 
+
 I am sure there are many more interesting angles to explore here. 
+
+[^abductive]: Abductive reasoning as a possibly relevant topic was pointed out by [_add_blank_target hellwolf](https://discourse.haskell.org/t/lets-agree-to-be-different-on-empirical-and-deductive-nature-of-coding/5276/7?u=rpeszek)
