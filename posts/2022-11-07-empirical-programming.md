@@ -5,7 +5,7 @@ summary:  Empirical and deductive mindsets compared.
 changelog: <ul> 
      <li> (2022.11.12) <a href="#fn15">footnote [15]</a>
      </li>
-    <li> (2022.11.13) <a href="##fn37">footnote [37]</a>
+    <li> (2022.11.13) <a href="#fn37">footnote [37]</a>
      </li>
      </ul>
 toc: true
