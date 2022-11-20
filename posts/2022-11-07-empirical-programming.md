@@ -3,9 +3,8 @@ title:  Let's agree to be different. On empirical and deductive nature of coding
 featured: true
 summary:  Empirical and deductive mindsets compared.
 changelog: <ul> 
-     <li> (2022.11.12) <a href="#fn15">footnote [15]</a>
-     </li>
-    <li> (2022.11.13) <a href="#fn37">footnote [37]</a>
+     <li> (2022.11.12-20) Feedback from readers including <a href="#fn15">footnote [15]</a>
+    and <a href="#fn37">footnote [37]</a>. Clarified parts as "IMO". 
      </li>
      </ul>
 toc: true
@@ -39,6 +38,8 @@ So what is the point I am trying to make?
 My only real point is that both mindsets are important, my goal is to 
 discuss empirical and deductive (programming), theorists and pragmatists (programmers) in as much debt as I can muster. 
 
+When reading it, keep in mind that my goal is to present different points of view developers are observed to have, I am not trying to make you agree with these viewpoints (that includes my side notes on formalism, mathematics, programming, and everything else in this post). The fact that we may disagree on these, is a corollary of the diversity I am trying to explore.  _This post is not about establishing consensus which viewpoint is better, it is about gaining some understanding of these viewpoints_.
+
 ## Empirical vs Deductive 
 
 In my experience, developers do not use this terminology. Hey, in my experience, I do not use this terminology so a recap is in order. 
@@ -69,15 +70,17 @@ Formal reasoning[^formalprog] is the only approach humans have figured out to so
 Being a programmer, I like to think about formal reasoning as immutable and empirical reasoning as an in-place mutation (e.g. mathematics keeps adding to itself while empirical sciences like medicine keep changing)[^immu].  
 In-place mutation in programming is the refactoring process. Can you think about math-like immutable designs in programming?  E.g. a design or code that aged very well over, say, over the last 20 years?  
 In this post I am not separating the formal out, it is bundled into deductive. 
-I have struggled with this decision, at the end I decided to simplify things and keep formal reasoning bundled into the more broad deductive process.  
+I have struggled with this decision, at the end I decided to simplify things and keep formal reasoning bundled into the more broad deductive process.   
+
+*Some people disagree strongly with the claim that formalism or mathematics are much less error prone than the empirical method.  I admit that I was surprised by this. My views about mathematical correctness are something I have developed from my experiences as a mathematician and are a part of who I am. However, both positions need to be noted.*
 _side_note_end
 
 
 [^formalprog]: The term _formalism_ has special meaning in mathematics, I use it colloquially (i.e. all mathematics is formal).
-Examples of formal approaches popular among FP-ers could be equational reasoning, use of logical implication (e.g. with Haskell type class constraints), use of mathematical or structural induction (e.g. with inductive types like a functional list prove properties of, say, the implementation of `map`). Readers familiar with equational reasoning may agree with me about its similarity to a refactoring process where the developer mentally verifies that the new code is equivalent to the old. The line between formal and informal is sometimes thin. 
+Examples of formal approaches popular among FP-ers could be equational reasoning, use of logical implication (e.g. with Haskell type class constraints), use of mathematical or structural induction (an exercise using it is included later in this post). Readers familiar with equational reasoning may agree with me about its similarity to a refactoring process where the developer mentally verifies that the new code is equivalent to the old. The line between formal and informal is sometimes thin. 
 
-[^formalprog2]: This is kinda fun to think about: we have only empirical evidence of mathematics itself being _correct_, we know we will never prove it formally. Mistakes in mathematics are extremely rare.  However, we have a lot of empirical evidence of (past) _incorrectness_ in various empirical sciences. 
-I am a pragmatist enough to say that mathematics is correct, the rest looks good only until we learn more about it (just like bugs in software). 
+[^formalprog2]: This is kinda fun to think about: we have only empirical evidence of mathematics itself being _correct_, we know we will never prove it formally. Mistakes in mathematics are very rare.  However, we have a lot of empirical evidence of (past) _incorrectness_ in various empirical sciences. 
+I am a pragmatist enough to say that mathematics is correct, the rest looks good until we learn more about it (just like bugs in software). I believe a significant part of people trained in mathematics and formal reasoning share this viewpoint.  File it under IMO if you must. 
 
 [^immu]: Obviously, a well established empirical knowledge will not change for ages as well. Immutability is a result of getting things right, empirical method converges towards it, formal method starts there. My metaphor "empirical is mutating in-place" is not perfect.  
 
@@ -157,7 +160,7 @@ I often need to get _a solution_ in and the linter will replace it with a much n
 
 _Combinator_ is a 100 years old term and I could be wrong about its intended intuitive meaning[^combinator]. To me it means a _building block_.  Functional programming is about designing and using well fitting combinators.
 
-Jig-saw puzzle approach results in very clean programs, is addictive, and a lot of fun, but (sadly) is not commonly used at large. 
+Jig-saw puzzle approach results in very clean programs, is addictive, and a lot of fun, but is not commonly used at large.  Importance of type safety is a position I hold but is also one that many programmers will disagree with.   
 _side_note_end
 
 [^jigsaw]: See [_add_blank_target A walk in the park](2022-03-13-ts-types-part6.html#a-walk-in-the-park), [_add_blank_target phantom types](2022-01-09-ts-types-part4.html#phantom-types), [_add_blank_target existential types](2022-01-09-ts-types-part4.html#preventing-information-escape) in my TS series.
@@ -212,7 +215,8 @@ learning what the actual types behind `a` and `b` are or use values of these typ
 now the ability to express a type similar to `partitionEithers`.  Exploit lack of parametricity in your chosen language to create an implementation of `partitionEithers`
 that violates the conservation law only for some types and works as expected for others (this makes randomized testing harder, why?). Show that your implementation is not a natural transformation. 
 
-Hints and partial solutions[^hints].
+Hints and partial solutions[^hints].  It would be interesting to know how often thinking about properties 
+and verification of properties is included in actual project work. 
 _side_note_end
 
 [^change1]: I rewrote the side note and changed the exercises type based on comments from [_add_blank_target u/kindaro](https://www.reddit.com/r/haskell/comments/yonk01/comment/ivk8pgr/?utm_source=share&utm_medium=web2x&context=3)
@@ -227,7 +231,7 @@ Exercise 3: Liquid Haskell annotation just spells out the law: `{-@ partitionEit
 Here is a page with more information: [_add_blank_target partial solutions](https://github.com/rpeszek/experiments/tree/master/partition-eithers-excercise).
 
 
-FP is a hybrid containing both empirical and formal. ... But I got sidetracked a bit. 
+FP is a hybrid containing both empirical and formal. ... But I got sidetracked a bit towards areas of my interest.  You can classify this under IMO if you disagree with what I wrote.  
 Let's finally get to my main topic: the human aspect. 
 
 ## Pragmatists and theorists
@@ -288,7 +292,7 @@ Also, it seems logical to assume that learning from experience is more habituati
 
 [^one-line]:  I dig a deep hole by using [_add_blank_target Free Monad](2022-08-30-code-cognitiveload.html#germane-and-intrinsic-load-of-fp) as example of such a line in my previous post. 
 
-The part of FP that has been the most disappointing for me is a typically low quality of error outputs.  This may have to do with all falsehoods being equivalent in mathematics[^falsehood].  However, we should not criticize the theory, rather the theorists for selecting abstractions that suppress or confuse error information.  I wrote about it in the previous post and also before[^before].    
+The part of FP that has been the most disappointing for me is a typically low quality of error outputs.  This may have to do with all falsehoods being equivalent in mathematics[^falsehood].  However, we should not criticize the theory, rather the theorists for selecting abstractions that suppress or confuse error information (IMO).  I wrote about it in the previous post and also before[^before].    
 
 [^before]: See my posts about maybe and alternative overuse [_add_blank_target patterns-of-erroneous-code](/tags/patterns-of-erroneous-code.html)
 
@@ -419,7 +423,7 @@ Alice: "I am looking for something as timeless as mathematics"
 Carol: "Mathematics keeps improving and changing I am sure, everything does"  
 Alice: "No, it only grows, it has not changed its mind in over 100 years"
 
-This is almost an exact copy of a conversation I had with some of my coworkers. The immutability analogy I have used before works well here: mathematics is immutable while empirical sciences mutate in-place. 
+This is almost an exact copy of a conversation I had with some of my coworkers. The immutability analogy I have used before works well here: mathematics is immutable while empirical sciences mutate in-place (some theorist hold this view). 
 Bob's argument is partially valid as there is a lot of engineering going into coding and that is likely to keep changing[^eng]. Also, formal verification has a maintenance cost[^mathcost] making me question how realistic Alice's dream is. Can you think about code examples that aged very well?
 
 [^eng]: E.g. consider performance improvements that can be made to my `partitionEithers`. 
@@ -507,7 +511,7 @@ I have promised at the beginning that I will not try to make too many "points". 
 
 ## Final thoughts
  
-Did I sneak in any other side-"points" worth noticing?   IMO, this one:
+Did I sneak in any other side-"points" worth noticing?   IMO, this one (if you agree that formalism is less prone to errors):
 
 > _Strict backward compatibility implies a need for formalism_       
 or, equivalently   
@@ -520,8 +524,8 @@ Empirical vs deductive, if one needs to budge then the empirical wins, mathemati
 Some (mostly functional programmers) argue that computer science and programming could benefit from a stricter application of formalism[^reynolds]. 
 The difference is where the source of truth is.  In a pure empirical world that source has to be what we observe. 
 In programming there can be just enough determinism to benefit from treating logical soundness concerns more seriously. 
-My main point is that we need both empirical and deductive and 
-I hope I made a convincing case for us to try harder for their peaceful coexistence.
+I believe, we need both empirical and deductive and I hope I made a convincing case for us to try harder for their peaceful coexistence. We can start by trying to understand the other viewpoint
+even if we do not agree with it. 
 
 Thank you for reading!   
 
