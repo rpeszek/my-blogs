@@ -520,7 +520,8 @@ or, equivalently
 
 The odd discourse between formal and empirical is not unique to programming. 
 I still remember a few jokes about "a mathematician, a physicist, a chemist, ...". 
-Empirical vs deductive, if one needs to budge then the empirical wins, mathematics has to move. 
+Empirical vs deductive, if one needs to budge then the empirical wins, mathematics has to move.
+Logical correctness is often more a guideline rather than a shackle. 
 Some (mostly functional programmers) argue that computer science and programming could benefit from a stricter application of formalism. 
 The difference is where the source of truth is.  In a pure empirical world that source has to be what we observe. 
 In programming there can be just enough determinism to benefit from treating logical soundness concerns more seriously. 
