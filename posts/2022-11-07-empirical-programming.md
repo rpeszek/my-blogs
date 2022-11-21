@@ -4,7 +4,7 @@ featured: true
 summary:  Empirical and deductive mindsets compared.
 changelog: <ul> 
      <li> (2022.11.12-20) Feedback from readers including <a href="#fn15">footnote [15]</a>
-    and <a href="#fn37">footnote [37]</a>. Clarified parts as "IMO". 
+    and <a href="#fn36">footnote [36]</a>. Clarified parts as "IMO". 
      </li>
      </ul>
 toc: true
@@ -80,7 +80,7 @@ _side_note_end
 Examples of formal approaches popular among FP-ers could be equational reasoning, use of logical implication (e.g. with Haskell type class constraints), use of mathematical or structural induction (an exercise using it is included later in this post). Readers familiar with equational reasoning may agree with me about its similarity to a refactoring process where the developer mentally verifies that the new code is equivalent to the old. The line between formal and informal is sometimes thin. 
 
 [^formalprog2]: This is kinda fun to think about: we have only empirical evidence of mathematics itself being _correct_, we know we will never prove it formally. Mistakes in mathematics are very rare.  However, we have a lot of empirical evidence of (past) _incorrectness_ in various empirical sciences. 
-I am a pragmatist enough to say that mathematics is correct, the rest looks good until we learn more about it (just like bugs in software). I believe a significant part of people trained in mathematics and formal reasoning share this viewpoint.  File it under IMO if you must. 
+I am a pragmatist enough to say that mathematics is correct, the rest looks good until we learn more about it (just like bugs in software). I believe a significant part of people trained in mathematics and formal reasoning share this viewpoint.  File it under IMO if you must.  I just love the the beginning story in [_add_blank_target Types, Abstraction and Parametric Polymorphism (John C. Reynolds)](https://people.mpi-sws.org/~dreyer/tor/papers/reynolds.pdf) paper, it seems very relevant.
 
 [^immu]: Obviously, a well established empirical knowledge will not change for ages as well. Immutability is a result of getting things right, empirical method converges towards it, formal method starts there. My metaphor "empirical is mutating in-place" is not perfect.  
 
@@ -521,7 +521,7 @@ or, equivalently
 The odd discourse between formal and empirical is not unique to programming. 
 I still remember a few jokes about "a mathematician, a physicist, a chemist, ...". 
 Empirical vs deductive, if one needs to budge then the empirical wins, mathematics has to move. 
-Some (mostly functional programmers) argue that computer science and programming could benefit from a stricter application of formalism[^reynolds]. 
+Some (mostly functional programmers) argue that computer science and programming could benefit from a stricter application of formalism. 
 The difference is where the source of truth is.  In a pure empirical world that source has to be what we observe. 
 In programming there can be just enough determinism to benefit from treating logical soundness concerns more seriously. 
 I believe, we need both empirical and deductive and I hope I made a convincing case for us to try harder for their peaceful coexistence. We can start by trying to understand the other viewpoint
@@ -529,7 +529,7 @@ even if we do not agree with it.
 
 Thank you for reading!   
 
-[^reynolds]: I just love the the beginning story in [_add_blank_target Types, Abstraction and Parametric Polymorphism (John C. Reynolds)](https://people.mpi-sws.org/~dreyer/tor/papers/reynolds.pdf) paper. 
+ 
 
 ## Unexplored
 
