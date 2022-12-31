@@ -3,8 +3,10 @@ title:  Let's agree to be different. On empirical and deductive nature of coding
 featured: true
 summary:  Empirical and deductive mindsets compared.
 changelog: <ul> 
-     <li> (2022.11.12-20) Feedback from readers including <a href="#fn15">footnote [15]</a>
-    and <a href="#fn36">footnote [36]</a>. Clarified parts as "IMO". 
+     <li> (2022.11.12-20) Feedback from readers including <a href="#fn16">footnote [16]</a>
+    and <a href="#fn37">footnote [37]</a>. Clarified parts as "IMO". 
+     </li>
+     <li> (2022.12.31) Added link to xena project and new footnote <a href="#fn5">footnote [5]</a> (this breaks previous external links to footnotes above 4). 
      </li>
      </ul>
 toc: true
@@ -67,7 +69,8 @@ Understanding more about these preferences will be the main topic of this post.
 
 _side_note_start
 Formal reasoning[^formalprog] is the only approach humans have figured out to solve complex problems correctly[^formalprog2] on the first go (without trial and error associated with empirical reasoning). 
-Being a programmer, I like to think about formal reasoning as immutable and empirical reasoning as an in-place mutation (e.g. mathematics keeps adding to itself while empirical sciences like medicine keep changing)[^immu].  
+Mathematicians are not infallible[^xeno], however mathematics is more formalized than any other science and, thus, is more "correct" than other sciences. 
+Being a programmer, I like to think about formal reasoning as immutable and empirical reasoning as an in-place mutation (e.g. mathematics effectively keeps adding to itself while empirical sciences like medicine keep changing)[^immu].  
 In-place mutation in programming is the refactoring process. Can you think about math-like immutable designs in programming?  E.g. a design or code that aged very well over, say, over the last 20 years?  
 In this post I am not separating the formal out, it is bundled into deductive. 
 I have struggled with this decision, at the end I decided to simplify things and keep formal reasoning bundled into the more broad deductive process.   
@@ -79,8 +82,11 @@ _side_note_end
 [^formalprog]: The term _formalism_ has special meaning in mathematics, I use it colloquially (i.e. all mathematics is formal).
 Examples of formal approaches popular among FP-ers could be equational reasoning, use of logical implication (e.g. with Haskell type class constraints), use of mathematical or structural induction (an exercise using it is included later in this post). Readers familiar with equational reasoning may agree with me about its similarity to a refactoring process where the developer mentally verifies that the new code is equivalent to the old. The line between formal and informal is sometimes thin. 
 
-[^formalprog2]: This is kinda fun to think about: we have only empirical evidence of mathematics itself being _correct_, we know we will never prove it formally. Mistakes in mathematics are very rare.  However, we have a lot of empirical evidence of (past) _incorrectness_ in various empirical sciences. 
-I am a pragmatist enough to say that mathematics is correct, the rest looks good until we learn more about it (just like bugs in software). I believe a significant part of people trained in mathematics and formal reasoning share this viewpoint.  File it under IMO if you must.  I just love the the beginning story in [_add_blank_target Types, Abstraction and Parametric Polymorphism (John C. Reynolds)](https://people.mpi-sws.org/~dreyer/tor/papers/reynolds.pdf) paper, it seems very relevant.
+[^formalprog2]: This is kinda fun to think about: we have only empirical evidence of mathematics as a whole being _correct_, we know we will never prove it formally. Mistakes in mathematics are very rare (more on this in next footnote).  However, we have a lot of empirical evidence of (past) _incorrectness_ in various empirical sciences. 
+I am a pragmatist enough to say that mathematics is correct (at least comparatively speaking), the rest looks good until we learn more about it (just like bugs in software). I believe a significant part of people trained in mathematics and formal reasoning share this viewpoint.  File it under IMO if you must.  I just love the the beginning story in [_add_blank_target Types, Abstraction and Parametric Polymorphism (John C. Reynolds)](https://people.mpi-sws.org/~dreyer/tor/papers/reynolds.pdf) paper, it seems very relevant.
+
+[^xeno]: This blog post: [xena project, formalizing mathematics](https://xenaproject.wordpress.com/2021/01/21/formalising-mathematics-an-introduction/) is really worth reading as a whole. 
+It points out that mathematicians do make errors too and argues about the need to add computer assisted formal verification to mathematics.  My argument is comparative, errors in mathematical proofs are rare and exceptional. 
 
 [^immu]: Obviously, a well established empirical knowledge will not change for ages as well. Immutability is a result of getting things right, empirical method converges towards it, formal method starts there. My metaphor "empirical is mutating in-place" is not perfect.  
 
