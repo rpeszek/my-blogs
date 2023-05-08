@@ -17,7 +17,6 @@ tags: patterns-of-erroneous-code, communication
 
 > *"If in physics there's something you don't understand, you can always hide behind the uncharted depths of nature. You can always blame God. You didn't make it so complex yourself. But if your program doesn't work, there is no one to hide behind. You cannot hide behind an obstinate nature. If it doesn't work, you've messed up." Edsger W. Dijkstra*
 
-**DRAFT version:** _This post is a work-in-progress. Thank you for your feedback._ 
 
 I will discuss (on a very high level) empirical, experimental, and deductive aspects of programming. 
 This distinction is fun to analyze (and a somewhat unusual way to look at programming) but it seems mostly a useless curiosity in itself.  I have convinced myself that programmers tend to favor empirical or favor deductive. IMO, we are placing ourselves into 2 camps.  I call these camps _pragmatists_ and _theorists_. 
