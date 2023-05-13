@@ -6,9 +6,7 @@ toc: true
 tags: patterns-of-erroneous-code, Haskell, error-messages
 ---
 
-> *Great programming is mathematics.*   
-> *... Except, all falsehoods are the same and error messages are not.*  
-> *Otherwise, great programming is mathematics.*   
+> *Great programming is mathematics. ... Except, all falsehoods are the same and error messages are not. Otherwise, great programming is mathematics.*   
 >  &emsp; &emsp;   A quote that I wish someone whom I could quote had said
 
 
@@ -21,23 +19,23 @@ I am working on a slowly progressing task: rewriting code to improve the quality
 This work often includes rethinking parts of _aeson_ or _Parsec_ code that use `MonadPlus` / `Alternative` when the resulting error message is likely to throw anyone for a loop, or re-implementing code that uses `Maybe` where something like `Either` would be a better choice, or where errors were never caught...  This work also involves adding a decent amount of context to the messages.  I have been trying to fix up the errors for several years now and I am starting to believe that this work may never end.  You roll this rock uphill and it rolls back down. Can Functional Programming create quality error outputs?  Of course it can! 
 But, for this to happen on the level of projects, ... I think that the community needs to talk about it more.  
 
-The (low) quality of error messages I witness in functional code is something that has puzzled me for a very long time. I wrote about [_add_blank_target Maybe Overuse](2021-01-17-maybe-overuse.html) and [_add_blank_target Alternative Overuse](2021-02-13-alternative.html) in the past. The first received a very mixed response (including very positive and very nagative), the response to the second was flat negative. I decided that the reasons for what I am observing are probably mostly not technical. This (at least partially) motivated me to look into cognitive psychology ([_add_blank_target Cognitive Loads in Programming](2022-08-30-code-cognitiveload.html)), and I came up with "a theory" about [_add_blank_target Theorists vs Pragmatists](2022-11-07-empirical-programming.html).  I cannot claim that I understand what is happening, I can only claim spending literally years thinking about it. 
+The (low) quality of error messages I witness in functional code is something that has puzzled me for a very long time. I wrote about [_add_blank_target Maybe Overuse](2021-01-17-maybe-overuse.html) and [_add_blank_target Alternative Overuse](2021-02-13-alternative.html) in the past. The first received a very mixed response (including very positive and very negative), the response to the second was flat negative. I decided that the reasons for what I am observing are probably mostly not technical. This (at least partially) motivated me to look into cognitive psychology ([_add_blank_target Cognitive Loads in Programming](2022-08-30-code-cognitiveload.html)), and I came up with "a theory" about [_add_blank_target Theorists vs Pragmatists](2022-11-07-empirical-programming.html).  I cannot claim that I understand what is happening, I can only claim spending literally years thinking about it. 
 
 I decided to give it one more try here before putting this topic to rest. My wife is asking me "Why are you doing this?".  I still want to try one more time to talk about my experience with errors and troubleshooting with some examples and thoughts. My current plan is that with this series (or with this post) I will end my blogging. 
 
 This post is also about conveniences.  It shows a few examples where established parts of the Haskell ecosystem make it easy to be careless about errors or where providing decent error messages is simply hard.  
 I will mostly focus on _aeson_ (the premier Haskell package for working with JSON) with short mentions outside of this library.  This is because code that uses _aeson_ has been my more recent refactoring effort and is fresh on my mind. 
 
-## Example 1. Historical notes
+## Historical notes
 
 These are my (Haskell user) observations about the history of error messages in the Haskell ecosystem. 
-If you have been using Haskell for a long time, you probably remember that _aeson_ did not have `eitherDecode` at the beginning. `eitherDecode` was added in `0.6.1.0` (about two years after the initial release).  What it did have (and unfortuately still does) is a more nicely named
+If you have been using Haskell for a long time, you probably remember that _aeson_ did not have `eitherDecode` at the beginning. `eitherDecode` was added in `0.6.1.0` (about two years after the initial release).  What it did have (and unfortunately still does) is a more nicely named
 
 ```Haskell
 decode :: FromJSON a => ByteString -> Maybe a
 ```
 
-If I done my hackage archaeology correctly, an ability to output error messages was added in `0.2.0.0` with the 
+If I did my hackage archaeology correctly, an ability to output error messages was added in `0.2.0.0` with the 
 introduction of `parse :: (a -> Parser b) -> a -> Result b` which has been hiding in [_add_blank_target `Data.Aeson.Types`](https://hackage.haskell.org/package/aeson-0.2.0.0/docs/Data-Aeson-Types.html).
 The commonly imported `Data.Aeson` module did not have an error message producing combinator until `0.6.1.0`.
 
@@ -103,7 +101,7 @@ In particular, it would be nice to see more error types that are semantically ri
 Of course, _aeson_ historical record cannot be generalized to all libraries (e.g. Parsec was clearly concerned about error outputs from day one.). 
 
 
-## Example 2. MonadPlus errors
+## MonadPlus error laws
 
 I am fixing a lot of code that uses `Alternative` / `MonadPlus` abstractions.  The next section will show a code that produces wrong error messages by misusing these abstractions.  In this section I will discuss `MonadPlus` in more general terms. 
 
@@ -118,7 +116,7 @@ tst :: (MonadFail m, MonadPlus m) => m b
 tst = fail "not mzero" >> mzero
 ```
   
-Now I can try it with different monads to see if it's error output is the same as `mzero`'s. E.g.:
+Now I can try it with different monads to see if its error output is the same as `mzero`'s. E.g.:
 
 ```Haskell
 {-# LANGUAGE TypeApplications #-}
@@ -141,7 +139,7 @@ Side note: [_add_blank_target Megaparsec haddock](https://hackage.haskell.org/pa
 >  _"strictly speaking, this instance is unlawful. The right identity law does not hold, e.g. in general this is not true:
    `v >> mzero = mero`. However the following holds: `try v >> mzero = mzero`"_
 
-Obviously, there is no magic here backtracking or not the error message from `try v >> mzero` may be different than `mzero`, making a simple change to the above test verifies this as well. 
+Obviously, there is no magic here, backtracking or not the error message from `try v >> mzero` may be different than `mzero`, making a simple change to the above test verifies this as well. 
 _side_note_end
 
 Examples that fail  _"`tst` output is the same as `mzero` output"_ tests:
@@ -172,15 +170,15 @@ any lawful `MonadPlus` computation will suppress error information.
 I believe developers are divided into these 2 camps:  those that think about and implement laws, and those who do not, but are nevertheless surprised when computations behave in unlawful ways.  We consciously or subconsciously assume various computational properties when we reason about the computations. Partially lawful is concerning. If you care about error output, lawful 
 "modulo errors" should be concerning too.
 
-Principled computation give us abstractions to work with, like theorems are tools to a mathematician.  We do not need to think
+Principled computations give us abstractions to work with, like theorems are tools to a mathematician.  We do not need to think
 about the details, just apply them to create new code.  When we do that with `MonadPlus` error messages can fall through the cracks.  I am dealing with quite a bit of code that has fallen into this trap.  Next section will show one such example. 
 
-**_Who cares_** about errors?:  This is Haskell! And, if we want to consider error messages as something important, we should try to come up with a principled abstractions that are error message friendly. 
+**_Who cares_** about errors?:  This is Haskell! And, if we want to consider error messages as something important, we should try to come up with principled abstractions that are error message friendly. 
 I am looking forward to a day where _aeson_ will stop recommending the use of `<|>` as an error message signaling abstraction.   
 
 _side_note_start
-On a more positive note: A somewhat more principled (and interesting) approach would seems to be to
-require monoidal structure on the underlying error messages.  We would require that `mzero` results in `mempty` error, and `f1 <|> f2` result in `e1 <> e2` if both fail.  Alternative can be viewed as a "higher order monoid", it only makes sense that its errors should be a Monoid as well.  Note `(Monad m, Monoid e) => MonadPlus (ExceptT e m)`. 
+On a more positive note: A somewhat more principled (and interesting) approach would seem to be to
+require monoidal structure on the underlying error messages.  We would require that `mzero` results in `mempty` error, and `f1 <|> f2` results in `e1 <> e2` if both fail.  Alternative can be viewed as a "higher order monoid", it only makes sense that its errors should be a Monoid as well.  Note `(Monad m, Monoid e) => MonadPlus (ExceptT e m)`. 
 However, _appending error messages tends to produce not very user friendly results.
 _side_note_end
 
@@ -195,7 +193,7 @@ errInfoDon'tCare = either (const empty) pure
 It dumps any error information you might have. 
 _side_note_end
 
-## Example 3. `<|>` in _aeson_ considered harmful
+## Alternative dog music. A use of `<|>` is considered harmful
 
 Let's sketch a contrived code to illustrate a use of `<|>`:
 
@@ -228,7 +226,7 @@ instance FromJSON Favorite where
 
 Note the above _Law of Convenience_ applies here: this code reuses existing JSON parsers to create the parser for `Favorite`, and this parser is very easy to implement.  This also looks elegant, and seems to principally fit the `Alternative` very well. There is no special JSON representation of `Favorite`, 
 rather we use JSON representations of the constituent types `Pet`, `Composer`, etc.  This approach does not fuss with data constructor tags eliminating some JSON size overhead and
-works well with structurally typed callers (e.g. TypeScript). But, this approach has issues. 
+looks ideal for structurally typed callers (e.g. TypeScript). But, this approach has issues. 
 
 Assume this has some frontend UI. Assume that a user enters information about her favorite four legged friend and that does not parse for some reason (e.g. frontend JSON encoding of `Pet` is incorrect). 
 The error message from the parser will say something like 
@@ -237,69 +235,72 @@ The error message from the parser will say something like
 "Composer needs a genre"
 ```   
 
-(or whatever error `FromJSON` for `Composer` returns if it is given unexpected JSON object). 
+(or whatever error `FromJSON` for `Composer` returns if it is given an unexpected JSON object). 
 
-We see a couple of problems: the message is misleading and it lacks context (there is nothing in this message to indicate that it came from JSON parser for `Favorite`). 
-I will focus on it being misleading because, believe me, this coding pattern can produce very confusing errors in real life.
-
-Code like this is something I am slowly working to fix in projects I contribute to. Fixing such code is often not easy. 
-
-_side_note_start
-The scenario I described in this example is what I call
-
-> &emsp; _Unexpected input test_ 
-
-Such tests tend to simulate error message response to a programming bug[^foot].  Some readers will argue that such tests are an overkill.  However, This should be a case by case decision, e.g. these tests can be very relevant when programmers are the users (implementing a programming language, a framework, a coding platform, etc) or when such bugs happen frequently.
-_side_note_end
-
-[^foot]:  At least, in my experience,  parser errors (aeson or (mega)parsec) are typically development time issues.  But, I have witnessed a high troubleshooting cost of these errors, often absorbed by a different (not Haskell) programming team.
-
- 
+We see a couple of problems: the message is misleading and it lacks context (there is nothing in this message to indicate that it came from the JSON parser for `Favorite`). 
+I will focus on it being misleading because, believe me, this coding pattern can produce very confusing errors in real life. Code like this is something I am slowly working to fix in projects I contribute to. Fixing such code is often not easy. 
 
 _side_note_start
 Common solution to the above parsing issue is to add a tag to JSON data to disambiguate the data constructor. 
-In fact, this is what happens if you use default generic JSON instances. You no longer need to use `<|>` if you know
+In fact, this is what happens if you use default generic JSON instances. You no longer use `<|>` if you know
 which constructor is being parsed.   
-However, fixing such code gets more tricky if you have to consider backward compatibility, or when parsing into an extensibly defined (e.g. using something like _vinyl_) coproduct type (basically when adding tags to JSON representation is harder). In worst cases returning error messages from all alternatives may need to be considered (not a user frienly option but better then lying).  
+However, fixing such code gets more tricky if you have to consider backward compatibility, or when parsing into an extensibly defined (e.g. using something like _vinyl_) coproduct type (basically when adding tags to JSON representation is harder). In worst cases returning error messages from all alternatives may need to be considered (not a user frienly option but better than lying).  
 
 **Exercise:** Try to implement JSON boilerplate for [_add_blank_target Data.Functor.Sum](https://hackage.haskell.org/package/base-4.18.0.0/docs/Data-Functor-Sum.html) that would be friendly for non-Haskellers and provide clear error messages ("InL" and "InR" tags would not be very friendly). (I do not have a good solution.)
+
+Adding tags to JSON representation of constituent types can also be considered[^ts].
 _side_note_end
 
+[^ts]: E.g. in structurally typed environments there are no data constructors. Adding a type disambiguating property to all objects in the union types is a programming pattern in TypeScript. 
+
 _side_note_start
-Side note: The alternative game is somewhat different when using Parsec or Megaparsec (related to backtracking and input consumption). 
-Interestingly,  the `a <|> b` phenomenology we discussed is very similar to Parsec's `try a <|> b`.  
+The alternative game is somewhat different when using Parsec or Megaparsec (the differences are related to backtracking and input consumption). 
+Interestingly,  the `a <|> b` phenomenology we are discussing is very similar to Parsec's `try a <|> b`.  
 This post does a great job explaining the complexity: 
 [_add_blank_target Parsec: “try a <|> b” considered harmful](http://blog.ezyang.com/2014/05/parsec-try-a-or-b-considered-harmful/). 
-Fixing `try a <|> b` anti-pattern can be not trivial.  I have a large amount of work ahead of me fixing this particular 
-issue, and I am not looking forward to it.
+Fixing `try a <|> b` anti-pattern can be not trivial. 
 _side_note_end
 
 _side_note_start
 Side note:  Another danger of the described approach: consider constituent (`Pet`, `Composer`) type JSON specs that do not tag type information and have partially overlapping data definitions (e.g. think about not overlapping fields being null).
 _side_note_end
 
-Are developers aware of this issue?  Probably some are and some are not.
+_side_note_start
+Side Note: The scenario I described in this example is what I call:  _Unexpected input test_. 
+Such tests can pin-point problems with error message response to a programming bug.  Some readers will argue that improving error messages caused by development time issues is an overkill.  However, this should be a case by case decision, e.g. such effort can be very relevant when programmers are the users (implementing a programming language, a framework, a coding platform, etc) or when bugs are observed frequently.
+_side_note_end
+
+Are developers aware of this `<|>` issue?  Probably some are and some are not.
 Code like this is probably written because JSON parser errors are unlikely to be viewed by the end user, _aeson_ makes code like this easy to implement, the code looks elegant, and error messages are the last thing on people's minds. 
 
 Which leads to another question:   
-Q: How would we guard against code like this?  A common practice for avoiding program issues is writing tests.  How do I write a non-brittle test that checks quality of _aeson_ error messages?  Do I write message parsers?   
+Q: How would we guard against code like this?  A common practice for avoiding program issues is writing tests.  How do I write a non-brittle test that checks the quality of _aeson_ error messages?  Do I write message parsers?   
+
+
+Let’s forget about `<|>` for a moment and try to formalize what a parser error message is:  Consider the input document specification as a collection of sets of detailed specs _S<sub>T</sub>_, one for each parsed type _T_ (e.g. “Composer has a not-nullable ‘genre’  field of type Genere” is an element of _S<sub>Composer</sub>_) .  An error message pin-points an[^one] element in one of these sets marking it as failed (e.g. “Composer needs a genre”).  
+
+To return a user-friendly error message, the parser needs to choose _S<sub>T</sub>_ wisely by matching the data the user is working on.  Parser needs to have access to enough information about this context to compute which _S<sub>T</sub>_ to use (data constructor tags is an example of how such context is provided to the parser). 
+Thus, _thinking about user friendly error messages needs to be a part of software design and input specification_.  Selecting an error message that will be meaningful to the user is not just an implementation detail. 
+
+[^one]: this assumes, for simplicity, that we are listing only one (e.g. first encountered) violation of the spec.
+
    
 The point I have been trying to make is that using `Alternative` / `MonadPlus` in computations where error information is important (like parsing) can be very tricky. It requires thinking about and testing error outputs, not something developers typically do. 
 
 >  &emsp;  _Hmm, I think Snuffy's genre would be hard rock. But what if the dog's name is Beethoven?_
 
-## Example 4. Specific errors 
+## Overloaded errors 
 
 This section will be more subtle. _Programs sometimes need to be selective about which error condition is handled_.
 
-E.g. consider writing a program that checks if local config file _".my.yaml"_ exists and if not, uses _"~/.my.yaml"_, returns error if there is an issue with any of the files.
+We will try to write a program that checks if the local config file _".my.yaml"_ exists and if not, uses _"~/.my.yaml"_, and returns an error if there is an issue with any of the files.
 
 _side_note_start
 Side note: Making issues "loud" helps in troubleshooting. 
-Returning an error if there is a problem with the local file instead of alternating to a backup file is one way to be loud about configuration problem.
+Returning an error if there is a problem with the local file instead of alternating to a backup file is one way to be loud about configuration problems.
 _side_note_end
 
-Let's try to do that using `MonadPlus` instance of `IO`. 
+We will use `MonadPlus` instance of `IO`. 
 Here is standard library [_add_blank_target implementation](https://hackage.haskell.org/package/base-4.18.0.0/docs/src/GHC.IO.html#mplusIO) of `mplus` or `<|>` for the `IO` Monad:
 
 ```Haskell
@@ -358,7 +359,7 @@ decodeFileIsolateIOErrors file = do
 ```
 
 If you dislike this code, then I am with you.
-This example's goal is to illustrates a thought process that goes into handling of errors, so let's focus on that process only. 
+This example's goal is to illustrate a thought process that goes into handling errors, so let's focus on that process only. 
 
 `conflateAllIssues` example conflates (and silences) all of these things:
 
@@ -374,22 +375,19 @@ I hope this shows that things can get complex.
 
 My hidden goal behind this exercise was to have us notice something that applies to a wider range of `MonadPlus` / `Alternative` instances. 
 In particular, it is related to the previous example. 
-The impression I probably left on you in [_add_blank_target Example 3](#example-3.-example) was: a naive use of _Alternative_ results in bad error messages. 
+The impression I probably left on you in the previous section was: a naive use of _Alternative_ results in bad error messages. 
 
 I look at the "Who cares about K9 composers" as a deeper issue of 2 conflated errors. 
-The code in Example 3 conflates errors from parsing JSON data representing one of the possible constituent types (parsing wrong branch), with errors from parsing JSON data that does not represent any of the constituent types (parsing wrong data).  This code cannot distinguish between these errors and alternates on both. Ideally we would only alternate on the first but there is no obvious way to do that. 
+The code in the previous section conflates errors from parsing JSON data representing one of the possible constituent types (parsing wrong branch), with errors from parsing JSON data that does not represent any of the constituent types (parsing wrong data).  This code cannot distinguish between these errors and alternates on both. Ideally we would only alternate on the first but there is no obvious way to do that. 
 
-Again, the easiest way to avoid the issue is to simplify the data specs for what is being parsed. If you know were you are (which branch), you can commit to it and proceed. In monadic parsers like _Megaparsec_ `<|>` stops alternating once you committed (consumed some input). In  _aeason_, you would not need to use `<|>` at all.  When you do that the parsing error is not longer overloaded, it can only indicate wrong data. 
-
-Conflating errors is a concern when programming parsers using `MonadPlus` instances. 
+Overloaded errors is a concern when programming parsers using `MonadPlus` instances. 
 This is subtle and, probably, I have not explained it clearly enough.  Please give it some thought before dismissing it.
 
 
 ## Topics to discuss
 
-I do not claim any order of importance for the examples presented.
-I simply wrote about things that irk me at the present moment, and that has to do with the code I am currently trying to fix.  I think that the overall situation with error messages is getting better and better, but IMO we are far from being where we should be. Haskell does not have expressive stack traces or convenient debuggers. 
-One would assume the community will try to compensate with clear error messages and great log outputs to made up for these limitations.  I believe this topic needs more attention.
+In this post I wrote about things that irk me at the present moment.  I think that the overall situation with error messages is getting better and better, but IMO we are far from being where we should be. Haskell does not have expressive stack traces or convenient debuggers. 
+One would assume the community will try to compensate with clear error messages and great log outputs to make up for these limitations.  I believe this topic needs more attention.
 
 Here is a broader list of engineering topics that are IMO worth discussing:
 
@@ -401,13 +399,13 @@ Here is a broader list of engineering topics that are IMO worth discussing:
 * Type level consideration for errors.
 * Strategies for dealing with non termination caused by use of `error :: String -> a` (a pure function, I call it &#128521; "pure evil").
 * More about `Maybe`, `MonadPlus`, `Alternative` when they are, in addition to being very convenient, completely OK to use. 
-* More about `MonadPlus`, `Alternative` when their use is concerning (e.g. are you using `guard :: Alternative f => Bool -> f ()` in parsers?  If so how?).
+* More about `MonadPlus`, `Alternative` when their use is concerning (e.g. are you using `guard :: Alternative f => Bool -> f ()` in parsers?  If so, how?).
 * Strategies for refactoring code overusing `Alternative` in parsers. Writing parsers without using `<|>`.
 * Monadic vs Applicative parsers comparison from the error messages standpoint.
 
 
 It would be nice to know if I am alone in my views and if these topics are of interest for anyone out there. 
-If not, I will probably make this my last blog post.  If yes, I will select one of these topics and try to write more over the summer. 
+If not, I will probably make this my last blog post, blogging is costing a little bit too much energy.  If yes, I will select one of these topics and try to write more over the summer. 
 
 Was this post negative?  IMO, there is a difference between negativity and frustration. 
 Frustration can result in something positive, negativity cannot. 
@@ -417,16 +415,7 @@ Frustration can unite, negativity can only divide.
 If you agree with some of the things I wrote here, please try to focus on these and let me know!
 Thank you for reading and for your feedback. 
 
-I am a concerned Haskeller who loves and adores this language. 
+I am a concerned Haskeller who loves and adores this language.
 
+To all my readers: thank you for reading my posts and for the constructive comments and encouragements.
 
-## Related Links
-
-These references came to my mind when thinking about this post:
-
-* Matt Parsons's [_add_blank_target The Trouble with Typed Errors](https://www.parsonsmatt.org/2018/11/03/trouble_with_typed_errors.html) 
-* Michael Snoyman's [_add_blank_target Haskell The Bad Parts](https://www.snoyman.com/blog/2020/10/haskell-bad-parts-1/) series
-* [_add_blank_target Reflect on Your Mistakes! Lightweight Domain-Specific Error Messages](https://davidchristiansen.dk/drafts/error-reflection-submission.pdf) paper draft
-
-
-I am sure there are other relevant links.  Let me know if you can think about other critical discussion of error outputs in functional programming.
