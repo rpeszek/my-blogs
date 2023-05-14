@@ -253,8 +253,6 @@ However, fixing such code gets more tricky if you have to consider backward comp
 **Exercise:** Try to implement JSON boilerplate for [_add_blank_target Data.Functor.Sum](https://hackage.haskell.org/package/base-4.18.0.0/docs/Data-Functor-Sum.html) that would be friendly for non-Haskellers and provide clear error messages ("InL" and "InR" tags would not be very friendly). (I do not have a good solution.)
 
 Adding tags to JSON representation of constituent types can also be considered[^ts].
-
-It may look like to the reader that I am arguing against type erasure (in the example, the JSON representation does not have data constructor or type information causing the parser to pick an error message for a wrong type). This is a tricky subject and the situation depends on who is controlling the erasure and how likely it is for lack of type information to cause issues.  
 _side_note_end
 
 [^ts]: E.g. in structurally typed environments there are no data constructors. Adding a type disambiguating property to all objects in the union types is a programming pattern in TypeScript. 
@@ -283,13 +281,15 @@ Are developers aware of this `<|>` issue?  Probably some are and some are not.
 Code like this is probably written because JSON parser errors are unlikely to be viewed by the end user, _aeson_ makes code like this easy to implement, the code looks elegant, and error messages are the last thing on people's minds. 
 
 Which leads to another question:   
-Q: How would we guard against code like this?  A common practice for avoiding program issues is writing tests.  How do I write a non-brittle test that checks the quality of _aeson_ error messages?  Do I write message parsers?   
+Q: How would we guard against issues like this?  A common practice for avoiding program issues is writing tests.  How do I write a non-brittle test that checks the quality of _aeson_ error messages?  Do I write message parsers?   
 
 
 Let’s forget about `<|>` for a moment and try to formalize what a parser error message is:  Consider the input document specification as a collection of sets of detailed specs _S<sub>T</sub>_, one for each parsed type _T_ (e.g. “Composer has a not-nullable ‘genre’  field of type Genere” is an element of _S<sub>Composer</sub>_) .  An error message pin-points an[^one] element in one of these sets marking it as failed (e.g. “Composer needs a genre”).  
 
 To return a user-friendly error message, the parser needs to choose _S<sub>T</sub>_ wisely by matching the data the user is working on.  Parser needs to have access to enough information about this context to compute which _S<sub>T</sub>_ to use (data constructor tags is an example of how such context is provided to the parser). 
-Thus, _thinking about user friendly error messages needs to be a part of software design and input specification_.  Selecting an error message that will be meaningful to the user is not just an implementation detail. 
+Thus, 
+
+> &emsp; _thinking about user friendly error messages needs to be a part of software design and input specification_.  
 
 [^one]: this assumes, for simplicity, that we are listing only one (e.g. first encountered) violation of the spec.
 
