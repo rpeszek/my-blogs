@@ -171,11 +171,9 @@ any lawful `MonadPlus` computation will suppress error information.
 [^faillaw]: e.g. [_add_blank_target Monad Fail Law](https://wiki.haskell.org/Typeclassopedia#MonadFail)
 
 
-I believe developers are divided into these 2 camps:  those that think about and implement laws, and those who do not, but are nevertheless surprised when computations behave in unlawful ways.  We consciously or subconsciously assume various computational properties when we reason about the computations. Partially lawful is concerning. If you care about error output, lawful 
-"modulo errors" should be concerning too.
+I believe developers are divided into these 2 camps:  those that think about and implement laws, and those who do not, but are nevertheless surprised when computations behave in unlawful ways.  We consciously or subconsciously assume various computational properties when we reason about the computations. Partially lawful is concerning. If you care about error output, "lawful modulo errors" should be concerning, having such limitation undocumented is concerning too.
 
-Principled computations give us abstractions to work with, like theorems are tools to a mathematician.  We do not need to think
-about the details, just apply them to create new code.  When we do that with `MonadPlus` error messages can fall through the cracks.  I am dealing with quite a bit of code that has fallen into this trap.  Next section will show one such example. 
+Principled computations give us abstractions to work with, like theorems are tools to a mathematician.  We do not need to think about the details, just apply them to create new code.  When we do that with `MonadPlus` error messages can fall through the cracks.  I am dealing with quite a bit of code that has fallen into this trap.  Next section will show one such example. 
 
 **_Who cares_** about errors?:  I hope we will come up with principled abstractions that are error message friendly. 
 I am looking forward to a day where _aeson_ will stop recommending the use of `<|>` as an error message signaling abstraction.   
