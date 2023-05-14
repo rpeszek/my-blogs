@@ -1,5 +1,5 @@
 ---
-title: Refactoring error messages in Haskell programs. Part 0 - Who cares about K9 composers?
+title: Refactoring error messages in Haskell programs. Who cares about K9 composers?
 featured: true
 summary: Concerns about the quality of error output in Haskell programs, one more time.
 toc: true
