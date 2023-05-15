@@ -409,6 +409,7 @@ Here is a broader list of engineering topics that are IMO worth discussing:
 * More about `MonadPlus`, `Alternative` when their use is concerning (e.g. are you using `guard :: Alternative f => Bool -> f ()` in parsers?  If so, how?).
 * Strategies for refactoring code overusing `Alternative` in parsers. Writing parsers without using `<|>`.
 * Monadic vs Applicative parsers comparison from the error messages standpoint.
+* Strategies for input spec designs (e.g. for JSON representations, tagging constructors vs tagging types).
 
 
 It would be nice to know if I am alone in my views and if these topics are of interest for anyone out there. 
