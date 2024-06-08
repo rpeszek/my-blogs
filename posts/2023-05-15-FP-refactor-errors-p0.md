@@ -10,8 +10,6 @@ tags: patterns-of-erroneous-code, Haskell, error-messages
 >  &emsp; &emsp;   A quote that I wish someone whom I could quote had said
 
 
-**DRAFT version:** _Awaiting Initial Feedback._
-
 In this post I will talk about improving error messages.  We will also discuss dogs which compose music. 
 
 I wrote about error messages in Haskell before, I decided to give it one more go. 

@@ -357,6 +357,11 @@ I remember Grails as a land mine of issues, I wrote an 11 part [_add_blank_targe
 Java Streams have a very interesting take on referential transparency: 
 if you execute a stream twice the second attempt will fail. This is probably the first and only attempt at dynamically typed linear types &#128578; and is bound to create interesting intermittent issues.
 
+_side_note_start   
+Poorly implemented abstractions could have to do with the empirical mindset that dominates the programming community. 
+Programmers are typically inductive learners (learn from examples and generalize from examples). 
+It is probably hard to think about counter examples when learning from examples. 
+_side_note_end
 
 **Abstractions themselves causing cognitive issues**
  
