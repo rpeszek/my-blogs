@@ -8,6 +8,8 @@ changelog: <ul>
      </li>
      <li> (2022.12.31) Added link to xena project and new footnote <a href="#fn5">footnote [5]</a> (this breaks previous external links to footnotes above 4). 
      </li>
+     <li> (2024.06.08) Added section <a href="#side-note-formal-deduction-mathematics-and-immutability-of-knowledge">formal deduction, mathematics, and immutability of knowledge</a>. 
+     </li>     
      </ul>
 toc: true
 tags: patterns-of-erroneous-code, communication
@@ -17,7 +19,6 @@ tags: patterns-of-erroneous-code, communication
 
 > *"If in physics there's something you don't understand, you can always hide behind the uncharted depths of nature. You can always blame God. You didn't make it so complex yourself. But if your program doesn't work, there is no one to hide behind. You cannot hide behind an obstinate nature. If it doesn't work, you've messed up." Edsger W. Dijkstra*
 
-**DRAFT version:** _This post is a work-in-progress. Thank you for your feedback._ 
 
 I will discuss (on a very high level) empirical, experimental, and deductive aspects of programming. 
 This distinction is fun to analyze (and a somewhat unusual way to look at programming) but it seems mostly a useless curiosity in itself.  I have convinced myself that programmers tend to favor empirical or favor deductive. IMO, we are placing ourselves into 2 camps.  I call these camps _pragmatists_ and _theorists_. 
@@ -60,6 +61,8 @@ But it is even more fun to think about both experiments and observations.
 Deductive reasoning goes from general knowledge to specific conclusions. E.g. certain software functionality will work because of type safety or because it is a straightforward application of something else we believe works. In this post, deductive represents a wide range of thought processes: from tedious "observation-less" mental verification 
 of values and types (oh, this value was supposed to be a positive number, why is it negative?, is the new refactored code equivalent to the previous?...) all the way to formal reasoning (e.g. equational proof that refactored code is equivalent).  
 
+In this essay, I use the term "formal" somewhat loosely. In particular, formalization of mathematics can mean something even much stricter than mathematical proofs, e.g. proofs that type check using a proof assistant.  In this post mathematics is viewed as an example of formal thought already, my goal is to contrast it with, say, biology.
+
 Empirical and deductive work in tandem and both are essential.  IMO, we (as individuals) prefer to use one more than the other. 
 Understanding more about these preferences will be the main topic of this post.
 
@@ -68,8 +71,9 @@ Understanding more about these preferences will be the main topic of this post.
 
 
 _side_note_start
+_I got quite a bit of pushback on this sidenote,  I will expand it in next section._
 Formal reasoning[^formalprog] is the only approach humans have figured out to solve complex problems correctly[^formalprog2] on the first go (without trial and error associated with empirical reasoning). 
-Mathematicians are not infallible[^xeno], however mathematics is more formalized than any other science and, thus, is more "correct" than other sciences. 
+Mathematicians are not infallible, however mathematics is more formalized than any other science and, thus, is more "correct" than other sciences. 
 Being a programmer, I like to think about formal reasoning as immutable and empirical reasoning as an in-place mutation (e.g. mathematics effectively keeps adding to itself while empirical sciences like medicine keep changing)[^immu].  
 In-place mutation in programming is the refactoring process. Can you think about math-like immutable designs in programming?  E.g. a design or code that aged very well over, say, over the last 20 years?  
 In this post I am not separating the formal out, it is bundled into deductive. 
@@ -82,16 +86,74 @@ _side_note_end
 [^formalprog]: The term _formalism_ has special meaning in mathematics, I use it colloquially (i.e. all mathematics is formal).
 Examples of formal approaches popular among FP-ers could be equational reasoning, use of logical implication (e.g. with Haskell type class constraints), use of mathematical or structural induction (an exercise using it is included later in this post). Readers familiar with equational reasoning may agree with me about its similarity to a refactoring process where the developer mentally verifies that the new code is equivalent to the old. The line between formal and informal is sometimes thin. 
 
-[^formalprog2]: This is kinda fun to think about: we have only empirical evidence of mathematics as a whole being _correct_, we know we will never prove it formally. Mistakes in mathematics are very rare (more on this in next footnote).  However, we have a lot of empirical evidence of (past) _incorrectness_ in various empirical sciences. 
-I am a pragmatist enough to say that mathematics is correct (at least comparatively speaking), the rest looks good until we learn more about it (just like bugs in software). I believe a significant part of people trained in mathematics and formal reasoning share this viewpoint.  File it under IMO if you must.  I just love the the beginning story in [_add_blank_target Types, Abstraction and Parametric Polymorphism (John C. Reynolds)](https://people.mpi-sws.org/~dreyer/tor/papers/reynolds.pdf) paper, it seems very relevant.
+[^formalprog2]: This is kinda fun to think about: we have only empirical evidence of mathematics as a whole being _correct_, we know we will never prove it formally. Mistakes in mathematics are very rare (more on this in next section).  However, we have a lot of empirical evidence of (past) _incorrectness_ in various empirical sciences. 
+I am a pragmatist enough to say that mathematics is correct (at least comparatively speaking), the rest looks good until we learn more about it (just like bugs in software). I believe a significant part of people trained in mathematics and formal reasoning share this viewpoint.  File it under IMO if you must.  
 
-[^xeno]: This blog post: [xena project, formalizing mathematics](https://xenaproject.wordpress.com/2021/01/21/formalising-mathematics-an-introduction/) is really worth reading as a whole. 
-It points out that mathematicians do make errors too and argues about the need to add computer assisted formal verification to mathematics.  My argument is comparative, errors in mathematical proofs are rare and exceptional. 
 
 [^immu]: Obviously, a well established empirical knowledge will not change for ages as well. Immutability is a result of getting things right, empirical method converges towards it, formal method starts there. My metaphor "empirical is mutating in-place" is not perfect.  
 
 
 You may think that I am spending too much time explaining the obvious:  any engineering will have a strong empirical aspect, engineers like to tinker with things.  I assume that some readers are like me and have not thought about it before.  The next section goes deeper into the empirical nature of coding.   
+
+
+### Side note: formal deduction, mathematics, and immutability of knowledge
+
+A logical thing to do here would be to discuss deductive systems in programming (e.g. operational semantics, equivalences between mathematical and programming concepts, etc). 
+I decided against it, doing this would create a bias towards _theorists_ and would probably alienate some _pragmatists_.  I hope I am avoiding such bias by using mathematics as the example of formal thought. 
+
+My comments about mathematics being mostly immutable and additive and very different from empirical sciences that keep mutating to get things right got a lot of pushback from the readers. 
+This section expands on this topic and make some points, previously buried in footnotes, more visible. 
+Here is an example of feedback from a reader:
+
+> _"Lol what? Mathematicians are fallible and often find faults in decades old proofs."_
+  
+I agree with the quoted text in general, but I do not agree with the _often_ quantifier. 
+We need to keep things in context.  We are comparing mathematics to other sciences.  I am not suggesting that published mathematical work is never wrong (e.g. the premises behind Homotopy Type Theory, Univalent Foundations [^hott], attempts to formalize maths with proof assistants [^xeno] are all thumbs up).
+My argument is comparative, errors in mathematical proofs exist but are rare and exceptional. Comparatively speaking mathematics is a beacon of truth and an outlier.
+
+Example: Why do we have infinitely many prime numbers? We are discussing formal deduction so let's do it!  
+
+_Theorem_:  _Set of prime numbers is infinite._ 
+
+_Proof_:  Let `S` denote the set of all primes. Assume it is finite.  Let `P` be the number obtained by multiplying all numbers in `S` PLUS `1`.   
+By construction, `forall p ∈ S`,  `P mod p = 1` (`P` divided by any prime `p` has reminder of `1`).  
+Thus, the prime factors of `P` are not in `S`.  Thus, we have a contradiction.  `S` has to be infinite.  _QED_
+
+This is the proof I remember being taught in school. How old is the proof itself? 
+I believe that nobody knows. We can find it in Euclid's Elements. So, it was known around 300 BC!
+I hope this example gives you some evidence of the immutability of "formal thought". 
+Yes, some areas of mathematics have changed around 1900, but a surprising amount of it has not changed for centuries. 
+
+In contrast, Empirical sciences are in the midst of [_add_blank_target replication crisis](https://www.nature.com/articles/533452a) with reproducibility rates for published results below 50%[^repro].  
+
+It is good to note that the above proof still does some hand waving. 
+E.g. "Thus, the prime factors of `P` are not in `S`" implicitly assumes knowledge about prime factors and I am not referencing the "fundamental theorem of arithmetic": _every natural number greater than 1 is either a prime itself or can be factorized as a product of primes that is unique up to their order_. I left it ambiguous on purpose as such ambiguities are often present in math proofs. If `P` itself is prime the proof implicitly defines its prime factors as a one element set `{P}` which is somewhat not standard.  This all can be fully formalized but it would be tedious to do that and avoiding such tediosity is common in math. However, this looseness sometimes leads to overlooked errors. Again, such errors are rare. There is also the question of constructive proofs, this proof is not constructive.  I am not delving into this area at all.  
+
+
+I believe proof assistants and type checking the proofs will be used much more in the future. This formula is a quote (I do not remember the source):
+
+_lim<sub>t -> ∞</sub> Math(t) = CS_
+
+I hope for this asymptotics: 
+
+_lim<sub>t -> ∞</sub> CS(t) = Math_
+
+and have a lot of thoughts about how this relates to LLMs and the future of human programmers.  These would take too much space and do not belong in this post. 
+
+If you look at how most computer scientists approach programming and how most mathematicians approach writing proofs these areas remain very much divorced at the current moment.  Even people who know a lot of math and do a lot of programming (e.g. data scientists) are using programming to do math but not use math to program.
+
+> _"Once upon a time, there was a university with a peculiar tenure policy.  All faculty were tenured, and could only be dismissed for moral turpitude. What was peculiar was the definition of moral turpitude: making a false statement in class. Needless to say, the university did not teach computer science. However, it had a renowned department of mathematics."_
+
+_John C.Reynolds_ [_add_blank_target Types, Abstraction and Parametric Polymorphism (John C. Reynolds)](https://people.mpi-sws.org/~dreyer/tor/papers/reynolds.pdf) 1983
+
+[^xeno]: This blog post: [_add_blank_target xena project, formalizing mathematics](https://xenaproject.wordpress.com/2021/01/21/formalising-mathematics-an-introduction/) is really worth reading as a whole. 
+It points out that mathematicians do make errors too and argues about the need to add computer assisted formal verification to mathematics.   
+
+[^hott]: See this lecture by Voevodsky himself about the motivation for [_add_blank_target Univalent Foundations: New Foundations of Mathematics](https://www.youtube.com/watch?v=E9RiR9AcXeE)
+
+[^repro]: One line of defense presented in the quoted nature article is that experiment protocols are not being published. I find this line of reasoning very concerning: think about the concept of steady state. 
+
+[^proof]: Since I mentioned formalization of mathematics, it is good to note that there is quite a bit of work that would need to be done to verify the above proof with a proof assistant.  E.g. "Thus, the prime factors of `P` are not in `S`" implicitly assumes knowledge about prime factors I am not even referencing the "fundamental theorem of arithmetic": every natural number greater than 1 is either a prime itself or can be factorized as a product of primes that is unique up to their order. Here I left it ambiguous on propose as it is often done in math proofs. If `P` itself is prime I think about its prime factors as a one element set `{P}` which is somewhat not standard.  This all can be fully formalized but it would be tedious to do that. Avoiding such tediousness sometimes leads to overlooked errors. 
 
 ## Coding by experimenting and observing
 
@@ -462,7 +524,8 @@ I could not understand why certain bugs remain not fixed, why there are no depre
 &emsp;  Exploit how TS defines variance to create a function that has `number` as the return type but it returns `undefined` for some of its input parameter values.* 
 
 The pragmatist's take (as I see it) is: (1) the impact of these booby traps is small and with some luck you will not notice (or _observe_) them in your project, 
-(2) the ingredients you use do not need to be sound, they are just a part of a bigger implementation noise. I do not agree with these arguments, but at least I think I know what the arguments are. 
+(2) the ingredients you use do not need to be sound, they are just a part of a bigger implementation noise. I do not agree with these arguments, but at least I think I know what the arguments are, 
+(3) counter examples do not come up much when using inductive reasoning (pragmatists are more likely to think about examples rather than general concepts and counter examples). 
 _side_note_end
 
 [^why0]: I created a long list of logically unsound decisions made by PLs and some mainstream libraries in this [_add_blank_target footnote](2022-08-30-code-cognitiveload.html#fn12)
@@ -563,6 +626,8 @@ translates to 2 different approaches to do program synthesis.  I have listened t
 how this will play out, but I do not feel qualified to discuss this in much depth. _"The effort of using machines to mimic the human mind has always struck me as rather silly. I would rather use them to mimic something better."_ (Dijkstra, of course).  Quite possibly we will see an equivalent of empirical vs deductive play out in this area.
 
 [_add_blank_target Abductive reasoning](https://en.wikipedia.org/wiki/Abductive_reasoning) and applicability of Ockham razor to software development seems like another fascinating philosophical topic that is orthogonal to what we have discussed[^abductive]. 
+
+LLM's like ChatGPT cab be viewed as the ultimate "inductive learners".  Does this create opportunity for human minds capable of a more deductive thought process?  
 
 I am sure there are many more interesting angles to explore here. 
 
