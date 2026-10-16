@@ -1,7 +1,7 @@
 ---
 title: Life after Haskell, HKT flattening (examples in Kotlin)
 featured: true
-summary: Flattened HKTs and higher-order functions in mainstream programming
+summary: Using flattened HKTs and higher-order functions in mainstream programming
 toc: true
 tags: Haskell
 codestyle: newstyle
@@ -20,6 +20,7 @@ If you are tired of such complaints, go directly to [Setter the HKT flattening c
 This way `Functor` is replaced with a plain `Setter`.  The `Traversal` optic ends up replaced with a `Setter` using implicit IO.  
 
 I advocate for avoiding type-based ad-hoc polymorphism (Context Oriented Programming in Kotlin) in favor of passing computations like `Setter s t a b` as first-class, direct arguments (a "dictionary passing"-like style).  This promotes programming with higher-order functions.
+This post navigates between the theoretical and the idiomatic. You may very much disagree with it as a good idiomatic direction. The theoretical side, IMO, is still worth examining.
 
 
 You may also find [Using LLMs](#using-llms) interesting.
@@ -71,16 +72,17 @@ I did some math research, then 2 decades of mainstream programming with many bat
 Haskell-like FP in a non-FP language is hard to do. The biggest culprit is the lack of support for higher-kinded / second-order types.  There is a technique called _lightweight higher-kinded types_ or _defunctionalization of higher-kinded types_.  The libraries based on this technique are hard to use and probably harder to learn than Haskell itself.
 
 There is an effort to create a more approachable FP ecosystem (e.g. arrow in Kotlin - new versions, Effect in TypeScript, returns in Python, Vavr in Java ...).  These libraries hide internal implementation of FP concepts behind a "frontend" that feels more idiomatic and familiar in a non-FP language.  Using these libraries results in safer and cleaner code.  This is a great effort. 
-
-My goal is to explore the raw capabilities of higher-order functions, mostly ignoring the question of how these are packaged. 
+ 
 My personal preference is to work with raw computations directly.  This is what attracted me to FP and Haskell in the first place. 
-To me, FP is a study of computations, I want to see the computations
-not look at a some API facade. 
+To me, FP is the study of computations; I want to see the computations,
+not look at some API facade. 
 
 > *FP libraries are implemented in their corresponding languages.*   
-> *Should we use higher-order functions instead of proprietary language features to create a functional programming frontend?[^propr]. Can we do it in a reasonably idiomatic and simple way?* (Open Portability Question)
+> *Should we base functional programming on higher-order functions instead of proprietary language features[^propr]? Can we do it in a reasonably idiomatic and simple way?* (Open Portability Question)
 
-[^propr]: With a pragmatic approach to what is proprietary, it is not turtles all the way down proposal.
+[^propr]: This assumes a pragmatic approach to deciding what is proprietary; it is not a turtles-all-the-way-down proposal.
+
+You can (and probably should) disagree with me on this. We can still explore the raw capabilities of higher-order functions together, ignoring the question of how these are packaged.
 
  `(a -> b) -> s -> t` is the higher-order function I will start with and focus on. 
 
@@ -108,7 +110,7 @@ type Setter' s a = Setter s s a a
 
 `Traversal` is an interesting optic because unlike `Lens` or `Prism` it is not so easy to define it with the old record approach[^oldlens].  
 
-[^oldlens]: E.g. old [data-lens](https://hackage.haskell.org/package/data-lens-2.11.2/docs/Data-Lens-Common.html) package. Still visible as `lens` and `prism` combinators in the modern lens package.
+[^oldlens]: E.g. old [_add_blank_target data-lens](https://hackage.haskell.org/package/data-lens-2.11.2/docs/Data-Lens-Common.html) package. Still visible as `lens` and `prism` combinators in the modern lens package.
 
 ```Haskell
 type Traversal s t a b = forall f. Applicative f => (a -> f b) -> s -> f t
@@ -201,19 +203,22 @@ fun <A, B> testSetter(): Setter<Test<A>, Test<B>, A, B> = { f, s ->
 }
 
 // testfold == [1,2,3,4], fold with "Setter' Test<Int> Int"
+// Kotlin even infers the testSetter type
 val testfold: List<Int> =
-    ioFoldMap(listMonoidEmpty(), ::listMonoidAppend, { it }, testSetter<Int, Int>(), { listOf(it) }, Test(1, 2, listOf(3, 4)))
+    ioFoldMap(listMonoidEmpty(), ::listMonoidAppend, { it }, testSetter(), { listOf(it) }, Test(1, 2, listOf(3, 4)))
 
 // testfold2 == [1,2,3,4], fold with "Setter Test<Int> Test<String> Int String"
+// Kotlin even infers the testSetter type
 val testfold2: List<Int> =
-    ioFoldMap(listMonoidEmpty(), ::listMonoidAppend, Int::toString, testSetter<Int, String>(), { listOf(it) }, Test(1, 2, listOf(3, 4)))
+    ioFoldMap(listMonoidEmpty(), ::listMonoidAppend, Int::toString, testSetter(), { listOf(it) }, Test(1, 2, listOf(3, 4)))
 
 // used as setter optic
+// Kotlin's local type inference does not work here, need to explicitly apply type arguments `<Int, String>`
 val testpolytraversal: Test<String> =
     testSetter<Int, String>()(Int::toString, Test(1, 2, listOf(3, 4)))
 ```
 
-Kotlin local type inference works poorly (it does not infer `testSetter` `A` `B` types) but no dreaded Kotlin contexts here!  No ad-hoc polymorphism so no context is needed. (More on this in the next section.)
+No dreaded Kotlin contexts here!  No ad-hoc polymorphism so no context is needed. (More on this in the next section.)
 
 Converting `Setter` to folds does not appear to be used in mainstream libraries but it could!  
 
@@ -227,7 +232,8 @@ One could argue that `(a -> b) -> s -> t` is too abstract and hard to understand
 ## Scrap your ad-hoc  
 
 Even in Haskell there was a movement [_add_blank_target Scrap your type classes](https://haskellforall.com/2012/05/scrap-your-type-classes) to avoid ad-hoc polymorphism in favor of explicit first-class computations.  I never liked this idea in Haskell but am proposing it for mainstream. 
-The technique is often called explicit dictionary passing because of how Haskell type classes are implemented.  Dictionary refers to some kind of record-type argument.  One can also pass functions directly as arguments; I ignore this slight semantic difference.
+The technique is often called explicit dictionary passing because of how Haskell type classes are implemented.  Dictionary refers to some kind of record-type argument.  One can also pass functions directly as arguments; I ignore this slight semantic difference. In this section I will explain 
+why ditching ad-hoc is a good idea.
   
 To start, consider the ability to polymorphically create (e.g. `Monoid` `mempty`) as a programming language benchmark
 
@@ -448,15 +454,14 @@ FP could circumvent this nuance.
 
 It is also interesting to think about the long-term effects of vibe coding on code quality.
 My prompts about concurrency in Kotlin often produce examples with obvious race conditions.
-This makes me concerned about the general quality of Kotlin code that the LLM trained on (which probably is mostly open source).
 I expect this situation to get worse when vibe coding replicates these bugs,
 causing models to collapse on wrong solutions.
 Maybe not surprisingly, if I ask for concurrency program examples using the Kotlin _arrow_ library (an FP library that tries to be Kotlin-idiomatic and approachable), I get what look like bug-free examples. We are starting to observe a decrease in overall software quality and this trend now has a self-feeding loop. Vibe coding could lead to quality collapse and model collapse at the same time.  Possibly, vibe coding functional programs will still produce OK results.
-At the end, we may see a reemergence of FP, and this time with even stricter types &#128512; to improve the situation.
+At the end, we may see a reemergence of FP, and this time with even stricter types &#128512; to improve the situation (I am sure someone is noticing the role _Lean_ plays in LLMs doing math).
 
 Vibe coding is such a game changer. I am completely new to Kotlin and can 
 explore its capabilities in depth. I can prompt on a conceptual level and then dive deep into generated Kotlin code, exploring its limitations. 
-I can prompt by writing Haskell (even Idris) code snippets, prompt with PLT terminology, and even use operational semantics.  Claude Code even told me that one of my construction rules was not constructive, how great is that! 
+I can prompt by writing Haskell (even Idris) code snippets, prompt with PLT terminology, and even use operational semantics.  Claude Code even told me that one of my construction rules was not constructive and found a nuanced code issue based on semantic definitions. How impressive is that! 
 People are vibe coding open-source Rust replacements of whole application suites like Adobe or Microsoft Office.  There is undeniable power there and finding effective and safe ways of using this tech can lead us into more FP. 
 No one has a crystal ball.  Hopefully the unemployment period will not be too long.
 
@@ -464,7 +469,7 @@ No one has a crystal ball.  Hopefully the unemployment period will not be too lo
 ## Closing thoughts
 
 Why did a Kotlin newb write about Kotlin?  Answer: I do not know a lot about Kotlin; I wrote about higher-order functions.
-But I am finding that Kotlin has a huge amount of nuance and cognitive bloat.  Lots of this is a result of Java interop doom.  Some is probably of Kotlin's own making.
+But I am finding that Kotlin has a huge amount of nuance and cognitive bloat.  Lots of this is a result of Java interop doom.  Some is probably of Kotlin's own making. I have mixed feelings about selecting it for backend development. 
 
 I have advocated here for ditching type-based ad-hoc (known in Kotlin as Context Oriented Programming) in favor of using higher-order functions and passing instance definitions directly ("dictionary passing" style).  Consider that Kotlin _arrow_'s own `PTraversal` is defined as an _interface_ in terms of (using Haskell syntax)
 
@@ -479,7 +484,7 @@ I am not a Kotlin dev.  However, my reading tells me the community has largely a
 > _Not fully safe, very inconvenient to use, what are we waiting for?_   
 >   &emsp; &emsp;  -  Gimli's early excitement about Kotlin contexts
 
-As a side note on `PTraversal`: I would prefer to define it as a higher-order function `(a -> b) -> s -> t`.  These 2 approaches are not equivalent (mine is closer to the Haskell _lens_ library definition) but are close.  I like to favor raw functions.  _arrow_ maintainers, I am sure, have done a lot of thinking about it and selected an interface and a different set of underlying computations.  The `PTraversal` interface defines 41 additional methods.  My preference is to have separate combinators but this is not a widely shared preference outside of FP. 
+As a side note on `PTraversal`: I would prefer to define it as a higher-order function `(a -> b) -> s -> t`.  These 2 approaches are not equivalent (mine is closer to the Haskell _lens_ library or van Laarhoven definition) but are close.  I like to favor raw functions.  _arrow_ maintainers, I am sure, have done a lot of thinking about it and selected an interface and a different set of underlying computations.  The `PTraversal` interface defines 41 additional methods.  My preference is to have separate combinators but this is not a widely shared preference outside of FP. IMO, the less magic the better, but I see the benefits of hiding FP as well.
 
 
 I have discussed flattening HKTs using `Setter`. Here are some non-`Setter` examples that flatten HKTs
@@ -507,9 +512,15 @@ Probably, when designing a library we have interfaces = easy,  higher-order func
   
 > _Should we base functional programming on higher-order functions instead of proprietary language features?_
 
+I have not done much mainstream programming for a while now. 
+But I had a brief interlude with TypeScript The Horrible, 4 years ago ([_add_blank_target TypeScript Notes](/tags/TypeScript-Notes.html)). 
+I tried to write more functional code but mostly gave up as the language and ecosystem fought against me.  Creating an FP library in such an ecosystem is a nuanced task. 
+
+Higher-order functions would force programmers to think more deeply about computations. They are not easy.   
+
+> _Certainty of PR rejection, small chance of success. What are we waiting for?_
 
 
- 
 
 
 
