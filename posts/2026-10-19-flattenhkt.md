@@ -56,7 +56,7 @@ list.find { it.id == foo.bar.lookupId }
 
 `list` has items with `RegularId`s, the `lookupId` field in `bar`'s class is refactored from `RegularId` to `SpecialId`. This breaks this code at runtime, not at compile time.  Not to mention that `a == b` is not the same as `b == a` for some `a`s and `b`s in the standard Java library. 
 We cannot stop using `==` and there is no workaround for it other than lots of diligence and testing. Any JVM PL that tries to have decent interop with Java faces such issues. Kotlin can flag some such errors but not all.
-I have not used Java for a long time. I do not remember all the gotchas. I am interactively vibe coding to identify Kotlin booby-traps and catalogue them. After 4 hours of doing this, I wrote down 12 gotchas. 3 more the next day...
+I have not used Java for a long time. I do not remember all the gotchas. I am playing with Kotlin to identify booby-traps and catalogue them. After 4 hours of doing this, I wrote down 12 gotchas. 3 more the next day...
 In my experience, developers (junior or senior) are completely unaware of these issues. 
 
 > I call it **The Booby-trap Principle**  
