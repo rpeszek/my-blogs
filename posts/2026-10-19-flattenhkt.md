@@ -432,7 +432,7 @@ It is also interesting to think about the long-term effects of vibe coding on co
 My prompts about concurrency in Kotlin often produce examples with obvious race conditions.
 I expect this situation to get worse when vibe coding replicates these bugs,
 causing models to collapse on wrong solutions.
-Maybe not surprisingly, if I ask for concurrency program examples using the Kotlin _arrow_ library (an FP library that tries to be Kotlin-idiomatic and approachable), I get what look like bug-free examples. We are starting to observe a decrease in overall software quality and this trend now has a self-feeding loop. Vibe coding could lead to quality collapse and model collapse at the same time.  Possibly, vibe coding functional programs will still produce OK results.
+Maybe not surprisingly, if I ask for concurrency program examples using the Kotlin _arrow_ library (an FP library that tries to be Kotlin-idiomatic and approachable), I get what look like bug-free examples. We are starting to observe a decrease in overall software quality and this trend now has a self-feeding loop. In not easily testable areas, vibe coding could lead to quality collapse and model collapse at the same time.  Possibly, vibe coding functional programs will still produce OK results.
 At the end, we may see a reemergence of FP, and this time with even stricter types &#128512; to improve the situation (I am sure someone is noticing the role _Lean_ plays in LLMs doing math).
 
 Vibe coding is such a game changer. I am completely new to Kotlin and can 
