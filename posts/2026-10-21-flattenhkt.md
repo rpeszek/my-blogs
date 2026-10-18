@@ -3,7 +3,7 @@ title: Life after Haskell, HKT flattening (examples in Kotlin)
 featured: true
 summary: Using flattened HKTs and higher-order functions in mainstream programming
 toc: true
-tags: Haskell
+tags: non-FP FP, Haskell
 codestyle: newstyle
 ---
 
@@ -16,11 +16,12 @@ This quote describes my thoughts about using mainstream languages to write funct
 replace some of the functional pearls? 
 
 I will complain about booby-traps in popular mainstream languages. 
-If you are tired of such complaints, go directly to [Setter the HKT flattening case study](#setter-the-hkt-flattening-case-study) where I consider flattening HKTs. `f a` becomes `fa` (a big type) and `a` sticks around (a small type). `(a -> b) -> f a -> f b` becomes a plain `(a -> b) -> fa -> fb`. 
-This way `Functor` is replaced with a plain `Setter`.  The `Traversal` optic ends up replaced with a `Setter` using implicit IO.  
-
+If you are tired of such complaints, go directly to [Setter the HKT flattening case study](#setter-the-hkt-flattening-case-study) where I consider "flattening" &#128296; HKTs. I use flattening in an intuitive sense. `f a` becomes `fa` (a "big" type; `fa` is a "flattened" `f a` because it uses fewer type variables) and `a` sticks around (a "small" type). `(a -> b) -> f a -> f b` becomes a plain `(a -> b) -> fa -> fb`. 
+This allows me to start using a `Setter` instead of a `Functor`. 
+Similarly, the `Traversal` optic ends up replaced with a `Setter` that uses implicit IO.  
+   
 I advocate for avoiding type-based ad-hoc polymorphism (Context Oriented Programming in Kotlin) in favor of passing computations like `Setter s t a b` as first-class, direct arguments (a "dictionary passing"-like style).  This promotes programming with higher-order functions.
-This post navigates between the theoretical and the idiomatic. You may very much disagree with it as a good idiomatic direction. The theoretical side, IMO, is still worth examining.
+You may very much disagree with this approach as a good idiomatic direction. IMO, it is still worth examining.
 
 
 You may also find [Using LLMs](#using-llms) interesting.
@@ -38,7 +39,7 @@ At the same time (based on my past experience as an interviewer):
 _It may be easier to find a developer who knows FP than a Java/TypeScript/... developer who understands Java/TypeScript/... booby-traps._
 IMO, this is the result of needless complexity and nuance and a problem with industry priorities. Frankly, I am scared.
 
-_side_note_start **Not my story:**  Uber's Go codebase was suffering from frequent crashes. Ignoring the Turing's Halting Problem / Rice's Theorem as too theoretical, Uber hired a bunch of PhDs to create NilAway, a linter solution to null reference issues. It is written in Go. Apparently it is known to crash with a null reference panic from time to time &#128512;
+_side_note_start **Not my story:**  Uber's Go codebase was suffering from frequent crashes. Ignoring Turing's Halting Problem / Rice's Theorem as too theoretical, Uber hired a bunch of PhDs to create NilAway, a linter solution to null reference issues. It is written in Go. Apparently it is known to crash with a null reference panic from time to time &#128512;
 _side_note_end
 
 We briefly considered Go.  Go trades safety for performance and claims to be junior-programmer friendly, failing to see this as a contradiction.
@@ -55,19 +56,13 @@ list.find { it.id == foo.bar.lookupId }
 
 `list` has items with `RegularId`s, the `lookupId` field in `bar`'s class is refactored from `RegularId` to `SpecialId`. This breaks this code at runtime, not at compile time.  Not to mention that `a == b` is not the same as `b == a` for some `a`s and `b`s in the standard Java library. 
 We cannot stop using `==` and there is no workaround for it other than lots of diligence and testing. Any JVM PL that tries to have decent interop with Java faces such issues. Kotlin can flag some such errors but not all.
-I have not used Java for a long time. I do not remember all the Java gotchas. I am using LLMs to try 
-to identify Kotlin booby-traps and catalogue them. After 4 hours of doing this, I wrote down 12 gotchas. 3 more the next day...
+I have not used Java for a long time. I do not remember all the gotchas. I am interactively vibe coding to identify Kotlin booby-traps and catalogue them. After 4 hours of doing this, I wrote down 12 gotchas. 3 more the next day...
 In my experience, developers (junior or senior) are completely unaware of these issues. 
 
 > I call it **The Booby-trap Principle**  
 > _Nothing is obviously wrong except for the non-obvious._
 
 Kotlin's surface area is very bloated.  `class` can be: `open`, `abstract`, `data`, `@JvmRecord data`, `sealed`, `value`, `enum`, `annotation`, `expect` / `actual`, `external`, `inner`..., or just `class`.  `interface` adds 3 more variants.  Clearly not very approachable. 
-
-
-> _If you see an object you should object_   
-> &emsp; &emsp; - Phil Wadler
-
 
 I did some math research, then 2 decades of mainstream programming with many battle scars, then an 8-year-long Haskell job (some math came back only different), now I am going back to mainstream.  Is some convergence possible?  Can I find some middle-ground approach to programming? 
  
@@ -122,7 +117,7 @@ type Traversal s t a b = forall f. Applicative f => (a -> f b) -> s -> f t
 ```
 
 `Setter` immediately looks more mainstream-friendly. 
-We can _widen_ `Traversal` to `Setter`.  I justify this by thinking about `forall f. Applicative f` as a set of effects that is replaced with implicit IO. I think of this process as _flattening_ (&#128296;) HKT into plain old first-order type variables.  
+We can _widen_ `Traversal` to `Setter` without losing much of its power.  I justify this by thinking about `forall f. Applicative f` as a set of effects that is replaced with implicit IO. I think of this process intuitively as _flattening_ (&#128296;) HKT variables into plain old first-order type variables.  
 
 We can think about `Setter` as an optic (as a `Traversal` &#128296; or an ordinary `Setter`) and as a computation that can replace `Functor` &#128296;. We are not taking the `Traversable`, `mapM` / `traverse` point of view. If you show the Haskell definitions of `traverse` or `mapM` to a pragmatic mainstream programmer, would they see it as something relevant to their work?  In my experience the answer is no. `Either`- and `Promise`-like types have become popular but come with isolated execution APIs and sometimes do not even expose a `mapM`/`traverse` equivalent.
 To most programmers `map` and `traverse` would be the same, and this is what we are giving them here. People who have thought much more about it than I have (maintainers of Kotlin's arrow) have deprecated their [_add_blank_target `Traverse`](https://old.arrow-kt.io/docs/0.12/apidocs/arrow-core-data/arrow.typeclasses/-traverse/).
@@ -176,7 +171,7 @@ fun <A> listMonoidEmpty(): List<A> = emptyList()
 fun <A> listMonoidAppend(x: List<A>, y: List<A>): List<A> = x + y
 ```
 
-You can use these with monomorphic types:
+You can use these with monomorphic types &#9989;
 
 ```Kotlin
 data class MonoTest1(val ap1: Int, val ap2: Int, val ap3: List<Int>)
@@ -197,7 +192,7 @@ val testmonotraversal: MonoTest2 =
     testMonoTypeSetter(Int::toString, MonoTest1(1, 2, listOf(3, 4)))
 ```
 
-You can use these with polymorphic types 
+You can use these with polymorphic types &#9989;
 
 ```Kotlin
 
@@ -250,11 +245,13 @@ To start, consider the ability to polymorphically create values of different typ
 
 This does not look good. 
 
-At a high level, Haskell ad-hoc polymorphism is linked to a type, OO ad-hoc polymorphism is linked to a runtime object. OO and the JVM use late binding, dynamic method dispatch based on runtime objects to achieve ad-hoc polymorphism.  To have type-specific implementations, there need to be runtime objects on the heap that point to a vtable (virtual method table) to surrogate the types. Kotlin calls these _witness objects_.  That feels like the wrong way to go about it, because it is. 
-In addition to runtime cost, this requires explicit code specifying that surrogate/witness object (`context` in Kotlin). This ends up being _cumbersome_ (especially if you try this with FP). Terminology like "context bubbling" is being used.  It feels like writing compiler code, not application code. These "witnesses"/surrogates need to identify concrete types (e.g. `List<String>` not `List<T>`), and this gets very redundant and is unavoidable with any attempt at ad-hoc resolution of HKTs.  
+At a high level, Haskell ad-hoc polymorphism is linked to a type, OO ad-hoc polymorphism is linked to a runtime object. OO and the JVM use late binding (dynamic method dispatch), relying on runtime objects to achieve ad-hoc polymorphism.  To have type-specific implementations, there need to be runtime objects on the heap that point to a vtable (virtual method table) to surrogate the types. That feels like the wrong way to go about it, because it is.
 
-Scala implicits accomplish type-specific ad-hoc through compile-time resolution and rewriting, removing the boilerplate. You pay with compilation time and incoherence risk. 
-Outside the JVM, Swift supports type-based ad-hoc using _protocols_ and _protocol extensions_. Swift uses witness tables, which function in a similar way to Haskell's dictionary passing. The compiler giving up on you when you use complex extensions is a concern in Swift (I am a Swift newb). Monomorphization could do it (C++ templates, Rust) but I know even less about the cost-benefit ratio there.
+Kotlin calls these _witness objects_.   In addition to runtime cost, this requires explicit code specifying that surrogate/witness object (`context` in Kotlin). This ends up being _cumbersome_ (especially if you try this with FP). Terminology like "context bubbling" is being used.  It feels like writing compiler code, not application code. These witnesses/surrogates need to identify concrete types (e.g. `List<String>` not `List<T>`), and this gets very redundant.  
+
+Scala implicits accomplish type-specific ad-hoc through compile-time resolution and rewriting, removing the boilerplate. You pay with compilation time and incoherence risk. To summarize, on the JVM we are getting a very strong signal to stay away from type-based ad-hoc polymorphism. 
+
+Things improve outside the JVM: Swift supports type-based ad-hoc using _protocols_ and _protocol extensions_. Swift uses witness tables, which function in a similar way to Haskell's dictionary passing. The compiler giving up on you when you use complex extensions is a concern in Swift though (I am a Swift newb and I could be misrepresenting things here). Monomorphization could do it (modern C++ templates, Rust) but I know even less about the cost-benefit ratio there.  I believe that avoiding ad-hoc could be beneficial outside the JVM, but I am not in a good position to claim this.
 
 Moving forward I will use this expression to benchmark a language's ability to 
 handle composable computations polymorphically on "small" types:
@@ -330,7 +327,7 @@ fun <E, A, B> eitherFlatFunctor(): FlatFunctor<Either<E, A>, Either<E, B>, A, B>
     }
 ```
 
-_side_note_start  **Warning:**  using type bounds has safety issues 
+_side_note_start  **Warning:**  using type bounds has safety issues &#10060;
 
 ```Kotlin
 interface FlatFunctor<BOUND> {
@@ -341,7 +338,7 @@ interface FlatFunctor<BOUND> {
 OO often dilutes type safety, and it does so here: the caller chooses `MB`, so the implementation can only produce it with an unchecked cast.
 _side_note_end
 
-With some extra boilerplate not shown (e.g. `compose` implementation), I (a Kotlin newb) end up with a very cumbersome `testcomp` because of `context` compiler obligations I need to satisfy.
+With some extra boilerplate not shown (e.g. `compose` implementation), I (a Kotlin newb) end up with a very cumbersome `testcomp` because of `context` compiler obligations I need to satisfy (benchmark fails &#10060;).
 
 ```Kotlin
 // benchmark failed, too cumbersome
@@ -363,22 +360,8 @@ fun testcomp(e: Either<String, Int>): Either<String, Int> =
     }
 ```
 
-The same "instance" of `FlatFunctor` is used 5 times but we have to specify it for each use!  
-There are workarounds to make this less painful.  They are complex and have type safety issues.  
-If I were forced to use `FlatFunctor`, I would try to convert it to a `Setter` and hope for the best:
-
-```Kotlin
-interface PolyEitherSetter<E> {
-    operator fun <A, B> invoke(f: (A) -> B): (Either<E, A>) -> Either<E, B>
-}
-
-// can be used without specifying additional context 
-fun <E> polyEitherSetter(): PolyEitherSetter<E> = object : PolyEitherSetter<E> {
-    override fun <A, B> invoke(f: (A) -> B): (Either<E, A>) -> Either<E, B> =
-        context(eitherFlatFunctor<E, A, B>()) { flatmap(f) }
-}
-```
-
+The same "instance" of `FlatFunctor` is used 5 times but we have to specify it for each use!
+There are workarounds to make this less painful.  They are complex and have type safety issues.
 I am advocating for avoiding ad-hoc in favor of direct "dictionary passing" style.  In Haskell, typeclasses provide better safety (coherence) and lots of convenience.  This type-based ad-hoc in Kotlin is still incoherent and very cumbersome.  The extra cost of objects on the heap is a concern too.  Let's ditch it!
 
 ## Composing `Setter`
@@ -411,7 +394,6 @@ fun <E, A, B> eitherSetter(): Setter<Either<E, A>, Either<E, B>, A, B> = { f, s 
 // we need a wrapper to pass Setter polymorphically for "small" `A`s and `B`s 
 // this is the rank-N definition, in Kotlin you do this with a wrapping interface
 // comp(f) is syntax sugar for comp.invoke(f), similar to Scala apply.
-// I reuse the same names introduced in the previous section on purpose
 interface PolyEitherSetter<E> {
     operator fun <A, B> invoke(f: (A) -> B): (Either<E, A>) -> Either<E, B>
 }
@@ -431,7 +413,7 @@ fun <E> testcomp(smap: PolyEitherSetter<E>): (Either<E, Int>) -> Either<E, Int> 
         smap { x: Int -> x + 2 }
 ```
 
-The `testcomp` benchmark passes; IMO, we have a much saner coding environment.
+The `testcomp` benchmark passes &#9989;. IMO, we have a much saner coding environment.
 `testcomp` is effectively a higher-order function with `interface PolyEitherSetter` used to pass the `Setter` polymorphically.
 We avoid ad-hoc, we avoid `context`!   
 
@@ -458,6 +440,8 @@ explore its capabilities in depth. I can prompt on a conceptual level and then d
 I can prompt by writing Haskell (even Idris) code snippets, prompt with PLT terminology, and even use operational semantics.  Claude Code even told me that one of my construction rules was not constructive and found a nuanced code issue based on semantic definitions. How impressive is that! 
 People are vibe coding open-source Rust replacements of whole application suites like Adobe or Microsoft Office.  There is undeniable power there and finding effective and safe ways of using this tech can lead us into more FP. 
 No one has a crystal ball.  Hopefully the unemployment period will not be too long.
+
+
 ## Closing thoughts
 
 Why did a Kotlin newb write about Kotlin?  Answer: I do not know a lot about Kotlin; I wrote about higher-order functions.
@@ -466,6 +450,7 @@ But I am finding that Kotlin has a huge amount of nuance and cognitive bloat.  L
 I have advocated here for ditching type-based ad-hoc (known in Kotlin as Context Oriented Programming) in favor of using higher-order functions and passing instance definitions directly ("dictionary passing" style).  Consider that Kotlin _arrow_'s own `PTraversal` is defined as an _interface_ in terms of (using Haskell syntax)
 
 ```Haskell
+-- arrow's PTraversal in Haskell syntax
 foldMap :: m -> ((m,m) -> m) -> s -> (a -> m) -> m
 modify :: s -> (a -> b) -> t
 ```
@@ -486,19 +471,30 @@ type FlatFold ta a = forall m . m -> ((m,m) -> m) -> (a -> m) -> ta -> m
 type Embed ta a = a -> ta
 type Flatten ta a = ta -> a 
 
--- Example: Setter, Embed, Flatten lets you express Monad e.g. `Either e`  by passing these 3 args
-(
-    forall a b . Setter (Either e a) (Either e b) a b,
-    forall a . Embed (Either e a) a,
-    forall a . Flatten (Either e (Either e a)) (Either e a)
-)
+-- Example: Setter, Embed, Flatten lets you express an awkward-to-use Monad e.g. `Either e`  by passing these 3 args
+--
+-- (forall a b . Setter (Either e a) (Either e b) a b)
+-- (forall a . Embed (Either e a) a)
+-- (forall a . Flatten (Either e (Either e a)) (Either e a))
+
+flatBind :: Flatten mmb mb -> Setter ma mmb a mb ->  (a -> mb) -> ma -> mb
+flatBind flatten map f = flatten . map f
+
+-- >>> test pure join fmap (Right 1)
+-- Right "1"
+test :: 
+    (forall a . Embed (Either e a) a) ->    
+    (forall a . Flatten (Either e (Either e a)) (Either e a)) ->
+    (forall a b . Setter (Either e a) (Either e b) a b) -> 
+    (Either e Int) -> (Either e String)
+test embed flatten setter e = flatBind flatten setter (embed . show) e 
 ```
 
 `Bifunctor`, `Profunctor`, ... The list of what can be easily flattened will probably not be long.  Also, I am not suggesting using all of it.  It is important to be selective.  Otherwise it is easier to stay with Haskell. 
 
 _Using a non-FP language makes FP coding harder rather than easier._
 
-I like to distinguish easy (to learn) from simple (to understand) (see [_add_blank_target Easy vs Simple](2022-08-30-code-cognitiveload.html#easy-vs-simple)). Easy ~= knowledge, simple ~= understanding.  Mainstream programming lacks a language choice that is approachable and leads to simple (Elm is not mainstream).
+I like to distinguish _easy_ (to learn) from _simple_ (to understand) (see [_add_blank_target Easy vs Simple](2022-08-30-code-cognitiveload.html#easy-vs-simple)). Easy ~= knowledge, simple ~= understanding.  IMO, flattening HKTs does not make things _easier_. HKTs abstract over type construction, which is one side of the construction coin. Flattening hides the learning path to one of the cornerstones of programming (for me _construction is the foundation_).  
 Probably, when designing a library we have interfaces = easy,  higher-order functions = simple.  However, my portability question is valid here: 
   
 > _Should we base functional programming on higher-order functions instead of proprietary language features?_
@@ -507,12 +503,12 @@ I have not done much mainstream programming for a while now.
 But I had a brief interlude with TypeScript The Horrible, 4 years ago ([_add_blank_target TypeScript Notes](/tags/TypeScript-Notes.html)). 
 I tried to write more functional code but mostly gave up as the language and ecosystem fought against me.  Creating an FP library in such an ecosystem is a nuanced task. 
 
-Higher-order functions would force programmers to think more deeply about computations. They are not easy.   
+Higher-order functions would force programmers to think more deeply about computations. They are not _easy_.   
 
 > _Certainty of PR rejection, small chance of success. What are we waiting for?_
 
-A hybrid approach providing both interfaces and raw computations?
-
+A hybrid approach providing both interfaces and raw computations?  
+Your feedback is appreciated: [_add_blank_target GitHub discussion](https://github.com/rpeszek/rpeszek.github.io/discussions/7).
 
 
 
