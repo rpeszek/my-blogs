@@ -222,7 +222,7 @@ Converting `Setter` to folds does not appear to be used in mainstream libraries 
 
 We can add computational power to `Setter` by asking for more stuff. E.g., adding `s -> a` gives us an equivalent of `Lens s t a b`.  One should be somewhat careful with what is added because it is possible to add too much (e.g. Kotlin's _arrow_ `PTraversal<S,T,A,B>` expects to have an equivalent of `foldMap` defined for the polymorphic case `PTraversal<S,T,A,B>`  making it different from the standard definition where `foldMapOf` can only be defined for `Traversal s s a a`).
 
-Also, `Setter` is almost first-class!  You may occasionally need to pass it rank-N style as `(forall s t a b . Setter s t a b)` but this is supported in many mainstream languages (e.g. TypeScript and Kotlin; I show the Kotlin version in [Composing Setter](#composing-setter)). Also, it composes just as regular functions do.
+Also, `Setter` is almost first-class!  You may occasionally need to pass it rank-N style after the under-the-hood HKT is fixed but this is supported in many mainstream languages (e.g. TypeScript and Kotlin; I show the Kotlin version in [Composing Setter](#composing-setter)). Also, it composes just as regular functions do.
 
 One could argue that `(a -> b) -> s -> t` is too abstract and hard to understand for some engineers.  But we are in an environment with huge support for encapsulation.  In the simplest case the user will just see `SimpleModifier<S,A>` with private implementation and I am not discussing how this is done. 
 
