@@ -108,9 +108,7 @@ type Setter s t a b = (a -> b) -> s -> t
 type Setter' s a = Setter s s a a
 ```
 
-`Traversal` is an interesting optic because unlike `Lens` or `Prism` it is not so easy to define it with the old record approach[^oldlens].  
-
-[^oldlens]: E.g. old [_add_blank_target data-lens](https://hackage.haskell.org/package/data-lens-2.11.2/docs/Data-Lens-Common.html) package. Still visible as `lens` and `prism` combinators in the modern lens package.
+`Traversal` is an interesting computation because it cannot have a HKT-free definition.  
 
 ```Haskell
 type Traversal s t a b = forall f. Applicative f => (a -> f b) -> s -> f t
