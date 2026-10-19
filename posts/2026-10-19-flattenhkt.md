@@ -17,7 +17,7 @@ replace some of the functional pearls?
 
 I will complain about booby-traps in popular mainstream languages. 
 If you are tired of such complaints, go directly to [Setter the HKT flattening case study](#setter-the-hkt-flattening-case-study) where I consider "flattening" &#128296; HKTs. I use flattening in an intuitive sense. `f a` becomes `fa` (a "big" type; `fa` is a "flattened" `f a` because it uses fewer type variables) and `a` sticks around (a "small" type). `(a -> b) -> f a -> f b` becomes a plain `(a -> b) -> fa -> fb`. 
-This allows me to start using a `Setter` instead of a `Functor`. 
+This allows me to start using a less polymorphic but still useful `Setter` instead of a `Functor`. 
 Similarly, the `Traversal` optic ends up replaced with a `Setter` that uses implicit IO.  
    
 I advocate for avoiding type-based ad-hoc polymorphism (Context Oriented Programming in Kotlin) in favor of passing computations like `Setter s t a b` as first-class, direct arguments (a "dictionary passing"-like style).  This promotes programming with higher-order functions.
@@ -107,6 +107,8 @@ which is the definition of `Setter s t a b`.
 type Setter s t a b = (a -> b) -> s -> t
 type Setter' s a = Setter s s a a
 ```
+
+Functor can be viewed as `forall a b . (a -> b) -> f a -> f b` and we are losing this polymorphic aspect, but setters are still extremely useful. 
 
 `Traversal` is an interesting computation because it cannot have a HKT-free definition.  
 
