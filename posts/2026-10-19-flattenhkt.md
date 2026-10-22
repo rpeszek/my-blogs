@@ -122,7 +122,9 @@ We can _widen_ `Traversal` to `Setter` without losing much of its power.  I just
 We can think about `Setter` as an optic (as a `Traversal` &#128296; or an ordinary `Setter`) and as a computation that can replace `Functor` &#128296;. We are not taking the `Traversable`, `mapM` / `traverse` point of view. If you show the Haskell definitions of `traverse` or `mapM` to a pragmatic mainstream programmer, would they see it as something relevant to their work?  In my experience the answer is no. `Either`- and `Promise`-like types have become popular but come with isolated execution APIs and sometimes do not even expose a `mapM`/`traverse` equivalent.
 To most programmers `map` and `traverse` would be the same, and this is what we are giving them here. People who have thought much more about it than I have (maintainers of Kotlin's arrow) have deprecated their [_add_blank_target `Traverse`](https://old.arrow-kt.io/docs/0.12/apidocs/arrow-core-data/arrow.typeclasses/-traverse/).
 
-`Functor` and polymorphic `Traversal` need to satisfy certain laws. These can be intuitively expressed as _structure preserving_. `s` and `t` need to have the same shape (e.g. a tree of `Int`s and a tree of `String`s with the same shape of branches). All of this is intuitively explainable IMO.
+`Functor` and polymorphic `Traversal` need to satisfy certain laws. Most can be intuitively expressed as _structure preserving_. `s` and `t` need to have the same shape (e.g. a tree of `Int`s and a tree of `String`s with the same shape of branches). There is more to it[^laws], but all should be intuitively explainable IMO.
+
+[^laws]: E.g. `Applicative` effects in `Traversal` should happen only once per traversed element
 
 Some readers may want to cry out: but it is not the same! We are losing functionality. In particular, `Traversal` and `Traversable traverse` are powerful computations that can recover folding capabilities!  
 
