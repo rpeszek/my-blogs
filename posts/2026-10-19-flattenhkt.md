@@ -421,27 +421,25 @@ We avoid ad-hoc, we avoid `context`!
 
 ## Using LLMs
 
-I am new to Kotlin and I am using LLMs to learn Kotlin and its quirks.
-I am observing that the answers depend on the lingo I use in my prompts. I noticed that using Kotlin lingo when querying for Kotlin gotchas does not give me the best answers. 
-A prompt like this "Are there any issues with inference widening in Kotlin" could give a much better answer. Asking for unsafe coercion may give different results than asking about casting. 
-Downcasts or narrowing... etc. The lingo you use in the prompt probably changes what parts of the original training dataset impact the token generation. This would also suggest that Kotlin programmers do not know the issues I am trying to identify. 
+Selecting new programming language ought to include checking vibe-coded code quality. Kotlin did not do very well in my experiments.  I attribute this to Java bloat, conflicting paradigms, and legacy patterns in the training data (e.g. `class` has over 14 variants with sometimes subtle differences).  The before-LLM code synthesis research was about small solution space, ambiguity cannot be a good thing.  I am also concerned about presence of Java booby-traps in the generated code.  
 
-In my testing, interactive vibe coding with `Setter` is giving me good results.  I see very mixed results 
-with generating code based on Kotlin _arrow_ library's `PTraversal<S,T,A,B>`.  The LLM seems to get confused much less with `Setter<S,T,A,B>` as I defined it above.  I think this is again explained by where the LLM pulls the patterns from.  With `Setter` it could be pulling more from Haskell and translating to Kotlin.  Kotlin language complexity probably makes it confused (e.g. coding with `class` vs `data class` has nuanced differences, `class` has over 14 variants with sometimes subtle differences, `interface` adds 3 more).  The nuance of the same code pattern being correct in some cases and not in others is hard on humans; it is probably hard on LLMs too. 
-FP could circumvent this nuance.
 
 It is also interesting to think about the long-term effects of vibe coding on code quality.
-My prompts about concurrency in Kotlin often produce examples with obvious race conditions.
+My prompts about concurrency in Kotlin often produce examples with subtle race conditions.
 I expect this situation to get worse when vibe coding replicates these bugs,
 causing models to collapse on wrong solutions.
-Maybe not surprisingly, if I ask for concurrency program examples using the Kotlin _arrow_ library (an FP library that tries to be Kotlin-idiomatic and approachable), I get what look like bug-free examples. We are starting to observe a decrease in overall software quality and this trend now has a self-feeding loop. In not easily testable areas, vibe coding could lead to quality collapse and model collapse at the same time.  Possibly, vibe coding functional programs will still produce OK results.
-At the end, we may see a reemergence of FP, and this time with even stricter types &#128512; to improve the situation (I am sure someone is noticing the role _Lean_ plays in LLMs doing math).
+Maybe not surprisingly, if I ask for concurrency program examples using the Kotlin _arrow_ library (an FP library that tries to be Kotlin-idiomatic and approachable), I get what look like bug-free examples. We are starting to observe a decrease in overall software quality and this trend now has a self-feeding loop. In not easily testable areas, vibe coding could lead to quality collapse and model collapse at the same time.  
+At the end, we may see a reemergence of FP to improve the situation. 
+
+It appears that LLMs may be starting to use _Lean_ beyond math proofs[^lean]. Will Lean become the reasoning engine under the hood, the anti-hallucinatory pill for LLMs?  Extracting semantics into Lean from, say, a legal document or Edgar Allan Poe’s The Raven is &#x1F92F; Is _Lean_ the future king of prompting?  
+
+[^lean]: Lean4Agent models and verifies agent behavior, VeriBench: End-to-End Translation of Executable Python Tasks into Structured Lean 4 Artifacts... 
 
 Vibe coding is such a game changer. I am completely new to Kotlin and can 
 explore its capabilities in depth. I can prompt on a conceptual level and then dive deep into generated Kotlin code, exploring its limitations. 
-I can prompt by writing Haskell (even Idris) code snippets, prompt with PLT terminology, and even use operational semantics.  Claude Code even told me that one of my construction rules was not constructive and found a nuanced code issue based on semantic definitions. How impressive is that! 
-People are vibe coding open-source Rust replacements of whole application suites like Adobe or Microsoft Office.  There is undeniable power there and finding effective and safe ways of using this tech can lead us into more FP. 
-No one has a crystal ball.  Hopefully the unemployment period will not be too long.
+I can prompt by writing Haskell code snippets, prompt with PLT terminology, and even use operational semantics.  Claude Code even told me that one of my construction rules was not constructive and found a nuanced code issue based on semantic definitions. How impressive is that! 
+People are vibe coding open-source Rust replacements of whole application suites like Adobe or Microsoft Office.  There is undeniable power there and finding effective and safe ways of using this tech can lead us into more FP and interesting jobs. 
+No one has a crystal ball.  My heart is with Idris and Agda but I started learning _Lean 4_, possibly the last PL I learn before the unemployment...
 
 
 ## Closing thoughts
@@ -494,7 +492,7 @@ test embed flatten setter e = flatBind flatten setter (embed . show) e
 
 `Bifunctor`, `Profunctor`, ... The list of what can be easily flattened will probably not be long.  Also, I am not suggesting using all of it.  It is important to be selective.  Otherwise it is easier to stay with Haskell. 
 
-_Using a non-FP language makes FP coding harder rather than easier._
+_Using a non-FP language makes FP coding harder and more complex rather than easier or simpler._
 
 I like to distinguish _easy_ (to learn) from _simple_ (to understand) (see [_add_blank_target Easy vs Simple](2022-08-30-code-cognitiveload.html#easy-vs-simple)). Easy ~= knowledge, simple ~= understanding.  IMO, flattening HKTs does not make things _easier_. HKTs abstract over type construction, which is one side of the construction coin. Flattening hides the learning path to one of the cornerstones of programming (for me _construction is the foundation_).  
 Probably, when designing a library we have interfaces = easy,  higher-order functions = simple.  However, my portability question is valid here: 
