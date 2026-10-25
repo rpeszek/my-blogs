@@ -108,9 +108,9 @@ type Setter s t a b = (a -> b) -> s -> t
 type Setter' s a = Setter s s a a
 ```
 
-Functor can be viewed as `forall a b . (a -> b) -> f a -> f b` and we are losing this polymorphic aspect, but setters are still extremely useful. 
+`Functor` can be viewed as `forall a b . (a -> b) -> f a -> f b` and we are losing this polymorphic aspect, but setters are still extremely useful. 
 
-`Traversal` is an interesting computation because it cannot have a HKT-free definition.  
+`Traversal` is an interesting computation because it does not have a simple HKT-free definition.  
 
 ```Haskell
 type Traversal s t a b = forall f. Applicative f => (a -> f b) -> s -> f t
@@ -124,7 +124,7 @@ To most programmers `map` and `traverse` would be the same, and this is what we 
 
 `Functor` and polymorphic `Traversal` need to satisfy certain laws. Most can be intuitively expressed as _structure preserving_. `s` and `t` need to have the same shape (e.g. a tree of `Int`s and a tree of `String`s with the same shape of branches). There is more to it[^laws], but all should be intuitively explainable IMO.
 
-[^laws]: E.g. `Applicative` effects in `Traversal` should happen only once per traversed element
+[^laws]: E.g. `Applicative` effects in `Traversal` should happen only once per traversed element.
 
 Some readers may want to cry out: but it is not the same! We are losing functionality. In particular, `Traversal` and `Traversable traverse` are powerful computations that can recover folding capabilities!  
 
@@ -226,7 +226,7 @@ Converting `Setter` to folds does not appear to be used in mainstream libraries 
 
 We can add computational power to `Setter` by asking for more stuff. E.g., adding `s -> a` gives us an equivalent of `Lens s t a b`.  One should be somewhat careful with what is added because it is possible to add too much (e.g. Kotlin's _arrow_ `PTraversal<S,T,A,B>` expects to have an equivalent of `foldMap` defined for the polymorphic case `PTraversal<S,T,A,B>`  making it different from the standard definition where `foldMapOf` can only be defined for `Traversal s s a a`).
 
-Also, `Setter` is almost first-class!  You may occasionally need to pass it rank-N style after the under-the-hood HKT is fixed but this is supported in many mainstream languages (e.g. TypeScript and Kotlin; I show the Kotlin version in [Composing Setter](#composing-setter)). Also, it composes just as regular functions do.
+Also, `Setter` is almost first-class!  You may occasionally need to pass it rank-N style after the under-the-hood HKT is fixed, but this is supported in many mainstream languages (e.g. TypeScript and Kotlin; I show the Kotlin version in [Composing Setter](#composing-setter)). Also, it composes just as regular functions do.
 
 One could argue that `(a -> b) -> s -> t` is too abstract and hard to understand for some engineers.  But we are in an environment with huge support for encapsulation.  In the simplest case the user will just see `SimpleModifier<S,A>` with private implementation and I am not discussing how this is done. 
 
@@ -421,25 +421,26 @@ We avoid ad-hoc, we avoid `context`!
 
 ## Using LLMs
 
-Selecting new programming language ought to include checking vibe-coded code quality. Kotlin did not do very well in my experiments.  I attribute this to Java bloat, conflicting paradigms, and legacy patterns in the training data (e.g. `class` has over 14 variants with sometimes subtle differences).  The before-LLM code synthesis research was about small solution space, ambiguity cannot be a good thing.  I am also concerned about presence of Java booby-traps in the generated code.  
+Selecting a new programming language ought to include checking vibe-coded code quality. Kotlin did not do very well in my experiments.  I attribute this to Java bloat, conflicting paradigms, and legacy patterns in the training data (e.g. `class` has over 14 variants with sometimes subtle differences).  Code synthesis was always about a small solution space; ambiguity cannot be a good thing.  I am also concerned about the presence of Java booby-traps in the generated code.  
 
 
 It is also interesting to think about the long-term effects of vibe coding on code quality.
 My prompts about concurrency in Kotlin often produce examples with subtle race conditions.
 I expect this situation to get worse when vibe coding replicates these bugs,
 causing models to collapse on wrong solutions.
-Maybe not surprisingly, if I ask for concurrency program examples using the Kotlin _arrow_ library (an FP library that tries to be Kotlin-idiomatic and approachable), I get what look like bug-free examples. We are starting to observe a decrease in overall software quality and this trend now has a self-feeding loop. In not easily testable areas, vibe coding could lead to quality collapse and model collapse at the same time.  
-At the end, we may see a reemergence of FP to improve the situation. 
+Maybe not surprisingly, if I ask for concurrency program examples using the Kotlin _arrow_ library (an FP library that tries to be Kotlin-idiomatic and approachable), I get what look like bug-free examples. We are starting to observe a decrease in overall software quality and this trend now has a self-feeding loop. In areas that are not easily testable, vibe coding could lead to quality collapse and model collapse at the same time.  
+In the end, we may see a reemergence of FP to improve the situation. 
 
-It appears that LLMs may be starting to use _Lean_ beyond math proofs[^lean]. Will Lean become the reasoning engine under the hood, the anti-hallucinatory pill for LLMs?  Extracting semantics into Lean from, say, a legal document or Edgar Allan Poe’s The Raven is &#x1F92F; Is _Lean_ the future king of prompting?  
+It appears that LLMs may be starting to use _Lean_ beyond math proofs[^lean]. Will Lean become the reasoning engine under the hood, the anti-hallucinatory pill for LLMs?  Extracting semantics from, say, a legal document or a poem into Lean is &#x1F92F;. Is _Lean_ the future king of prompting?  
 
-[^lean]: Lean4Agent models and verifies agent behavior, VeriBench: End-to-End Translation of Executable Python Tasks into Structured Lean 4 Artifacts... 
+[^lean]: [_add_blank_target Lean4Agent](https://github.com/RickySkywalker/Lean4Agent) models and verifies agent behavior, [_add_blank_target VeriBench](https://icml.cc/virtual/2025/52376): End-to-End Translation of Executable Python Tasks into Structured Lean 4 Artifacts, [_add_blank_target LeanReasoner](https://arxiv.org/html/2403.13312v1), 
+[_add_blank_target LeanReasoner Training Paradigm](https://openreview.net/forum?id=maT9JAAz_u) ... 
 
 Vibe coding is such a game changer. I am completely new to Kotlin and can 
 explore its capabilities in depth. I can prompt on a conceptual level and then dive deep into generated Kotlin code, exploring its limitations. 
 I can prompt by writing Haskell code snippets, prompt with PLT terminology, and even use operational semantics.  Claude Code even told me that one of my construction rules was not constructive and found a nuanced code issue based on semantic definitions. How impressive is that! 
 People are vibe coding open-source Rust replacements of whole application suites like Adobe or Microsoft Office.  There is undeniable power there and finding effective and safe ways of using this tech can lead us into more FP and interesting jobs. 
-No one has a crystal ball.  My heart is with Idris and Agda but I started learning _Lean 4_, possibly the last PL I learn before the unemployment...
+No one has a crystal ball.  My heart is with Idris and Agda, but I started learning _Lean 4_, possibly the last PL I learn before unemployment...
 
 
 ## Closing thoughts
