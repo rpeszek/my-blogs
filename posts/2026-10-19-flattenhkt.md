@@ -440,8 +440,9 @@ Vibe coding is such a game changer. I am completely new to Kotlin and can
 explore its capabilities in depth. I can prompt on a conceptual level and then dive deep into generated Kotlin code, exploring its limitations. 
 I can prompt by writing Haskell code snippets, prompt with PLT terminology, and even use operational semantics.  Claude Code even told me that one of my construction rules was not constructive and found a nuanced code issue based on semantic definitions. How impressive is that! 
 People are vibe coding open-source Rust replacements of whole application suites like Adobe or Microsoft Office.  There is undeniable power there and finding effective and safe ways of using this tech can lead us into more FP and interesting jobs. 
-No one has a crystal ball.  My heart is with Idris and Agda, but I started learning _Lean 4_, possibly the last PL I learn before unemployment...
-I am finding _Lean_ confusing &#x1F92F; 
+No one has a crystal ball.  My heart is with Idris and Agda, but I started learning _Lean 4_, possibly the last PL I learn before unemployment...  
+
+*Problem is undecidable if you cannot solve it with a program, except of course for programs written in _Lean_ &#x1F92F;.*
 
 
 ## Closing thoughts
