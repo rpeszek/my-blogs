@@ -431,7 +431,7 @@ causing models to collapse on wrong solutions.
 Maybe not surprisingly, if I ask for concurrency program examples using the Kotlin _arrow_ library (an FP library that tries to be Kotlin-idiomatic and approachable), I get what look like bug-free examples. We are starting to observe a decrease in overall software quality and this trend now has a self-feeding loop. In areas that are not easily testable, vibe coding could lead to quality collapse and model collapse at the same time.  
 In the end, we may see a reemergence of FP to improve the situation. 
 
-It appears that LLMs may be starting to use _Lean_ beyond math proofs[^lean]. Will Lean become the reasoning engine under the hood, the anti-hallucinatory pill for LLMs?  Extracting semantics from, say, a legal document or a poem into Lean is &#x1F92F;. Is _Lean_ the future king of prompting?  
+It appears that LLMs may be starting to use _Lean_ beyond math proofs[^lean]. Will Lean become the reasoning engine under the hood, the anti-hallucinatory pill for LLMs?  Extracting semantics from, say, a legal document or a poem into Lean is &#x1F92F;. Will _Lean_ change how models are trained?  Is _Lean_ the future king of prompting?  
 
 [^lean]: [_add_blank_target Lean4Agent](https://github.com/RickySkywalker/Lean4Agent) models and verifies agent behavior, [_add_blank_target VeriBench](https://icml.cc/virtual/2025/52376): End-to-End Translation of Executable Python Tasks into Structured Lean 4 Artifacts, [_add_blank_target LeanReasoner](https://arxiv.org/html/2403.13312v1), 
 [_add_blank_target LeanReasoner Training Paradigm](https://openreview.net/forum?id=maT9JAAz_u) ... 
@@ -441,6 +441,7 @@ explore its capabilities in depth. I can prompt on a conceptual level and then d
 I can prompt by writing Haskell code snippets, prompt with PLT terminology, and even use operational semantics.  Claude Code even told me that one of my construction rules was not constructive and found a nuanced code issue based on semantic definitions. How impressive is that! 
 People are vibe coding open-source Rust replacements of whole application suites like Adobe or Microsoft Office.  There is undeniable power there and finding effective and safe ways of using this tech can lead us into more FP and interesting jobs. 
 No one has a crystal ball.  My heart is with Idris and Agda, but I started learning _Lean 4_, possibly the last PL I learn before unemployment...
+I am finding _Lean_ confusing &#x1F92F; 
 
 
 ## Closing thoughts
