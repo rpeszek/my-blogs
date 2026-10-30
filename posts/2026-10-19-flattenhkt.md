@@ -433,8 +433,9 @@ In the end, we may see a reemergence of FP to improve the situation.
 
 It appears that LLMs may be starting to use _Lean_ beyond math proofs[^lean]. Will Lean become the reasoning engine under the hood, the anti-hallucinatory pill for LLMs?  Extracting semantics from, say, a legal document or a poem into Lean is &#x1F92F;. Will _Lean_ change how models are trained?  Is _Lean_ the future king of prompting?  
 
-[^lean]: [_add_blank_target Lean4Agent](https://github.com/RickySkywalker/Lean4Agent) models and verifies agent behavior, [_add_blank_target VeriBench](https://icml.cc/virtual/2025/52376): End-to-End Translation of Executable Python Tasks into Structured Lean 4 Artifacts, [_add_blank_target LeanReasoner](https://arxiv.org/html/2403.13312v1), 
-[_add_blank_target LeanReasoner Training Paradigm](https://openreview.net/forum?id=maT9JAAz_u) ... 
+[^lean]: There is more and more talk about LLMs going to a mid or post training "math gym" to improve reasoning capabilities and reduce hallucinations. 
+
+We also may see DSL renaissance. DSLs reduce solution space LLM needs to deal with and allow for stronger validation and safety.  My experience with _arrow_ DSLs were more positive than with general Kotlin. 
 
 Vibe coding is such a game changer. I am completely new to Kotlin and can 
 explore its capabilities in depth. I can prompt on a conceptual level and then dive deep into generated Kotlin code, exploring its limitations. 
@@ -442,8 +443,9 @@ I can prompt by writing Haskell code snippets, prompt with PLT terminology, and 
 People are vibe coding open-source Rust replacements of whole application suites like Adobe or Microsoft Office.  There is undeniable power there and finding effective and safe ways of using this tech can lead us into more FP and interesting jobs. 
 No one has a crystal ball.  My heart is with Idris and Agda, but I started learning _Lean 4_, possibly the last PL I learn before unemployment...  
 
-*Problem is undecidable if you cannot solve it with a program, except of course for programs written in _Lean_ &#x1F92F;.*
+*Problem is undecidable if you cannot solve it with a program, except of course for programs written in _Lean_[^dec] &#x1F92F;.*   
 
+[^dec]: Not all is lost, we may still see hallucinations. Kotlin is hitting me over the head with OO, Lean is heating me with ZFC  &#128512;.
 
 ## Closing thoughts
 
