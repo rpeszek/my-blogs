@@ -318,7 +318,7 @@ For example, existentials are related to dependent pairs (dependent sums) in dep
 lists with a type checked length. You want to be able to use such lists when processing runtime data that can have arbitrary size.  That size 'exists' but cannot be known statically at the compile time. 
 This is in essence an existential construction.  
 
-Another amazing example is an old (1993) code called _State Threads (ST)_ (currently part of std base library in Haskell).  It allows to use a local mutable state to define computations that have to be _referentially transparent_ (I have discussed referential transparency in [_add_blank_target Part 2](2021-12-24-ts-types-part2.html#referential-transparency)).
+Another amazing example is an old (1993) code called _State Threads (ST)_ (currently part of std base library in Haskell).  It allows to use a local mutable state to define computations that behave and can be treated as pure functions.
 This is possible because the access to mutate the state cannot escape outside of these computations.  ST API remains unchanged since it was created 30 year ago, you can't improve on perfection!
 
 I see higher rank types, mostly rank-2 being used a lot.  Having ability to pass generic (polymorphic) functions

@@ -156,9 +156,9 @@ right when you stop using mocks for unit tests.
 ### Referential transparency, purity, and explicit types
 
 I have discussed these concepts already in [_add_blank_target Referential Transparency (Part 2)](2021-12-24-ts-types-part2.html#referential-transparency).  I want to return to this topic for another rant.   
-Referential transparency does not have an agreed upon formal definition.  It typically means:
+The term referential transparency often is used loosely.  It typically means:
 
-_A computation is referentially transparent if it can be safely replaced with its return value[^reftrans]._   
+_A computation is referentially transparent if it can be safely replaced with its evaluated value[^reftrans]._   
 
 This is clearly related to clarity and simplicity.  It is hard to reason about code that does 
 different things every time it is called. 
@@ -174,9 +174,9 @@ In my loose approach, referential transparency simply means that what the functi
 Thinking in these lines makes referential transparency less of a checkbox and more a progress bar.  
 
 [^reftrans]: Not very relevant to TS, but could be interesting to philosophically inclined readers. 
-Can a function returning, say, the current time be ever referentially transparent? 
-Some languages (like Idris or Haskell) are big on referential transparency. In such languages functions can be executed only inside `main`.  Evaluating a timestamp function would not return the current time. Instead, it would return a computation that returns the time when eventually executed inside `main`.  This allows some purists to
-claim that the function is referentially transparent and has practical implications too. You could simulate a similar purity in TS by returning [_add_blank_target thunks](2022-02-13-ts-types-part5.html#thunks-and-callbacks-never-and-unknown.).
+Can a function returning, say, the current time be ever referentially transparent or even pure? 
+Some languages (like Idris or Haskell) are big on purity. In such languages functions can be executed only inside `main`.  Evaluating and executing are 2 different things.  Current time is a computation that returns the time when eventually executed inside `main`, the function evaluates to this computation.  This allows some purists to
+claim that the function is pure (or maybe "purish) and has practical implications too. You could simulate a similar purity in TS by returning [_add_blank_target thunks](2022-02-13-ts-types-part5.html#thunks-and-callbacks-never-and-unknown.).
 
 Consider the following versions of code that are supposed to establish a WebSocket using some imaginary API 
 (we are implementing a PetStore):
@@ -220,7 +220,7 @@ accepts a setter callback and a getter property as input arguments.  You can als
 
 Each computation has an input and an output even if TypeScript / JavaScript code does its darndest to hide it.
 TS code can pull the inputs out of thin air (configuration, stuff stored on the window object, etc) and
-sink the output by saving it somewhere.  The above `initWs` is guilty of both of these felonies. Still, there is a referentially transparent computation hiding somewhere.  In the above example the last `connectWs` type describes the inputs and output within the heavily encapsulated `initWs`.  
+sink the output by saving it somewhere.  The above `initWs` is guilty of both of these felonies. Still, there is a more pure computation hiding somewhere.  In the above example the last `connectWs` type describes the inputs and output within the heavily encapsulated `initWs`.  
 
 Inputs and outputs are essential to clarity. The developer should try to understand what these inputs and outputs are at the very least.  Ideally, the explicitly typed computation within can be factored out.  This is not just for clarity, you are likely to find future uses for it (e.g. the last example above could be factored out of the PetStore and used in other apps or used to open 2 connections).  And, it will be easier to test.  
 
@@ -315,7 +315,7 @@ TS's ternary can be viewed as a function.  _if-else_ not so much. _if_else_ does
 It was designed for mutating things and in today's more immutable approach to programming it should feel antiquated. 
 However, it is idiomatic to both JS and TS and is impossible to avoid.   
 I use _if_else_ blocks only with return statements (with exception of `void` functions).  I do not use _if_ without the matching _else_ even if the code looks repetitive (again, with exception of `void` functions).  
-If you think about the "referentially transparent computation within",  you will notice that _if_ without _else_ is partial.  Several programming languages offer _if_else_ syntax without the _if_ only option.
+If you think about the "computation within",  you will notice that _if_ without _else_ is partial.  Several programming languages offer _if_else_ syntax without the _if_ only option.
 
 One could go (IMO too) far with this approach and use `if-else` as a lambda:
 

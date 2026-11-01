@@ -469,13 +469,13 @@ Pragmatists want to reason about execution flow, browsers use _JS_, thus, they m
 Carol has a very valid point too, one that Alice may have hard time accepting.  I admit, I sympathize with Alice, even if Carol is probably right here. 
 
 
-Alice: "You are memoizing a computation that is not referentially transparent"   
+Alice: "You are memoizing a computation that has side effects?"   
 Carol:  "I have manually tested it and, besides, this code has a 100% test coverage"   
-Bob:  "We are assuming that it is referentially transparent and want consistent results when we use it"   
+Bob:  "We are assuming that it does not and want consistent results when we use it"   
 Alice: "Remember we patched a bug by updating shared state in the middle of this computation, did you retest this scenario?"  
 
 This code review session shows a benefit of having someone around who keeps a repository of potential issues in their head.
-I have noticed that developers are typically surprised when computation behavior keeps changing, yet are mostly not willing to engage with the concept of referential transparency.  I also think some do not think about what 100% test coverage implies and what it does not[^limitations]. 
+I have noticed that developers are typically surprised when computation behavior keeps changing, yet are mostly not willing to think about side-effects.  I also think some do not think about what 100% test coverage implies and what it does not[^limitations]. 
 
 [^limitations]: It does seem that there is a more general disagreement about the limitations of empirical reasoning.  Few people think about physics as a collection of simplified mathematical models that only approximate reality. Even some famous physicists (e.g. Niels Bohr, if I remember correctly my reading about it) have apparently thought otherwise. 
 Few people look deeply for bias in biological studies. _Hypotheses non fingo_ is a rare position.  100% test coverage is in the "we tested it and it is correct" category. 
@@ -620,7 +620,7 @@ possible issues and their impacts is third.  Pragmatists are on the first axis, 
 third group, let's call them _perfectionists_. I came to FP on a correctness wagon, theory and improved coding efficiency are for me an added bonus. The question is how the _perfectionists_ fit into this picture.  This post bundled them with theorists, this was likely an oversimplification. 
 
 Implicit contexts in communication between programmers. There appears to be much more to explore here. Consider programming internet discussion forums (IMO, a Manhattan of communication skills, if you can make it there you will do really well in your project team).  One can observe all kinds of context related bias issues (on the extreme end of this, some redditers do not consider reading to be a prerequisite to responding) or lack of context clarity (e.g. heavily downvoted posts with no comments). 
-Moving away from discussion groups, teams tend to create their own localized contexts (unique vocabulary, proprietary technical solutions) which is often not ideal.  IMO, context clarity is to communication what referential transparency is to programming.  IMO, context is to communication what understanding of causation is to empirical science. 
+Moving away from discussion groups, teams tend to create their own localized contexts (unique vocabulary, proprietary technical solutions) which is often not ideal.  IMO, context clarity is to communication what lack of side-effects is to programming.  IMO, context is to communication what understanding of causation is to empirical science. 
 
 Program synthesis, you know the thing that is going to render programmers obsolete:  It appears that empirical vs formal 
 translates to 2 different approaches to do program synthesis.  I have listened to a few presentations about the formal approach.  I expect probabilistic models, deep learning approaches to be more mainstream and prevalent.  It is interesting

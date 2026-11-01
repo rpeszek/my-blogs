@@ -225,13 +225,13 @@ Is writing "easy" code the same as generating excessive cognitive load for the m
 I think it typically is, it is not that hard to incrementally develop a non penetrable maze. 
 Maintaining some code structure to manage the cognitive load is not "easy".   
 The new version is still close to JS (it uses TypeScript and vanilla React) but tries to enforce these 3 principles: [_add_blank_target referential transparency](2022-03-13-ts-types-part6.html#referential-transparency-purity-and-explicit-types), [_add_blank_target clear, explicit](2022-03-13-ts-types-part6.html#about-clarity) types that also [_add_blank_target work as documentation](2021-12-24-ts-types-part2.html#types-as-documentation), and _async/await_ abstraction to avoid callback hell.   
-Referential transparency is an interesting dichotomy.  Experiencing different results every time the code is executed typically causes surprise, in my experience developers rarely think about this during implementation. 
+Purity is an interesting dichotomy.  Experiencing different results every time the code is executed typically causes surprise, in my experience developers rarely think about this during implementation. 
 Thus, the code may feel weird and opinionated (e.g. React components avoid using hooks) but it remains accessible.  
 
 > &emsp; *IMO, high quality code shifts cognitive load from maintainer to implementer*   
 
 This works great even if both are the same person.    
-Let's consider the new JS app as an instructional material.  Referential transparency creates learning objectives (inputs and outputs can be learned if outputs are predictable) while explicit types are an instructional material in itself (a blueprint). 
+Let's consider the new JS app as an instructional material.  Lack of side-effects creates learning objectives (inputs and outputs can be learned if outputs are predictable) while explicit types are an instructional material in itself (a blueprint). 
 The biggest prerequisite for the implementers was knowledge about what to avoid. 
 
 Besides some common sense principles (feel free to add more), what else can we do to control extraneous load? 

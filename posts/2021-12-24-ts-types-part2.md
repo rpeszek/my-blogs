@@ -485,10 +485,18 @@ Here are some bootstrapping ideas:
 
 ### Referential Transparency
 
-Referential Transparency is an FP topic but is also very relevant to types and crucially important to the discussion of "type honesty".  
+Referential Transparency and purity are FP topics but are also very relevant to types and crucially important to the discussion of "type honesty".  
 
-A function is referentially transparent if it does the same thing every time it is called. 
-Referential transparency comes with clear type signatures.  The output needs to be a function of the inputs and of nothing else.  You can do things like curry or partially apply, but you cannot say, retrieve the current time and act on it (that time parameter would need to be provided as input).   
+The term function purity is typically used to single out functions which produce the same result every time you use the same arguments. 
+Purity and referential transparency are often used interchangeably and I will use them interchangeably in this series. But there is a nuanced difference that I will explore first.
+
+Typically, referential transparency implicitly assumes purity but is a little stronger.  Expression or a function call is referentially transparent if it can be safely replaced with the expression it evaluates to. 
+Consider effectful `const x = console.log("Hello")`. JS/TS execute `log` during evaluation of the RHS and `x` ends up being a `null` `undefined` value.  Now look at this _thunk_ version:
+`const x = () => console.log("Hello")`.  Now `x` and its RHS are interchangeable!  By preventing execution during evaluation allows us to 
+think about purity and referential transparency even in the presence of effectful computations.  If you go down this rabbit hole, you will learn, e.g. that memoization technique can prevent referential transparency.
+
+I am going to simplify this concept and think about a function as referentially transparent if it does the same thing every time it is called. 
+Referential transparency and purity come with clear type signatures.  The output needs to be a function of the inputs and of nothing else.  You can do things like curry or partially apply, but you cannot say, retrieve the current time and act on it (that time parameter would need to be provided as input).   
 For `program:() => void` to be referentially transparent would mean that the implementation does not do anything, just returns.   
 IMO well written programs identify and separate the referentially transparent parts.
 

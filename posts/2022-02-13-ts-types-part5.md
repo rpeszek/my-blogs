@@ -287,7 +287,7 @@ I believe the relationship between these concepts is not commonly understood.
 We have seen `<T> () => T` before, we called it a [_add_blank_target type hole `_: <T>() => T`](2021-12-12-ts-types-part1.html#type-holes).  Now I am changing my mind and want to call it a generic thunk.  
 We can think about it as a 'lazy' value.  
 Instead of defining `const t: T` (which, incidentally, TS does not allow on the top level[^genvar]) 
-I can define a function that, when called, will return me that `t`.  Basically thunks are variables you put the `()` after.  A referentially transparent (no side-effects) `<T> () => T` thunk is morally equivalent to a variable of type `T`.  
+I can define a function that, when called, will return me that `t`.  Basically thunks are variables you put the `()` after.  A no side-effects `<T> () => T` thunk is morally equivalent to a variable of type `T`.  
 
 [^genvar]: You can use  `const t: T` only inside functions that declare `T` in its type.
 
@@ -325,7 +325,7 @@ const unknownCallback: (_: unknown) => void = someOverbar
 The `never` type is the TS's _bottom_ type (can be assigned to anything), while the [_add_blank_target `unknown`](2021-12-24-ts-types-part2.html#note-about-the-unknown-type) type is the TS's _top_ type (anything can be assigned to it). 
 These concepts are also dual in the sense of reversing the direction of assignment. 
 
-Let's think about referential transparency again.  There are no interesting referentially transparent functions
+Let's think about lack of side effects again.  There are no interesting side-effect free functions
 that return `void`.  To do something meaningful, such a function would need to mutate some shared state or do
 some other effectful things.  E.g. when coding in React, a callback could compute a new state (let me call it `r: R`) and invoke a state hook to make the change.  I like to think about such a callback as having an imaginary type
 `<T,R> (t: T) => R`.   
@@ -335,7 +335,7 @@ Let's fix the type variable `T` to, say, `Person`.  Any type would do, I just wa
 (remove the genericity) to simplify my explanation.   
 JS / TS programs often use higher order functions that accept callbacks as parameters.
 Consider a callback that accepts a callback `(f: (_: Person) => void) => void` and computes the same value. 
-The imaginary referentially transparent type for it could be 
+The imaginary type for it could be 
 
 ```TypeScript
 //TS-like pseudocode
