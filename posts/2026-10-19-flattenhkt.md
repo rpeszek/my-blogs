@@ -59,8 +59,9 @@ We cannot stop using `==` and there is no workaround for it other than lots of d
 I have not used Java for a long time. I do not remember all the gotchas. I am playing with Kotlin to identify booby-traps and catalogue them. After 4 hours of doing this, I wrote down 12 gotchas. 3 more the next day...
 In my experience, developers (junior or senior) are completely unaware of these issues. 
 
-> I call it **The Booby-trap Principle**  
-> _Nothing is obviously wrong except for the non-obvious._
+> _The Principle of Least Surprise_ is a cruel joke. We have **The Booby-trap Principle**:  
+> _Nothing is obviously wrong except for the non-obvious._   
+
 
 Kotlin's surface area is very bloated.  `class` can be: `open`, `abstract`, `data`, `@JvmRecord data`, `sealed`, `value`, `enum`, `annotation`, `expect` / `actual`, `external`, `inner`..., or just `class`.  `interface` adds 3 more variants.  Clearly not very approachable. 
 
@@ -433,9 +434,9 @@ In the end, we may see a reemergence of FP to improve the situation.
 
 It appears that LLMs may be starting to use _Lean_ beyond math proofs[^lean]. Will Lean become the reasoning engine under the hood, the anti-hallucinatory pill for LLMs?  Extracting semantics from, say, a legal document or a poem into Lean is &#x1F92F;. Will _Lean_ change how models are trained?  Is _Lean_ the future king of prompting?  
 
-[^lean]: There is more and more talk about LLMs going to a mid or post training "math gym" to improve reasoning capabilities and reduce hallucinations. 
+[^lean]: There is more and more talk about LLMs going to a mid- or post-training "math gym" to improve reasoning capabilities and reduce hallucinations. 
 
-We also may see DSL renaissance. DSLs reduce solution space LLM needs to deal with and allow for stronger validation and safety.  My experience with _arrow_ DSLs were more positive than with general Kotlin. 
+We may also see a DSL renaissance. DSLs reduce the solution space an LLM needs to deal with and allow for stronger validation and safety.  My experience with _arrow_ DSLs was more positive than with general Kotlin. 
 
 Vibe coding is such a game changer. I am completely new to Kotlin and can 
 explore its capabilities in depth. I can prompt on a conceptual level and then dive deep into generated Kotlin code, exploring its limitations. 
@@ -443,14 +444,19 @@ I can prompt by writing Haskell code snippets, prompt with PLT terminology, and 
 People are vibe coding open-source Rust replacements of whole application suites like Adobe or Microsoft Office.  There is undeniable power there and finding effective and safe ways of using this tech can lead us into more FP and interesting jobs. 
 No one has a crystal ball.  My heart is with Idris and Agda, but I started learning _Lean 4_, possibly the last PL I learn before unemployment...  
 
-*Problem is undecidable if you cannot solve it with a program, except of course for programs written in _Lean_[^dec] &#x1F92F;.*   
+*A problem is undecidable if you cannot solve it with a program, except of course for programs written in _Lean_[^dec] &#x1F92F;.*   
 
-[^dec]: Not all is lost, we may still see hallucinations. Kotlin is hitting me over the head with OO, Lean is heating me with ZFC  &#128512;.
+[^dec]: Not all is lost; we may still see hallucinations. Kotlin is hitting me over the head with OO, Lean is hitting me with ZFC  &#128512;.
 
 ## Closing thoughts
 
+How many JS, .NET, or JVM developers know about gotchas when sharing a single instance of `Promise`, `Task`, or `CompletableFuture`?  Language designers view referential transparency as too theoretical to consider, but falling does not hurt less when you ignore physics. 
+This is just one example; seniority in mainstream programming is about knowing what not to do. 
+I do not claim seniority, but at least I am asking questions. And I feel alone doing so.  For the last 8 years I had
+a very simple answer to the "what not to do" question:  do not do mainstream. 
+
 Why did a Kotlin newb write about Kotlin?  Answer: I do not know a lot about Kotlin; I wrote about higher-order functions.
-But I am finding that Kotlin has a huge amount of nuance and cognitive bloat.  Lots of this is a result of Java interop doom.  Some is probably of Kotlin's own making. I have mixed feelings about selecting it for backend development. 
+Even as a newb, I am finding that Kotlin has a huge amount of nuance and cognitive bloat.  Lots of this is a result of Java interop doom.  Some is probably of Kotlin's own making. I have mixed feelings about selecting it for backend development. 
 
 I have advocated here for ditching type-based ad-hoc (known in Kotlin as Context Oriented Programming) in favor of using higher-order functions and passing instance definitions directly ("dictionary passing" style).  Consider that Kotlin _arrow_'s own `PTraversal` is defined as an _interface_ in terms of (using Haskell syntax)
 
@@ -499,7 +505,7 @@ test embed flatten setter e = flatBind flatten setter (embed . show) e
 
 _Using a non-FP language makes FP coding harder and more complex rather than easier or simpler._
 
-I like to distinguish _easy_ (to learn) from _simple_ (to understand) (see [_add_blank_target Easy vs Simple](2022-08-30-code-cognitiveload.html#easy-vs-simple)). Easy ~= knowledge, simple ~= understanding.  IMO, flattening HKTs does not make things _easier_. HKTs abstract over type construction, which is one side of the construction coin. Flattening hides the learning path to one of the cornerstones of programming (for me _construction is the foundation_).  
+I like to distinguish _easy_ (to learn) from _simple_ (to understand) (see [_add_blank_target Easy vs Simple](2022-08-30-code-cognitiveload.html#easy-vs-simple)). Easy ~= knowledge, simple ~= understanding.  Flattening HKTs does not make things _easier_ or _simpler_. HKTs abstract over type construction, which is one side of the construction coin. Flattening hides the learning path to one of the cornerstones of programming (for me _construction is the foundation_).  
 Probably, when designing a library we have interfaces = easy,  higher-order functions = simple.  However, my portability question is valid here: 
   
 > _Should we base functional programming on higher-order functions instead of proprietary language features?_
