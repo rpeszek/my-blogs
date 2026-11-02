@@ -444,9 +444,10 @@ I can prompt by writing Haskell code snippets, prompt with PLT terminology, and 
 People are vibe coding open-source Rust replacements of whole application suites like Adobe or Microsoft Office.  There is undeniable power there and finding effective and safe ways of using this tech can lead us into more FP and interesting jobs. 
 No one has a crystal ball.  My heart is with Idris and Agda, but I started learning _Lean 4_, possibly the last PL I learn before unemployment...  
 
-*A problem is undecidable if you cannot solve it with a program, except of course for programs written in _Lean_[^dec] &#x1F92F;.*   
+*A problem is undecidable if you cannot solve it with a program, except of course for programs written in _Lean_[^dec] &#128512;.*   
 
-[^dec]: Not all is lost; we may still see hallucinations. Kotlin is hitting me over the head with OO, Lean is hitting me with ZFC  &#128512;.
+[^dec]: * This could cause hallucinations. 
+ * The two concepts that had a negative impact on my growth as a programmer where OO and ZFC (classical, non-constructive logic - I say it even though I love math in all shapes and forms).  I do not see why "reasoning" LLM's should be different.
 
 ## Closing thoughts
 
