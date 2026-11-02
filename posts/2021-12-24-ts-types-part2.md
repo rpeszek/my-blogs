@@ -487,10 +487,11 @@ Here are some bootstrapping ideas:
 
 Referential Transparency and purity are FP topics but are also very relevant to types and crucially important to the discussion of "type honesty".  
 
-The term function purity is typically used to single out functions which produce the same result every time you use the same arguments. 
+The term function purity is typically used to single out functions which produce the same (all observable) outputs every time you use the same arguments. 
 Purity and referential transparency are often used interchangeably and I will use them interchangeably in this series. But there is a nuanced difference that I will explore first.
 
 Typically, referential transparency implicitly assumes purity but is a little stronger.  Expression or a function call is referentially transparent if it can be safely replaced with the expression it evaluates to. 
+In mainstream programming, `x = expression` means that either `x` is a fixed result of effect `expression` or `x` is a reference to some mutable state constructed on the heap by `expression`.  If `x` is shared around it is either shared as memoized fixed result or _a spooky action at a distance_.  Referential transparency means avoid these!  Let's look at first case more. 
 Consider effectful `const x = console.log("Hello")`. JS/TS execute `log` during evaluation of the RHS and `x` ends up being a `null` `undefined` value.  Now look at this _thunk_ version:
 `const x = () => console.log("Hello")`.  Now `x` and its RHS are interchangeable!  By preventing execution during evaluation allows us to 
 think about purity and referential transparency even in the presence of effectful computations.  If you go down this rabbit hole, you will learn, e.g. that memoization technique can prevent referential transparency. As a side note, JS / TS promise is eager, not referentially transparent (and is memoizing). Sharing the same Promise instance across different parts of an application is inherently risky.
