@@ -438,6 +438,9 @@ It appears that LLMs may be starting to use _Lean_ beyond math proofs[^lean]. Wi
 
 We may also see a DSL renaissance. DSLs reduce the solution space an LLM needs to deal with and allow for stronger validation and safety.  My experience with _arrow_ DSLs was more positive than with general Kotlin. 
 
+Vibe coding could also end the hegemony of languages like C++, Java, C#, even Python.  These languages are optimized for human adoption, not for agent consumption. 
+Correctness of the end product may weigh more than the perceived code approachability when the agent does the coding. We may see the emergence of new low-bloat, low-nuance, all-purpose programming languages. 
+
 Vibe coding is such a game changer. I am completely new to Kotlin and can 
 explore its capabilities in depth. I can prompt on a conceptual level and then dive deep into generated Kotlin code, exploring its limitations. 
 I can prompt by writing Haskell code snippets, prompt with PLT terminology, and even use operational semantics.  Claude Code even told me that one of my construction rules was not constructive and found a nuanced code issue based on semantic definitions. How impressive is that! 
@@ -447,7 +450,7 @@ No one has a crystal ball.  My heart is with Idris and Agda, but I started learn
 *A problem is undecidable if you cannot solve it with a program, except of course for programs written in _Lean_[^dec] &#128512;.*   
 
 [^dec]: * This could cause hallucinations. 
- * The two concepts that had a negative impact on my growth as a programmer where OO and ZFC (classical, non-constructive logic - I say it even though I love math in all shapes and forms).  I do not see why "reasoning" LLM's should be different.
+ * The two concepts that had a negative impact on my growth as a programmer were OO and ZFC (classical, non-constructive logic - I say it even though I love math in all shapes and forms).  I do not see why "reasoning" LLMs should be different.
 
 ## Closing thoughts
 
