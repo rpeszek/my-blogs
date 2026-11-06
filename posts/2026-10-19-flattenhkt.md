@@ -454,7 +454,7 @@ No one has a crystal ball.  My heart is with Idris and Agda, but I started learn
 
 ## Closing thoughts
 
-How many JS, .NET, or JVM developers know about gotchas when sharing a single instance of `Promise`, `Task`, or `CompletableFuture`?  Language designers view referential transparency as too theoretical to consider, but falling does not hurt less when you ignore physics. 
+How many JS, .NET, or JVM developers know about gotchas when sharing a single instance of `Promise` (JS), `Task` (.NET), `Coroutine` (Kotlin)?  Language designers view referential transparency as too theoretical to consider, but falling does not hurt less when you ignore physics. Developers typically assume these types to be purely `async` and repeated use, instead they can execute when constructed and `await task` can do nothing. 
 This is just one example; seniority in mainstream programming is about knowing what not to do. 
 I do not claim seniority, but at least I am asking questions. And I feel alone doing so.  For the last 8 years I had
 a very simple answer to the "what not to do" question:  do not do mainstream. 
