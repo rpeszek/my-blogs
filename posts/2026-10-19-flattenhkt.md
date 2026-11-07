@@ -65,7 +65,7 @@ In my experience, developers (junior or senior) are completely unaware of these 
 
 Kotlin's surface area is very bloated.  `class` can be: `open`, `abstract`, `data`, `@JvmRecord data`, `sealed`, `value`, `enum`, `annotation`, `expect` / `actual`, `external`, `inner`..., or just `class`.  `interface` adds 3 more variants.  Clearly not very approachable. 
 
-Yet, I have this constant sinking feeling that I am just not getting 
+Yet, I have this sinking feeling that I am just not getting 
 something. Something that is obvious to everybody else. An approach that works in the presence of apparent complexity and nuance.  
 
 I did some math research, then 2 decades of mainstream programming with many battle scars, then an 8-year-long Haskell job (some math came back only different), now I am going back to mainstream.  Is some convergence possible?  Can I find some middle-ground approach to programming? 
