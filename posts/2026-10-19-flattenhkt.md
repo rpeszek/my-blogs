@@ -65,6 +65,9 @@ In my experience, developers (junior or senior) are completely unaware of these 
 
 Kotlin's surface area is very bloated.  `class` can be: `open`, `abstract`, `data`, `@JvmRecord data`, `sealed`, `value`, `enum`, `annotation`, `expect` / `actual`, `external`, `inner`..., or just `class`.  `interface` adds 3 more variants.  Clearly not very approachable. 
 
+Yet, I have this constant sinking feeling that I am just not getting 
+something. Something that is obvious to everybody else. An approach that works in the presence of apparent complexity and nuance.  
+
 I did some math research, then 2 decades of mainstream programming with many battle scars, then an 8-year-long Haskell job (some math came back only different), now I am going back to mainstream.  Is some convergence possible?  Can I find some middle-ground approach to programming? 
  
 ## Higher-order functions 
@@ -454,10 +457,10 @@ No one has a crystal ball.  My heart is with Idris and Agda, but I started learn
 
 ## Closing thoughts
 
-How many JS, .NET, or JVM developers know about gotchas when sharing a single instance of `Promise` (JS), `Task` (.NET), `Coroutine` (Kotlin)?  Language designers view referential transparency as too theoretical to consider, but falling does not hurt less when you ignore physics. Developers typically assume these types to be purely `async` and repeated use, instead they can execute when constructed and `await task` can do nothing. 
-This is just one example; seniority in mainstream programming is about knowing what not to do. 
+How many JS, .NET, or JVM developers know about gotchas when sharing a single instance of `Promise` (JS), `Task` (.NET), `Coroutine` (Kotlin)?  Mainstream views referential transparency as too theoretical to consider, but falling does not hurt less when you ignore physics. Developers typically assume these types to be purely `async` and repeated use, instead they can execute when constructed and `await task` can do nothing. 
+This is just one example; seniority in mainstream programming appears to be about knowing what not to do. 
 I do not claim seniority, but at least I am asking questions. And I feel alone doing so.  For the last 8 years I had
-a very simple answer to the "what not to do" question:  do not do mainstream. 
+a very simple answer to the "what not to do" question:  do not do mainstream.  What am I missing?  How are others dealing with this? 
 
 Why did a Kotlin newb write about Kotlin?  Answer: I do not know a lot about Kotlin; I wrote about higher-order functions.
 Even as a newb, I am finding that Kotlin has a huge amount of nuance and cognitive bloat.  Lots of this is a result of Java interop doom.  Some is probably of Kotlin's own making. I have mixed feelings about selecting it for backend development. 
